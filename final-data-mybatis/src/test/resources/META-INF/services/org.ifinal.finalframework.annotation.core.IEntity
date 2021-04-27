@@ -14,5 +14,5 @@
 # limitations under the License.
 #
 
-org.finalframework.data.mybatis.entity.User
-org.finalframework.data.mybatis.entity.Person
+org.ifinalframework.data.mybatis.entity.User
+org.ifinalframework.data.mybatis.entity.Person

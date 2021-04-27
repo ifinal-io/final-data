@@ -20,8 +20,8 @@
             <default class="org.ifinal.finalframework.mybatis.generator.DefaultColumnGenerator"/>
         </column-generator>
         <name-converter>
-            <column-converter class="org.finalframework.data.mapping.converter.CameHump2UnderlineNameConverter"/>
-            <table-converter class="org.finalframework.data.mapping.converter.CameHump2UnderlineNameConverter"/>
+            <column-converter class="org.ifinalframework.data.mapping.converter.CameHump2UnderlineNameConverter"/>
+            <table-converter class="org.ifinalframework.data.mapping.converter.CameHump2UnderlineNameConverter"/>
         </name-converter>
     </data>
 </final>
