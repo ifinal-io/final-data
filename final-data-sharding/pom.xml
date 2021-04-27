@@ -17,7 +17,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>final-data-parent</artifactId>
+        <artifactId>final-data</artifactId>
         <groupId>org.ifinal.finalframework.data</groupId>
         <version>1.2.0-SNAPSHOT</version>
     </parent>
@@ -29,5 +29,34 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.ifinal.finalframework.annotation</groupId>
+            <artifactId>final-annotation-sharding</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.shardingsphere</groupId>
+            <artifactId>shardingsphere-jdbc-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ifinal.finalframework</groupId>
+            <artifactId>final-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ifinal.auto</groupId>
+            <artifactId>auto-service</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.ifinal.finalframework.annotation</groupId>
+            <artifactId>final-annotation-core</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

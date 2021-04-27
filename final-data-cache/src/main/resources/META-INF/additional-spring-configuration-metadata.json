@@ -2,7 +2,7 @@
   "groups": [
     {
       "name": "final.cache",
-      "type": "org.finalframework.cache.CacheAnnotationPointAdvisor"
+      "type": "org.finalframework.data.cache.CacheAnnotationPointAdvisor"
     }
   ],
   "properties": [
@@ -10,7 +10,7 @@
       "name": "final.cache.enable",
       "type": "java.lang.Boolean",
       "description": "启用 final cache.",
-      "sourceType": "org.finalframework.cache.CacheAnnotationPointAdvisor",
+      "sourceType": "org.finalframework.data.cache.CacheAnnotationPointAdvisor",
       "defaultValue": "true"
     }
   ]

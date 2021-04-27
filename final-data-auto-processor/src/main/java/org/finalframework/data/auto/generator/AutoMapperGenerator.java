@@ -20,9 +20,9 @@ import org.finalframework.data.auto.annotation.AutoMapper;
 import org.finalframework.data.auto.entity.Entity;
 import org.finalframework.data.auto.entity.EntityFactory;
 import org.finalframework.data.auto.processor.AutoMapperGeneratorProcessor;
+import org.finalframework.data.mybatis.mapper.AbsMapper;
 import org.finalframework.javapoets.JavaPoets;
 import org.finalframework.javapoets.JavaPoets.Javadoc;
-import org.finalframework.mybatis.mapper.AbsMapper;
 
 import java.io.IOException;
 import java.io.Writer;

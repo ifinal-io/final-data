@@ -19,10 +19,10 @@ package org.finalframework.data.auto.generator;
 import org.springframework.stereotype.Service;
 
 import org.finalframework.data.auto.annotation.AutoService;
+import org.finalframework.data.service.AbsService;
+import org.finalframework.data.service.AbsServiceImpl;
 import org.finalframework.javapoets.JavaPoets;
 import org.finalframework.javapoets.JavaPoets.Javadoc;
-import org.finalframework.service.AbsService;
-import org.finalframework.service.AbsServiceImpl;
 
 import java.io.Writer;
 import javax.annotation.processing.ProcessingEnvironment;

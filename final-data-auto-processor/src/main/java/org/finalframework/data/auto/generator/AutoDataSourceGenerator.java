@@ -24,8 +24,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
 import org.finalframework.data.auto.annotation.AutoDataSource;
+import org.finalframework.data.mybatis.MyBatisDataSourceConfigurationSupport;
 import org.finalframework.javapoets.JavaPoets;
-import org.finalframework.mybatis.MyBatisDataSourceConfigurationSupport;
 
 import java.io.Writer;
 import java.util.Objects;

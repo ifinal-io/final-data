@@ -11,19 +11,19 @@
     </parent>
 
     <groupId>org.ifinal.finalframework.data</groupId>
-    <artifactId>final-data-parent</artifactId>
+    <artifactId>final-data</artifactId>
     <version>1.2.0-SNAPSHOT</version>
-    <name>final-data-parent</name>
+    <name>final-data</name>
     <description>Demo project for Spring Boot</description>
 
 
     <modules>
         <module>final-data-core</module>
+        <module>final-data-mybatis</module>
         <module>final-data-service</module>
         <module>final-data-sharding</module>
         <module>final-data-redis</module>
         <module>final-data-cache</module>
-        <module>final-data-mybatis</module>
         <module>final-data-auto</module>
         <module>final-data-auto-processor</module>
     </modules>
@@ -70,7 +70,7 @@
             </dependency>
             <dependency>
                 <groupId>org.ifinal.finalframework.data</groupId>
-                <artifactId>final-cache</artifactId>
+                <artifactId>final-data-cache</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
