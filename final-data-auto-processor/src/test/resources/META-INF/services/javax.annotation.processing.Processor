@@ -1,0 +1,4 @@
+org.finalframework.data.auto.processor.AutoQueryGeneratorProcessor
+org.finalframework.data.auto.processor.AutoMapperGeneratorProcessor
+org.finalframework.data.auto.processor.AutoServiceGeneratorProcessor
+org.finalframework.data.auto.processor.AutoDataSourceGeneratorProcessor
