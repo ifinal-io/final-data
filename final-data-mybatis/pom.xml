@@ -46,7 +46,7 @@
         <dependency>
             <groupId>org.ifinalframework</groupId>
             <artifactId>final-json</artifactId>
-            <version>${project.version}</version>
+            <version>${final.data.version}</version>
         </dependency>
         <!--外部依赖-->
         <dependency>
