@@ -22,10 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * AutoDataSource.
+ * A {@link java.lang.annotation.Annotation} for {@link javax.sql.DataSource}.
  *
  * @author likly
  * @version 1.0.0
+ * @see javax.sql.DataSource
  * @since 1.0.0
  */
 @Target({ElementType.TYPE})
