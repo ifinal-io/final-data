@@ -19,6 +19,7 @@ package org.ifinalframework.data.auto.entity;
 import org.springframework.data.util.Lazy;
 import org.springframework.data.util.Optionals;
 
+import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.annotation.PrimaryKey;
 import org.ifinalframework.data.annotation.Reference;
 import org.ifinalframework.data.annotation.ReferenceMode;
@@ -26,7 +27,6 @@ import org.ifinalframework.data.annotation.Version;
 import org.ifinalframework.data.auto.beans.PropertyDescriptor;
 import org.ifinalframework.data.auto.utils.Annotations;
 
-import java.beans.Transient;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -125,7 +125,7 @@ public class AnnotationProperty implements Property {
         this.isCollection = Lazy.of(() -> initIsCollection(getType()));
         this.isMap = Lazy.of(() -> initIsMap(getType()));
 
-        this.isTransient = Lazy.of(hasAnnotation(Transient.class));
+        this.isTransient = Lazy.of(isAnnotationPresent(Transient.class));
         this.isIdProperty = Lazy.of(!isTransient() && hasAnnotation(PrimaryKey.class));
         this.isReference = Lazy.of(!isTransient() && hasAnnotation(Reference.class));
         this.isVersion = Lazy.of(!isTransient() && isAnnotationPresent(Version.class));
@@ -257,26 +257,22 @@ public class AnnotationProperty implements Property {
 
     @Override
     public String referenceColumn(final String property) {
-
         return referenceColumns == null ? null : referenceColumns.get(property);
     }
 
     @Override
     public <A extends Annotation> A getAnnotation(final Class<A> annotationType) {
-
         return getElement().getAnnotation(annotationType);
     }
 
     @Override
     public boolean isAnnotationPresent(final Class<? extends Annotation> annotationType) {
-
         return Annotations.isAnnotationPresent(getElement(), annotationType);
     }
 
     @Override
     public boolean isTransient() {
-
-        return isTransient != null && Boolean.TRUE.equals(isTransient.get());
+        return isTransient.get();
     }
 
     private TypeElement getPrimitiveTypeElement(final TypeKind kind) {
