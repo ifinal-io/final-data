@@ -21,12 +21,9 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnSingleCandidate;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import org.ifinalframework.core.IEntity;
@@ -40,15 +37,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import javax.sql.DataSource;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 
 /**
@@ -58,9 +52,8 @@ import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
  * @since 1.0.0
  */
 @Slf4j
-@Component
-@ConditionalOnSingleCandidate(DataSource.class)
-@ConditionalOnClass({SqlSessionFactory.class, SqlSessionFactoryBean.class})
+@org.springframework.context.annotation.Configuration
+//@ConditionalOnMissingBean(FinalMybatisConfigurationCustomizer.class)
 public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomizer, BeanFactoryAware,
     InitializingBean {
 
