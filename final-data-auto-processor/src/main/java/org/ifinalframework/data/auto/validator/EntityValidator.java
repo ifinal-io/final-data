@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,7 +17,7 @@ package org.ifinalframework.data.auto.validator;
 
 import org.springframework.lang.NonNull;
 
-import org.ifinalframework.util.function.FilterVisitor;
+import org.ifinalframework.util.function.BiFilter;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -41,7 +40,7 @@ import javax.tools.Diagnostic.Kind;
  */
 public class EntityValidator extends SimpleElementVisitor8<Void, Void>
     implements
-    FilterVisitor<TypeElement, Class<?>> {
+    BiFilter<TypeElement, Class<?>> {
 
     private static final List<Modifier> modifiers = Arrays.asList(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL);
 
