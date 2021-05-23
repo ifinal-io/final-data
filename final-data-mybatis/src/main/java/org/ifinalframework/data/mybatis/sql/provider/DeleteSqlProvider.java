@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -65,6 +64,7 @@ public class DeleteSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
             Optional.ofNullable(provider.where()).ifPresent(sql::append);
             Optional.ofNullable(provider.orders()).ifPresent(sql::append);
+            Optional.ofNullable(provider.groups()).ifPresent(sql::append);
             Optional.ofNullable(provider.limit()).ifPresent(sql::append);
         } else if (query != null) {
 
@@ -75,6 +75,10 @@ public class DeleteSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                 sql.append(provider.where());
             }
 
+            if (Objects.nonNull(provider.groups())) {
+                sql.append(provider.groups());
+            }
+
             if (Objects.nonNull(provider.orders())) {
                 sql.append(provider.orders());
             }
@@ -82,7 +86,6 @@ public class DeleteSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
             if (Objects.nonNull(provider.limit())) {
                 sql.append(provider.limit());
             }
-
         }
 
     }

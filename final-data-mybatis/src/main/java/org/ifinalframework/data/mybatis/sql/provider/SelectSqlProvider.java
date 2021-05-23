@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -92,8 +91,10 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
             sql.append(whereIdsNotNull());
         } else if (query instanceof Query) {
             QueryProvider provider = query((Query) query);
+
             Optional.ofNullable(provider.where()).ifPresent(sql::append);
             Optional.ofNullable(provider.orders()).ifPresent(sql::append);
+            Optional.ofNullable(provider.groups()).ifPresent(sql::append);
             Optional.ofNullable(provider.limit()).ifPresent(sql::append);
         } else if (query != null) {
 
@@ -102,6 +103,10 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
 
             if (Objects.nonNull(provider.where())) {
                 sql.append(provider.where());
+            }
+
+            if (Objects.nonNull(provider.groups())) {
+                sql.append(provider.groups());
             }
 
             if (Objects.nonNull(provider.orders())) {
