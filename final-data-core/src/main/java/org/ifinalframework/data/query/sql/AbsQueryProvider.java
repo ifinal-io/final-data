@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -36,9 +35,13 @@ public abstract class AbsQueryProvider implements QueryProvider {
         + "     </if>"
         + "</trim>";
 
-    private static final String ORDERS = "<foreach collection=\"query.orders\" item=\"item\" open=\"ORDER BY\" separator=\",\">${item}</foreach>";
+    private static final String ORDERS = "<if test=\"query.orders != null\">"
+        + "     <foreach collection=\"query.orders\" item=\"item\" open=\"ORDER BY\" separator=\",\">${item}</foreach>"
+        + "</if>";
 
-    private static final String GROUPS = "<foreach collection=\"query.groups\" item=\"item\" open=\"GROUP BY\" separator=\",\">${item}</foreach>";
+    private static final String GROUPS = "<if test=\"query.groups != null\">"
+        + "     <foreach collection=\"query.groups\" item=\"item\" open=\"GROUP BY\" separator=\",\">${item}</foreach>"
+        + "</if>";
 
     @Override
     public String groups() {
