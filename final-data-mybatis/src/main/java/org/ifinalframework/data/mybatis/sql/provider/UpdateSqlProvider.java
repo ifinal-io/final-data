@@ -120,8 +120,8 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
             QueryProvider provider = query((Query) query);
 
             Optional.ofNullable(provider.where()).ifPresent(sql::append);
-            Optional.ofNullable(provider.orders()).ifPresent(sql::append);
             Optional.ofNullable(provider.groups()).ifPresent(sql::append);
+            Optional.ofNullable(provider.orders()).ifPresent(sql::append);
             Optional.ofNullable(provider.limit()).ifPresent(sql::append);
         } else if (query != null) {
 
