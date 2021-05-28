@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,6 +18,7 @@ package org.ifinalframework.data.query.sql;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.core.annotation.AnnotationAttributes;
 
+import org.ifinalframework.core.Groupable;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.Property;
@@ -69,6 +69,8 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
 
     private final QEntityFactory entityFactory = DefaultQEntityFactory.INSTANCE;
 
+    private final Class<?> query;
+
     private final String where;
 
     private final String orders;
@@ -76,6 +78,8 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
     private final String limit;
 
     public AnnotationQueryProvider(final String expression, final Class<? extends IEntity> entity, final Class query) {
+
+        this.query = query;
 
         final StringBuilder whereBuilder = new StringBuilder();
         whereBuilder.append("<where>");
@@ -276,6 +280,16 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
     @Override
     public String where() {
         return this.where;
+    }
+
+    @Override
+    public String groups() {
+
+        if (Groupable.class.isAssignableFrom(query)) {
+            return super.groups();
+        }
+
+        return null;
     }
 
     @Override
