@@ -15,18 +15,13 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.Query;
-import org.ifinalframework.query.QueryProvider;
 
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
@@ -76,34 +71,7 @@ public class SelectIdsSqlProvider implements AbsMapperSqlProvider {
 
         Object query = parameters.get(QUERY_PARAMETER_NAME);
 
-        if (query instanceof Query) {
-            QueryProvider provider = query((Query) query);
-
-            Optional.ofNullable(provider.where()).ifPresent(sql::append);
-            Optional.ofNullable(provider.groups()).ifPresent(sql::append);
-            Optional.ofNullable(provider.orders()).ifPresent(sql::append);
-            Optional.ofNullable(provider.limit()).ifPresent(sql::append);
-        } else if (query != null) {
-
-            final QueryProvider provider = query(QUERY_PARAMETER_NAME, (Class<? extends IEntity<?>>) entity,
-                query.getClass());
-
-            if (Objects.nonNull(provider.where())) {
-                sql.append(provider.where());
-            }
-
-            if (Objects.nonNull(provider.groups())) {
-                sql.append(provider.groups());
-            }
-
-            if (Objects.nonNull(provider.orders())) {
-                sql.append(provider.orders());
-            }
-
-            if (Objects.nonNull(provider.limit())) {
-                sql.append(provider.limit());
-            }
-        }
+        appendQuery(sql, entity, query);
     }
 
 }

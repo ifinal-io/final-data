@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,6 +26,8 @@ import org.ifinalframework.query.QueryProvider;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author likly
@@ -50,12 +51,42 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         throw new IllegalArgumentException("can not find entity from mapper of " + mapper.getCanonicalName());
     }
 
-    default QueryProvider query(String expression, Class<? extends IEntity> entity, Class<?> query) {
-        return new AnnotationQueryProvider(expression, entity, query);
+    default QueryProvider query(String expression, Class<?> entity, Class<?> query) {
+        return new AnnotationQueryProvider(expression, (Class<? extends IEntity>) entity, query);
     }
 
     default QueryProvider query(Query query) {
         return new DefaultQueryProvider(query);
+    }
+
+    default void appendQuery(StringBuilder sql, Class<?> entity, Object query) {
+        if (query instanceof Query) {
+            QueryProvider provider = query((Query) query);
+
+            Optional.ofNullable(provider.where()).ifPresent(sql::append);
+            Optional.ofNullable(provider.groups()).ifPresent(sql::append);
+            Optional.ofNullable(provider.orders()).ifPresent(sql::append);
+            Optional.ofNullable(provider.limit()).ifPresent(sql::append);
+        } else if (query != null) {
+
+            final QueryProvider provider = query("query", entity, query.getClass());
+
+            if (Objects.nonNull(provider.where())) {
+                sql.append(provider.where());
+            }
+
+            if (Objects.nonNull(provider.groups())) {
+                sql.append(provider.groups());
+            }
+
+            if (Objects.nonNull(provider.orders())) {
+                sql.append(provider.orders());
+            }
+
+            if (Objects.nonNull(provider.limit())) {
+                sql.append(provider.limit());
+            }
+        }
     }
 
     default String whereIdNotNull() {
@@ -68,6 +99,5 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
             + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>"
             + "</where>";
     }
-
 }
 
