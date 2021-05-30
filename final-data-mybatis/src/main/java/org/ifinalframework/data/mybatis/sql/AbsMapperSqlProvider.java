@@ -26,7 +26,6 @@ import org.ifinalframework.query.QueryProvider;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -60,33 +59,22 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
     }
 
     default void appendQuery(StringBuilder sql, Class<?> entity, Object query) {
+
+        QueryProvider provider = null;
+
         if (query instanceof Query) {
-            QueryProvider provider = query((Query) query);
-
-            Optional.ofNullable(provider.where()).ifPresent(sql::append);
-            Optional.ofNullable(provider.groups()).ifPresent(sql::append);
-            Optional.ofNullable(provider.orders()).ifPresent(sql::append);
-            Optional.ofNullable(provider.limit()).ifPresent(sql::append);
+            provider = query((Query) query);
         } else if (query != null) {
-
-            final QueryProvider provider = query("query", entity, query.getClass());
-
-            if (Objects.nonNull(provider.where())) {
-                sql.append(provider.where());
-            }
-
-            if (Objects.nonNull(provider.groups())) {
-                sql.append(provider.groups());
-            }
-
-            if (Objects.nonNull(provider.orders())) {
-                sql.append(provider.orders());
-            }
-
-            if (Objects.nonNull(provider.limit())) {
-                sql.append(provider.limit());
-            }
+            provider = query("query", entity, query.getClass());
         }
+
+        Optional.ofNullable(provider)
+            .ifPresent(it -> {
+                Optional.ofNullable(it.where()).ifPresent(sql::append);
+                Optional.ofNullable(it.groups()).ifPresent(sql::append);
+                Optional.ofNullable(it.orders()).ifPresent(sql::append);
+                Optional.ofNullable(it.limit()).ifPresent(sql::append);
+            });
     }
 
     default String whereIdNotNull() {
@@ -99,5 +87,6 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
             + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>"
             + "</where>";
     }
+
 }
 

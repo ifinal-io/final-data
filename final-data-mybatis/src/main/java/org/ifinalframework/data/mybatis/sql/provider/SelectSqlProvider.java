@@ -52,12 +52,10 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
     private static final String DEFAULT_READER = "${column}";
 
     public String select(final ProviderContext context, final Map<String, Object> parameters) {
-
         return provide(context, parameters);
     }
 
     public String selectOne(final ProviderContext context, final Map<String, Object> parameters) {
-
         return provide(context, parameters);
     }
 
@@ -81,7 +79,7 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
 
         if (SELECT_ONE_METHOD_NAME.equals(context.getMapperMethod().getName()) && parameters.get("id") != null) {
             // <where> id = #{id} </where>
-            sql.append("<where>${properties.idProperty.column} = #{id}</where>");
+            sql.append(whereIdNotNull());
         } else if (SELECT_METHOD_NAME.equals(context.getMapperMethod().getName()) && parameters.get("ids") != null) {
             sql.append(whereIdsNotNull());
         } else {
