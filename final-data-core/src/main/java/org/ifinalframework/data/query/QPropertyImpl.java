@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -138,7 +137,7 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
 
     @Override
     public boolean isVersionProperty() {
-        return false;
+        return property.isVersionProperty();
     }
 
     @Override
@@ -163,7 +162,7 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
 
     @Override
     public boolean isAnnotationPresent(final Class<? extends Annotation> annotation) {
-        return false;
+        return property.isAnnotationPresent(annotation);
     }
 
     @Override
