@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,6 +17,7 @@ package org.ifinalframework.data.cache;
 
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.lang.NonNull;
 
 import org.ifinalframework.aop.interceptor.AbsOperationInterceptorHandlerSupport;
 import org.ifinalframework.cache.annotation.CacheLock;
@@ -89,15 +89,15 @@ public class AbsCacheOperationInterceptorHandlerSupport extends AbsOperationInte
     }
 
     @Override
-    public Object generateKey(final String[] keys, final String delimiter, final MethodMetadata metadata,
-        final EvaluationContext evaluationContext) {
+    public Object generateKey(@NonNull String[] keys, @NonNull String delimiter, @NonNull MethodMetadata metadata,
+        @NonNull EvaluationContext evaluationContext) {
 
         return evaluator.key(String.join(delimiter, keys), metadata.getMethodKey(), evaluationContext);
     }
 
     @Override
-    public Object generateField(final String[] fields, final String delimiter, final MethodMetadata metadata,
-        final EvaluationContext evaluationContext) {
+    public Object generateField(@NonNull String[] fields, @NonNull String delimiter, @NonNull MethodMetadata metadata,
+        @NonNull EvaluationContext evaluationContext) {
 
         if (Asserts.isEmpty(fields)) {
             return null;
@@ -108,14 +108,14 @@ public class AbsCacheOperationInterceptorHandlerSupport extends AbsOperationInte
     }
 
     @Override
-    public Object generateValue(final String value, final MethodMetadata metadata,
+    public Object generateValue(@NonNull String value, final MethodMetadata metadata,
         final EvaluationContext evaluationContext) {
 
         return evaluator.value(value, metadata.getMethodKey(), evaluationContext);
     }
 
     @Override
-    public <T> T generateValue(final String value, final MethodMetadata metadata,
+    public <T> T generateValue(@NonNull String value, final MethodMetadata metadata,
         final EvaluationContext evaluationContext, final Class<T> clazz) {
         return evaluator.value(value, metadata.getMethodKey(), evaluationContext, clazz);
     }
