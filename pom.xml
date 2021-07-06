@@ -27,7 +27,7 @@
 
     <groupId>org.ifinalframework.data</groupId>
     <artifactId>final-data</artifactId>
-    <version>1.2.1-alpha</version>
+    <version>1.2.1-SNAPSHOT</version>
     <name>final-data</name>
     <description>Demo project for Spring Boot</description>
 
