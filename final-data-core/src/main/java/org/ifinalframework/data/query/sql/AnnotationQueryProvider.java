@@ -20,6 +20,8 @@ import org.springframework.core.annotation.AnnotationAttributes;
 
 import org.ifinalframework.core.Groupable;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.Limitable;
+import org.ifinalframework.core.Orderable;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
@@ -55,6 +57,9 @@ import org.apache.ibatis.type.TypeHandler;
 /**
  * @author likly
  * @version 1.0.0
+ * @see Orderable
+ * @see Groupable
+ * @see Limitable
  * @since 1.0.0
  */
 @Slf4j
@@ -260,19 +265,20 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
      */
     private String buildLimit(final String offset, final String limit) {
 
+        if (Objects.isNull(offset) && Objects.isNull(limit)) {
+            return null;
+        }
+
         final StringBuilder sql = new StringBuilder();
 
-        if (offset != null || limit != null) {
-
-            sql.append("<trim prefix=\"LIMIT\">");
-            if (offset != null) {
-                sql.append(offset);
-            }
-            if (limit != null) {
-                sql.append(limit);
-            }
-            sql.append("</trim>");
+        sql.append("<trim prefix=\"LIMIT\">");
+        if (offset != null) {
+            sql.append(offset);
         }
+        if (limit != null) {
+            sql.append(limit);
+        }
+        sql.append("</trim>");
 
         return sql.toString();
     }
@@ -294,12 +300,29 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
 
     @Override
     public String orders() {
-        return this.orders;
+
+        if (Objects.nonNull(this.orders)) {
+            return this.orders;
+        }
+
+        if (Orderable.class.isAssignableFrom(query)) {
+            return super.orders();
+        }
+
+        return null;
     }
 
     @Override
     public String limit() {
-        return this.limit;
+        if (Objects.nonNull(limit)) {
+            return this.limit;
+        }
+
+        if (Limitable.class.isAssignableFrom(query)) {
+            return super.limit();
+        }
+
+        return null;
     }
 
 }
