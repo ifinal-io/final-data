@@ -20,6 +20,7 @@ import org.springframework.lang.Nullable;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.Pageable;
 import org.ifinalframework.query.Update;
 import org.ifinalframework.util.Asserts;
 
@@ -610,19 +611,19 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
     /*=========================================== SCANNER ==========================================*/
     /*==============================================================================================*/
 
-    default <P> void scan(@NonNull IQuery query, @NonNull Listener<P, List<T>> listener) {
+    default <P> void scan(@NonNull Pageable query, @NonNull Listener<P, List<T>> listener) {
         scan(null, null, query, listener);
     }
 
-    default <P> void scan(@Nullable Class<?> view, @NonNull IQuery query, @NonNull Listener<P, List<T>> listener) {
+    default <P> void scan(@Nullable Class<?> view, @NonNull Pageable query, @NonNull Listener<P, List<T>> listener) {
         scan(null, view, query, listener);
     }
 
-    default <P> void scan(@Nullable String table, @NonNull IQuery query, @NonNull Listener<P, List<T>> listener) {
+    default <P> void scan(@Nullable String table, @NonNull Pageable query, @NonNull Listener<P, List<T>> listener) {
         scan(table, null, query, listener);
     }
 
-    default <P> void scan(@Nullable String table, @Nullable Class<?> view, @NonNull IQuery query,
+    default <P> void scan(@Nullable String table, @Nullable Class<?> view, @NonNull Pageable query,
         @NonNull Listener<P, List<T>> listener) {
         if (Asserts.isNull(query.getPage()) || Asserts.isNull(query.getSize())) {
             throw new IllegalArgumentException("query page or size is null");
