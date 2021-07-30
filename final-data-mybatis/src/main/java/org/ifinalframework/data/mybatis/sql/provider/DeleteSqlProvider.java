@@ -25,6 +25,17 @@ import java.util.Map;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
+ * <pre class="code">
+ *  &lt;sql>
+ *      &lt;trim prefix="DELETE FROM"&gt;${table}&lt;/trim&gt;
+ *      &lt;where&gt;
+ *        &lt;foreach collection="ids" item="id" open="id IN (" close=")"&gt;
+ *            #{id}
+ *        &lt;/foreach&gt;
+ *      &lt;/where&gt;
+ *  &lt;/sql&gt;
+ * </pre>
+ *
  * @author likly
  * @version 1.0.0
  * @see AbsMapper#delete(String, Collection, IQuery)

@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -72,28 +71,22 @@ public class InlineSelectInterceptor implements Interceptor {
     @Override
     public Object intercept(final Invocation invocation) throws Throwable {
 
-        try {
-            Executor executor = (Executor) invocation.getTarget();
-            Object[] args = invocation.getArgs();
-            MappedStatement ms = (MappedStatement) args[0];
-            Object param = args[1];
-            RowBounds rowBounds = (RowBounds) args[2];
-            ResultHandler<?> resultHandler = (ResultHandler<?>) args[3];
-            final String id = ms.getId();
-            final List<ResultMap> resultMaps = ms.getResultMaps();
+        Executor executor = (Executor) invocation.getTarget();
+        Object[] args = invocation.getArgs();
+        MappedStatement ms = (MappedStatement) args[0];
+        Object param = args[1];
+        RowBounds rowBounds = (RowBounds) args[2];
+        ResultHandler<?> resultHandler = (ResultHandler<?>) args[3];
+        final String id = ms.getId();
+        final List<ResultMap> resultMaps = ms.getResultMaps();
 
-            if (resultMaps.size() == 1 && PATTERN.matcher(id).find()
-                && IEntity.class.isAssignableFrom(resultMaps.get(0).getType())) {
-                final MappedStatement mappedStatement = newFinalMappedStatement(ms, id + "-final");
-                return executor.query(mappedStatement, param, rowBounds, resultHandler);
-            }
-
-            return invocation.proceed();
-
-        } catch (Exception e) {
-            logger.error("Inline Select Interceptor error", e);
-            return invocation.proceed();
+        if (resultMaps.size() == 1 && PATTERN.matcher(id).find()
+            && IEntity.class.isAssignableFrom(resultMaps.get(0).getType())) {
+            final MappedStatement mappedStatement = newFinalMappedStatement(ms, id + "-final");
+            return executor.query(mappedStatement, param, rowBounds, resultHandler);
         }
+
+        return invocation.proceed();
 
     }
 
