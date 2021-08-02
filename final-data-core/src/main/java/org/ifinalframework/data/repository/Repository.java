@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -251,69 +252,81 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
         return update(null, null, entity, selective, query);
     }
 
-    default int update(String table, Class<?> view, T entity) {
+    default int update(@Nullable String table, Class<?> view, T entity) {
         return update(table, view, entity, true);
     }
 
-    default int update(String table, T entity, boolean selective) {
+    default int update(@Nullable String table, T entity, boolean selective) {
         return update(table, null, entity, selective);
     }
 
-    default int update(String table, T entity, I... ids) {
-        return update(table, entity, Arrays.asList(ids));
+    /**
+     * @since 1.2.1
+     */
+    default int update(@Nullable String table, T entity, boolean selective, IQuery query) {
+        return update(table, null, entity, selective, query);
     }
 
-    default int update(String table, T entity, Collection<I> ids) {
-        return update(table, null, entity, true, ids);
-    }
-
-    default int update(String table, T entity, IQuery query) {
-        return update(table, null, entity, query);
-    }
-
-    default int update(Class<?> view, T entity, boolean selective) {
+    default int update(@Nullable Class<?> view, T entity, boolean selective) {
         return update(null, view, entity, selective);
     }
 
-    default int update(Class<?> view, T entity, I... ids) {
+    default int update(@Nullable Class<?> view, T entity, I... ids) {
         return update(view, entity, Arrays.asList(ids));
     }
 
-    default int update(Class<?> view, T entity, Collection<I> ids) {
+    default int update(@Nullable Class<?> view, T entity, Collection<I> ids) {
         return update(null, view, entity, ids);
     }
 
-    default int update(Class<?> view, T entity, IQuery query) {
+    default int update(@Nullable Class<?> view, T entity, IQuery query) {
         return update(null, view, entity, query);
     }
 
-    default int update(String table, Class<?> view, T entity, I... ids) {
+    default int update(@Nullable String table, T entity, I... ids) {
+        return update(table, entity, Arrays.asList(ids));
+    }
+
+    default int update(@Nullable String table, T entity, Collection<I> ids) {
+        return update(table, null, entity, true, ids);
+    }
+
+    default int update(@Nullable String table, T entity, IQuery query) {
+        return update(table, null, entity, query);
+    }
+
+    default int update(@Nullable String table, Class<?> view, T entity, I... ids) {
         return update(table, view, entity, Arrays.asList(ids));
     }
 
-    default int update(String table, Class<?> view, T entity, Collection<I> ids) {
+    default int update(@Nullable String table, Class<?> view, T entity, Collection<I> ids) {
         return update(table, view, entity, null, true, ids, null);
     }
 
-    default int update(String table, Class<?> view, T entity, IQuery query) {
+    default int update(@Nullable String table, Class<?> view, T entity, IQuery query) {
         return update(table, view, entity, null, true, null, query);
     }
 
-    default int update(String table, Class<?> view, T entity, boolean selective) {
-        return update(table, view, entity, selective, entity.getId());
+    default int update(@Nullable String table, Class<?> view, T entity, boolean selective) {
+        return update(table, view, entity, selective, Objects.requireNonNull(entity.getId()));
     }
 
-    default int update(String table, Class<?> view, T entity, boolean selective, I... ids) {
+    default int update(@Nullable String table, @Nullable Class<?> view, @NonNull T entity, boolean selective,
+        @NonNull I... ids) {
         return update(table, view, entity, selective, Arrays.asList(ids));
     }
 
-    default int update(String table, Class<?> view, T entity, boolean selective, Collection<I> ids) {
+    default int update(@Nullable String table, @Nullable Class<?> view, @NonNull T entity, boolean selective,
+        @Nullable Collection<I> ids) {
         return update(table, view, entity, null, selective, ids, null);
     }
 
-    default int update(String table, Class<?> view, T entity, boolean selective, IQuery query) {
+    default int update(@Nullable String table, @Nullable Class<?> view, @NonNull T entity, boolean selective,
+        @Nullable IQuery query) {
         return update(table, view, entity, null, selective, null, query);
     }
+
+    //---- update entities
 
     default int update(T... entities) {
         return update(Arrays.asList(entities));
@@ -607,9 +620,9 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      */
     T selectOne(@Nullable String table, @Nullable Class<?> view, @Nullable I id, @Nullable IQuery query);
 
-    /*==============================================================================================*/
-    /*=========================================== SCANNER ==========================================*/
-    /*==============================================================================================*/
+    /*================================================================================================================*/
+    /*==================================================== SCANNER ===================================================*/
+    /*================================================================================================================*/
 
     default <P> void scan(@NonNull Pageable query, @NonNull Listener<P, List<T>> listener) {
         scan(null, null, query, listener);
@@ -709,9 +722,9 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      */
     long selectCount(@Nullable String table, @Nullable Collection<I> ids, @Nullable IQuery query);
 
-    /*==============================================================================================*/
-    /*========================================== IS EXISTS =========================================*/
-    /*==============================================================================================*/
+    /*================================================================================================================*/
+    /*=================================================== IS EXISTS ==================================================*/
+    /*================================================================================================================*/
     default boolean isExists(@NonNull I id) {
         return isExists(null, id);
     }
@@ -728,9 +741,9 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
         return selectCount(table, null, query) > 0;
     }
 
-    /*==============================================================================================*/
-    /*========================================= TRUNCATE ===========================================*/
-    /*==============================================================================================*/
+    /*================================================================================================================*/
+    /*================================================== TRUNCATE ====================================================*/
+    /*================================================================================================================*/
 
     default void truncate() {
         truncate(null);
