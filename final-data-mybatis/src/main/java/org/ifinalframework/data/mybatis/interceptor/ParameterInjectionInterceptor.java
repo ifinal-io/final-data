@@ -15,35 +15,34 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Component;
-
+import org.apache.ibatis.binding.MapperMethod;
+import org.apache.ibatis.cache.CacheKey;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
+import org.apache.ibatis.session.defaults.DefaultSqlSession;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.query.QEntity;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.ibatis.cache.CacheKey;
-import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Plugin;
-import org.apache.ibatis.plugin.Signature;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 参数注入拦截器
@@ -53,14 +52,14 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.0
  */
 @Intercepts(
-    {
-        @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class, CacheKey.class,
-            BoundSql.class}),
-    }
+        {
+                @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                        RowBounds.class, ResultHandler.class}),
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                        RowBounds.class, ResultHandler.class, CacheKey.class,
+                        BoundSql.class}),
+        }
 )
 @Order
 @Component
@@ -74,12 +73,12 @@ public class ParameterInjectionInterceptor implements Interceptor {
     private static final String PROPERTIES_PARAMETER_NAME = "properties";
 
     public static <I extends Serializable, T extends IEntity<I>> Class<T> from(
-        final @NonNull Class<? extends AbsMapper> mapper) {
+            final @NonNull Class<? extends AbsMapper> mapper) {
 
         Type[] genericInterfaces = mapper.getGenericInterfaces();
         for (Type type : genericInterfaces) {
             if (type instanceof ParameterizedType && Repository.class
-                .isAssignableFrom((Class) ((ParameterizedType) type).getRawType())) {
+                    .isAssignableFrom((Class) ((ParameterizedType) type).getRawType())) {
                 return (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[1];
 
             }
@@ -108,7 +107,21 @@ public class ParameterInjectionInterceptor implements Interceptor {
                 parameters.computeIfAbsent(TABLE_PARAMETER_NAME, k -> entity.getTable());
                 parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
 
+                /**
+                 * {@link org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator} only supports {@link Map} types:
+                 * <ul>
+                 *     <li>{@link org.apache.ibatis.binding.MapperMethod.ParamMap}</li>
+                 *     <li>{@link DefaultSqlSession.StrictMap}</li>
+                 * </ul>
+                 * @see org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator#assignKeys(Configuration, ResultSet, ResultSetMetaData, String[], Object)
+                 * @since 1.2.2
+                 */
+                final MapperMethod.ParamMap<Object> paramMap = new MapperMethod.ParamMap<>();
+                paramMap.putAll((Map<? extends String, ?>) parameter);
+                args[1] = paramMap;
+
             }
+
 
             return invocation.proceed();
 

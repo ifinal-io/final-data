@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,16 +15,14 @@
 
 package org.ifinalframework.data.mybatis.dao.mapper;
 
-import org.springframework.boot.test.context.SpringBootTest;
-
 import org.ifinalframework.data.mybatis.dao.query.PersonQuery;
 import org.ifinalframework.data.mybatis.entity.User;
 import org.ifinalframework.query.Direction;
-
-import javax.annotation.Resource;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.annotation.Resource;
 
 /**
  * UserMapperTest.
@@ -47,7 +44,7 @@ class UserMapperTest {
         user.setAge(1);
         int save = userMapper.insert(user);
         Assertions.assertEquals(1, save);
-        User db = userMapper.selectOne(user.getId());
+        User db = userMapper.selectOne(1L);
         Assertions.assertEquals(user.getName(), db.getName());
     }
 

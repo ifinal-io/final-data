@@ -16,18 +16,11 @@
 package org.ifinalframework.data.mybatis.sql.provider;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.builder.annotation.ProviderSqlSource;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.session.Configuration;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -60,11 +53,7 @@ class InsertSqlProviderTest {
     @Test
     void replace() throws NoSuchMethodException {
 
-        final Method replace = AbsMapper.class
-            .getMethod("replace", new Class[]{String.class, Class.class, Collection.class});
-        final ProviderSqlSource providerSqlSource = new ProviderSqlSource(new Configuration(),
-            replace.getAnnotation(InsertProvider.class), PersonMapper.class,
-            replace);
+
         final HashMap<String, Object> parameters = new HashMap<>();
 
         parameters.put("table", "person");
@@ -72,9 +61,7 @@ class InsertSqlProviderTest {
         parameters.put("ignore", false);
         parameters.put("list", Arrays.asList(new Person()));
 
-        final BoundSql boundSql = providerSqlSource.getBoundSql(parameters);
-
-        final String sql = boundSql.getSql();
+        final String sql = SqlHelper.sql(PersonMapper.class, "replace", parameters);
         logger.info(sql);
         Assertions.assertNotNull(sql);
 
@@ -84,10 +71,7 @@ class InsertSqlProviderTest {
 
     @Test
     void save() throws NoSuchMethodException {
-        final Method save = AbsMapper.class.getMethod("save", new Class[]{String.class, Class.class, Collection.class});
-        final ProviderSqlSource providerSqlSource = new ProviderSqlSource(new Configuration(),
-            save.getAnnotation(InsertProvider.class), PersonMapper.class,
-            save);
+
         final HashMap<String, Object> parameters = new HashMap<>();
 
         parameters.put("table", "person");
@@ -96,9 +80,7 @@ class InsertSqlProviderTest {
         parameters.put("ignore", false);
         parameters.put("list", Arrays.asList(new Person()));
 
-        final BoundSql boundSql = providerSqlSource.getBoundSql(parameters);
-
-        final String sql = boundSql.getSql();
+        final String sql = SqlHelper.sql(PersonMapper.class, "save", parameters);
         Assertions.assertNotNull(sql);
 
         logger.info(sql);

@@ -40,6 +40,8 @@ import java.util.Map;
 public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends Repository<I, T> {
 
     /**
+     * Use {@link Options#useGeneratedKeys()} to get the auto increment key.
+     *
      * @param table    表名
      * @param view     视图,
      * @param ignore   是否忽略重复数据,{@literal INSERT IGNORE}
@@ -49,6 +51,7 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
+//    int insert(@Param("table")@Nullable String table,@Param("view") @Nullable Class<?> view,@Param("ignore") boolean ignore,@Param("list") @NonNull Collection<T> entities);
     int insert(Map<String, Object> params);
 
 

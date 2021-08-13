@@ -89,7 +89,7 @@ public class ParamsBuilder<I, T> {
     }
 
 
-    public ParamsBuilder<I, T> id(I... id) {
+    public ParamsBuilder<I, T> id(I id) {
         params.put(ID_PARAM_NAME, id);
         return this;
     }

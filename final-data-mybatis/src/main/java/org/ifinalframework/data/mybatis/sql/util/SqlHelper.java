@@ -17,6 +17,7 @@ package org.ifinalframework.data.mybatis.sql.util;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
@@ -99,9 +100,9 @@ public final class SqlHelper {
         METHOD_ANNOTATIONS.put(REPLACE_METHOD_NAME, InsertProvider.class);
         METHOD_ANNOTATIONS.put(SAVE_METHOD_NAME, InsertProvider.class);
 
-        METHOD_ANNOTATIONS.put(UPDATE_METHOD_NAME, InsertProvider.class);
+        METHOD_ANNOTATIONS.put(UPDATE_METHOD_NAME, UpdateProvider.class);
 
-        METHOD_ANNOTATIONS.put(DELETE_METHOD_NAME, InsertProvider.class);
+        METHOD_ANNOTATIONS.put(DELETE_METHOD_NAME, DeleteProvider.class);
 
         METHOD_ANNOTATIONS.put(SELECT_METHOD_NAME, SelectProvider.class);
         METHOD_ANNOTATIONS.put(SELECT_ONE_METHOD_NAME, SelectProvider.class);
@@ -175,7 +176,7 @@ public final class SqlHelper {
             } else if (boundSql.hasAdditionalParameter(parameterMapping.getProperty())) {
                 parameter = boundSql.getAdditionalParameter(parameterMapping.getProperty());
             }
-            setParameter(preparedStatement, parameterMapping.getTypeHandler(), i, parameter, parameterMapping.getJdbcType());
+            setParameter(preparedStatement, parameterMapping.getTypeHandler(), i, parameter, Optional.ofNullable(parameterMapping.getJdbcType()).orElse(JdbcType.NULL));
         }
         return preparedStatement.toString();
     }
