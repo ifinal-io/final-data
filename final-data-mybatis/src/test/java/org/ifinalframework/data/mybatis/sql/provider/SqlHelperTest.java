@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,26 +15,20 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
+import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 import org.ifinalframework.query.BetweenValue;
-import org.ifinalframework.query.annotation.Criteria;
-import org.ifinalframework.query.annotation.Equal;
-import org.ifinalframework.query.annotation.JsonContains;
-import org.ifinalframework.query.annotation.NotBetween;
-import org.ifinalframework.query.annotation.NotEqual;
-import org.ifinalframework.query.annotation.NotIn;
-import org.ifinalframework.query.annotation.Or;
+import org.ifinalframework.query.annotation.*;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author likly
@@ -43,16 +36,14 @@ import org.junit.jupiter.api.Test;
  * @since 1.0.0
  */
 @Slf4j
-class SqlProviderHelperTest {
+class SqlHelperTest {
 
     @Test
     void and() {
         AndQuery query = new AndQuery();
         query.setColumnA("a");
         query.setColumnA2("aa");
-        logger.info(SqlProviderHelper.query(Bean.class, query).getScript());
-        logger.info(SqlProviderHelper.query(Bean.class, query).getSql());
-        Assertions.assertNotNull(SqlProviderHelper.query(Bean.class, query).getSql());
+        logger.info(SqlHelper.query(Bean.class, query));
     }
 
     @Test
@@ -61,9 +52,7 @@ class SqlProviderHelperTest {
         query.setColumnA("a");
         query.setColumnB(new BetweenValue<>("minB", "maxB"));
         query.setColumnC(Arrays.asList("c1", "c2", "c3"));
-        logger.info(SqlProviderHelper.query(Bean.class, query).getScript());
-        logger.info(SqlProviderHelper.query(Bean.class, query).getSql());
-        Assertions.assertNotNull(SqlProviderHelper.query(Bean.class, query).getSql());
+        logger.info(SqlHelper.query(Bean.class, query));
     }
 
     @Test
@@ -74,9 +63,7 @@ class SqlProviderHelperTest {
         innerQuery.setColumnB("b");
         innerQuery.setColumnC("c");
         query.setInnerQuery(innerQuery);
-        logger.info(SqlProviderHelper.query(Bean.class, query).getScript());
-        logger.info(SqlProviderHelper.query(Bean.class, query).getSql());
-        Assertions.assertNotNull(SqlProviderHelper.query(Bean.class, query).getSql());
+        logger.info(SqlHelper.query(Bean.class, query));
 
     }
 
@@ -88,9 +75,15 @@ class SqlProviderHelperTest {
         innerQuery.setColumnB("b");
         innerQuery.setColumnC("c");
         query.setInnerQuery(innerQuery);
-        logger.info(SqlProviderHelper.query(Bean.class, query).getScript());
-        logger.info(SqlProviderHelper.query(Bean.class, query).getSql());
-        Assertions.assertNotNull(SqlProviderHelper.query(Bean.class, query).getSql());
+        logger.info(SqlHelper.query(Bean.class, query));
+    }
+
+    @Test
+    void sql() {
+        final PersonQuery query = new PersonQuery();
+        query.setName("haha");
+        logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", Collections.singletonMap("query", query)));
+        logger.info("query={}", SqlHelper.query(Person.class, query));
     }
 
     @Data

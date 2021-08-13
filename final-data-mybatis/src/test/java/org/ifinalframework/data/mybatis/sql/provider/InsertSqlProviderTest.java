@@ -15,20 +15,20 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.builder.annotation.ProviderSqlSource;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.session.Configuration;
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 
 /**
  * @author likly
@@ -48,10 +48,10 @@ class InsertSqlProviderTest {
         parameters.put("ignore", false);
         parameters.put("list", Arrays.asList(new Person()));
 
-        String xml = SqlProviderHelper.xml(PersonMapper.class, "insert", parameters);
+        String xml = SqlHelper.xml(PersonMapper.class, "insert", parameters);
         logger.info(xml);
 
-        final String sql = SqlProviderHelper.sql(PersonMapper.class, "insert", parameters);
+        final String sql = SqlHelper.sql(PersonMapper.class, "insert", parameters);
         logger.info(sql);
         Assertions.assertNotNull(sql);
 
@@ -78,7 +78,7 @@ class InsertSqlProviderTest {
         logger.info(sql);
         Assertions.assertNotNull(sql);
 
-        logger.info(SqlProviderHelper.sql(PersonMapper.class, "replace", parameters));
+        logger.info(SqlHelper.sql(PersonMapper.class, "replace", parameters));
 
     }
 

@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,16 +15,14 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import lombok.Data;
+import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.query.Direction;
 import org.ifinalframework.query.annotation.Equal;
 import org.ifinalframework.query.annotation.LessThan;
-import org.ifinalframework.query.annotation.Limit;
-import org.ifinalframework.query.annotation.Offset;
 import org.ifinalframework.query.annotation.Order;
 
-import java.awt.Point;
-
-import lombok.Data;
+import java.awt.*;
 
 /**
  * @author likly
@@ -33,7 +30,7 @@ import lombok.Data;
  * @since 1.0.0
  */
 @Data
-public class PersonQuery {
+public class PersonQuery extends PageQuery {
 
     @Equal
     private String name;
@@ -43,11 +40,6 @@ public class PersonQuery {
     @LessThan(property = "name")
     private Long distance;
 
-    @Offset
-    private Integer offset;
-
-    @Limit
-    private Integer limit;
 
     @Order(property = "name", order = 1)
     private Direction orderByName = Direction.DESC;
