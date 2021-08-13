@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,17 +15,13 @@
 
 package org.ifinalframework.data.service;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.query.Update;
+import org.springframework.lang.NonNull;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author likly
@@ -35,58 +30,56 @@ import java.util.List;
  */
 @SuppressWarnings({"unused"})
 public interface AbsService<I extends Serializable, T extends IEntity<I>, R extends Repository<I, T>>
-    extends Repository<I, T> {
+        extends Repository<I, T> {
 
     @Override
-    default int save(@Nullable String table, @Nullable Class<?> view, @NonNull Collection<T> entities) {
-        return getRepository().save(table, view, entities);
+    default int save(Map<String, Object> params) {
+        return getRepository().save(params);
     }
 
     @Override
-    default int insert(@Nullable String table, @Nullable Class<?> view,
-        boolean ignore, @NonNull Collection<T> entities) {
-        return getRepository().insert(table, view, ignore, entities);
+    default int insert(Map<String, Object> params) {
+        return getRepository().insert(params);
     }
 
     @Override
-    default int replace(@Nullable String table, @Nullable Class<?> view, @NonNull Collection<T> entities) {
-        return getRepository().replace(table, view, entities);
+    default int replace(Map<String, Object> params) {
+        return getRepository().replace(params);
     }
 
     @Override
-    default int update(String table, Class<?> view, T entity, Update update,
-        boolean selective, Collection<I> ids, IQuery query) {
-        return getRepository().update(table, view, entity, update, selective, ids, query);
+    default int update(Map<String, Object> params) {
+        return getRepository().update(params);
     }
 
     @Override
-    default int delete(String table, Collection<I> ids, IQuery query) {
-        return getRepository().delete(table, ids, query);
+    default int delete(Map<String, Object> params) {
+        return getRepository().delete(params);
     }
 
     @Override
-    default List<T> select(String table, Class<?> view, Collection<I> ids, IQuery query) {
-        return getRepository().select(table, view, ids, query);
+    default List<T> select(Map<String, Object> params) {
+        return getRepository().select(params);
     }
 
     @Override
-    default T selectOne(String table, Class<?> view, I id, IQuery query) {
-        return getRepository().selectOne(table, view, id, query);
+    default T selectOne(Map<String, Object> params) {
+        return getRepository().selectOne(params);
     }
 
     @Override
-    default List<I> selectIds(@Nullable String table, @NonNull IQuery query) {
-        return getRepository().selectIds(table, query);
+    default List<I> selectIds(Map<String, Object> params) {
+        return getRepository().selectIds(params);
     }
 
     @Override
-    default long selectCount(String table, Collection<I> ids, IQuery query) {
-        return getRepository().selectCount(table, ids, query);
+    default long selectCount(Map<String, Object> params) {
+        return getRepository().selectCount(params);
     }
 
     @Override
-    default void truncate(@Nullable String table) {
-        getRepository().truncate(table);
+    default void truncate(Map<String, Object> params) {
+        getRepository().truncate(params);
     }
 
     @NonNull

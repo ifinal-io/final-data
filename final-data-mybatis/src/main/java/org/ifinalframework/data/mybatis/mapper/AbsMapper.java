@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,33 +15,15 @@
 
 package org.ifinalframework.data.mybatis.mapper;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
+import org.apache.ibatis.annotations.*;
+import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.data.mybatis.sql.provider.DeleteSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.InsertSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.SelectCountSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.SelectIdsSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.SelectSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.*;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.query.Update;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.ibatis.annotations.DeleteProvider;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.UpdateProvider;
-import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author likly
@@ -68,8 +49,8 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
-    int insert(@Nullable @Param("table") String table, @Nullable @Param("view") Class<?> view,
-        @Param("ignore") boolean ignore, @NonNull @Param("list") Collection<T> entities);
+    int insert(Map<String, Object> params);
+
 
     /**
      * @param table    表名
@@ -80,8 +61,7 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
-    int replace(@Nullable @Param("table") String table, @Nullable @Param("view") Class<?> view,
-        @NonNull @Param("list") Collection<T> entities);
+    int replace(Map<String, Object> params);
 
     /**
      * @param table    表名
@@ -92,40 +72,34 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
-    int save(@Nullable @Param("table") String table, @Nullable @Param("view") Class<?> view,
-        @NonNull @Param("list") Collection<T> entities);
+    int save(Map<String, Object> params);
 
     @Override
     @UpdateProvider(UpdateSqlProvider.class)
-    int update(@Param("table") String table, @Param("view") Class<?> view,
-        @Param("entity") T entity, @Param("update") Update update, @Param("selective") boolean selective,
-        @Param("ids") Collection<I> ids, @Param("query") IQuery query);
+    int update(Map<String, Object> params);
 
     @Override
     @DeleteProvider(DeleteSqlProvider.class)
-    int delete(@Nullable @Param("table") String table, @Nullable @Param("ids") Collection<I> ids,
-        @Nullable @Param("query") IQuery query);
+    int delete(Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectSqlProvider.class)
-    List<T> select(@Param("table") String table, @Param("view") Class<?> view, @Param("ids") Collection<I> ids,
-        @Param("query") IQuery query);
+    List<T> select(Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectSqlProvider.class)
-    T selectOne(@Param("table") String table, @Param("view") Class<?> view, @Param("id") I id,
-        @Param("query") IQuery query);
+    T selectOne(Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectIdsSqlProvider.class)
-    List<I> selectIds(@Nullable @Param("table") String table, @NonNull @Param("query") IQuery query);
+    List<I> selectIds(Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectCountSqlProvider.class)
-    long selectCount(@Param("table") String table, @Param("ids") Collection<I> ids, @Param("query") IQuery query);
+    long selectCount(Map<String, Object> params);
 
     @Override
     @UpdateProvider(TruncateSqlProvider.class)
-    void truncate(@Nullable @Param("table") String table);
+    void truncate(Map<String, Object> params);
 
 }

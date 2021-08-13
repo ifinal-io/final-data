@@ -15,14 +15,14 @@
 
 package org.ifinalframework.data.repository;
 
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IRepository;
 import org.ifinalframework.core.Pageable;
 import org.ifinalframework.query.Update;
 import org.ifinalframework.util.Asserts;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused", "unchecked"})
-public interface Repository<I extends Serializable, T extends IEntity<I>> {
+public interface Repository<I extends Serializable, T extends IEntity<I>> extends IRepository<I, T> {
 
     /*==============================================================================================*/
     /*=========================================== INSERT ===========================================*/
@@ -123,7 +123,16 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param entities 实体集
      * @return 指插入数据所影响的行数
      */
-    int insert(@Nullable String table, @Nullable Class<?> view, boolean ignore, @NonNull Collection<T> entities);
+    default int insert(@Nullable String table, @Nullable Class<?> view, boolean ignore, @NonNull Collection<T> entities) {
+        final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
+        return insert(builder
+                .table(table)
+                .view(view)
+                .ignore(ignore)
+                .list(entities)
+                .build()
+        );
+    }
 
     /*==============================================================================================*/
     /*=========================================== REPLACE ==========================================*/
@@ -165,7 +174,10 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param entities 实体集
      * @return 指插入数据所影响的行数
      */
-    int replace(@Nullable String table, @Nullable Class<?> view, @NonNull Collection<T> entities);
+    default int replace(@Nullable String table, @Nullable Class<?> view, @NonNull Collection<T> entities) {
+        final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
+        return replace(builder.table(table).view(view).list(entities).build());
+    }
 
     /*==============================================================================================*/
     /*=========================================== SAVE =============================================*/
@@ -206,7 +218,10 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param entities 实体集
      * @return 指插入数据所影响的行数
      */
-    int save(@Nullable String table, @Nullable Class<?> view, @NonNull Collection<T> entities);
+    default int save(@Nullable String table, @Nullable Class<?> view, @NonNull Collection<T> entities) {
+        final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
+        return save(builder.table(table).view(view).list(entities).build());
+    }
 
     /*==============================================================================================*/
     /*=========================================== UPDATE ===========================================*/
@@ -312,17 +327,17 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
     }
 
     default int update(@Nullable String table, @Nullable Class<?> view, @NonNull T entity, boolean selective,
-        @NonNull I... ids) {
+                       @NonNull I... ids) {
         return update(table, view, entity, selective, Arrays.asList(ids));
     }
 
     default int update(@Nullable String table, @Nullable Class<?> view, @NonNull T entity, boolean selective,
-        @Nullable Collection<I> ids) {
+                       @Nullable Collection<I> ids) {
         return update(table, view, entity, null, selective, ids, null);
     }
 
     default int update(@Nullable String table, @Nullable Class<?> view, @NonNull T entity, boolean selective,
-        @Nullable IQuery query) {
+                       @Nullable IQuery query) {
         return update(table, view, entity, null, selective, null, query);
     }
 
@@ -334,8 +349,8 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
 
     default int update(@NonNull Collection<T> entities) {
         return entities.stream()
-            .mapToInt(this::update)
-            .sum();
+                .mapToInt(this::update)
+                .sum();
     }
 
     default int update(String table, T... entities) {
@@ -360,8 +375,8 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
 
     default int update(@NonNull Collection<T> entities, boolean selective) {
         return entities.stream()
-            .mapToInt(it -> update(it, selective))
-            .sum();
+                .mapToInt(it -> update(it, selective))
+                .sum();
     }
 
     default int update(String table, Class<?> view, Collection<T> entities) {
@@ -374,8 +389,8 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
 
     default int update(String table, Class<?> view, Collection<T> entities, boolean selective) {
         return entities.stream()
-            .mapToInt(it -> update(table, view, it, selective))
-            .sum();
+                .mapToInt(it -> update(table, view, it, selective))
+                .sum();
     }
 
     // -----------------Update---------
@@ -416,9 +431,12 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param query     更新条件
      * @return 更新数据后影响的行数
      */
-    int update(String table, Class<?> view,
-        T entity, Update update, boolean selective,
-        Collection<I> ids, IQuery query);
+    default int update(String table, Class<?> view,
+                       T entity, Update update, boolean selective,
+                       Collection<I> ids, IQuery query) {
+        final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
+        return update(builder.table(table).view(view).update(entity).update(update).selective(selective).ids(ids).query(query).build());
+    }
 
     /*==============================================================================================*/
     /*=========================================== DELETE ===========================================*/
@@ -472,7 +490,10 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param query 条件
      * @return 删除符合条件的数据所影响的行数
      */
-    int delete(@Nullable String table, @Nullable Collection<I> ids, @Nullable IQuery query);
+    default int delete(@Nullable String table, @Nullable Collection<I> ids, @Nullable IQuery query) {
+        final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
+        return delete(builder.table(table).ids(ids).query(query).build());
+    }
 
     default <P> void delete(IQuery query, Listener<P, Integer> listener) {
         this.delete(null, query, listener);
@@ -570,8 +591,11 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param query 查询条件
      * @return list
      */
-    List<T> select(@Nullable String table, @Nullable Class<?> view, @Nullable Collection<I> ids,
-        @Nullable IQuery query);
+    default List<T> select(@Nullable String table, @Nullable Class<?> view, @Nullable Collection<I> ids,
+                           @Nullable IQuery query) {
+        final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
+        return select(builder.table(table).view(view).ids(ids).query(query).build());
+    }
 
     /*==============================================================================================*/
     /*========================================= SELECT ONE =========================================*/
@@ -618,7 +642,9 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param query query
      * @return 符合查询 {@link I} 或 {@link IQuery} 的一个结果
      */
-    T selectOne(@Nullable String table, @Nullable Class<?> view, @Nullable I id, @Nullable IQuery query);
+    default T selectOne(@Nullable String table, @Nullable Class<?> view, @Nullable I id, @Nullable IQuery query) {
+        return selectOne(ParamsBuilder.builder().table(table).view(view).id(id).query(query).build());
+    }
 
     /*================================================================================================================*/
     /*==================================================== SCANNER ===================================================*/
@@ -637,7 +663,7 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
     }
 
     default <P> void scan(@Nullable String table, @Nullable Class<?> view, @NonNull Pageable query,
-        @NonNull Listener<P, List<T>> listener) {
+                          @NonNull Listener<P, List<T>> listener) {
         if (Asserts.isNull(query.getPage()) || Asserts.isNull(query.getSize())) {
             throw new IllegalArgumentException("query page or size is null");
         }
@@ -674,7 +700,9 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param query query
      * @return 符合查询条件 {@link IQuery} 的主键集合 {@link I}
      */
-    List<I> selectIds(@Nullable String table, @NonNull IQuery query);
+    default List<I> selectIds(@Nullable String table, @NonNull IQuery query) {
+        return selectIds(ParamsBuilder.builder().table(table).query(query).build());
+    }
 
     /*==============================================================================================*/
     /*======================================== SELECT COUNT ========================================*/
@@ -720,7 +748,10 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      * @param query query
      * @return 符合查询条件 {@link IQuery}的结果集的大小
      */
-    long selectCount(@Nullable String table, @Nullable Collection<I> ids, @Nullable IQuery query);
+    default long selectCount(@Nullable String table, @Nullable Collection<I> ids, @Nullable IQuery query) {
+        final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
+        return selectCount(builder.table(table).ids(ids).query(query).build());
+    }
 
     /*================================================================================================================*/
     /*=================================================== IS EXISTS ==================================================*/
@@ -746,7 +777,7 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
     /*================================================================================================================*/
 
     default void truncate() {
-        truncate(null);
+        truncate((String) null);
     }
 
     /**
@@ -754,6 +785,8 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> {
      *
      * @param table 表名
      */
-    void truncate(@Nullable String table);
+    default void truncate(@Nullable String table) {
+        truncate(ParamsBuilder.builder().table(table).build());
+    }
 
 }
