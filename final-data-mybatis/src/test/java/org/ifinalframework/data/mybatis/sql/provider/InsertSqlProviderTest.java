@@ -16,12 +16,14 @@
 package org.ifinalframework.data.mybatis.sql.provider;
 
 import lombok.extern.slf4j.Slf4j;
+import org.ifinalframework.core.ParamsBuilder;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author likly
@@ -34,17 +36,15 @@ class InsertSqlProviderTest {
     @Test
     void insert() {
 
-        final HashMap<String, Object> parameters = new HashMap<>();
+        final Map<String, Object> map = ParamsBuilder.builder()
+                .table("person")
+                .list(Arrays.asList(new Person()))
+                .build();
 
-        parameters.put("table", "person");
-        parameters.put("view", null);
-        parameters.put("ignore", false);
-        parameters.put("list", Arrays.asList(new Person()));
-
-        String xml = SqlHelper.xml(PersonMapper.class, "insert", parameters);
+        String xml = SqlHelper.xml(PersonMapper.class, "insert", map);
         logger.info(xml);
 
-        final String sql = SqlHelper.sql(PersonMapper.class, "insert", parameters);
+        final String sql = SqlHelper.sql(PersonMapper.class, "insert", map);
         logger.info(sql);
         Assertions.assertNotNull(sql);
 
@@ -75,7 +75,6 @@ class InsertSqlProviderTest {
         final HashMap<String, Object> parameters = new HashMap<>();
 
         parameters.put("table", "person");
-        parameters.put("view", null);
         parameters.put("view", null);
         parameters.put("ignore", false);
         parameters.put("list", Arrays.asList(new Person()));

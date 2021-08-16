@@ -15,10 +15,7 @@
 
 package org.ifinalframework.data.repository;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IRepository;
-import org.ifinalframework.core.Pageable;
+import org.ifinalframework.core.*;
 import org.ifinalframework.query.Update;
 import org.ifinalframework.util.Asserts;
 import org.springframework.lang.NonNull;
@@ -39,7 +36,7 @@ import java.util.stream.Collectors;
  *     <li>replace the records when the record had exists call with {@link #replace(String, Class, Collection)};</li>
  *     <li>insert the records when the record not exists and update the record when the record had exists
  *     call with {@link #save(String, Class, Collection)};</li>
- *     <li>update the record call with {@link #update(String, Class, IEntity, Update, boolean, Collection, IQuery)}</li>
+ *     <li>update the record call with {@link #update(String, Class, IEntity, IUpdate, boolean, Collection, IQuery)}</li>
  *     <li>select records call with {@link #select(String, Class, Collection, IQuery)}</li>
  *     <li>select ont record call with {@link #selectOne(String, Class, Serializable, IQuery)}</li>
  *     <li>count the records call with {@link #selectCount()};</li>
@@ -403,19 +400,19 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> extend
         return update(null, null, null, update, false, ids, null);
     }
 
-    default int update(String table, Update update, I... ids) {
+    default int update(String table, IUpdate update, I... ids) {
         return update(table, update, Arrays.asList(ids));
     }
 
-    default int update(String table, Update update, Collection<I> ids) {
+    default int update(String table, IUpdate update, Collection<I> ids) {
         return update(table, null, null, update, false, ids, null);
     }
 
-    default int update(Update update, IQuery query) {
+    default int update(IUpdate update, IQuery query) {
         return update(null, update, query);
     }
 
-    default int update(String table, Update update, IQuery query) {
+    default int update(String table, IUpdate update, IQuery query) {
         return update(table, null, null, update, false, null, query);
     }
 
@@ -432,7 +429,7 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> extend
      * @return 更新数据后影响的行数
      */
     default int update(String table, Class<?> view,
-                       T entity, Update update, boolean selective,
+                       T entity, IUpdate update, boolean selective,
                        Collection<I> ids, IQuery query) {
         final ParamsBuilder<I, T> builder = ParamsBuilder.builder();
         return update(builder.table(table).view(view).update(entity).update(update).selective(selective).ids(ids).query(query).build());
