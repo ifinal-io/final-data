@@ -13,37 +13,27 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.entity;
+package org.ifinalframework.data.mybatis.dao.query;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.annotation.PrimaryKey;
+import org.ifinalframework.core.PageQuery;
 
 /**
- * User.
+ * UserNameQuery.
  *
  * @author likly
- * @version 1.0.0
- * @since 1.0.0
+ * @version 1.2.2
+ * @since 1.2.2
  */
+
 @Setter
 @Getter
 @NoArgsConstructor
-public class User implements IEntity<Long> {
-
-    @PrimaryKey
-    private Long id;
-
+@AllArgsConstructor
+public class UserQuery extends PageQuery {
     private String name;
-
     private String password;
-
-    private Integer age;
-
-    public User(String name, String password) {
-        this.name = name;
-        this.password = password;
-    }
 }
