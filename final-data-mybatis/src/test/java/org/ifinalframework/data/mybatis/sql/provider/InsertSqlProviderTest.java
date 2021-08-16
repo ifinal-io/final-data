@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -54,12 +53,10 @@ class InsertSqlProviderTest {
     void replace() throws NoSuchMethodException {
 
 
-        final HashMap<String, Object> parameters = new HashMap<>();
-
-        parameters.put("table", "person");
-        parameters.put("view", null);
-        parameters.put("ignore", false);
-        parameters.put("list", Arrays.asList(new Person()));
+        final Map<String, Object> parameters = ParamsBuilder.builder()
+                .table("person")
+                .list(Arrays.asList(new Person()))
+                .build();
 
         final String sql = SqlHelper.sql(PersonMapper.class, "replace", parameters);
         logger.info(sql);
@@ -72,12 +69,10 @@ class InsertSqlProviderTest {
     @Test
     void save() throws NoSuchMethodException {
 
-        final HashMap<String, Object> parameters = new HashMap<>();
-
-        parameters.put("table", "person");
-        parameters.put("view", null);
-        parameters.put("ignore", false);
-        parameters.put("list", Arrays.asList(new Person()));
+        final Map<String, Object> parameters = ParamsBuilder.builder()
+                .table("person")
+                .list(Arrays.asList(new Person()))
+                .build();
 
         final String sql = SqlHelper.sql(PersonMapper.class, "save", parameters);
         Assertions.assertNotNull(sql);
