@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,14 +15,14 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import org.ifinalframework.util.XmlFormatter;
-
-import java.util.Map;
-
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderSqlSource;
+import org.ifinalframework.util.XmlFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
+
+import java.util.Map;
 
 /**
  * @author likly
@@ -33,11 +32,12 @@ import org.slf4j.LoggerFactory;
  */
 public interface ScriptSqlProvider extends SqlProvider {
 
+    @NonNull
     @Override
-    default String provide(ProviderContext context, Map<String, Object> parameters) {
+    default String provide(@NonNull ProviderContext context, @NonNull Map<String, Object> parameters) {
 
         final Logger logger = LoggerFactory
-            .getLogger(context.getMapperType().getName() + "." + context.getMapperMethod().getName());
+                .getLogger(context.getMapperType().getName() + "." + context.getMapperMethod().getName());
         StringBuilder sql = new StringBuilder();
         sql.append("<script>");
         doProvide(sql, context, parameters);

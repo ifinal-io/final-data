@@ -18,10 +18,13 @@ package org.ifinalframework.data.mybatis.sql.provider;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 import org.apache.ibatis.builder.annotation.ProviderSqlSource;
+import org.springframework.lang.NonNull;
 
 import java.util.Map;
 
 /**
+ * A sql provider for {@link ProviderSqlSource}.
+ *
  * @author likly
  * @version 1.0.0
  * @see ProviderSqlSource
@@ -34,6 +37,14 @@ import java.util.Map;
 @FunctionalInterface
 public interface SqlProvider extends ProviderMethodResolver {
 
-    String provide(ProviderContext context, Map<String, Object> parameters);
+    /**
+     * return a script sql with provider context and mapper method parameters.
+     *
+     * @param context    provider context
+     * @param parameters mapper method parameters
+     * @return a script sql.
+     */
+    @NonNull
+    String provide(@NonNull ProviderContext context, @NonNull Map<String, Object> parameters);
 
 }

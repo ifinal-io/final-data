@@ -51,7 +51,6 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
-//    int insert(@Param("table")@Nullable String table,@Param("view") @Nullable Class<?> view,@Param("ignore") boolean ignore,@Param("list") @NonNull Collection<T> entities);
     int insert(Map<String, Object> params);
 
 
