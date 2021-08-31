@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,23 +15,18 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
+import org.apache.ibatis.cache.CacheKey;
+import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.*;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.core.Pageable;
 
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.ibatis.cache.CacheKey;
-import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Plugin;
-import org.apache.ibatis.plugin.Signature;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
 
 /**
  * 分页拦截器
@@ -44,17 +38,18 @@ import org.apache.ibatis.session.RowBounds;
  *
  * @author likly
  * @version 1.0.0
+ * @see Pageable
  * @since 1.0.0
  */
 @Intercepts(
-    {
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class,
-            CacheKey.class,
-            BoundSql.class}),
-    }
+        {
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                        RowBounds.class, ResultHandler.class}),
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                        RowBounds.class, ResultHandler.class,
+                        CacheKey.class,
+                        BoundSql.class}),
+        }
 )
 
 public abstract class PageableInterceptor implements Interceptor {

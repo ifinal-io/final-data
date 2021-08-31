@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +15,11 @@
 
 package org.ifinalframework.data.mybatis.resumtmap;
 
-import org.springframework.lang.NonNull;
-
-import org.ifinalframework.core.IEnum;
+import org.apache.ibatis.mapping.ResultFlag;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.TypeHandler;
 import org.ifinalframework.data.annotation.Json;
 import org.ifinalframework.data.annotation.Reference;
 import org.ifinalframework.data.annotation.ReferenceMode;
@@ -31,23 +32,13 @@ import org.ifinalframework.data.mybatis.handler.JsonTypeReferenceTypeHandler;
 import org.ifinalframework.data.mybatis.handler.sharing.LocalDateTimeTypeHandler;
 import org.ifinalframework.data.query.TypeHandlers;
 import org.ifinalframework.data.query.type.JsonParameterTypeHandler;
+import org.springframework.lang.NonNull;
 
 import java.lang.reflect.Field;
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import org.apache.ibatis.mapping.ResultFlag;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.TypeHandler;
 
 /**
  * @author likly
@@ -182,7 +173,7 @@ public final class ResultMapFactory {
             return new JsonTypeReferenceTypeHandler<>(field.getGenericType());
         }
         if (property.isEnum()) {
-            final Class<? extends IEnum<?>> type = (Class<? extends IEnum<?>>) property.getType();
+            final Class<? extends Enum<?>> type = (Class<? extends Enum<?>>) property.getType();
             return new EnumTypeHandler<>(type);
         }
         return configuration.getTypeHandlerRegistry().getTypeHandler(property.getType());

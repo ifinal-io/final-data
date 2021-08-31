@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +15,13 @@
 
 package org.ifinalframework.data.mybatis.handler;
 
+import lombok.NonNull;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.BaseTypeHandler;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.TypeHandler;
 import org.ifinalframework.core.IEnum;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -27,38 +32,31 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import lombok.NonNull;
-import org.apache.ibatis.type.BaseTypeHandler;
-import org.apache.ibatis.type.JdbcType;
-
 /**
- * 枚举类型映射器,实现将实现了{@link IEnum}接口的枚举类型持久化到数据库时，将{@link IEnum#getCode()}所返回的枚举码持久化到数据库中， 当从数据库读取时，又将枚举码转换成其对应的枚举值。 使用方法：
- * 1. 替换默认的枚举类型映射器 {@link org.apache.ibatis.session.Configuration#setDefaultEnumTypeHandler(Class)} 2. mapper 中指定
- * typeHandler
+ * <ul>
+ *     <li>Set default enum {@linkplain TypeHandler typeHandler} use {@link Configuration#setDefaultEnumTypeHandler(Class)} by custom {@link ConfigurationCustomizer}.</li>
+ *     <li>Declared in mapper file.</li>
+ * </ul>
  *
  * @author likly
  * @version 1.0.0
+ * @see Configuration#setDefaultEnumTypeHandler(Class)
+ * @see ConfigurationCustomizer
  * @since 1.0.0
  */
-public class EnumTypeHandler<E extends IEnum<?>> extends BaseTypeHandler<E> {
-
-    private final Class<E> type;
+public class EnumTypeHandler<E extends Enum<?>> extends BaseTypeHandler<E> {
 
     private final Map<String, E> cache;
 
     public EnumTypeHandler(final @NonNull Class<E> type) {
-        if (!type.isEnum()) {
-            throw new IllegalArgumentException(" the type must be a enum type!");
-        }
-        this.type = type;
         this.cache = Arrays.stream(type.getEnumConstants())
-            .collect(Collectors.toMap(it -> it.getCode().toString(), Function.identity()));
+                .collect(Collectors.toMap(it -> it instanceof IEnum ? ((IEnum) it).getCode().toString() : it.name(), Function.identity()));
     }
 
     @Override
     public void setNonNullParameter(final PreparedStatement ps, final int i, final E parameter, final JdbcType jdbcType)
-        throws SQLException {
-        ps.setObject(i, parameter.getCode());
+            throws SQLException {
+        ps.setObject(i, parameter instanceof IEnum ? ((IEnum) parameter).getCode() : parameter.name());
     }
 
     @Override
