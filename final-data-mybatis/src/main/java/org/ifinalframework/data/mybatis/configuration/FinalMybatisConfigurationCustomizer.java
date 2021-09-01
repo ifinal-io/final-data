@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,6 +15,18 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.session.Configuration;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.lang.Transient;
+import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
+import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -26,24 +37,11 @@ import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ReflectionUtils;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.lang.Transient;
-import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.data.mybatis.resumtmap.ResultMapFactory;
-
 import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
-import org.apache.ibatis.session.Configuration;
-import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 
 /**
  * @author likly
@@ -53,12 +51,14 @@ import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
  */
 @Slf4j
 @org.springframework.context.annotation.Configuration
-//@ConditionalOnMissingBean(FinalMybatisConfigurationCustomizer.class)
 public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomizer, BeanFactoryAware,
-    InitializingBean {
+        InitializingBean {
+
 
     private static final Field composites = Objects
-        .requireNonNull(ReflectionUtils.findField(ResultMapping.class, "composites"));
+            .requireNonNull(ReflectionUtils.findField(ResultMapping.class, "composites"));
+
+    private ResultMapFactory resultMapFactory = new DefaultResultMapFactory();
 
     static {
         ReflectionUtils.makeAccessible(composites);
@@ -78,7 +78,7 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
         configuration.getTypeHandlerRegistry().setDefaultEnumTypeHandler(EnumTypeHandler.class);
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
-            false);
+                false);
 
         scanner.addIncludeFilter(new AssignableTypeFilter(IEntity.class));
         scanner.addExcludeFilter(new AnnotationTypeFilter(Transient.class));
@@ -87,38 +87,38 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
         packages.forEach(it -> entities.addAll(scanner.findCandidateComponents(it)));
 
         entities.stream()
-            .map(BeanDefinition::getBeanClassName)
-            .map(className -> {
-                try {
-                    return Class.forName(className);
-                } catch (ClassNotFoundException e) {
-                    throw new IllegalArgumentException(className);
-                }
-            })
-            .forEach(clazz -> {
-                ResultMap resultMap = ResultMapFactory.from(configuration, clazz);
+                .map(BeanDefinition::getBeanClassName)
+                .map(className -> {
+                    try {
+                        return Class.forName(className);
+                    } catch (ClassNotFoundException e) {
+                        throw new IllegalArgumentException(className);
+                    }
+                })
+                .forEach(clazz -> {
+                    ResultMap resultMap = resultMapFactory.create(configuration, clazz);
 
-                if (logger.isInfoEnabled()) {
-                    logger.info("==> addResultMap:[{}],class={}", resultMap.getId(), clazz);
-                }
+                    if (logger.isInfoEnabled()) {
+                        logger.info("==> addResultMap:[{}],class={}", resultMap.getId(), clazz);
+                    }
 
-                configuration.addResultMap(resultMap);
+                    configuration.addResultMap(resultMap);
 
-                resultMap.getResultMappings()
-                    .stream()
-                    .filter(ResultMapping::isCompositeResult)
-                    .forEach(resultMapping -> {
+                    resultMap.getResultMappings()
+                            .stream()
+                            .filter(ResultMapping::isCompositeResult)
+                            .forEach(resultMapping -> {
 
-                        ResultMap map = new ResultMap.Builder(configuration, resultMapping.getNestedResultMapId(),
-                            resultMap.getType(),
-                            resultMapping.getComposites()).build();
-                        configuration.addResultMap(map);
+                                ResultMap map = new ResultMap.Builder(configuration, resultMapping.getNestedResultMapId(),
+                                        resultMap.getType(),
+                                        resultMapping.getComposites()).build();
+                                configuration.addResultMap(map);
 
-                        // mybatis not support composites result mapping
-                        ReflectionUtils.setField(composites, resultMapping, null);
+                                // mybatis not support composites result mapping
+                                ReflectionUtils.setField(composites, resultMapping, null);
 
-                    });
-            });
+                            });
+                });
 
     }
 
