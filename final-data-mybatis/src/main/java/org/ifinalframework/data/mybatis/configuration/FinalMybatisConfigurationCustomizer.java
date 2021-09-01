@@ -58,7 +58,7 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
     private static final Field composites = Objects
             .requireNonNull(ReflectionUtils.findField(ResultMapping.class, "composites"));
 
-    private ResultMapFactory resultMapFactory = new DefaultResultMapFactory();
+    private final ResultMapFactory resultMapFactory = new DefaultResultMapFactory();
 
     static {
         ReflectionUtils.makeAccessible(composites);
@@ -73,10 +73,13 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
     @Override
     public void customize(final Configuration configuration) {
 
-        logger.info("setDefaultEnumTypeHandler:{}", EnumTypeHandler.class.getCanonicalName());
+        // add AbsMapper
         configuration.addMapper(AbsMapper.class);
+        // set default enum type handler
+        logger.info("setDefaultEnumTypeHandler:{}", EnumTypeHandler.class.getCanonicalName());
         configuration.getTypeHandlerRegistry().setDefaultEnumTypeHandler(EnumTypeHandler.class);
 
+        // scan entity class
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
                 false);
 
