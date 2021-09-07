@@ -113,7 +113,7 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
                             .forEach(resultMapping -> {
 
                                 ResultMap map = new ResultMap.Builder(configuration, resultMapping.getNestedResultMapId(),
-                                        resultMap.getType(),
+                                        resultMapping.getJavaType(),
                                         resultMapping.getComposites()).build();
                                 configuration.addResultMap(map);
 

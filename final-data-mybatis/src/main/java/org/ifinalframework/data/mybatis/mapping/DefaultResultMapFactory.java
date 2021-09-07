@@ -77,7 +77,7 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                                         final TypeHandler<?> typeHandler = findTypeHandler(configuration, referenceProperty);
 
                                         return new ResultMapping.Builder(configuration, name, column, type)
-                                                .javaType(type)
+                                                .javaType(referenceProperty.getJavaType())
                                                 .flags(referenceProperty.isIdProperty() ? Collections.singletonList(ResultFlag.ID)
                                                         : Collections.emptyList())
                                                 .typeHandler(typeHandler)
