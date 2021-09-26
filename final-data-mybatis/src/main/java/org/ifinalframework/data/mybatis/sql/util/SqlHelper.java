@@ -60,13 +60,7 @@ import java.util.*;
 @Slf4j
 public final class SqlHelper {
 
-    public static final String PARAMETER_NAME_TABLE = "table";
-
     public static final String PARAMETER_NAME_QUERY = "query";
-
-    public static final String PARAMETER_NAME_IGNORE = "ignore";
-
-    public static final String PARAMETER_NAME_SELECTIVE = "selective";
 
     private static final String INSERT_METHOD_NAME = "insert";
 
@@ -96,41 +90,31 @@ public final class SqlHelper {
 
     static {
 
-        METHOD_ANNOTATIONS.put(INSERT_METHOD_NAME, InsertProvider.class);
-        METHOD_ANNOTATIONS.put(REPLACE_METHOD_NAME, InsertProvider.class);
-        METHOD_ANNOTATIONS.put(SAVE_METHOD_NAME, InsertProvider.class);
+        register(INSERT_METHOD_NAME, InsertProvider.class, new InsertSqlProvider());
+        register(REPLACE_METHOD_NAME, InsertProvider.class, new InsertSqlProvider());
+        register(SAVE_METHOD_NAME, InsertProvider.class, new InsertSqlProvider());
 
-        METHOD_ANNOTATIONS.put(UPDATE_METHOD_NAME, UpdateProvider.class);
+        register(UPDATE_METHOD_NAME, UpdateProvider.class, new UpdateSqlProvider());
 
-        METHOD_ANNOTATIONS.put(DELETE_METHOD_NAME, DeleteProvider.class);
+        register(DELETE_METHOD_NAME, DeleteProvider.class, new DeleteSqlProvider());
 
-        METHOD_ANNOTATIONS.put(SELECT_METHOD_NAME, SelectProvider.class);
-        METHOD_ANNOTATIONS.put(SELECT_ONE_METHOD_NAME, SelectProvider.class);
-        METHOD_ANNOTATIONS.put(SELECT_IDS_METHOD_NAME, SelectProvider.class);
-        METHOD_ANNOTATIONS.put(SELECT_COUNT_METHOD_NAME, SelectProvider.class);
+        register(SELECT_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
+        register(SELECT_ONE_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
+        register(SELECT_IDS_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
+        register(SELECT_COUNT_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
 
-        METHOD_ANNOTATIONS.put(TRUNCATE_METHOD_NAME, UpdateProvider.class);
-
-
-        SQL_PROVIDERS.put(INSERT_METHOD_NAME, new InsertSqlProvider());
-        SQL_PROVIDERS.put(REPLACE_METHOD_NAME, new InsertSqlProvider());
-        SQL_PROVIDERS.put(SAVE_METHOD_NAME, new InsertSqlProvider());
-
-        SQL_PROVIDERS.put(UPDATE_METHOD_NAME, new UpdateSqlProvider());
-        SQL_PROVIDERS.put(DELETE_METHOD_NAME, new DeleteSqlProvider());
-
-        SQL_PROVIDERS.put(SELECT_METHOD_NAME, new SelectSqlProvider());
-        SQL_PROVIDERS.put(SELECT_ONE_METHOD_NAME, new SelectSqlProvider());
-        SQL_PROVIDERS.put(SELECT_IDS_METHOD_NAME, new SelectIdsSqlProvider());
-        SQL_PROVIDERS.put(SELECT_COUNT_METHOD_NAME, new SelectCountSqlProvider());
-
-        SQL_PROVIDERS.put(TRUNCATE_METHOD_NAME, new TruncateSqlProvider());
+        register(TRUNCATE_METHOD_NAME, UpdateProvider.class, new TruncateSqlProvider());
 
         DEFAULT_CONFIGURATION.setDefaultEnumTypeHandler(EnumTypeHandler.class);
 
     }
 
     private SqlHelper() {
+    }
+
+    private static void register(String method, Class<? extends Annotation> ann, SqlProvider sqlProvider) {
+        METHOD_ANNOTATIONS.put(method, ann);
+        SQL_PROVIDERS.put(method, sqlProvider);
     }
 
 
@@ -157,7 +141,7 @@ public final class SqlHelper {
     }
 
     public static String query(final Class<? extends IEntity<?>> entity, final IQuery query) {
-        return sql(boundSql(entity, query), Collections.singletonMap("query", query));
+        return sql(boundSql(entity, query), Collections.singletonMap(PARAMETER_NAME_QUERY, query));
     }
 
     private static String sql(BoundSql boundSql, Map<String, Object> parameters) {
@@ -181,7 +165,6 @@ public final class SqlHelper {
         return preparedStatement.toString();
     }
 
-
     public static BoundSql boundSql(Class<? extends AbsMapper<?, ?>> mapper, final String method, final Map<String, Object> parameters) {
         Method sqlMethod = ReflectionUtils.findMethod(mapper, method, Map.class);
         return boundSql(mapper, sqlMethod, METHOD_ANNOTATIONS.get(method), parameters);
@@ -195,13 +178,12 @@ public final class SqlHelper {
         return providerSqlSource.getBoundSql(new HashMap<>(parameters));
     }
 
-
     public static BoundSql boundSql(final Class<? extends IEntity<?>> entity, final IQuery query) {
         StringBuilder sql = new StringBuilder();
 
         sql.append("<script>");
 
-        final QueryProvider provider = new AnnotationQueryProvider("query", entity, query.getClass());
+        final QueryProvider provider = new AnnotationQueryProvider(PARAMETER_NAME_QUERY, entity, query.getClass());
 
         if (Objects.nonNull(provider.where())) {
             sql.append(provider.where());
