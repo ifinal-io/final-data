@@ -35,4 +35,15 @@ CREATE TABLE person
     creator      BIGINT(20)  NULL DEFAULT NULL COMMENT 'creator',
     creator_name VARCHAR(30) NOT NULL COMMENT 'creator_name',
     PRIMARY KEY (id)
+);
+
+CREATE TABLE tableName
+(
+    id            BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '流水号',
+    version       INT(11)    NOT NULL DEFAULT 1 COMMENT '版本号',
+    created       DATETIME   NOT NULL DEFAULT NOW() COMMENT '创建时间',
+    last_modified DATETIME   NULL     DEFAULT NULL ON UPDATE NOW() COMMENT '最后修改时间',
+    yn            INT(11)    NOT NULL DEFAULT 1 COMMENT '有效标记，1：有效，0：无效',
+    PRIMARY KEY (id)
 )
+
