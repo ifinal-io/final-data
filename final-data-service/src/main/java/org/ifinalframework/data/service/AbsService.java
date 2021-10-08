@@ -33,52 +33,52 @@ public interface AbsService<I extends Serializable, T extends IEntity<I>, R exte
         extends Repository<I, T> {
 
     @Override
-    default int save(Map<String, Object> params) {
+    default int save(@NonNull Map<String, Object> params) {
         return getRepository().save(params);
     }
 
     @Override
-    default int insert(Map<String, Object> params) {
+    default int insert(@NonNull Map<String, Object> params) {
         return getRepository().insert(params);
     }
 
     @Override
-    default int replace(Map<String, Object> params) {
+    default int replace(@NonNull Map<String, Object> params) {
         return getRepository().replace(params);
     }
 
     @Override
-    default int update(Map<String, Object> params) {
+    default int update(@NonNull Map<String, Object> params) {
         return getRepository().update(params);
     }
 
     @Override
-    default int delete(Map<String, Object> params) {
+    default int delete(@NonNull Map<String, Object> params) {
         return getRepository().delete(params);
     }
 
     @Override
-    default List<T> select(Map<String, Object> params) {
+    default List<T> select(@NonNull Map<String, Object> params) {
         return getRepository().select(params);
     }
 
     @Override
-    default T selectOne(Map<String, Object> params) {
+    default T selectOne(@NonNull Map<String, Object> params) {
         return getRepository().selectOne(params);
     }
 
     @Override
-    default List<I> selectIds(Map<String, Object> params) {
+    default List<I> selectIds(@NonNull Map<String, Object> params) {
         return getRepository().selectIds(params);
     }
 
     @Override
-    default long selectCount(Map<String, Object> params) {
+    default long selectCount(@NonNull Map<String, Object> params) {
         return getRepository().selectCount(params);
     }
 
     @Override
-    default void truncate(Map<String, Object> params) {
+    default void truncate(@NonNull Map<String, Object> params) {
         getRepository().truncate(params);
     }
 

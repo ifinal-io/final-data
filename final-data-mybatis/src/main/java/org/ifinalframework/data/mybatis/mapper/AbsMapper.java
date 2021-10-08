@@ -20,6 +20,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mybatis.sql.provider.*;
 import org.ifinalframework.data.repository.Repository;
+import org.springframework.lang.NonNull;
 
 import java.io.Serializable;
 import java.util.List;
@@ -51,7 +52,7 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
-    int insert(Map<String, Object> params);
+    int insert(@NonNull Map<String, Object> params);
 
 
     /**
@@ -63,7 +64,7 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
-    int replace(Map<String, Object> params);
+    int replace(@NonNull Map<String, Object> params);
 
     /**
      * @param table    表名
@@ -74,34 +75,34 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     @Override
     @Options(useGeneratedKeys = true, keyProperty = "list.id", keyColumn = "id")
     @InsertProvider(InsertSqlProvider.class)
-    int save(Map<String, Object> params);
+    int save(@NonNull Map<String, Object> params);
 
     @Override
     @UpdateProvider(UpdateSqlProvider.class)
-    int update(Map<String, Object> params);
+    int update(@NonNull Map<String, Object> params);
 
     @Override
     @DeleteProvider(DeleteSqlProvider.class)
-    int delete(Map<String, Object> params);
+    int delete(@NonNull Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectSqlProvider.class)
-    List<T> select(Map<String, Object> params);
+    List<T> select(@NonNull Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectSqlProvider.class)
-    T selectOne(Map<String, Object> params);
+    T selectOne(@NonNull Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectIdsSqlProvider.class)
-    List<I> selectIds(Map<String, Object> params);
+    List<I> selectIds(@NonNull Map<String, Object> params);
 
     @Override
     @SelectProvider(SelectCountSqlProvider.class)
-    long selectCount(Map<String, Object> params);
+    long selectCount(@NonNull Map<String, Object> params);
 
     @Override
     @UpdateProvider(TruncateSqlProvider.class)
-    void truncate(Map<String, Object> params);
+    void truncate(@NonNull Map<String, Object> params);
 
 }
