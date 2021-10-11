@@ -20,7 +20,7 @@ import org.apache.ibatis.session.Configuration;
 import org.springframework.lang.NonNull;
 
 /**
- * ResultMapFactory.
+ * Create a {@link ResultMap} from {@linkplain Class entity} with {@link Configuration}.
  *
  * @author likly
  * @version 1.2.2
