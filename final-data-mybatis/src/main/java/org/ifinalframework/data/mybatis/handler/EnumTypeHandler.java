@@ -50,7 +50,11 @@ public class EnumTypeHandler<E extends Enum<?>> extends BaseTypeHandler<E> {
 
     public EnumTypeHandler(final @NonNull Class<E> type) {
         this.cache = Arrays.stream(type.getEnumConstants())
-                .collect(Collectors.toMap(it -> it instanceof IEnum ? ((IEnum) it).getCode().toString() : it.name(), Function.identity()));
+                .collect(Collectors.toMap(this::getEnumKey, Function.identity()));
+    }
+
+    private String getEnumKey(Enum<?> value) {
+        return value instanceof IEnum ? ((IEnum<?>) value).getCode().toString() : value.name();
     }
 
     @Override
