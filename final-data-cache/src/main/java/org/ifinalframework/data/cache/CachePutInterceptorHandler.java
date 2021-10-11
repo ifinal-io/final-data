@@ -1,6 +1,5 @@
 /*
  * Copyright 2020-2021 the original author or authors.
- *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,38 +15,37 @@
 
 package org.ifinalframework.data.cache;
 
+import org.ifinalframework.aop.InvocationContext;
+import org.ifinalframework.cache.annotation.Cache;
+import org.ifinalframework.cache.annotation.CachePut;
+import org.ifinalframework.json.Json;
+import org.ifinalframework.util.Asserts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
-import org.ifinalframework.aop.InvocationContext;
-import org.ifinalframework.cache.annotation.Cache;
-import org.ifinalframework.cache.annotation.Cacheable;
-import org.ifinalframework.json.Json;
-import org.ifinalframework.util.Asserts;
-
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author likly
  * @version 1.0.0
- * @see Cacheable
+ * @see CachePut
+ * @see Cache#set(Object, Object, Object, Long, TimeUnit, Class)
  * @since 1.0.0
  */
 @Component
 public class CachePutInterceptorHandler extends AbsCacheOperationInterceptorHandlerSupport implements
-    CacheInterceptorHandler {
+        CacheInterceptorHandler {
 
     @Override
     public void handle(final @NonNull Cache cache, final @NonNull InvocationContext context,
-        final @NonNull AnnotationAttributes operation,
-        final @Nullable Object result, final @Nullable Throwable throwable) {
+                       final @NonNull AnnotationAttributes operation,
+                       final @Nullable Object result, final @Nullable Throwable throwable) {
 
         final Logger logger = LoggerFactory.getLogger(context.target().getClass());
         final EvaluationContext evaluationContext = createEvaluationContext(context, result, throwable);
@@ -56,9 +54,9 @@ public class CachePutInterceptorHandler extends AbsCacheOperationInterceptorHand
         }
 
         final Object key = generateKey(operation.getStringArray("key"), operation.getString("delimiter"),
-            context.metadata(), evaluationContext);
+                context.metadata(), evaluationContext);
         final Object field = generateField(operation.getStringArray("field"), operation.getString("delimiter"),
-            context.metadata(), evaluationContext);
+                context.metadata(), evaluationContext);
         Object cacheValue = result;
 
         String value = operation.getString("value");
