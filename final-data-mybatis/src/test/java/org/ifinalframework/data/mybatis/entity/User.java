@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
 
 /**
@@ -33,6 +34,7 @@ import org.ifinalframework.data.annotation.PrimaryKey;
 @NoArgsConstructor
 public class User implements IEntity<Long> {
 
+    @AutoInc
     @PrimaryKey
     private Long id;
 
