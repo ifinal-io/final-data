@@ -110,6 +110,7 @@ public final class SqlHelper {
     }
 
     private SqlHelper() {
+        throw new IllegalAccessError("There is no SqlHelper instance for you!");
     }
 
     private static void register(String method, Class<? extends Annotation> ann, SqlProvider sqlProvider) {
