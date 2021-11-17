@@ -19,6 +19,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.type.TypeHandler;
 import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IRecord;
+import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.LastModified;
 import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
@@ -107,13 +108,7 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
         final Class<?> entityClazz = getEntityClass(context.getMapperType());
 
-        if (IRecord.class.isAssignableFrom(entityClazz) && Objects.nonNull(UserContextHolder.getUser())) {
-            // set creator
-            final Collection<IRecord> list = (Collection<IRecord>) parameters.get("list");
-            for (IRecord record : list) {
-                record.setCreator(UserContextHolder.getUser());
-            }
-        }
+        injectCreator(entityClazz, parameters);
 
         final QEntity<?, ?> entity = DefaultQEntityFactory.INSTANCE.create(entityClazz);
         parameters.put("entity", entity);
@@ -125,6 +120,20 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
             appendOnDuplicateKeyUpdate(sql, entity, view);
         }
 
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void injectCreator(Class<?> entityClazz, Map<String, Object> parameters) {
+        if (IRecord.class.isAssignableFrom(entityClazz)) {
+            final IUser<?> user = UserContextHolder.getUser();
+            if (Objects.nonNull(user)) {
+                // set creator
+                final Collection<IRecord> list = (Collection<IRecord>) parameters.get("list");
+                for (IRecord item : list) {
+                    item.setCreator(user);
+                }
+            }
+        }
     }
 
     private String getInsertPrefix(final Method method, final boolean ignore) {
