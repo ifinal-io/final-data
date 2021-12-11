@@ -35,6 +35,7 @@ import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
@@ -50,7 +51,7 @@ import java.util.Set;
  * @since 1.0.0
  */
 @Slf4j
-@org.springframework.context.annotation.Configuration
+@Component
 public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomizer, BeanFactoryAware,
         InitializingBean {
 

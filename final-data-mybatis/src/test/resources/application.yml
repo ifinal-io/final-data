@@ -5,6 +5,8 @@ spring:
     url: jdbc:h2:mem:test
     username: sa
     password: sa
+    hikari:
+      driver-class-name:
   h2:
     console:
       enabled: true
