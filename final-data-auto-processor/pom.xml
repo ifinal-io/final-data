@@ -67,10 +67,6 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.ifinalframework</groupId>
-            <artifactId>final-javapoets</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
