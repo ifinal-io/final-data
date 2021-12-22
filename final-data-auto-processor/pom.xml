@@ -81,7 +81,7 @@
         </dependency>
         <dependency>
             <groupId>org.ifinalframework.data</groupId>
-            <artifactId>final-data-service</artifactId>
+            <artifactId>final-data-core</artifactId>
             <scope>provided</scope>
         </dependency>
     </dependencies>

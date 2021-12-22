@@ -35,7 +35,6 @@
     <modules>
         <module>final-data-core</module>
         <module>final-data-mybatis</module>
-        <module>final-data-service</module>
         <module>final-data-sharding</module>
         <module>final-data-redis</module>
         <module>final-data-cache</module>
@@ -108,11 +107,6 @@
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-mybatis</artifactId>
-                <version>1.2.4-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.ifinalframework.data</groupId>
-                <artifactId>final-data-service</artifactId>
                 <version>1.2.4-SNAPSHOT</version>
             </dependency>
             <dependency>
