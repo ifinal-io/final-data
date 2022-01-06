@@ -15,6 +15,7 @@
 
 package org.ifinalframework.data.printer.cpcl;
 
+import javax.validation.constraints.Max;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -33,24 +34,63 @@ public class CpclPrinter {
         this.ps = ps;
     }
 
-    public CpclPrinter start(Integer offset, Integer height, Integer qty) {
+    /**
+     * 开始命令
+     *
+     * @param offset 开始命令
+     * @param height 开始命令
+     * @param qty    打印标签的数量，最大 1024 张
+     */
+    public CpclPrinter start(int offset, int height, @Max(1024) int qty) {
         ps.println(commands("!", offset, 200, 200, height, qty));
         return this;
     }
 
-    public CpclPrinter text(Integer font, Integer size, Integer x, Integer y, String data) {
-        ps.println(commands("T", font, size, x, y, data));
+    public CpclPrinter text(int font, int size, int x, int y, String data) {
+        text("T", font, size, x, y, data);
         return this;
     }
 
-    public CpclPrinter vtext(Integer font, Integer size, Integer x, Integer y, String data) {
+    public CpclPrinter vtext(int font, int size, int x, int y, String data) {
+        text("VT", font, size, x, y, data);
         ps.println(commands("VT", font, size, x, y, data));
         return this;
     }
 
-    public CpclPrinter text90(Integer font, Integer size, Integer x, Integer y, String data) {
-        ps.println(commands("T90", font, size, x, y, data));
+    public CpclPrinter text90(int font, int size, int x, int y, String data) {
+        text("T90", font, size, x, y, data);
         return this;
+    }
+
+    public CpclPrinter text180(int font, int size, int x, int y, String data) {
+        text("T180", font, size, x, y, data);
+        return this;
+    }
+
+    public CpclPrinter text270(int font, int size, int x, int y, String data) {
+        text("T270", font, size, x, y, data);
+        return this;
+    }
+
+    /**
+     * 文本命令
+     * <pre class="code>
+     * {command} {font} {size} {x} {y} {data}
+     * </pre>
+     *
+     * @param command 指令
+     * @param font    字体号
+     * @param size    字体大小
+     * @param x       水平打印起始位置
+     * @param y       垂直打印起始位置
+     * @param data    打印的文本内容
+     * @see #text(int, int, int, int, String)
+     * @see #text90(int, int, int, int, String)
+     * @see #text180(int, int, int, int, String)
+     * @see #text270(int, int, int, int, String)
+     */
+    private void text(String command, int font, int size, int x, int y, String data) {
+        ps.println(commands(command, font, size, x, y, data));
     }
 
     public CpclPrinter barcode(String type, int width, int ratio, int height, int x, int y, String data) {
@@ -87,6 +127,15 @@ public class CpclPrinter {
         return this;
     }
 
+    /**
+     * 打印命令.
+     *
+     * <pre class="code">
+     * PRINT
+     * </pre>
+     * <p>
+     * 使用 FORM 指令后，打印机将走纸到下一标签的起始位置，打印机找下一标签的起始位置是根据两个 标签之间的缝隙判断的。
+     */
     public void print() {
         ps.println("PRINT");
     }

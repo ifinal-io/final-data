@@ -135,6 +135,11 @@
                 <artifactId>final-data-auto-processor</artifactId>
                 <version>1.2.4-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>org.ifinalframework.data</groupId>
+                <artifactId>final-data-printer</artifactId>
+                <version>1.2.4-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
