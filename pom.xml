@@ -41,6 +41,7 @@
         <module>final-data-auto</module>
         <module>final-data-auto-processor</module>
         <module>final-data-printer</module>
+        <module>final-data-doc</module>
     </modules>
 
     <properties>
@@ -138,6 +139,11 @@
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-printer</artifactId>
+                <version>1.2.4-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ifinalframework.data</groupId>
+                <artifactId>final-data-doc</artifactId>
                 <version>1.2.4-SNAPSHOT</version>
             </dependency>
         </dependencies>
