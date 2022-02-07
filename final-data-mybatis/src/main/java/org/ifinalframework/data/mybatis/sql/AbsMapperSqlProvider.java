@@ -23,9 +23,8 @@ import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.query.Query;
 import org.ifinalframework.query.QueryProvider;
+import org.springframework.core.ResolvableType;
 
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.Optional;
 
 /**
@@ -37,17 +36,7 @@ import java.util.Optional;
 public interface AbsMapperSqlProvider extends ScriptSqlProvider {
 
     default Class<?> getEntityClass(final Class<?> mapper) {
-
-        final Type[] interfaces = mapper.getGenericInterfaces();
-        for (Type type : interfaces) {
-            if (type instanceof ParameterizedType && Repository.class
-                .isAssignableFrom((Class) ((ParameterizedType) type).getRawType())) {
-                return (Class<?>) ((ParameterizedType) type).getActualTypeArguments()[1];
-
-            }
-        }
-
-        throw new IllegalArgumentException("can not find entity from mapper of " + mapper.getCanonicalName());
+        return ResolvableType.forClass(mapper).as(Repository.class).resolveGeneric(1);
     }
 
     default QueryProvider query(String expression, Class<?> entity, Class<?> query) {

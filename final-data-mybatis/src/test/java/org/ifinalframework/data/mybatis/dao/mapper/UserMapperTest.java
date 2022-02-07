@@ -17,10 +17,12 @@ package org.ifinalframework.data.mybatis.dao.mapper;
 
 import org.ifinalframework.data.mybatis.dao.query.PersonQuery;
 import org.ifinalframework.data.mybatis.entity.User;
+import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.query.Direction;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ResolvableType;
 
 import javax.annotation.Resource;
 
@@ -64,6 +66,12 @@ class UserMapperTest {
 
         Assertions.assertEquals(100, result.getAge());
 
+    }
+
+    @Test
+    void test2() {
+        Class<?> entity = ResolvableType.forClass(UserMapper.class).as(Repository.class).resolveGeneric(1);
+        Assertions.assertEquals(User.class, entity);
     }
 
 }
