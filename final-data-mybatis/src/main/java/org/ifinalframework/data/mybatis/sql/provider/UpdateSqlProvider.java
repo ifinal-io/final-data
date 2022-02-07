@@ -99,9 +99,6 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
             }
 
-//            for (UpdateSetOperation updateSetOperation : updates) {
-//                updateSetOperation.apply(sql, String.format("update[%d]", index++));
-//            }
         } else {
             appendEntitySet(sql, properties);
         }
