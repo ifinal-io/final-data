@@ -13,35 +13,35 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.sharding.config;
+package org.ifinalframework.data.sharding.config;
 
-import org.springframework.lang.NonNull;
-
-import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.Collection;
 
 /**
  * @author likly
  * @version 1.0.0
  * @since 1.0.0
  */
-public interface ShardingConfigurer {
+public class BindingTableRegistry {
 
-    default void addDataSource(@NonNull ShardingDataSourceRegistry registry) throws SQLException {
+    private final Collection<String> bindingTableGroups;
 
+    public BindingTableRegistry(final Collection<String> bindingTableGroups) {
+
+        this.bindingTableGroups = bindingTableGroups;
     }
 
-    default void addShardingTable(@NonNull ShardingTableRegistry registry) {
+    public BindingTableRegistry addBindingTable(final String... bindingTable) {
+
+        this.bindingTableGroups.addAll(Arrays.asList(bindingTable));
+        return this;
     }
 
-    default void addBindingTables(@NonNull BindingTableRegistry registry) {
+    public BindingTableRegistry addAllBindingTables(final Collection<String> bindingTables) {
 
-    }
-
-    default void addBroadcastTables(@NonNull BroadcastTableRegistry registry) {
-
-    }
-
-    default void addShardingAlgorithms(@NonNull ShardingAlgorithmRegistry registry) {
+        this.bindingTableGroups.addAll(bindingTables);
+        return this;
     }
 
 }

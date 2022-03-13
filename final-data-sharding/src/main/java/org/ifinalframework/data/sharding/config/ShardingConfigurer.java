@@ -13,30 +13,35 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.sharding.config;
+package org.ifinalframework.data.sharding.config;
 
-import lombok.AccessLevel;
-import lombok.Getter;
+import org.springframework.lang.NonNull;
 
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.SQLException;
 
 /**
  * @author likly
  * @version 1.0.0
  * @since 1.0.0
  */
+public interface ShardingConfigurer {
 
-public class ShardingDataSourceRegistry {
+    default void addDataSource(@NonNull ShardingDataSourceRegistry registry) throws SQLException {
 
-    @Getter(AccessLevel.PACKAGE)
-    private final Map<String, DataSource> dataSources = new HashMap<>();
+    }
 
-    public ShardingDataSourceRegistry addDataSource(final String name, final DataSource dataSource) {
+    default void addShardingTable(@NonNull ShardingTableRegistry registry) {
+    }
 
-        this.dataSources.put(name, dataSource);
-        return this;
+    default void addBindingTables(@NonNull BindingTableRegistry registry) {
+
+    }
+
+    default void addBroadcastTables(@NonNull BroadcastTableRegistry registry) {
+
+    }
+
+    default void addShardingAlgorithms(@NonNull ShardingAlgorithmRegistry registry) {
     }
 
 }

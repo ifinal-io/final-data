@@ -13,31 +13,28 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.sharding.config;
+package org.ifinalframework.data.sharding.config;
 
+import lombok.Builder;
 import lombok.Getter;
 
-import java.util.Properties;
+import javax.sql.DataSource;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author likly
  * @version 1.0.0
  * @since 1.0.0
  */
+@Builder
 @Getter
-public class ShardingAlgorithmRegistration {
+public class ShardingConfiguration {
 
-    private final String type;
+    private final Map<String, DataSource> datasource;
 
-    private final String name;
+    private final Collection<ShardingTableRegistration> tables;
 
-    private final Properties properties;
-
-    public ShardingAlgorithmRegistration(final String type, final String name, final Properties properties) {
-
-        this.type = type;
-        this.name = name;
-        this.properties = properties;
-    }
+    private final Collection<ShardingAlgorithmRegistration> shardingAlgorithms;
 
 }

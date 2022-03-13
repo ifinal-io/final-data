@@ -13,13 +13,13 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.sharding.config;
+package org.ifinalframework.data.sharding.config;
 
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
 
 import javax.sql.DataSource;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -27,14 +27,16 @@ import java.util.Map;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Builder
-@Getter
-public class ShardingConfiguration {
 
-    private final Map<String, DataSource> datasource;
+public class ShardingDataSourceRegistry {
 
-    private final Collection<ShardingTableRegistration> tables;
+    @Getter(AccessLevel.PACKAGE)
+    private final Map<String, DataSource> dataSources = new HashMap<>();
 
-    private final Collection<ShardingAlgorithmRegistration> shardingAlgorithms;
+    public ShardingDataSourceRegistry addDataSource(final String name, final DataSource dataSource) {
+
+        this.dataSources.put(name, dataSource);
+        return this;
+    }
 
 }

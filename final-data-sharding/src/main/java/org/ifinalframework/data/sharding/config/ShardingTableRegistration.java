@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.sharding.config;
+package org.ifinalframework.data.sharding.config;
 
 import lombok.AccessLevel;
 import lombok.Getter;

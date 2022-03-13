@@ -13,31 +13,36 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.sharding.config;
+package org.ifinalframework.data.sharding.config;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import org.ifinalframework.sharding.annotation.ShardingTable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Properties;
 
 /**
  * @author likly
  * @version 1.0.0
+ * @see ShardingTable
  * @since 1.0.0
  */
-public class ShardingAlgorithmRegistry {
+public class ShardingTableRegistry {
 
     @Getter(AccessLevel.PACKAGE)
-    private final Collection<ShardingAlgorithmRegistration> shardingAlgorithms = new ArrayList<>();
+    private Collection<ShardingTableRegistration> tables = new ArrayList<>();
 
-    public ShardingAlgorithmRegistry addShardingAlgorithm(final String name, final String type,
-                                                          final Properties properties) {
+    public ShardingTableRegistration addShardingTableRule(final String logicTable, final String[] actualDataNodes) {
 
-        shardingAlgorithms.add(new ShardingAlgorithmRegistration(type, name, properties));
+        ShardingTableRegistration registration = new ShardingTableRegistration(logicTable, actualDataNodes);
+        tables.add(registration);
+        return registration;
+    }
+
+    public ShardingTableRegistry addShardingTableRule(final ShardingTableRegistration table) {
+        tables.add(table);
         return this;
     }
 
 }
-

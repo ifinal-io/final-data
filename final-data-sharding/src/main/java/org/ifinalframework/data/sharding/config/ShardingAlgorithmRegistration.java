@@ -13,35 +13,31 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.sharding.config;
+package org.ifinalframework.data.sharding.config;
 
-import java.util.Arrays;
-import java.util.Collection;
+import lombok.Getter;
+
+import java.util.Properties;
 
 /**
  * @author likly
  * @version 1.0.0
  * @since 1.0.0
  */
-public class BindingTableRegistry {
+@Getter
+public class ShardingAlgorithmRegistration {
 
-    private final Collection<String> bindingTableGroups;
+    private final String type;
 
-    public BindingTableRegistry(final Collection<String> bindingTableGroups) {
+    private final String name;
 
-        this.bindingTableGroups = bindingTableGroups;
-    }
+    private final Properties properties;
 
-    public BindingTableRegistry addBindingTable(final String... bindingTable) {
+    public ShardingAlgorithmRegistration(final String type, final String name, final Properties properties) {
 
-        this.bindingTableGroups.addAll(Arrays.asList(bindingTable));
-        return this;
-    }
-
-    public BindingTableRegistry addAllBindingTables(final Collection<String> bindingTables) {
-
-        this.bindingTableGroups.addAll(bindingTables);
-        return this;
+        this.type = type;
+        this.name = name;
+        this.properties = properties;
     }
 
 }
