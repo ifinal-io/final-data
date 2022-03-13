@@ -60,7 +60,7 @@ public class EnumTypeHandler<E extends Enum<?>> extends BaseTypeHandler<E> {
     @Override
     public void setNonNullParameter(final PreparedStatement ps, final int i, final E parameter, final JdbcType jdbcType)
             throws SQLException {
-        ps.setObject(i, parameter instanceof IEnum ? ((IEnum) parameter).getCode() : parameter.name());
+        ps.setObject(i, parameter instanceof IEnum ? ((IEnum<?>) parameter).getCode() : parameter.name());
     }
 
     @Override
