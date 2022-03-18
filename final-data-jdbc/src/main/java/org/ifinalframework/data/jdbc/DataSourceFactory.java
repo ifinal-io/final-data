@@ -31,6 +31,16 @@ import java.sql.SQLException;
  */
 @FunctionalInterface
 public interface DataSourceFactory<T extends DataSource> {
+    /**
+     * return a {@link DataSource} instance.
+     *
+     * @param properties  data source properties.
+     * @param environment application environment.
+     * @param prefix      data source configuration prefix.
+     * @return data source instance.
+     * @throws SQLException when create data source exception.
+     */
     @NonNull
     T create(@NonNull DataSourceProperties properties, @NonNull Environment environment, @NonNull String prefix) throws SQLException;
+
 }
