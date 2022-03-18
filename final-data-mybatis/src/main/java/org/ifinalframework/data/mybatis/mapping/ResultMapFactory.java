@@ -22,7 +22,7 @@ import org.springframework.lang.NonNull;
 /**
  * Create a {@link ResultMap} from {@linkplain Class entity} with {@link Configuration}.
  *
- * @author likly
+ * @author ilikly
  * @version 1.2.2
  * @since 1.2.2
  */

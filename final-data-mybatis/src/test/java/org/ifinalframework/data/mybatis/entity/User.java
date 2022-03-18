@@ -25,7 +25,7 @@ import org.ifinalframework.data.annotation.PrimaryKey;
 /**
  * User.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @since 1.0.0
  */

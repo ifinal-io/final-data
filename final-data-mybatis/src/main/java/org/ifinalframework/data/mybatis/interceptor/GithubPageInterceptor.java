@@ -29,7 +29,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see Executor#query(MappedStatement, Object, RowBounds, ResultHandler)
  * @see Executor#query(MappedStatement, Object, RowBounds, ResultHandler, CacheKey, BoundSql)

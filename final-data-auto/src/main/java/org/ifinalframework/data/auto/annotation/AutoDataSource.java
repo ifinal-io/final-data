@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * A {@link java.lang.annotation.Annotation} for {@link javax.sql.DataSource}.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see javax.sql.DataSource
  * @since 1.0.0

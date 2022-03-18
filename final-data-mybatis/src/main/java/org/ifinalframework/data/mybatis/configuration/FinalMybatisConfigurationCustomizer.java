@@ -45,7 +45,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
  * @since 1.0.0

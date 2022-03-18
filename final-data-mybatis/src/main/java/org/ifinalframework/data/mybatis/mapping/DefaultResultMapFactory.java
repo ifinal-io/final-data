@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 /**
  * DefaultResultMapFactory.
  *
- * @author likly
+ * @author ilikly
  * @version 1.2.2
  * @since 1.2.2
  */

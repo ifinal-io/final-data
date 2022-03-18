@@ -35,7 +35,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.type.TypeHandler;
 
 /**
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see AbsMapper#select(String, Class, Collection, IQuery)
  * @see AbsMapper#selectOne(String, Class, Serializable, IQuery)

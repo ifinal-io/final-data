@@ -26,7 +26,7 @@ import org.apache.ibatis.type.JdbcType;
 /**
  * Converter the parameter to a {@code json} String.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see org.ifinalframework.data.annotation.Json
  * @see java.util.Collection

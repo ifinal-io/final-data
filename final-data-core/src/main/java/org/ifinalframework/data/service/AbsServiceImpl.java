@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * 默认的{@link AbsService}实现，方便其子类通过 {@literal super}调用方法.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @since 1.0.0
  */

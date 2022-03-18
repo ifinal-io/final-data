@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 /**
  * Del the cache with {@link CacheDel#key()} and {@link CacheDel#field()} when {@link CacheDel#condition()} is passing.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see CacheDel
  * @see Cache#del(Object, Object)

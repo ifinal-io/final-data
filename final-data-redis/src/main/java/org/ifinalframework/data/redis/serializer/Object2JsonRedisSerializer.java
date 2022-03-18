@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
  * A custom {@link RedisSerializer} for {@link Object} serialize to {@linkplain String json} and deserialize to {@link
  * String}.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see Object2StringRedisSerializer
  * @since 1.0.0

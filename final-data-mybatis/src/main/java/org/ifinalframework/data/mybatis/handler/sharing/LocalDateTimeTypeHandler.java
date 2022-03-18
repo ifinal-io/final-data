@@ -35,7 +35,7 @@ import org.apache.ibatis.type.JdbcType;
 /**
  * 解决{@code Sharding-JDBC}不支持JAVA8时间问题
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @since 1.0.0
  */

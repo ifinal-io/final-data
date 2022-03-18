@@ -36,7 +36,7 @@ import java.util.Properties;
  * <li>参数列表中有一个参数实现了 {@link Pageable} 接口</li>
  * </ul>
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see Pageable
  * @since 1.0.0

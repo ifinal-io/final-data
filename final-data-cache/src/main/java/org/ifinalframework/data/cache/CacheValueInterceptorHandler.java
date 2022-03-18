@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see Cacheable
  * @see Cache#get(Object, Object, Type, Class)

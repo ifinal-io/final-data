@@ -36,7 +36,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
  *  &lt;/sql&gt;
  * </pre>
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see AbsMapper#delete(String, Collection, IQuery)
  * @since 1.0.0

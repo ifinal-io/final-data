@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
  *     <li>Declared in mapper file.</li>
  * </ul>
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see Configuration#setDefaultEnumTypeHandler(Class)
  * @see ConfigurationCustomizer

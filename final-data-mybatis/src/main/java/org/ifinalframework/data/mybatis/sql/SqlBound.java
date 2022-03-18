@@ -28,7 +28,7 @@ import org.apache.ibatis.type.TypeHandler;
 /**
  * SqlBound.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see org.apache.ibatis.mapping.BoundSql
  * @since 1.0.0

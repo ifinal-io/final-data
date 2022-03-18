@@ -25,7 +25,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 /**
  * The {@link ParameterTypeHandler} only used on {@literal WHERE} fragment.
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @since 1.0.0
  */

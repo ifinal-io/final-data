@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * DataSourceFactoryManager.
  *
- * @author likly
+ * @author ilikly
  * @version 1.3.0
  * @since 1.3.0
  */

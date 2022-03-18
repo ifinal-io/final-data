@@ -22,7 +22,7 @@ import java.lang.reflect.Type;
 import org.apache.ibatis.type.BaseTypeHandler;
 
 /**
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @since 1.0.0
  */

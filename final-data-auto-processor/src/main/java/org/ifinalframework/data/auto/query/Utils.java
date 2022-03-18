@@ -23,7 +23,7 @@ import org.ifinalframework.data.annotation.ReferenceMode;
 import org.ifinalframework.data.auto.entity.Property;
 
 /**
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @since 1.0.0
  */

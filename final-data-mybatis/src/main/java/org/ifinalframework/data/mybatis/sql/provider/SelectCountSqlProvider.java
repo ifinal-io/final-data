@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see AbsMapper#selectCount(String, Collection, IQuery)
  * @since 1.0.0

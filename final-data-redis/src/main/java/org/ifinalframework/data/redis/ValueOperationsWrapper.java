@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * ValueOperations.
  *
- * @author likly
+ * @author ilikly
  * @version 1.2.0
  * @see ValueOperations
  * @since 1.2.0

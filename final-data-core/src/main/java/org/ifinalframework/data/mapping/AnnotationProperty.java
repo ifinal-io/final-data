@@ -45,7 +45,7 @@ import java.util.Set;
 /**
  * Simple implementation of {@link Property}
  *
- * @author likly
+ * @author ilikly
  * @version 1.0.0
  * @see AnnotationBasedPersistentProperty
  * @since 1.0.0
