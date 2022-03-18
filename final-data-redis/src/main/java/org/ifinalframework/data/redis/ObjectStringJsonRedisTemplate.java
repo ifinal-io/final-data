@@ -16,6 +16,7 @@
 
 package org.ifinalframework.data.redis;
 
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import org.ifinalframework.data.redis.serializer.Object2JsonRedisSerializer;
@@ -38,6 +39,15 @@ public class ObjectStringJsonRedisTemplate extends RedisTemplate<Object, Object>
         this.setValueSerializer(Object2JsonRedisSerializer.UTF_8);
         this.setHashKeySerializer(Object2StringRedisSerializer.UTF_8);
         this.setHashValueSerializer(Object2JsonRedisSerializer.UTF_8);
+    }
+
+    /**
+     * @param redisConnectionFactory redis connection factory
+     * @since 1.3.0
+     */
+    public ObjectStringJsonRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        this();
+        setConnectionFactory(redisConnectionFactory);
     }
 
 }
