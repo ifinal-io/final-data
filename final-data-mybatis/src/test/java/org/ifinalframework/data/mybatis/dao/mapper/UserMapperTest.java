@@ -41,6 +41,7 @@ class UserMapperTest {
 
     @Test
     void test() {
+        userMapper.truncate();
         User user = new User();
         user.setName("name");
         user.setAge(1);
@@ -52,11 +53,14 @@ class UserMapperTest {
 
     @Test
     void orderQuery() {
+        userMapper.truncate();
         User user = new User();
         user.setName("name");
         user.setAge(1);
         userMapper.insert(user);
         user.setAge(100);
+        user.setName("hah");
+        user.setId(null);
         userMapper.insert(user);
         PersonQuery query = new PersonQuery();
         query.setOrderByName(Direction.ASC);
