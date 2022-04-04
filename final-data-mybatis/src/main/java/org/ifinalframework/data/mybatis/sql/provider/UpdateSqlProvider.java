@@ -45,12 +45,12 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
             "   <when test=\"${selectiveTest}\">",
             "       ${column} = #{${value}#if($typeHandler)",
             "           #if($javaType), javaType=$!{javaType.canonicalName}#end",
-            "           , typeHandler=$!{typeHandler.canonicalName}#end}",
+            "           , typeHandler=$!{typeHandler.canonicalName}#end},",
             "   </when>",
             "   <when test=\"${test}\">",
             "       ${column} = #{${value}#if($typeHandler)",
             "           #if($javaType), javaType=$!{javaType.canonicalName}#end",
-            "           , typeHandler=$!{typeHandler.canonicalName}#end}",
+            "           , typeHandler=$!{typeHandler.canonicalName}#end},",
             "   </when>",
             "</choose>");
 
@@ -185,7 +185,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                     final String writer = Asserts.isBlank(property.getUpdate()) ? DEFAULT_WRITER : property.getUpdate();
                     final String value = Velocities.eval(writer, metadata);
 
-                    sql.append(value).append(",");
+                    sql.append(value);
 
                     sql.append("</if>");
                 });
@@ -210,7 +210,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         }
 
         final String value = Velocities.eval(update, metadata);
-        sql.append(value).append(",");
+        sql.append(value);
         sql.append("</if>");
     }
 

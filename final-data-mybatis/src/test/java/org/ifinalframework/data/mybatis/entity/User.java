@@ -18,6 +18,8 @@ package org.ifinalframework.data.mybatis.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.junit.jupiter.api.Test;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.annotation.*;
 
@@ -30,6 +32,7 @@ import org.ifinalframework.data.annotation.*;
  */
 @Setter
 @Getter
+@Table("`user`")
 @NoArgsConstructor
 public class User extends AbsUser {
 

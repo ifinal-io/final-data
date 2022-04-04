@@ -41,7 +41,7 @@ class UserMapperTest {
 
     @Test
     void test() {
-        userMapper.truncate();
+//        userMapper.truncate();
         User user = new User();
         user.setName("name");
         user.setAge(1);
@@ -53,7 +53,7 @@ class UserMapperTest {
 
     @Test
     void orderQuery() {
-        userMapper.truncate();
+//        userMapper.truncate();
         User user = new User();
         user.setName("name");
         user.setAge(1);

@@ -76,9 +76,8 @@ class UpdateSqlProviderTest {
         parameters.put("query", query);
 
 
-        final String sql = SqlHelper.sql(PersonMapper.class, "update", parameters);
-        logger.info(sql);
-        Assertions.assertNotNull(sql);
+        logger.info(SqlHelper.xml(PersonMapper.class, "update", parameters));
+        logger.info(SqlHelper.sql(PersonMapper.class, "update", parameters));
 
     }
 

@@ -13,9 +13,9 @@
  * limitations under the License.
  */
 
-DROP TABLE IF EXISTS user;
+DROP TABLE IF EXISTS `user`;
 
-CREATE TABLE user
+CREATE TABLE `user`
 (
     id            BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     name          VARCHAR(30) NULL DEFAULT NULL COMMENT '姓名',
