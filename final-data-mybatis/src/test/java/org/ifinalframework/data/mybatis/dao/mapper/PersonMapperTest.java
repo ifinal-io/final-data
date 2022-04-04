@@ -54,14 +54,16 @@ class PersonMapperTest {
     @Test
     void insertAndUpdate() {
 
-        personMapper.truncate();
 
         Logger logger = LoggerFactory.getLogger(PersonMapper.class);
         ((ch.qos.logback.classic.Logger)logger).setLevel(Level.DEBUG);
         User user = new User();
         user.setId(1L);
         user.setName("123");
-        UserContextHolder.setUser(user);
+        UserContextHolder.setUser(user,true);
+
+        personMapper.truncate();
+
 
         Person person = new Person();
         person.setName("haha");

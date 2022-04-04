@@ -116,15 +116,6 @@ public abstract class PageableInterceptor implements Interceptor {
 
     protected abstract void startPage(Pageable pageable);
 
-    @Override
-    public Object plugin(final Object target) {
 
-        return Plugin.wrap(target, this);
-    }
-
-    @Override
-    public void setProperties(final Properties properties) {
-        //do nothing
-    }
 
 }

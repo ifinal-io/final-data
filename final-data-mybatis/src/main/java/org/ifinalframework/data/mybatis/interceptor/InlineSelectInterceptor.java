@@ -90,12 +90,6 @@ public class InlineSelectInterceptor implements Interceptor {
 
     }
 
-    @Override
-    public Object plugin(final Object target) {
-
-        return Plugin.wrap(target, this);
-    }
-
     public MappedStatement newFinalMappedStatement(final MappedStatement ms, final String newMsId) {
 
         MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), newMsId, ms.getSqlSource(),
