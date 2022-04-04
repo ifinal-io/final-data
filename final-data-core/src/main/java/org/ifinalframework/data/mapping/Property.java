@@ -63,15 +63,23 @@ public interface Property extends PersistentProperty<Property>, Ordered {
      * return the column writer
      *
      * @return the column writer
-     * @see Column#writer()
+     * @see Column#insert()
      */
-    String getWriter();
+    String getInsert();
+
+    /**
+     * return the column update sql fragment
+     *
+     * @return this column update sql fragment
+     * @see Column#update()
+     */
+    String getUpdate();
 
     /**
      * return the column reader
      *
      * @return column reader
-     * @see Column#reader()
+     * @see Column#select()
      */
     String getReader();
 

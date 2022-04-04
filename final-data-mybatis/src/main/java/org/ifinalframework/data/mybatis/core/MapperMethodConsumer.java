@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2022 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,32 +13,15 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.entity;
-
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.annotation.*;
+package org.ifinalframework.data.mybatis.core;
 
 /**
- * User.
+ * MapperMethodConsumer.
  *
  * @author ilikly
- * @version 1.0.0
- * @since 1.0.0
+ * @version 1.3.0
+ * @since 1.3.0
  */
-@Setter
-@Getter
-@NoArgsConstructor
-public class User extends AbsUser {
-
-    private String password;
-
-    private Integer age;
-
-    public User(String name, String password) {
-        this.setName(name );
-        this.password = password;
-    }
+public interface MapperMethodConsumer {
+    void accept(Class<?> mapper, Object parameter);
 }

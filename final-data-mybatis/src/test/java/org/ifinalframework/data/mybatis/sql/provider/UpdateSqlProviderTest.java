@@ -17,8 +17,12 @@ package org.ifinalframework.data.mybatis.sql.provider;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderContext;
+
+import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.data.annotation.AbsUser;
+import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 import org.ifinalframework.query.Update;
@@ -47,18 +51,24 @@ class UpdateSqlProviderTest {
     void update() throws NoSuchMethodException {
 
 
+        AbsUser user = new AbsUser();
+        user.setId(1L);
+        user.setName("hahah");
+        UserContextHolder.setUser(user);
+
+
         final HashMap<String, Object> parameters = new HashMap<>();
 
         parameters.put("table", "person");
         parameters.put("view", null);
         parameters.put("selective", false);
-//        Person person = new Person();
-//        person.setAge(12);
-//        person.setName("haha");
-//        person.setYn(YN.NO);
-//        parameters.put("entity", person);
+        Person person = new Person();
+        person.setAge(12);
+        person.setName("haha");
+        person.setYn(YN.NO);
+        parameters.put("entity", person);
 
-        parameters.put("update", Update.update().set("name", "haha"));
+//        parameters.put("update", Update.update().set("name", "haha"));
 
         final PersonQuery query = new PersonQuery();
         query.setLocation(new Point());

@@ -17,11 +17,11 @@ DROP TABLE IF EXISTS user;
 
 CREATE TABLE user
 (
-    id            BIGINT(20)  NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    id            BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
     name          VARCHAR(30) NULL DEFAULT NULL COMMENT '姓名',
     password      VARCHAR(30) NULL DEFAULT NULL COMMENT '密码',
-    age           INT(11)     NULL DEFAULT NULL COMMENT '年龄',
-    last_modified DATETIME    NULL DEFAULT NULL ON UPDATE NOW() COMMENT '更新时间',
+    age           INT(11) NULL DEFAULT NULL COMMENT '年龄',
+    last_modified DATETIME NULL DEFAULT NULL ON UPDATE NOW() COMMENT '更新时间',
     PRIMARY KEY (id)
 );
 
@@ -29,21 +29,23 @@ DROP TABLE IF EXISTS person;
 
 CREATE TABLE person
 (
-    id           BIGINT(20)  NOT NULL AUTO_INCREMENT COMMENT '流水号',
-    name         VARCHAR(30) NOT NULL COMMENT 'name',
-    age          INT(11)     NULL DEFAULT NULL COMMENT '年龄',
-    creator      BIGINT(20)  NULL DEFAULT NULL COMMENT 'creator',
-    creator_name VARCHAR(30) NOT NULL COMMENT 'creator_name',
+    id                 BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '流水号',
+    name               VARCHAR(30) NOT NULL COMMENT 'name',
+    age                INT(11) NULL DEFAULT NULL COMMENT '年龄',
+    creator            BIGINT(20) NOT NULL COMMENT 'creator',
+    creator_name       VARCHAR(30) NOT NULL COMMENT 'creator_name',
+    last_modifier      BIGINT(20) NULL DEFAULT NULL COMMENT 'last_modifier',
+    last_modifier_name VARCHAR(30) NULL DEFAULT NULL COMMENT 'last_modifier_name',
     PRIMARY KEY (id)
 );
 
 CREATE TABLE tableName
 (
     id            BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '流水号',
-    version       INT(11)    NOT NULL DEFAULT 1 COMMENT '版本号',
-    created       DATETIME   NOT NULL DEFAULT NOW() COMMENT '创建时间',
-    last_modified DATETIME   NULL     DEFAULT NULL ON UPDATE NOW() COMMENT '最后修改时间',
-    yn            INT(11)    NOT NULL DEFAULT 1 COMMENT '有效标记，1：有效，0：无效',
+    version       INT(11) NOT NULL DEFAULT 1 COMMENT '版本号',
+    created       DATETIME NOT NULL DEFAULT NOW() COMMENT '创建时间',
+    last_modified DATETIME NULL DEFAULT NULL ON UPDATE NOW() COMMENT '最后修改时间',
+    yn            INT(11) NOT NULL DEFAULT 1 COMMENT '有效标记，1：有效，0：无效',
     PRIMARY KEY (id)
 )
 

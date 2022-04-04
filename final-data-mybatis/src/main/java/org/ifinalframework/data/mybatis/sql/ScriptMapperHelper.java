@@ -37,7 +37,6 @@ public abstract class ScriptMapperHelper {
     }
 
     public static String cdata(final String data) {
-
         return String.format("<![CDATA[%s]]>", data);
     }
 

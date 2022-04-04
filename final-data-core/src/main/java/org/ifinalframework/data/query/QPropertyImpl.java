@@ -47,6 +47,9 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
 
     private final String column;
 
+    private final String insert;
+    private final String update;
+
     private final boolean idProperty;
 
     private final boolean readable;
@@ -67,6 +70,9 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
         this.path = builder.path;
         this.name = builder.name;
         this.column = builder.column;
+        this.insert = builder.insert;
+        this.update = builder.update;
+
 
         this.idProperty = builder.idProperty;
         this.readable = builder.isReadable;
@@ -115,8 +121,13 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
 
     @Nullable
     @Override
-    public String getWriter() {
-        return null;
+    public String getInsert() {
+        return insert;
+    }
+
+    @Override
+    public String getUpdate() {
+        return update;
     }
 
     @Nullable
@@ -214,6 +225,9 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
 
         private String column;
 
+        private String insert;
+        private String update;
+
         private boolean idProperty = false;
 
         private boolean isReadable = true;
@@ -253,6 +267,16 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
         public Builder<T, E> column(final String column) {
 
             this.column = column;
+            return this;
+        }
+
+        public Builder<T, E> insert(String insert) {
+            this.insert = insert;
+            return this;
+        }
+
+        public Builder<T, E> update(String update) {
+            this.update = update;
             return this;
         }
 

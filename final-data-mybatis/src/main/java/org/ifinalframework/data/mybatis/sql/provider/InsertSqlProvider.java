@@ -17,6 +17,7 @@ package org.ifinalframework.data.mybatis.sql.provider;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.type.TypeHandler;
+
 import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IRecord;
 import org.ifinalframework.core.IUser;
@@ -222,32 +223,17 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                             .append("').hasView(view)\">");
 
                     if (property.getPath().contains(".")) {
-                        final StringBuilder value = new StringBuilder();
-                        value
-                                .append("<choose>")
-                                .append("<when test=\"")
-                                .append(ScriptMapperHelper.formatTest("item", property.getPath(), false))
-                                .append("\">");
+                        String test = ScriptMapperHelper.formatTest("item", property.getPath(), false);
+                        final String writer = Asserts.isBlank(property.getInsert()) ? DEFAULT_WRITER : property.getInsert();
+                        sql.append(Velocities.eval(writer, buildPropertyMetadata(property, test)));
 
-                        final String writer = Asserts.isBlank(property.getWriter()) ? DEFAULT_WRITER : property.getWriter();
-                        value.append(
-                                ScriptMapperHelper.cdata(Velocities.getValue(writer, buildPropertyMetadata(property)) + ","));
-
-                        value
-                                .append("</when>")
-                                .append("<otherwise>null,</otherwise>")
-                                .append("</choose>");
-                        sql.append(value.toString());
                     } else {
-                        final StringBuilder value = new StringBuilder();
-
-                        final String writer = Asserts.isBlank(property.getWriter()) ? DEFAULT_WRITER : property.getWriter();
-                        value.append(
-                                ScriptMapperHelper.cdata(Velocities.getValue(writer, buildPropertyMetadata(property)) + ","));
-                        sql.append(value.toString());
+                        String test = ScriptMapperHelper.formatTest("item", property.getPath(), true);
+                        final String writer = Asserts.isBlank(property.getInsert()) ? DEFAULT_WRITER : property.getInsert();
+                        sql.append(Velocities.eval(writer, buildPropertyMetadata(property, test)));
                     }
 
-                    sql.append("</if>");
+                    sql.append(",").append("</if>");
                 });
 
         sql.append(TRIM_END);
@@ -255,9 +241,10 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         sql.append("</foreach>");
     }
 
-    private Metadata buildPropertyMetadata(final QProperty<?> property) {
+    private Metadata buildPropertyMetadata(QProperty<?> property, String test) {
 
         final Metadata metadata = new Metadata();
+        metadata.setTest(test);
         metadata.setProperty(property.getName());
         metadata.setColumn(property.getColumn());
         metadata.setValue("item." + property.getPath());

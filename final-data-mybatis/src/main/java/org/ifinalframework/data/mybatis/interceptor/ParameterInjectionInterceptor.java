@@ -25,13 +25,18 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.defaults.DefaultSqlSession;
+
+import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.query.QEntity;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -75,15 +80,10 @@ public class ParameterInjectionInterceptor implements Interceptor {
     public static <I extends Serializable, T extends IEntity<I>> Class<T> from(
             final @NonNull Class<? extends AbsMapper> mapper) {
 
-        Type[] genericInterfaces = mapper.getGenericInterfaces();
-        for (Type type : genericInterfaces) {
-            if (type instanceof ParameterizedType && Repository.class
-                    .isAssignableFrom((Class) ((ParameterizedType) type).getRawType())) {
-                return (Class<T>) ((ParameterizedType) type).getActualTypeArguments()[1];
+        return (Class<T>) ResolvableType.forClass(mapper)
+                .as(AbsMapper.class)
+                .resolveGeneric(1);
 
-            }
-        }
-        return null;
     }
 
     @Override
@@ -106,6 +106,7 @@ public class ParameterInjectionInterceptor implements Interceptor {
                 final QEntity<?, ?> entity = DefaultQEntityFactory.INSTANCE.create(entityClass);
                 parameters.computeIfAbsent(TABLE_PARAMETER_NAME, k -> entity.getTable());
                 parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
+                parameters.putIfAbsent("USER", UserContextHolder.getUser());
 
                 /**
                  * {@link org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator} only supports {@link Map} types:

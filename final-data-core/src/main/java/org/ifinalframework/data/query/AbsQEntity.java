@@ -60,9 +60,9 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
     public AbsQEntity(final Class<T> type) {
 
         this(type, NameConverterRegistry.getInstance().getTableNameConverter().convert(
-            type.getAnnotation(Table.class) == null || type.getAnnotation(Table.class).value().isEmpty()
-                ? type.getSimpleName()
-                : type.getAnnotation(Table.class).value()
+                type.getAnnotation(Table.class) == null || type.getAnnotation(Table.class).value().isEmpty()
+                        ? type.getSimpleName()
+                        : type.getAnnotation(Table.class).value()
         ));
     }
 
@@ -77,55 +77,59 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
         Entity<T> entity = Entity.from(type);
 
         entity.stream()
-            .filter(it -> !it.isTransient())
-            .forEach(property -> {
+                .filter(it -> !it.isTransient())
+                .forEach(property -> {
 
-                final View view = property.findAnnotation(View.class);
-                final List<Class<?>> views = Optional.ofNullable(view).map(value -> Arrays.asList(value.value()))
-                    .orElse(null);
-                final int order = property.getOrder();
-                if (property.isReference()) {
+                    final View view = property.findAnnotation(View.class);
+                    final List<Class<?>> views = Optional.ofNullable(view).map(value -> Arrays.asList(value.value()))
+                            .orElse(null);
+                    final int order = property.getOrder();
+                    if (property.isReference()) {
 
-                    final Entity<?> referenceEntity = Entity.from(property.getType());
+                        final Entity<?> referenceEntity = Entity.from(property.getType());
 
-                    AtomicInteger index = new AtomicInteger();
+                        AtomicInteger index = new AtomicInteger();
 
-                    property.getReferenceProperties()
-                        .stream()
-                        .map(referenceEntity::getRequiredPersistentProperty)
-                        .forEach(referenceProperty -> addProperty(
+                        property.getReferenceProperties()
+                                .stream()
+                                .map(referenceEntity::getRequiredPersistentProperty)
+                                .forEach(referenceProperty -> addProperty(
 
-                            new QPropertyImpl.Builder<>(this, referenceProperty)
-                                .order(order + index.getAndIncrement())
-                                .path(property.getName() + "." + referenceProperty.getName())
-                                .name(MappingUtils.formatPropertyName(property, referenceProperty))
-                                .column(MappingUtils.formatColumn(entity, property, referenceProperty))
-                                .views(views)
-                                .readable(true)
-                                .writeable(property.isWriteable())
-                                .modifiable(property.isModifiable())
-                                .typeHandler(TypeHandlers.findTypeHandler(referenceProperty))
-                                .build()
-                        ));
+                                        new QPropertyImpl.Builder<>(this, referenceProperty)
+                                                .order(order + index.getAndIncrement())
+                                                .path(property.getName() + "." + referenceProperty.getName())
+                                                .name(MappingUtils.formatPropertyName(property, referenceProperty))
+                                                .column(MappingUtils.formatColumn(entity, property, referenceProperty))
+                                                .insert(referenceProperty.getInsert())
+                                                .update(referenceProperty.getUpdate())
+                                                .views(views)
+                                                .readable(true)
+                                                .writeable(property.isWriteable())
+                                                .modifiable(property.isModifiable())
+                                                .typeHandler(TypeHandlers.findTypeHandler(referenceProperty))
+                                                .build()
+                                ));
 
-                } else {
+                    } else {
 
-                    addProperty(
-                        new QPropertyImpl.Builder<>(this, property)
-                            .order(order)
-                            .path(property.getName())
-                            .name(property.getName())
-                            .column(MappingUtils.formatColumn(entity, property, null))
-                            .idProperty(property.isIdProperty())
-                            .readable(!property.isTransient() && !property.isVirtual() && !property.isWriteOnly())
-                            .writeable(property.isWriteable())
-                            .modifiable(property.isModifiable())
-                            .typeHandler(TypeHandlers.findTypeHandler(property))
-                            .views(views)
-                            .build()
-                    );
-                }
-            });
+                        addProperty(
+                                new QPropertyImpl.Builder<>(this, property)
+                                        .order(order)
+                                        .path(property.getName())
+                                        .name(property.getName())
+                                        .column(MappingUtils.formatColumn(entity, property, null))
+                                        .insert(property.getInsert())
+                                        .update(property.getUpdate())
+                                        .idProperty(property.isIdProperty())
+                                        .readable(!property.isTransient() && !property.isVirtual() && !property.isWriteOnly())
+                                        .writeable(property.isWriteable())
+                                        .modifiable(property.isModifiable())
+                                        .typeHandler(TypeHandlers.findTypeHandler(property))
+                                        .views(views)
+                                        .build()
+                        );
+                    }
+                });
         this.properties.sort(Comparator.comparing(QProperty::getOrder));
     }
 

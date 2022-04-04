@@ -37,10 +37,8 @@ import org.ifinalframework.data.annotation.WriteOnly;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
 import org.ifinalframework.util.Asserts;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Simple implementation of {@link Property}
@@ -65,32 +63,40 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
     });
 
     /**
-     * @see Column#writer()
+     * @see Column#insert()
      */
-    private final Lazy<String> writer = Lazy.of(() -> {
+    private final Lazy<String> insert = Lazy.of(() -> {
         final Column annotation = findAnnotation(Column.class);
-        if (annotation == null || Asserts.isBlank(annotation.writer())) {
+        if (annotation == null || Asserts.isEmpty(annotation.insert())) {
             return null;
         }
-        return annotation.writer();
+        return Arrays.stream(annotation.insert()).map(String::trim).collect(Collectors.joining());
+    });
+
+    private final Lazy<String> update = Lazy.of(() -> {
+        final Column annotation = findAnnotation(Column.class);
+        if (annotation == null || Asserts.isEmpty(annotation.update())) {
+            return null;
+        }
+        return Arrays.stream(annotation.update()).map(String::trim).collect(Collectors.joining());
     });
 
     /**
-     * @see Column#reader()
+     * @see Column#select()
      */
     private final Lazy<String> reader = Lazy.of(() -> {
         final Column annotation = findAnnotation(Column.class);
-        if (annotation == null || Asserts.isBlank(annotation.reader())) {
+        if (annotation == null || Asserts.isBlank(annotation.select())) {
             return null;
         }
-        return annotation.reader();
+        return annotation.select();
     });
 
     /**
      * @see Order
      */
     private final Lazy<Integer> order = Lazy
-        .of(isAnnotationPresent(Order.class) ? getRequiredAnnotation(Order.class).value() : 0);
+            .of(isAnnotationPresent(Order.class) ? getRequiredAnnotation(Order.class).value() : 0);
 
     private final Lazy<Boolean> isTransient = Lazy.of(super.isTransient() || isAnnotationPresent(Transient.class));
 
@@ -123,10 +129,10 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
      * @see Keyword
      */
     private final Lazy<Boolean> isKeyword = Lazy
-        .of(!isTransient() && (isAnnotationPresent(Keyword.class) || SqlKeyWords.contains(getColumn())));
+            .of(!isTransient() && (isAnnotationPresent(Keyword.class) || SqlKeyWords.contains(getColumn())));
 
     private final Lazy<ReferenceMode> referenceMode = Lazy
-        .of(isReference() ? getRequiredAnnotation(Reference.class).mode() : ReferenceMode.SIMPLE);
+            .of(isReference() ? getRequiredAnnotation(Reference.class).mode() : ReferenceMode.SIMPLE);
 
     private final Lazy<Map<String, String>> referenceColumns = Lazy.of(() -> {
 
@@ -148,8 +154,8 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
     });
 
     public AnnotationProperty(final org.springframework.data.mapping.model.Property property,
-        final Entity<?> owner,
-        final SimpleTypeHolder simpleTypeHolder) {
+                              final Entity<?> owner,
+                              final SimpleTypeHolder simpleTypeHolder) {
 
         super(property, owner, simpleTypeHolder);
     }
@@ -176,8 +182,13 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
     }
 
     @Override
-    public String getWriter() {
-        return this.writer.getNullable();
+    public String getInsert() {
+        return this.insert.getNullable();
+    }
+
+    @Override
+    public String getUpdate() {
+        return this.update.getNullable();
     }
 
     @Override
@@ -237,7 +248,6 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
 
     @Override
     public String getReferenceColumn(final Property property) {
-
         return Optional.ofNullable(referenceColumns.get().get(property.getName())).orElse(property.getColumn());
     }
 

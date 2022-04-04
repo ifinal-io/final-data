@@ -17,6 +17,7 @@ package org.ifinalframework.data.mybatis.sql.provider;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.type.TypeHandler;
+
 import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IRecord;
 import org.ifinalframework.core.IUser;
@@ -27,6 +28,7 @@ import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.query.*;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
+
 import org.springframework.lang.NonNull;
 
 import java.util.Map;
@@ -39,8 +41,18 @@ import java.util.Objects;
  */
 public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvider {
 
-    private static final String DEFAULT_WRITER = "#{${value}#if($javaType),javaType=$!{javaType.canonicalName}#end"
-            + "#if($typeHandler),typeHandler=$!{typeHandler.canonicalName}#end}";
+    private static final String DEFAULT_WRITER = String.join("", "<choose>",
+            "   <when test=\"${selectiveTest}\">",
+            "       ${column} = #{${value}#if($typeHandler)",
+            "           #if($javaType), javaType=$!{javaType.canonicalName}#end",
+            "           , typeHandler=$!{typeHandler.canonicalName}#end}",
+            "   </when>",
+            "   <when test=\"${test}\">",
+            "       ${column} = #{${value}#if($typeHandler)",
+            "           #if($javaType), javaType=$!{javaType.canonicalName}#end",
+            "           , typeHandler=$!{typeHandler.canonicalName}#end}",
+            "   </when>",
+            "</choose>");
 
     private static final String PROPERTIES_PARAMETER_NAME = "properties";
 
@@ -91,7 +103,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                     CriterionAttributes fragment = new CriterionAttributes();
                     fragment.putAll((CriterionAttributes) criterion);
                     fragment.setValue(String.format("update[%d]", i));
-                    String value = Velocities.getValue(fragment.getExpression(), fragment);
+                    String value = Velocities.eval(fragment.getExpression(), fragment);
                     sql.append(value);
                 } else {
                     throw new IllegalArgumentException("update not support criterion of " + criterion.getClass());
@@ -100,7 +112,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
             }
 
         } else {
-            appendEntitySet(sql, properties);
+            appendEntitySet(sql, properties, Boolean.TRUE.equals(parameters.get(SELECTIVE_PARAMETER_NAME)));
         }
 
         appendVersionProperty(sql, properties);
@@ -142,7 +154,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
      * @param sql    sql
      * @param entity entity
      */
-    private void appendEntitySet(final @NonNull StringBuilder sql, final @NonNull QEntity<?, ?> entity) {
+    private void appendEntitySet(final @NonNull StringBuilder sql, final @NonNull QEntity<?, ?> entity, boolean selective) {
 
         entity.stream()
                 .filter(QProperty::isModifiable)
@@ -152,8 +164,16 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                             .append(property.getPath())
                             .append("').hasView(view)\">");
 
-                    final Metadata metadata = new Metadata();
+                    final String testWithSelective = ScriptMapperHelper.formatTest(ENTITY_PARAMETER_NAME, property.getPath(), true);
+                    final String testNotWithSelective = ScriptMapperHelper.formatTest(ENTITY_PARAMETER_NAME, property.getPath(), false);
 
+
+                    final String selectiveTest = testWithSelective == null ? SELECTIVE_PARAMETER_NAME : "selective and " + testWithSelective;
+                    final String test = testNotWithSelective == null ? "!selective" : "!selective and " + testNotWithSelective;
+
+                    final Metadata metadata = new Metadata();
+                    metadata.setTest(test);
+                    metadata.setSelectiveTest(selectiveTest);
                     metadata.setProperty(property.getName());
                     metadata.setColumn(property.getColumn());
                     metadata.setValue("entity." + property.getPath());
@@ -162,41 +182,10 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                         metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
                     }
 
-                    final String writer = Asserts.isBlank(property.getWriter()) ? DEFAULT_WRITER : property.getWriter();
-                    final String value = Velocities.getValue(writer, metadata);
+                    final String writer = Asserts.isBlank(property.getUpdate()) ? DEFAULT_WRITER : property.getUpdate();
+                    final String value = Velocities.eval(writer, metadata);
 
-                    // <choose>
-                    sql.append("<choose>");
-
-                    final String testWithSelective = ScriptMapperHelper
-                            .formatTest(ENTITY_PARAMETER_NAME, property.getPath(), true);
-
-                    final String selectiveTest =
-                            testWithSelective == null ? SELECTIVE_PARAMETER_NAME : "selective and " + testWithSelective;
-
-                    // <when test="selective and entity.path != null">
-                    sql.append("<when test=\"").append(selectiveTest).append("\">")
-                            // property.column = entity.path
-                            .append(property.getColumn()).append(" = ").append(value).append(",")
-                            // </when>
-                            .append("</when>");
-
-                    final String testNotWithSelective = ScriptMapperHelper
-                            .formatTest(ENTITY_PARAMETER_NAME, property.getPath(), false);
-                    final String notSelectiveTest =
-                            testNotWithSelective == null ? "!selective" : "!selective and " + testNotWithSelective;
-
-                    sql.append("<when test=\"").append(notSelectiveTest).append("\">")
-                            .append(property.getColumn()).append(" = ").append(value).append(",")
-                            .append("</when>");
-
-                    if (testNotWithSelective != null) {
-                        sql.append("<otherwise>")
-                                .append(property.getColumn()).append(" = ").append("null").append(",")
-                                .append("</otherwise>");
-                    }
-
-                    sql.append("</choose>");
+                    sql.append(value).append(",");
 
                     sql.append("</if>");
                 });
@@ -209,12 +198,19 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         }
 
         sql.append("<if test=\"properties.hasVersionProperty()\">");
-        String version = entity.getVersionProperty().getColumn();
-        sql.append(version)
-                .append(" = ")
-                .append(version)
-                .append(" + 1,");
+        QProperty<Object> property = entity.getVersionProperty();
+        String update = property.getUpdate();
+        final Metadata metadata = new Metadata();
+        metadata.setProperty(property.getName());
+        metadata.setColumn(property.getColumn());
+        metadata.setValue("entity." + property.getPath());
+        metadata.setJavaType(property.getType());
+        if (Objects.nonNull(property.getTypeHandler())) {
+            metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
+        }
 
+        final String value = Velocities.eval(update, metadata);
+        sql.append(value).append(",");
         sql.append("</if>");
     }
 

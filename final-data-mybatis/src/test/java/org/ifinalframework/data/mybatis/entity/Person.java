@@ -17,8 +17,7 @@
 package org.ifinalframework.data.mybatis.entity;
 
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.annotation.PrimaryKey;
-import org.ifinalframework.data.annotation.Reference;
+import org.ifinalframework.data.annotation.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +40,12 @@ public class Person implements IEntity<Long> {
 
     private Integer age;
 
+    @Creator
     @Reference(properties = {"id", "name"})
-    private Person creator;
+    private AbsUser creator;
+
+    @LastModifier
+    @Reference(properties = {"id", "name"})
+    private AbsUser lastModifier;
 
 }
