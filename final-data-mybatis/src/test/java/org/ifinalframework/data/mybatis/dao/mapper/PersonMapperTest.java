@@ -54,6 +54,8 @@ class PersonMapperTest {
     @Test
     void insertAndUpdate() {
 
+        personMapper.truncate();
+
         Logger logger = LoggerFactory.getLogger(PersonMapper.class);
         ((ch.qos.logback.classic.Logger)logger).setLevel(Level.DEBUG);
         User user = new User();
