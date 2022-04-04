@@ -86,22 +86,18 @@
         <dependency>
             <artifactId>mybatis</artifactId>
             <groupId>org.mybatis</groupId>
-            <version>3.5.6</version>
         </dependency>
         <dependency>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <groupId>org.mybatis.spring.boot</groupId>
-            <version>2.1.0</version>
         </dependency>
         <dependency>
             <artifactId>pagehelper</artifactId>
             <groupId>com.github.pagehelper</groupId>
-            <version>5.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.200</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
