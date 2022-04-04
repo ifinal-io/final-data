@@ -78,7 +78,7 @@ class UpdateSqlProviderTest {
 
         logger.info(SqlHelper.xml(PersonMapper.class, "update", parameters));
         logger.info(SqlHelper.sql(PersonMapper.class, "update", parameters));
-
+        UserContextHolder.reset();
     }
 
 }

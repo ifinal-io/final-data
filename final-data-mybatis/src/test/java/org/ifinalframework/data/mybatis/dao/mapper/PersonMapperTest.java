@@ -92,7 +92,7 @@ class PersonMapperTest {
         assertEquals("234",person.getLastModifier().getName());
         assertEquals(16,person.getAge());
 
-
+        UserContextHolder.reset();
 
     }
 }
