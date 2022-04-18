@@ -21,6 +21,7 @@ import org.springframework.util.ClassUtils;
 import javax.sql.DataSource;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * DataSourceFactoryManager.
@@ -47,6 +48,11 @@ public final class DataSourceFactoryManager {
 
     @NonNull
     public <T extends DataSource> DataSourceFactory<? extends DataSource> getDataSourceFactory(Class<T> clazz) {
+
+        if (Objects.isNull(clazz)) {
+            return defaultDataSourceFactory;
+        }
+
         return cache.getOrDefault(clazz.getName(), defaultDataSourceFactory);
     }
 
