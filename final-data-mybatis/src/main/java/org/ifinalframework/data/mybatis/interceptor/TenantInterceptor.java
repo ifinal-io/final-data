@@ -73,7 +73,7 @@ public class TenantInterceptor extends AbsMapperInterceptor {
     @Override
     protected Object intercept(Invocation invocation, Class<?> mapper, Class<?> entity) throws Throwable {
 
-        if (AnnotationUtils.isCandidateClass(entity, Tenant.class)) {
+        if (entity.isAnnotationPresent(Tenant.class)) {
             return mybatisPlusInterceptor.intercept(invocation);
         }
 
