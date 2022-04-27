@@ -77,7 +77,13 @@
         <dependency>
             <groupId>org.ifinalframework.data</groupId>
             <artifactId>final-data-mybatis</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus</artifactId>
+            <version>3.5.1</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.ifinalframework.data</groupId>
