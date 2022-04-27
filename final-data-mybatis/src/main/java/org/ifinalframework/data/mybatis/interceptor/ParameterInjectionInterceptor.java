@@ -59,7 +59,7 @@ import org.ifinalframework.query.QEntity;
 )
 @Order
 @Component
-@SuppressWarnings({"unchecked", "rawtypes"})
+@SuppressWarnings({"unchecked"})
 public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
 
     private static final String TABLE_PARAMETER_NAME = "table";
@@ -82,24 +82,29 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
             parameters.putIfAbsent("USER", UserContextHolder.getUser());
 
-            /**
-             * {@link org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator} only supports {@link Map} types:
-             * <ul>
-             *     <li>{@link org.apache.ibatis.binding.MapperMethod.ParamMap}</li>
-             *     <li>{@link DefaultSqlSession.StrictMap}</li>
-             * </ul>
-             * @see org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator#assignKeys(Configuration, ResultSet, ResultSetMetaData, String[], Object)
-             * @since 1.2.2
-             */
-            final MapperMethod.ParamMap<Object> paramMap = new MapperMethod.ParamMap<>();
-            paramMap.putAll((Map<? extends String, ?>) parameter);
-            args[1] = paramMap;
+            args[1] = buildParamMap(parameters);
 
         }
 
         return invocation.proceed();
 
 
+    }
+
+    /**
+     * {@link org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator} only supports {@link Map} types:
+     * <ul>
+     *     <li>{@link org.apache.ibatis.binding.MapperMethod.ParamMap}</li>
+     *     <li>{@link DefaultSqlSession.StrictMap}</li>
+     * </ul>
+     *
+     * @see org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator#assignKeys(Configuration, ResultSet, ResultSetMetaData, String[], Object)
+     * @since 1.2.2
+     */
+    private MapperMethod.ParamMap<Object> buildParamMap(Map<String, Object> map) {
+        final MapperMethod.ParamMap<Object> paramMap = new MapperMethod.ParamMap<>();
+        paramMap.putAll(map);
+        return paramMap;
     }
 
 

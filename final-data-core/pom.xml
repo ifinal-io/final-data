@@ -77,6 +77,11 @@
             <groupId>org.ifinalframework</groupId>
             <artifactId>final-json</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ifinalframework.auto</groupId>
+            <artifactId>auto-spring</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
 </project>

@@ -1,6 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
- *
+ * Copyright 2020-2022 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,29 +15,17 @@
 
 package org.ifinalframework.data.mapping;
 
-import lombok.Setter;
+import org.springframework.lang.NonNull;
 
 /**
+ * EntityFactory.
+ *
  * @author ilikly
- * @version 1.0.0
- * @since 1.0.0
+ * @version 1.3.0
+ * @since 1.3.0
  */
-public final class EntityCache {
-
-    private static final EntityCache ourInstance = new EntityCache();
-
-    @Setter
-    private static EntityFactory entityFactory = new DefaultEntityFactory();
-
-    private EntityCache() {
-    }
-
-    public static EntityCache getInstance() {
-        return ourInstance;
-    }
-
-    public <T> Entity<T> get(final Class<T> entity) {
-      return entityFactory.create(entity);
-    }
-
+@FunctionalInterface
+public interface EntityFactory {
+    @NonNull
+    <T> Entity<T> create(@NonNull Class<T> clazz);
 }

@@ -16,7 +16,12 @@
 
 package org.ifinalframework.data.mapping;
 
+import java.util.*;
+import java.util.stream.Collectors;
+
+import org.springframework.core.env.Environment;
 import org.springframework.data.mapping.Association;
+import org.springframework.data.mapping.PersistentEntity;
 import org.springframework.data.mapping.model.AnnotationBasedPersistentProperty;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.util.Lazy;
@@ -25,20 +30,9 @@ import org.springframework.lang.NonNull;
 import org.ifinalframework.core.lang.Default;
 import org.ifinalframework.core.lang.Final;
 import org.ifinalframework.core.lang.Transient;
-import org.ifinalframework.data.annotation.Column;
-import org.ifinalframework.data.annotation.Keyword;
-import org.ifinalframework.data.annotation.Order;
-import org.ifinalframework.data.annotation.ReadOnly;
-import org.ifinalframework.data.annotation.Reference;
-import org.ifinalframework.data.annotation.ReferenceMode;
-import org.ifinalframework.data.annotation.SqlKeyWords;
-import org.ifinalframework.data.annotation.Virtual;
-import org.ifinalframework.data.annotation.WriteOnly;
+import org.ifinalframework.data.annotation.*;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
 import org.ifinalframework.util.Asserts;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Simple implementation of {@link Property}
@@ -50,53 +44,30 @@ import java.util.stream.Collectors;
  */
 public class AnnotationProperty extends AnnotationBasedPersistentProperty<Property> implements Property {
 
+    private final Environment environment;
+
     /**
      * @see Column#value()
      * @see Column#name()
      */
-    private final Lazy<String> column = Lazy.of(() -> {
-        final Column annotation = findAnnotation(Column.class);
-        if (annotation == null || Asserts.isBlank(annotation.name())) {
-            return getName();
-        }
-        return annotation.name();
-    });
+    private final Lazy<String> column;
 
     /**
      * @see Column#insert()
      */
-    private final Lazy<String> insert = Lazy.of(() -> {
-        final Column annotation = findAnnotation(Column.class);
-        if (annotation == null || Asserts.isEmpty(annotation.insert())) {
-            return null;
-        }
-        return Arrays.stream(annotation.insert()).map(String::trim).collect(Collectors.joining());
-    });
+    private final Lazy<String> insert;
 
-    private final Lazy<String> update = Lazy.of(() -> {
-        final Column annotation = findAnnotation(Column.class);
-        if (annotation == null || Asserts.isEmpty(annotation.update())) {
-            return null;
-        }
-        return Arrays.stream(annotation.update()).map(String::trim).collect(Collectors.joining());
-    });
+    private final Lazy<String> update;
 
     /**
      * @see Column#select()
      */
-    private final Lazy<String> reader = Lazy.of(() -> {
-        final Column annotation = findAnnotation(Column.class);
-        if (annotation == null || Asserts.isBlank(annotation.select())) {
-            return null;
-        }
-        return annotation.select();
-    });
+    private final Lazy<String> reader;
 
     /**
      * @see Order
      */
-    private final Lazy<Integer> order = Lazy
-            .of(isAnnotationPresent(Order.class) ? getRequiredAnnotation(Order.class).value() : 0);
+    private final Lazy<Integer> order;
 
     private final Lazy<Boolean> isTransient = Lazy.of(super.isTransient() || isAnnotationPresent(Transient.class));
 
@@ -128,8 +99,7 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
     /**
      * @see Keyword
      */
-    private final Lazy<Boolean> isKeyword = Lazy
-            .of(!isTransient() && (isAnnotationPresent(Keyword.class) || SqlKeyWords.contains(getColumn())));
+    private final Lazy<Boolean> isKeyword;
 
     private final Lazy<ReferenceMode> referenceMode = Lazy
             .of(isReference() ? getRequiredAnnotation(Reference.class).mode() : ReferenceMode.SIMPLE);
@@ -153,12 +123,51 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
         return map;
     });
 
-    public AnnotationProperty(final org.springframework.data.mapping.model.Property property,
-                              final Entity<?> owner,
-                              final SimpleTypeHolder simpleTypeHolder) {
 
+    public AnnotationProperty(org.springframework.data.mapping.model.Property property, PersistentEntity<?, Property> owner, SimpleTypeHolder simpleTypeHolder, Environment environment) {
         super(property, owner, simpleTypeHolder);
+        this.environment = environment;
+
+        this.column = Lazy.of(() -> {
+            final Column annotation = findAnnotation(Column.class);
+            if (annotation == null || Asserts.isBlank(annotation.name())) {
+                return getName();
+            }
+            return environment.resolvePlaceholders(annotation.name());
+
+        });
+
+        this.insert = Lazy.of(() -> {
+            final Column annotation = findAnnotation(Column.class);
+            if (annotation == null || Asserts.isEmpty(annotation.insert())) {
+                return null;
+            }
+            return Arrays.stream(annotation.insert()).map(String::trim).collect(Collectors.joining());
+        });
+
+        this.update = Lazy.of(() -> {
+            final Column annotation = findAnnotation(Column.class);
+            if (annotation == null || Asserts.isEmpty(annotation.update())) {
+                return null;
+            }
+            return Arrays.stream(annotation.update()).map(String::trim).collect(Collectors.joining());
+        });
+
+        this.reader = Lazy.of(() -> {
+            final Column annotation = findAnnotation(Column.class);
+            if (annotation == null || Asserts.isBlank(annotation.select())) {
+                return null;
+            }
+            return annotation.select();
+        });
+
+        this.order = Lazy.of(isAnnotationPresent(Order.class) ? getRequiredAnnotation(Order.class).value() : 0);
+
+
+        this.isKeyword = Lazy.of(!isTransient() && (isAnnotationPresent(Keyword.class) || SqlKeyWords.contains(getColumn())));
+
     }
+
 
     @Override
     @NonNull
