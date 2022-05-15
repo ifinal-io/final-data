@@ -15,11 +15,8 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import java.sql.Connection;
-
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
-import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Intercepts;
@@ -31,6 +28,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import org.ifinalframework.data.annotation.Tenant;
@@ -55,6 +54,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerIntercept
                 @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
         }
 )
+@Order(Ordered.HIGHEST_PRECEDENCE)
 @Component
 @ConditionalOnClass(TenantLineHandler.class)
 @ConditionalOnBean(TenantLineHandler.class)
