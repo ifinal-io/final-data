@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
  * DataSourceFactoryManagerTest.
  *
  * @author ilikly
- * @version 1.3.0
- * @since 1.3.0
+ * @version 1.3.1
+ * @since 1.3.1
  */
 class DataSourceFactoryManagerTest {
 

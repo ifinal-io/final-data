@@ -19,8 +19,8 @@ package org.ifinalframework.data.mybatis.core;
  * MapperMethodConsumer.
  *
  * @author ilikly
- * @version 1.3.0
- * @since 1.3.0
+ * @version 1.3.1
+ * @since 1.3.1
  */
 public interface MapperMethodConsumer {
     void accept(Class<?> mapper, Object parameter);

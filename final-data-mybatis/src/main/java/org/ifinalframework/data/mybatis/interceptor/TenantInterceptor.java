@@ -43,13 +43,13 @@ import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerIntercept
  * TenantInterceptor.
  *
  * @author ilikly
- * @version 1.3.0
- * @since 1.3.0
+ * @version 1.3.1
+ * @since 1.3.1
  */
 @Intercepts(
         {
-                @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
-                @Signature(type = StatementHandler.class, method = "getBoundSql", args = {}),
+//                @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
+//                @Signature(type = StatementHandler.class, method = "getBoundSql", args = {}),
                 @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
                 @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
                 @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),

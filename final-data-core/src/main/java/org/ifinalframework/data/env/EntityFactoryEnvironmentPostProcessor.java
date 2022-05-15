@@ -27,8 +27,8 @@ import org.ifinalframework.data.mapping.EntityCache;
  * EntityFactoryEnvironmentPostProcessor.
  *
  * @author ilikly
- * @version 1.3.0
- * @since 1.3.0
+ * @version 1.3.1
+ * @since 1.3.1
  */
 @SpringFactory(EnvironmentPostProcessor.class)
 public class EntityFactoryEnvironmentPostProcessor implements EnvironmentPostProcessor {

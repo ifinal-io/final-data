@@ -43,7 +43,7 @@ public class ObjectStringJsonRedisTemplate extends RedisTemplate<Object, Object>
 
     /**
      * @param redisConnectionFactory redis connection factory
-     * @since 1.3.0
+     * @since 1.3.1
      */
     public ObjectStringJsonRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         this();
