@@ -16,15 +16,21 @@
 
 package org.ifinalframework.data.mybatis.handler;
 
-import org.ifinalframework.json.Json;
-
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.ibatis.type.JdbcType;
+
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+
+import org.ifinalframework.data.query.type.JsonParameterTypeHandler;
+import org.ifinalframework.json.Json;
 
 /**
  * @author ilikly
@@ -33,21 +39,53 @@ import org.apache.ibatis.type.JdbcType;
  */
 public class JsonTypeReferenceTypeHandler<T> extends BaseTypeReferenceTypeHandler<T> {
 
-    public JsonTypeReferenceTypeHandler(final Type type) {
+    private static final boolean H2_IS_PRESENT = ClassUtils.isPresent("org.h2.api.H2Type", JsonParameterTypeHandler.class.getClassLoader());
 
+    private static Class<?> VALUE_JSON_CLASS;
+    private static Method FROM_JSON_METHOD;
+
+    static {
+        try {
+            if (H2_IS_PRESENT) {
+                ClassLoader classLoader = JsonParameterTypeHandler.class.getClassLoader();
+                VALUE_JSON_CLASS = ClassUtils.forName("org.h2.value.ValueJson", classLoader);
+                FROM_JSON_METHOD = ReflectionUtils.findMethod(VALUE_JSON_CLASS, "fromJson", String.class);
+            }
+        } catch (Exception e) {
+            // ignore
+        }
+    }
+
+    public JsonTypeReferenceTypeHandler(final Type type) {
         super(type);
     }
 
+    /**
+     * @param ps
+     * @param i
+     * @param parameter
+     * @param jdbcType
+     * @throws SQLException
+     */
     @Override
     public void setNonNullParameter(final PreparedStatement ps, final int i, final T parameter, final JdbcType jdbcType)
-        throws SQLException {
+            throws SQLException {
 
-        ps.setString(i, Json.toJson(parameter));
+        if (H2_IS_PRESENT) {
+            try {
+                Object value = FROM_JSON_METHOD.invoke(VALUE_JSON_CLASS, Json.toJson(parameter));
+                ps.setObject(i, value);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            ps.setString(i, Json.toJson(parameter));
+        }
+
     }
 
     @Override
     public T getNullableResult(final ResultSet rs, final String columnName) throws SQLException {
-
         return toObject(rs.getString(columnName));
     }
 
@@ -63,11 +101,21 @@ public class JsonTypeReferenceTypeHandler<T> extends BaseTypeReferenceTypeHandle
         return toObject(cs.getString(columnIndex));
     }
 
-    private T toObject(final String json) {
+    private T toObject(String json) {
 
         if (json == null) {
             return null;
         }
+
+        if (String.class != getType()) {
+            json = StringEscapeUtils.unescapeJson(json);
+
+            if (json.startsWith("\"")) {
+                json = json.substring(1, json.length() - 1);
+            }
+
+        }
+
         return Json.toObject(json, getType());
     }
 
