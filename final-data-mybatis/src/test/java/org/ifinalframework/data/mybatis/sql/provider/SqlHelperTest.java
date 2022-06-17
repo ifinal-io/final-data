@@ -23,10 +23,14 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.annotation.AbsUser;
 import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
+import org.ifinalframework.data.mapping.DefaultEntityFactory;
+import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mybatis.dao.mapper.UserMapper;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
-import org.ifinalframework.query.BetweenValue;
+import org.ifinalframework.data.query.DefaultQEntityFactory;
+import org.ifinalframework.query.*;
 import org.ifinalframework.query.annotation.*;
+import org.ifinalframework.query.annotation.Criteria;
 
 import org.junit.jupiter.api.Test;
 
@@ -95,6 +99,21 @@ class SqlHelperTest {
     void sql() {
         final PersonQuery query = new PersonQuery();
         query.setName("haha");
+        logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", Collections.singletonMap("query", query)));
+        logger.info("query={}", SqlHelper.query(Person.class, query));
+    }
+
+    @Test
+    void sql2() {
+        final Query query = new Query();
+        QEntity<?, ?> entity = new DefaultQEntityFactory().create(Person.class);
+        query.where(AndOr.OR,
+                Arrays.asList(
+                        entity.getRequiredProperty("name").date().in(Arrays.asList("1")),
+                        entity.getRequiredProperty("name").date().eq(Arrays.asList("1"))
+
+                )
+        );
         logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", Collections.singletonMap("query", query)));
         logger.info("query={}", SqlHelper.query(Person.class, query));
     }

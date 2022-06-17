@@ -17,6 +17,7 @@ package org.ifinalframework.data.mybatis.sql.util;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.SelectProvider;
@@ -31,13 +32,17 @@ import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.data.mybatis.agent.PropertyTokenizerRedefiner;
 import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
 import org.ifinalframework.data.mybatis.sql.provider.*;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.query.QueryProvider;
+
 import org.springframework.util.ReflectionUtils;
 
 import java.io.InputStream;
@@ -104,8 +109,9 @@ public final class SqlHelper {
         register(SELECT_COUNT_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
 
         register(TRUNCATE_METHOD_NAME, UpdateProvider.class, new TruncateSqlProvider());
-
+        PropertyTokenizerRedefiner.redefine();
         DEFAULT_CONFIGURATION.setDefaultEnumTypeHandler(EnumTypeHandler.class);
+        DEFAULT_CONFIGURATION.setObjectWrapperFactory(new FinalObjectWrapperFactory());
 
     }
 
@@ -161,7 +167,7 @@ public final class SqlHelper {
             } else if (boundSql.hasAdditionalParameter(parameterMapping.getProperty())) {
                 parameter = boundSql.getAdditionalParameter(parameterMapping.getProperty());
             }
-            setParameter(preparedStatement, parameterMapping.getTypeHandler(), i, parameter, Optional.ofNullable(parameterMapping.getJdbcType()).orElse(JdbcType.NULL));
+            setParameter(preparedStatement, parameterMapping.getTypeHandler(), i, parameter, Objects.isNull(parameter) ? JdbcType.NULL : parameterMapping.getJdbcType());
         }
         return preparedStatement.toString();
     }

@@ -17,16 +17,23 @@ package org.ifinalframework.data.mybatis.configuration;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.session.Configuration;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.lang.Transient;
+import org.ifinalframework.data.mybatis.agent.PropertyTokenizerRedefiner;
 import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
 import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
+import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
+
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.InitializingBean;
@@ -76,9 +83,13 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
 
         // add AbsMapper
         configuration.addMapper(AbsMapper.class);
+
+        PropertyTokenizerRedefiner.redefine();
+
         // set default enum type handler
         logger.info("setDefaultEnumTypeHandler:{}", EnumTypeHandler.class.getCanonicalName());
         configuration.getTypeHandlerRegistry().setDefaultEnumTypeHandler(EnumTypeHandler.class);
+        configuration.setObjectWrapperFactory(new FinalObjectWrapperFactory());
 
         // scan entity class
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
