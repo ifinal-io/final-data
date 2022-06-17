@@ -16,15 +16,15 @@
 package org.ifinalframework.data.mybatis.reflection;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.wrapper.CollectionWrapper;
 import org.apache.ibatis.reflection.wrapper.MapWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
-import org.ifinalframework.data.mybatis.reflection.wrapper.CollectionWrapper;
+import org.ifinalframework.data.mybatis.reflection.wrapper.BeanWrapper;
 
 /**
  * FinalObjectWrapperFactory.
@@ -45,9 +45,9 @@ public class FinalObjectWrapperFactory implements ObjectWrapperFactory {
         if (object instanceof Map) {
             return new MapWrapper(metaObject, (Map) object);
         } else if (object instanceof Collection) {
-            return new CollectionWrapper(metaObject, (Collection) object);
+            return new CollectionWrapper(metaObject, (Collection<Object>) object);
         } else {
-            return new org.apache.ibatis.reflection.wrapper.BeanWrapper(metaObject, object);
+            return new BeanWrapper(metaObject, object);
         }
     }
 }

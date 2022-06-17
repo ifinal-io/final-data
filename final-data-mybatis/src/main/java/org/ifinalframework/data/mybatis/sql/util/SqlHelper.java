@@ -15,8 +15,15 @@
 
 package org.ifinalframework.data.mybatis.sql.util;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
+import java.io.InputStream;
+import java.io.Reader;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.Date;
+import java.sql.*;
+import java.util.*;
 
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -33,6 +40,9 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.mybatis.agent.PropertyTokenizerRedefiner;
@@ -43,17 +53,8 @@ import org.ifinalframework.data.mybatis.sql.provider.*;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.query.QueryProvider;
 
-import org.springframework.util.ReflectionUtils;
-
-import java.io.InputStream;
-import java.io.Reader;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.net.URL;
-import java.sql.Date;
-import java.sql.*;
-import java.util.*;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * A sql tool for {@link AbsMapper} and {@link IQuery}.
@@ -109,7 +110,7 @@ public final class SqlHelper {
         register(SELECT_COUNT_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
 
         register(TRUNCATE_METHOD_NAME, UpdateProvider.class, new TruncateSqlProvider());
-        PropertyTokenizerRedefiner.redefine();
+//        PropertyTokenizerRedefiner.redefine();
         DEFAULT_CONFIGURATION.setDefaultEnumTypeHandler(EnumTypeHandler.class);
         DEFAULT_CONFIGURATION.setObjectWrapperFactory(new FinalObjectWrapperFactory());
 
@@ -157,8 +158,9 @@ public final class SqlHelper {
 
         final SqlPreparedStatement preparedStatement = new SqlPreparedStatement(sql);
 
-        for (int i = 0; i < boundSql.getParameterMappings().size(); i++) {
-            ParameterMapping parameterMapping = boundSql.getParameterMappings().get(i);
+        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+        for (int i = 0; i < parameterMappings.size(); i++) {
+            ParameterMapping parameterMapping = parameterMappings.get(i);
 
             Object parameter = null;
 
@@ -223,10 +225,18 @@ public final class SqlHelper {
         }
 
         private void setParameter(Object obj) {
-            if (obj instanceof String || obj instanceof Date) {
+            if (obj instanceof String ) {
+                if(((String) obj).contains("$")){
+                    obj = StringUtils.replace((String) obj,"$","\\$");
+                }
                 // if we have a String, include '' in the saved value
                 sql = sql.replaceFirst("\\?", "'" + obj + "'");
-            } else {
+            }
+            else if(obj instanceof Date){
+                sql = sql.replaceFirst("\\?", "'" + obj + "'");
+            }
+
+            else {
                 if (obj == null) {
                     // convert null to the string null
                     sql = sql.replaceFirst("\\?", "null");

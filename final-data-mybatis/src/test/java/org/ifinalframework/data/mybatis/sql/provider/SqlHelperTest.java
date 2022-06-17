@@ -109,8 +109,8 @@ class SqlHelperTest {
         QEntity<?, ?> entity = new DefaultQEntityFactory().create(Person.class);
         query.where(AndOr.OR,
                 Arrays.asList(
-                        entity.getRequiredProperty("name").date().in(Arrays.asList("1")),
-                        entity.getRequiredProperty("name").date().eq(Arrays.asList("1"))
+                        entity.getRequiredProperty("name").jsonExtract("$.a").neq("2"),
+                        entity.getRequiredProperty("name").date().eq("123")
 
                 )
         );

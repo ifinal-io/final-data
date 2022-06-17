@@ -33,17 +33,23 @@ public class FinalPropertyTokenizer extends PropertyTokenizer {
     public FinalPropertyTokenizer(String fullname) {
         super(fullname);
         int delim = fullname.indexOf('.');
-        int delim2 = fullname.indexOf("][");
-        if (delim > -1) {
+        int delim2 = fullname.indexOf('[');
+
+        if(delim > -1 && delim2 > -1){
+            delim = Math.min(delim,delim2);
             name = fullname.substring(0, delim);
             children = fullname.substring(delim + 1);
-        } else if (delim2 > -1) {
-            name = fullname.substring(0, delim2 + 1);
+        }else if(delim > -1){
+            name = fullname.substring(0, delim);
+            children = fullname.substring(delim + 1);
+        }else if(delim2 > -1){
+            name = fullname.substring(0, delim2);
             children = fullname.substring(delim2 + 1);
-        } else {
+        }else {
             name = fullname;
             children = null;
         }
+
         indexedName = name;
         delim = name.indexOf('[');
         if (delim > -1) {

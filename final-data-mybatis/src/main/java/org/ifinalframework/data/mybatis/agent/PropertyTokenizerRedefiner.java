@@ -46,17 +46,23 @@ public class PropertyTokenizerRedefiner {
                         "\n" +
                         "    public PropertyTokenizer(String fullname) {\n" +
                         "        int delim = fullname.indexOf('.');\n" +
-                        "        int delim2 = fullname.indexOf(\"][\");\n" +
-                        "        if (delim > -1) {\n" +
+                        "        int delim2 = fullname.indexOf('[');\n" +
+                        "\n" +
+                        "        if(delim > -1 && delim2 > -1){\n" +
+                        "            delim = Math.min(delim,delim2);\n" +
                         "            name = fullname.substring(0, delim);\n" +
                         "            children = fullname.substring(delim + 1);\n" +
-                        "        } else if (delim2 > -1) {\n" +
-                        "            name = fullname.substring(0, delim2 + 1);\n" +
+                        "        }else if(delim > -1){\n" +
+                        "            name = fullname.substring(0, delim);\n" +
+                        "            children = fullname.substring(delim + 1);\n" +
+                        "        }else if(delim2 > -1){\n" +
+                        "            name = fullname.substring(0, delim2);\n" +
                         "            children = fullname.substring(delim2 + 1);\n" +
-                        "        } else {\n" +
+                        "        }else {\n" +
                         "            name = fullname;\n" +
                         "            children = null;\n" +
                         "        }\n" +
+                        "\n" +
                         "        indexedName = name;\n" +
                         "        delim = name.indexOf('[');\n" +
                         "        if (delim > -1) {\n" +
@@ -95,7 +101,7 @@ public class PropertyTokenizerRedefiner {
                         "    public void remove() {\n" +
                         "        throw new UnsupportedOperationException(\"Remove is not supported, as it has no meaning in the context of properties.\");\n" +
                         "    }\n" +
-                        "}\n");
+                        "}");
 
     }
 
