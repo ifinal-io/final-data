@@ -45,7 +45,6 @@ import org.springframework.util.StringUtils;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.data.mybatis.agent.PropertyTokenizerRedefiner;
 import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
