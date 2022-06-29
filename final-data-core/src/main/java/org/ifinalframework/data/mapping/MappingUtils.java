@@ -21,6 +21,7 @@ import org.springframework.lang.Nullable;
 
 import org.ifinalframework.data.annotation.Prefix;
 import org.ifinalframework.data.annotation.ReferenceMode;
+import org.ifinalframework.data.annotation.SqlKeyWords;
 import org.ifinalframework.data.annotation.UpperCase;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
 
@@ -60,6 +61,10 @@ public interface MappingUtils {
             column = referenceProperty.isIdProperty() && property.getReferenceMode() == ReferenceMode.SIMPLE
                 ? property.getColumn()
                 : property.getColumn() + referenceColumn.substring(0, 1).toUpperCase() + referenceColumn.substring(1);
+        }
+
+        if(SqlKeyWords.contains(column)){
+            column = String.format("`%s`", column);
         }
 
         if (property.isAnnotationPresent(Prefix.class)) {
