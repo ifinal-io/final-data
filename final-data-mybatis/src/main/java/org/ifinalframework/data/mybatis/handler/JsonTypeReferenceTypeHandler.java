@@ -23,7 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.apache.ibatis.type.JdbcType;
 
 import org.springframework.util.ClassUtils;
@@ -105,15 +104,6 @@ public class JsonTypeReferenceTypeHandler<T> extends BaseTypeReferenceTypeHandle
 
         if (json == null) {
             return null;
-        }
-
-        if (String.class != getType()) {
-            json = StringEscapeUtils.unescapeJson(json);
-
-            if (json.startsWith("\"")) {
-                json = json.substring(1, json.length() - 1);
-            }
-
         }
 
         return Json.toObject(json, getType());
