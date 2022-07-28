@@ -38,30 +38,29 @@ public class BeanWrapper extends org.apache.ibatis.reflection.wrapper.BeanWrappe
 
     @Override
     protected Object getCollectionValue(PropertyTokenizer prop, Object collection) {
-        if(collection instanceof Map){
+        if (collection instanceof Map) {
             return super.getCollectionValue(prop, collection);
         }
 
         String index = prop.getIndex();
 
-        if(!index.contains("][")){
+        if (!index.contains("][")) {
             return super.getCollectionValue(prop, collection);
         }
 
-        String[] indexs = StringUtils.split(index,"][");
+        String[] indexs = StringUtils.split(index, "][");
 
         Object value = collection;
 
         for (String item : indexs) {
-            value = getCollectionValue(item,value);
+            value = getCollectionValue(item, value);
         }
-
 
         return value;
     }
 
 
-    public Object getCollectionValue(String index,Object collection){
+    private Object getCollectionValue(String index, Object collection) {
         int i = Integer.parseInt(index);
         if (collection instanceof List) {
             return ((List) collection).get(i);

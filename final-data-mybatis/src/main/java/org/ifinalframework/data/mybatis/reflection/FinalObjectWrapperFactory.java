@@ -31,6 +31,7 @@ import org.ifinalframework.data.mybatis.reflection.wrapper.BeanWrapper;
  *
  * @author ilikly
  * @version 1.3.3
+ * @see MetaObject
  * @since 1.3.3
  */
 public class FinalObjectWrapperFactory implements ObjectWrapperFactory {
@@ -40,6 +41,7 @@ public class FinalObjectWrapperFactory implements ObjectWrapperFactory {
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public ObjectWrapper getWrapperFor(MetaObject metaObject, Object object) {
 
         if (object instanceof Map) {
