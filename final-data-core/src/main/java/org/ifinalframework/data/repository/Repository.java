@@ -759,15 +759,15 @@ public interface Repository<I extends Serializable, T extends IEntity<I>> extend
     }
 
     default boolean isExists(@Nullable String table, @NonNull I id) {
-        return selectCount(table, id) > 0;
+        return selectOne(table, id) != null;
     }
 
     default boolean isExists(@NonNull IQuery query) {
-        return selectCount(query) > 0;
+        return isExists(null, query);
     }
 
     default boolean isExists(@Nullable String table, @NonNull IQuery query) {
-        return selectCount(table, null, query) > 0;
+        return selectOne(table, query) != null;
     }
 
     /*================================================================================================================*/
