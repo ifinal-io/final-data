@@ -24,7 +24,7 @@ import org.apache.ibatis.reflection.wrapper.MapWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
-import org.ifinalframework.data.mybatis.reflection.wrapper.BeanWrapper;
+import org.ifinalframework.data.mybatis.reflection.wrapper.MultiBeanWrapper;
 
 /**
  * FinalObjectWrapperFactory.
@@ -49,7 +49,7 @@ public class FinalObjectWrapperFactory implements ObjectWrapperFactory {
         } else if (object instanceof Collection) {
             return new CollectionWrapper(metaObject, (Collection<Object>) object);
         } else {
-            return new BeanWrapper(metaObject, object);
+            return new MultiBeanWrapper(metaObject, object);
         }
     }
 }

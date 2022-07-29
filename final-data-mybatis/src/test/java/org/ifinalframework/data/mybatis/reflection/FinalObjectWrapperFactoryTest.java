@@ -25,12 +25,12 @@ import org.apache.ibatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import org.apache.ibatis.reflection.wrapper.MapWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
-import org.ifinalframework.data.mybatis.reflection.wrapper.BeanWrapper;
+import org.ifinalframework.data.mybatis.reflection.wrapper.MultiBeanWrapper;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * FinalObjectWrapperFactoryTest.
@@ -53,9 +53,9 @@ class FinalObjectWrapperFactoryTest {
 
     @Test
     void getWrapperFor() {
-        MetaObject metaObject = MetaObject.forObject(new Object(),new DefaultObjectFactory(),new DefaultObjectWrapperFactory(),new DefaultReflectorFactory());
-        assertInstanceOf(MapWrapper.class,factory.getWrapperFor(metaObject,Collections.emptyMap()));
-        assertInstanceOf(CollectionWrapper.class,factory.getWrapperFor(metaObject,Collections.emptyList()));
-        assertInstanceOf(BeanWrapper.class,factory.getWrapperFor(metaObject,new Object()));
+        MetaObject metaObject = MetaObject.forObject(new Object(), new DefaultObjectFactory(), new DefaultObjectWrapperFactory(), new DefaultReflectorFactory());
+        assertInstanceOf(MapWrapper.class, factory.getWrapperFor(metaObject, Collections.emptyMap()));
+        assertInstanceOf(CollectionWrapper.class, factory.getWrapperFor(metaObject, Collections.emptyList()));
+        assertInstanceOf(MultiBeanWrapper.class, factory.getWrapperFor(metaObject, new Object()));
     }
 }

@@ -21,6 +21,7 @@ import java.util.Map;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
+import org.apache.ibatis.reflection.wrapper.BeanWrapper;
 
 import org.springframework.util.StringUtils;
 
@@ -31,8 +32,11 @@ import org.springframework.util.StringUtils;
  * @version 1.3.3
  * @since 1.3.3
  */
-public class BeanWrapper extends org.apache.ibatis.reflection.wrapper.BeanWrapper {
-    public BeanWrapper(MetaObject metaObject, Object object) {
+public class MultiBeanWrapper extends BeanWrapper {
+
+    private static final String ARRAY_DELIMITER = "][";
+
+    public MultiBeanWrapper(MetaObject metaObject, Object object) {
         super(metaObject, object);
     }
 
@@ -44,15 +48,15 @@ public class BeanWrapper extends org.apache.ibatis.reflection.wrapper.BeanWrappe
 
         String index = prop.getIndex();
 
-        if (!index.contains("][")) {
+        if (!index.contains(ARRAY_DELIMITER)) {
             return super.getCollectionValue(prop, collection);
         }
 
-        String[] indexs = StringUtils.split(index, "][");
+        String[] indexes = StringUtils.split(index, ARRAY_DELIMITER);
 
         Object value = collection;
 
-        for (String item : indexs) {
+        for (String item : indexes) {
             value = getCollectionValue(item, value);
         }
 
