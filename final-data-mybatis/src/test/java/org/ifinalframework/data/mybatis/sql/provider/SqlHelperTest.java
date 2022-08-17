@@ -15,26 +15,25 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.data.annotation.AbsUser;
 import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
-import org.ifinalframework.data.mapping.DefaultEntityFactory;
-import org.ifinalframework.data.mapping.Entity;
-import org.ifinalframework.data.mybatis.dao.mapper.UserMapper;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.*;
+import org.ifinalframework.query.AndOr;
+import org.ifinalframework.query.BetweenValue;
+import org.ifinalframework.query.QEntity;
+import org.ifinalframework.query.Query;
 import org.ifinalframework.query.annotation.*;
-import org.ifinalframework.query.annotation.Criteria;
 
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-
-import java.util.*;
 
 /**
  * @author ilikly
@@ -44,16 +43,6 @@ import java.util.*;
 @Slf4j
 class SqlHelperTest {
 
-    @Test
-    void insert() {
-        Map<String, Object> paramsters = new HashMap<>();
-        paramsters.put("table", "user");
-        AbsUser user = new AbsUser();
-        user.setId(1L);
-        user.setName("haha");
-        paramsters.put("USER", user);
-        logger.info(SqlHelper.xml(UserMapper.class, "insert", paramsters));
-    }
 
     @Test
     void and() {

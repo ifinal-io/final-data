@@ -17,11 +17,18 @@
 package org.ifinalframework.data.mybatis.configuration;
 
 import org.ifinalframework.data.mybatis.entity.Person;
+import org.ifinalframework.data.mybatis.entity.User;
+import org.ifinalframework.data.mybatis.util.MapperUtils;
 
 import java.util.Collections;
+import java.util.Objects;
 
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.session.Configuration;
+
+import org.springframework.util.ClassUtils;
+
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +44,7 @@ class FinalMybatisConfigurationCustomizerTest {
     private FinalMybatisConfigurationCustomizer customizer = new FinalMybatisConfigurationCustomizer();
 
     @Test
+    @SneakyThrows
     void customize() {
 
         customizer.setPackages(Collections.singletonList("org.ifinalframework"));
@@ -44,6 +52,13 @@ class FinalMybatisConfigurationCustomizerTest {
         customizer.customize(configuration);
         ResultMap resultMap = configuration.getResultMap(Person.class.getName());
         Assertions.assertNotNull(resultMap);
+        String className = MapperUtils.mapperClassName(User.class);
+        boolean present = configuration.getMapperRegistry().getMappers()
+                .stream()
+                .anyMatch(it -> Objects.equals(className, it.getCanonicalName()));
+
+        Assertions.assertTrue(present);
+
 
     }
 

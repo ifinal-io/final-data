@@ -1,6 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
- *
+ * Copyright 2020-2022 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,21 +13,17 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.dao.mapper;
+package org.ifinalframework.data.mybatis.generator;
 
-import org.ifinalframework.data.mybatis.entity.User;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-
-import org.apache.ibatis.annotations.Mapper;
+import org.ifinalframework.core.IEntity;
 
 /**
- * UserMapper.
+ * MapperGenerator.
  *
  * @author ilikly
- * @version 1.0.0
- * @since 1.0.0
+ * @version 1.4.0
+ * @since 1.4.0
  */
-@Mapper
-public interface UserMapper extends AbsMapper<Long, User> {
-
+public interface MapperJavaSourceGenerator {
+    <T extends IEntity<?>> String generate(Class<T> clazz);
 }

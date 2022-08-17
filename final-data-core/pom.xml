@@ -66,6 +66,10 @@
             <artifactId>final-annotation-query</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.ifinalframework</groupId>
             <artifactId>final-core</artifactId>
         </dependency>
@@ -76,6 +80,12 @@
         <dependency>
             <groupId>org.ifinalframework</groupId>
             <artifactId>final-json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.ifinalframework.auto</groupId>

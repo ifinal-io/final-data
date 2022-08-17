@@ -15,14 +15,10 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
-import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 
 import org.springframework.beans.factory.BeanFactory;
@@ -34,14 +30,11 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ReflectionUtils;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
-import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
 import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
 
 import lombok.Setter;
@@ -59,23 +52,17 @@ import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomizer, BeanFactoryAware,
         InitializingBean {
 
-
-    private static final Field composites = Objects
-            .requireNonNull(ReflectionUtils.findField(ResultMapping.class, "composites"));
-
-    private final ResultMapFactory resultMapFactory = new DefaultResultMapFactory();
-
-    static {
-        ReflectionUtils.makeAccessible(composites);
-    }
-
     @Setter
     private BeanFactory beanFactory;
 
     @Setter
     private List<String> packages;
 
+    private final ConfigurationBiConsumer configurationBiConsumer = new ConfigurationBiConsumerComposite();
+
+
     @Override
+    @SuppressWarnings("unchecked")
     public void customize(final Configuration configuration) {
 
         // add AbsMapper
@@ -108,28 +95,7 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
                     }
                 })
                 .forEach(clazz -> {
-                    ResultMap resultMap = resultMapFactory.create(configuration, clazz);
-
-                    if (logger.isInfoEnabled()) {
-                        logger.info("==> addResultMap:[{}],class={}", resultMap.getId(), clazz);
-                    }
-
-                    configuration.addResultMap(resultMap);
-
-                    resultMap.getResultMappings()
-                            .stream()
-                            .filter(ResultMapping::isCompositeResult)
-                            .forEach(resultMapping -> {
-
-                                ResultMap map = new ResultMap.Builder(configuration, resultMapping.getNestedResultMapId(),
-                                        resultMapping.getJavaType(),
-                                        resultMapping.getComposites()).build();
-                                configuration.addResultMap(map);
-
-                                // mybatis not support composites result mapping
-                                ReflectionUtils.setField(composites, resultMapping, null);
-
-                            });
+                    configurationBiConsumer.accept(configuration, (Class<? extends IEntity<?>>) clazz);
                 });
 
     }
