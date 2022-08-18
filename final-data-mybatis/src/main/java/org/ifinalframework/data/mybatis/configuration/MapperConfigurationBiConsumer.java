@@ -55,7 +55,7 @@ public class MapperConfigurationBiConsumer implements ConfigurationBiConsumer {
         compiler.addSource(mapperClassName, source);
         DynamicClassLoader dynamicClassLoader = compiler.compile();
         try {
-            Class<?> mapperClass = dynamicClassLoader.findClass(mapperClassName);
+            Class<?> mapperClass = dynamicClassLoader.getClasses().get(mapperClassName);
             logger.info("==> addMapper: {}", mapperClass.getName());
             configuration.addMapper(mapperClass);
         } catch (ClassNotFoundException e) {

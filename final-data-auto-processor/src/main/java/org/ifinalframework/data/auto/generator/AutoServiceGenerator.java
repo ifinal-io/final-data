@@ -18,6 +18,7 @@ package org.ifinalframework.data.auto.generator;
 
 import org.springframework.stereotype.Service;
 
+import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.data.service.AbsServiceImpl;
@@ -38,6 +39,8 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * AutoServiceGenerator.
@@ -63,25 +66,65 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
     @Override
     public void generate(final AutoService ann, final TypeElement entity) {
 
-        final String servicePackageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName()
-            .toString()
-            .replace("." + ann.entity(), "." + ann.service());
-
+        String packageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName()
+                .toString();
+        final String queryPackageName = packageName.replace("." + ann.entity(),"." + ann.query());
+        final String servicePackageName = packageName.replace("." + ann.entity(), "." + ann.service());
         final String serviceImplPackageName = servicePackageName + ".impl";
 
+        final String queryName = entity.getSimpleName().toString() + "Query";
         final String serviceName = entity.getSimpleName().toString() + SERVICE_SUFFIX;
         final String serviceImplName = entity.getSimpleName().toString() + SERVICE_IMPL_SUFFIX;
 
+        final TypeElement queryElement = processingEnv.getElementUtils().getTypeElement(queryPackageName+ "." + queryName);
         final TypeElement serviceElement = processingEnv.getElementUtils()
             .getTypeElement(servicePackageName + "." + serviceName);
         final TypeElement serviceImplElement = processingEnv.getElementUtils()
             .getTypeElement(serviceImplPackageName + "." + serviceImplName);
 
+        generateQuery(ann,entity,queryPackageName,queryName,queryElement);
         generateService(ann, entity, servicePackageName, serviceName, serviceElement);
         generateServiceImpl(ann, entity, servicePackageName, serviceImplPackageName, serviceName, serviceImplName,
             serviceImplElement);
 
     }
+
+    private void generateQuery(final AutoService autoService, final TypeElement entity,
+                               final String queryPackageName, final String queryName,
+                               final TypeElement queryElement){
+        if (queryElement == null) {
+
+            try {
+                final JavaFileObject sourceFile = processingEnv.getFiler()
+                        .createSourceFile(queryPackageName + "." + queryName);
+
+                // public interface EntityService extends AbsService<I,IEntity,EntityMapper>
+                TypeSpec query = TypeSpec.classBuilder(queryName)
+                        .addModifiers(Modifier.PUBLIC)
+                        .superclass(ClassName.get(PageQuery.class))
+                        .addAnnotation(Setter.class)
+                        .addAnnotation(Getter.class)
+                        .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
+                        .addJavadoc(Javadoc.author())
+                        .addJavadoc(Javadoc.version())
+                        .build();
+
+                try (Writer writer = sourceFile.openWriter()) {
+                    JavaFile javaFile = JavaFile.builder(queryPackageName, query)
+                            .skipJavaLangImports(true).build();
+                    javaFile.writeTo(writer);
+                    writer.flush();
+                }
+
+            } catch (Exception e) {
+                error(e.getMessage());
+            }
+
+        }
+
+    }
+
+
 
     private void generateService(final AutoService autoService, final TypeElement entity,
         final String servicePackageName, final String serviceName,

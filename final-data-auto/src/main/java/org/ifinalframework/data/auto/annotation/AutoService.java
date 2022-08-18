@@ -21,6 +21,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.PageQuery;
+
 /**
  * AutoQuery.
  *
@@ -37,6 +40,10 @@ public @interface AutoService {
     String entity() default "entity";
 
     String mapper() default "dao.mapper";
+
+    String query() default "query";
+
+    Class<? extends IQuery> baseQuery() default PageQuery.class;
 
     String service() default "service";
 

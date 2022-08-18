@@ -1,6 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
- *
+ * Copyright 2020-2022 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,18 +13,29 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.repository;
+package org.ifinalframework.data.service;
 
-import java.util.List;
+import java.util.Collection;
+
+import org.ifinalframework.core.IEntity;
 
 /**
+ * ServiceListener.
+ *
  * @author ilikly
- * @version 1.0.0
- * @since 1.0.0
+ * @version 1.4.0
+ * @since 1.4.0
  */
-public interface SelectListener<P, T> extends Listener<P, List<T>> {
+public interface ServiceListener<T extends IEntity<?>> {
+    default void beforeInsert(Collection<T> entities) {
 
-    @Override
-    boolean onListening(int index, P param, List<T> list);
+    }
 
+    default void afterInsert(Collection<T> entieies, int rows) {
+
+    }
+
+    default void afterSelect(Collection<T> entities) {
+
+    }
 }

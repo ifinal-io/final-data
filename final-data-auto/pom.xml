@@ -55,4 +55,13 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.ifinalframework.annotation</groupId>
+            <artifactId>final-annotation-core</artifactId>
+        </dependency>
+    </dependencies>
+
+
 </project>
