@@ -24,14 +24,14 @@ import org.ifinalframework.core.IEntity;
  *
  * @author ilikly
  * @version 1.4.0
- * @since 1.4.0
+ * @since 1.4.0k
  */
 public interface ServiceListener<T extends IEntity<?>> {
     default void beforeInsert(Collection<T> entities) {
 
     }
 
-    default void afterInsert(Collection<T> entieies, int rows) {
+    default void afterInsert(Collection<T> entities, int rows) {
 
     }
 
