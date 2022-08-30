@@ -13,35 +13,33 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.configuration;
+package org.ifinalframework.data.mybatis.mapping;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.session.Configuration;
 
-import org.ifinalframework.core.IEntity;
+import org.ifinalframework.data.annotation.AbsRecord;
+
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * ConfigurationBiConsumerComposite.
+ * DefaultResultMapFactoryTest.
  *
  * @author ilikly
  * @version 1.4.0
  * @since 1.4.0
  */
-public class ConfigurationBiConsumerComposite implements ConfigurationBiConsumer {
+@Slf4j
+class DefaultResultMapFactoryTest {
 
-    private final List<ConfigurationBiConsumer> consumers = new LinkedList<>();
-
-    public ConfigurationBiConsumerComposite() {
-        consumers.add(new ResultMapConfigurationBiConsumer());
-//        consumers.add(new MapperConfigurationBiConsumer());
+    @Test
+    void create() {
+        DefaultResultMapFactory factory = new DefaultResultMapFactory();
+        ResultMap resultMap = factory.create(new Configuration(), MyRecord.class);
     }
 
-    @Override
-    public void accept(Configuration configuration, Class<? extends IEntity<?>> clazz) {
-        consumers.forEach(it -> it.accept(configuration, clazz));
-    }
+    public static class MyRecord extends AbsRecord{};
 }
-
-

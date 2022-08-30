@@ -16,8 +16,7 @@
 
 package org.ifinalframework.data.mybatis.entity;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.annotation.*;
+import org.ifinalframework.data.annotation.AbsRecord;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -31,21 +30,11 @@ import lombok.Setter;
  */
 @Setter
 @Getter
-public class Person implements IEntity<Long> {
-
-    @PrimaryKey
-    private Long id;
+public class Person extends AbsRecord {
 
     private String name;
 
     private Integer age;
 
-    @Creator
-    @Reference(properties = {"id", "name"})
-    private AbsUser creator;
-
-    @LastModifier
-    @Reference(properties = {"id", "name"})
-    private AbsUser lastModifier;
 
 }

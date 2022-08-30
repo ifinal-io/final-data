@@ -47,7 +47,7 @@ public class Person extends AbsEntity {
     private Integer maxAge;
 
 
-    @Reference(properties = {"id", "name"})
+    @Creator
     private AbsUser creator;
 
 }

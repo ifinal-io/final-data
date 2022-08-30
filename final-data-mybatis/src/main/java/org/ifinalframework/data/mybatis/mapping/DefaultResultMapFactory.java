@@ -20,10 +20,9 @@ import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeHandler;
-import org.ifinalframework.data.annotation.Json;
-import org.ifinalframework.data.annotation.Reference;
-import org.ifinalframework.data.annotation.ReferenceMode;
-import org.ifinalframework.data.annotation.UpperCase;
+
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.annotation.*;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
@@ -63,11 +62,14 @@ public class DefaultResultMapFactory implements ResultMapFactory {
             final List<ResultMapping> resultMappings = entity.stream()
                     .filter(it -> !it.isTransient() && !it.isVirtual() && !it.isWriteOnly())
                     .map(property -> {
-                        final Class<?> type = property.getType();
+                        Class<?> type = property.getType();
                         if (property.isAssociation()) {
-
                             final Reference reference = property.getRequiredAnnotation(Reference.class);
+                            if(IUser.class.equals(type)){
+                                type = AbsUser.class;
+                            }
                             final Entity<?> referenceEntity = Entity.from(type);
+                            Class<?> finalType = type;
                             final List<ResultMapping> composites = Arrays.stream(reference.properties())
                                     .map(referenceEntity::getPersistentProperty)
                                     .map(referenceProperty -> {
@@ -76,7 +78,7 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                                         String column = formatColumn(entity, property, referenceProperty);
                                         final TypeHandler<?> typeHandler = findTypeHandler(configuration, referenceProperty);
 
-                                        return new ResultMapping.Builder(configuration, name, column, type)
+                                        return new ResultMapping.Builder(configuration, name, column, finalType)
                                                 .javaType(referenceProperty.getJavaType())
                                                 .flags(referenceProperty.isIdProperty() ? Collections.singletonList(ResultFlag.ID)
                                                         : Collections.emptyList())

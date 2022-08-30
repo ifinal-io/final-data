@@ -88,6 +88,10 @@
             <groupId>org.mybatis</groupId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <groupId>org.mybatis.spring.boot</groupId>
         </dependency>

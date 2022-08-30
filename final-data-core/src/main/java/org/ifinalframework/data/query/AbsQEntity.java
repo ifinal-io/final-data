@@ -16,27 +16,25 @@
 
 package org.ifinalframework.data.query;
 
+import java.io.Serializable;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.springframework.lang.NonNull;
 
+import org.ifinalframework.data.annotation.Column;
+import org.ifinalframework.data.annotation.Reference;
 import org.ifinalframework.data.annotation.Table;
 import org.ifinalframework.data.annotation.View;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.MappingUtils;
+import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
 import org.ifinalframework.query.QEntity;
 import org.ifinalframework.query.QProperty;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 /**
  * @author ilikly
@@ -90,25 +88,30 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
 
                         AtomicInteger index = new AtomicInteger();
 
-                        property.getReferenceProperties()
-                                .stream()
-                                .map(referenceEntity::getRequiredPersistentProperty)
-                                .forEach(referenceProperty -> addProperty(
+                        Reference reference = property.getRequiredAnnotation(Reference.class);
 
-                                        new QPropertyImpl.Builder<>(this, referenceProperty)
-                                                .order(order + index.getAndIncrement())
-                                                .path(property.getName() + "." + referenceProperty.getName())
-                                                .name(MappingUtils.formatPropertyName(property, referenceProperty))
-                                                .column(MappingUtils.formatColumn(entity, property, referenceProperty))
-                                                .insert(referenceProperty.getInsert())
-                                                .update(referenceProperty.getUpdate())
-                                                .views(views)
-                                                .readable(true)
-                                                .writeable(property.isWriteable())
-                                                .modifiable(property.isModifiable())
-                                                .typeHandler(TypeHandlers.findTypeHandler(referenceProperty))
-                                                .build()
-                                ));
+                        Map<String, Column> columns = Arrays.stream(reference.columns()).collect(Collectors.toMap(Column::name, Function.identity()));
+
+                        property.getReferenceProperties()
+                                .forEach(referenceProperty -> {
+                                    Property persistentProperty = referenceEntity.getRequiredPersistentProperty(referenceProperty);
+                                    final Column column = columns.get(referenceProperty);
+                                    addProperty(
+                                            new QPropertyImpl.Builder<>(this, persistentProperty)
+                                                    .order(order + index.getAndIncrement())
+                                                    .path(property.getName() + "." + persistentProperty.getName())
+                                                    .name(MappingUtils.formatPropertyName(property, persistentProperty))
+                                                    .column(MappingUtils.formatColumn(entity, property, persistentProperty))
+                                                    .insert(column == null ? persistentProperty.getInsert() : String.join("", column.insert()))
+                                                    .update(column == null ? persistentProperty.getUpdate() : String.join("", column.update()))
+                                                    .views(views)
+                                                    .readable(true)
+                                                    .writeable(property.isWriteable())
+                                                    .modifiable(property.isModifiable())
+                                                    .typeHandler(TypeHandlers.findTypeHandler(persistentProperty))
+                                                    .build()
+                                    );
+                                });
 
                     } else {
 

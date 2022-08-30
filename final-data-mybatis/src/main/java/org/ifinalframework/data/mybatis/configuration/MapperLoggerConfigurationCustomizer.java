@@ -15,32 +15,28 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.ibatis.session.Configuration;
 
-import org.ifinalframework.core.IEntity;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
+import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 
 /**
- * ConfigurationBiConsumerComposite.
+ * MapperLoggerConfigurationCustomizer.
  *
  * @author ilikly
  * @version 1.4.0
  * @since 1.4.0
  */
-public class ConfigurationBiConsumerComposite implements ConfigurationBiConsumer {
-
-    private final List<ConfigurationBiConsumer> consumers = new LinkedList<>();
-
-    public ConfigurationBiConsumerComposite() {
-        consumers.add(new ResultMapConfigurationBiConsumer());
-//        consumers.add(new MapperConfigurationBiConsumer());
-    }
-
+@Slf4j
+@Component
+public class MapperLoggerConfigurationCustomizer implements ConfigurationCustomizer {
     @Override
-    public void accept(Configuration configuration, Class<? extends IEntity<?>> clazz) {
-        consumers.forEach(it -> it.accept(configuration, clazz));
+    public void customize(Configuration configuration) {
+        for (Class<?> mapper : configuration.getMapperRegistry().getMappers()) {
+            logger.info("registry mapper={}", mapper);
+        }
     }
 }
 

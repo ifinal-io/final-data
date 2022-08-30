@@ -27,6 +27,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.autoconfigure.AutoConfigurationPackages;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.stereotype.Component;
@@ -49,6 +50,7 @@ import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
  */
 @Slf4j
 @Component
+@Order(100)
 public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomizer, BeanFactoryAware,
         InitializingBean {
 
