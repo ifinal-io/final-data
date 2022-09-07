@@ -16,6 +16,13 @@
 
 package org.ifinalframework.data.auto.generator;
 
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
+import java.io.Writer;
+
 import org.springframework.stereotype.Service;
 
 import org.ifinalframework.core.PageQuery;
@@ -25,20 +32,7 @@ import org.ifinalframework.data.service.AbsServiceImpl;
 import org.ifinalframework.javapoets.JavaPoets;
 import org.ifinalframework.javapoets.JavaPoets.Javadoc;
 
-import java.io.Writer;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
-
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -68,7 +62,7 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
 
         String packageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName()
                 .toString();
-        final String queryPackageName = packageName.replace("." + ann.entity(),"." + ann.query());
+        final String queryPackageName = packageName.replace("." + ann.entity(), "." + ann.query());
         final String servicePackageName = packageName.replace("." + ann.entity(), "." + ann.service());
         final String serviceImplPackageName = servicePackageName + ".impl";
 
@@ -76,29 +70,29 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
         final String serviceName = entity.getSimpleName().toString() + SERVICE_SUFFIX;
         final String serviceImplName = entity.getSimpleName().toString() + SERVICE_IMPL_SUFFIX;
 
-        final TypeElement queryElement = processingEnv.getElementUtils().getTypeElement(queryPackageName+ "." + queryName);
+        final TypeElement queryElement = processingEnv.getElementUtils().getTypeElement(queryPackageName + "." + queryName);
         final TypeElement serviceElement = processingEnv.getElementUtils()
-            .getTypeElement(servicePackageName + "." + serviceName);
+                .getTypeElement(servicePackageName + "." + serviceName);
         final TypeElement serviceImplElement = processingEnv.getElementUtils()
-            .getTypeElement(serviceImplPackageName + "." + serviceImplName);
+                .getTypeElement(serviceImplPackageName + "." + serviceImplName);
 
-        generateQuery(ann,entity,queryPackageName,queryName,queryElement);
+        generateQuery(ann, entity, queryPackageName, queryName, queryElement);
         generateService(ann, entity, servicePackageName, serviceName, serviceElement);
         generateServiceImpl(ann, entity, servicePackageName, serviceImplPackageName, serviceName, serviceImplName,
-            serviceImplElement);
+                serviceImplElement);
 
     }
 
     private void generateQuery(final AutoService autoService, final TypeElement entity,
                                final String queryPackageName, final String queryName,
-                               final TypeElement queryElement){
+                               final TypeElement queryElement) {
         if (queryElement == null) {
 
             try {
                 final JavaFileObject sourceFile = processingEnv.getFiler()
                         .createSourceFile(queryPackageName + "." + queryName);
 
-                // public interface EntityService extends AbsService<I,IEntity,EntityMapper>
+                // public interface EntityService extends AbsService<I,IEntity>
                 TypeSpec query = TypeSpec.classBuilder(queryName)
                         .addModifiers(Modifier.PUBLIC)
                         .superclass(ClassName.get(PageQuery.class))
@@ -125,42 +119,35 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
     }
 
 
-
     private void generateService(final AutoService autoService, final TypeElement entity,
-        final String servicePackageName, final String serviceName,
-        final TypeElement serviceElement) {
+                                 final String servicePackageName, final String serviceName,
+                                 final TypeElement serviceElement) {
         if (serviceElement == null) {
 
             try {
                 final JavaFileObject sourceFile = processingEnv.getFiler()
-                    .createSourceFile(servicePackageName + "." + serviceName);
+                        .createSourceFile(servicePackageName + "." + serviceName);
 
-                final String mapperPackageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName()
-                    .toString()
-                    .replace("." + autoService.entity(), "." + autoService.mapper());
-                final String mapperName = entity.getSimpleName().toString() + MAPPER_SUFFIX;
-
-                // AbsService<I,IEntity,EntityMapper>
+                // AbsService<I,IEntity>
                 ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(
-                    ClassName.get(AbsService.class),
-                    // 偷个小懒，先写死
-                    TypeName.get(Long.class),
-                    ClassName.get(entity),
-                    ClassName.get(mapperPackageName, mapperName)
+                        ClassName.get(AbsService.class),
+                        // 偷个小懒，先写死
+                        TypeName.get(Long.class),
+                        ClassName.get(entity)
                 );
 
                 // public interface EntityService extends AbsService<I,IEntity,EntityMapper>
                 TypeSpec service = TypeSpec.interfaceBuilder(serviceName)
-                    .addModifiers(Modifier.PUBLIC)
-                    .addSuperinterface(parameterizedTypeName)
-                    .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
-                    .addJavadoc(Javadoc.author())
-                    .addJavadoc(Javadoc.version())
-                    .build();
+                        .addModifiers(Modifier.PUBLIC)
+                        .addSuperinterface(parameterizedTypeName)
+                        .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
+                        .addJavadoc(Javadoc.author())
+                        .addJavadoc(Javadoc.version())
+                        .build();
 
                 try (Writer writer = sourceFile.openWriter()) {
                     JavaFile javaFile = JavaFile.builder(servicePackageName, service)
-                        .skipJavaLangImports(true).build();
+                            .skipJavaLangImports(true).build();
                     javaFile.writeTo(writer);
                     writer.flush();
                 }
@@ -173,52 +160,51 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
     }
 
     private void generateServiceImpl(final AutoService autoService, final TypeElement entity,
-        final String servicePackageName,
-        final String serviceImplPackageName, final String serviceName, final String serviceImplName,
-        final TypeElement serviceImplElement) {
+                                     final String servicePackageName,
+                                     final String serviceImplPackageName, final String serviceName, final String serviceImplName,
+                                     final TypeElement serviceImplElement) {
         if (serviceImplElement == null) {
             try {
                 final JavaFileObject sourceFile = processingEnv.getFiler()
-                    .createSourceFile(serviceImplPackageName + "." + serviceImplName);
+                        .createSourceFile(serviceImplPackageName + "." + serviceImplName);
 
                 final String mapperPackageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName()
-                    .toString()
-                    .replace("." + autoService.entity(), "." + autoService.mapper());
+                        .toString()
+                        .replace("." + autoService.entity(), "." + autoService.mapper());
                 final String mapperName = entity.getSimpleName().toString() + MAPPER_SUFFIX;
 
                 // AbsServiceImpl<I,IEntity,EntityMapper>
                 ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(
-                    ClassName.get(AbsServiceImpl.class),
-                    // 偷个小懒，先写死
-                    TypeName.get(Long.class),
-                    ClassName.get(entity),
-                    ClassName.get(mapperPackageName, mapperName)
+                        ClassName.get(AbsServiceImpl.class),
+                        // 偷个小懒，先写死
+                        TypeName.get(Long.class),
+                        ClassName.get(entity)
                 );
 
                 MethodSpec constructor = MethodSpec.constructorBuilder()
 //                    .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
-                    .addParameter(
-                        ParameterSpec.builder(ClassName.get(mapperPackageName, mapperName), "repository")
-                            .addModifiers(Modifier.FINAL).build())
-                    .addStatement("super(repository)")
-                    .build();
+                        .addParameter(
+                                ParameterSpec.builder(ClassName.get(mapperPackageName, mapperName), "repository")
+                                        .addModifiers(Modifier.FINAL).build())
+                        .addStatement("super(repository)")
+                        .build();
 
                 //  class EntityServiceImpl extends AbsServiceImpl<I,IEntity,EntityMapper> implements EntityService
                 TypeSpec service = TypeSpec.classBuilder(serviceImplName)
-                    .superclass(parameterizedTypeName)
-                    .addSuperinterface(ClassName.get(servicePackageName, serviceName))
-                    .addMethod(constructor)
-                    .addAnnotation(Service.class)
-                    .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
-                    .addJavadoc(Javadoc.author())
-                    .addJavadoc(Javadoc.version())
-                    .build();
+                        .superclass(parameterizedTypeName)
+                        .addSuperinterface(ClassName.get(servicePackageName, serviceName))
+                        .addMethod(constructor)
+                        .addAnnotation(Service.class)
+                        .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
+                        .addJavadoc(Javadoc.author())
+                        .addJavadoc(Javadoc.version())
+                        .build();
 
                 try (Writer writer = sourceFile.openWriter()) {
                     JavaFile javaFile = JavaFile.builder(serviceImplPackageName, service)
-                        .skipJavaLangImports(true)
-                        .indent("    ")
-                        .build();
+                            .skipJavaLangImports(true)
+                            .indent("    ")
+                            .build();
                     javaFile.writeTo(writer);
                     writer.flush();
                 }

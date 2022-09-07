@@ -30,7 +30,7 @@ import org.ifinalframework.data.repository.Repository;
  * @since 1.0.0
  */
 @SuppressWarnings({"unused"})
-public interface AbsService<I extends Serializable, T extends IEntity<I>, R extends Repository<I, T>>
+public interface AbsService<I extends Serializable, T extends IEntity<I>>
         extends Repository<I, T> {
 
     @Override
@@ -84,6 +84,6 @@ public interface AbsService<I extends Serializable, T extends IEntity<I>, R exte
     }
 
     @NonNull
-    R getRepository();
+    Repository<I,T> getRepository();
 
 }

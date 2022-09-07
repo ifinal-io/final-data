@@ -38,16 +38,16 @@ import lombok.Setter;
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I>, R extends Repository<I, T>>
-        implements AbsService<I, T, R>, SmartInitializingSingleton, ApplicationContextAware {
+public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I>>
+        implements AbsService<I, T>, SmartInitializingSingleton, ApplicationContextAware {
 
-    private final R repository;
+    private final Repository<I, T> repository;
     private final List<ServiceListener<T>> listeners = new LinkedList<>();
 
     @Setter
     private ApplicationContext applicationContext;
 
-    protected AbsServiceImpl(final R repository) {
+    protected AbsServiceImpl(final Repository<I, T> repository) {
         this.repository = Objects.requireNonNull(repository);
     }
 
@@ -70,12 +70,12 @@ public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I
 
     @Override
     @NonNull
-    public final R getRepository() {
+    public final Repository<I, T> getRepository() {
         return repository;
     }
 
     @Override
-    @SuppressWarnings({"unchecked","rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public void afterSingletonsInstantiated() {
         Class<?> entityClass = ResolvableType.forInstance(this).as(Repository.class).resolveGeneric(1);
         ResolvableType resolvableType = ResolvableType.forClassWithGenerics(ServiceListener.class, entityClass);
