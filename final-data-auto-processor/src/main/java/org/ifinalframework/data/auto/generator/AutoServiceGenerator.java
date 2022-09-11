@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
+import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.data.service.AbsServiceImpl;
 import org.ifinalframework.javapoets.JavaPoets;
@@ -173,7 +174,7 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
                         .replace("." + autoService.entity(), "." + autoService.mapper());
                 final String mapperName = entity.getSimpleName().toString() + MAPPER_SUFFIX;
 
-                // AbsServiceImpl<I,IEntity,EntityMapper>
+                // AbsServiceImpl<I,IEntity>
                 ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(
                         ClassName.get(AbsServiceImpl.class),
                         // 偷个小懒，先写死
@@ -181,15 +182,21 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
                         ClassName.get(entity)
                 );
 
+                ParameterizedTypeName repository = ParameterizedTypeName.get(
+                        ClassName.get(Repository.class),
+                        TypeName.get(Long.class),
+                        ClassName.get(entity)
+                );
+
                 MethodSpec constructor = MethodSpec.constructorBuilder()
 //                    .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
                         .addParameter(
-                                ParameterSpec.builder(ClassName.get(mapperPackageName, mapperName), "repository")
+                                ParameterSpec.builder(repository, "repository")
                                         .addModifiers(Modifier.FINAL).build())
                         .addStatement("super(repository)")
                         .build();
 
-                //  class EntityServiceImpl extends AbsServiceImpl<I,IEntity,EntityMapper> implements EntityService
+                //  class EntityServiceImpl extends AbsServiceImpl<I, IEntity> implements EntityService
                 TypeSpec service = TypeSpec.classBuilder(serviceImplName)
                         .superclass(parameterizedTypeName)
                         .addSuperinterface(ClassName.get(servicePackageName, serviceName))
