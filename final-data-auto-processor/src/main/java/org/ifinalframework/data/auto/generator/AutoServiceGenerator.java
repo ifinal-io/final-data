@@ -46,7 +46,6 @@ import lombok.Setter;
  */
 public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElement> {
 
-    private static final String MAPPER_SUFFIX = "Mapper";
 
     private static final String SERVICE_SUFFIX = "Service";
 
@@ -168,11 +167,6 @@ public class AutoServiceGenerator implements AutoGenerator<AutoService, TypeElem
             try {
                 final JavaFileObject sourceFile = processingEnv.getFiler()
                         .createSourceFile(serviceImplPackageName + "." + serviceImplName);
-
-                final String mapperPackageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName()
-                        .toString()
-                        .replace("." + autoService.entity(), "." + autoService.mapper());
-                final String mapperName = entity.getSimpleName().toString() + MAPPER_SUFFIX;
 
                 // AbsServiceImpl<I,IEntity>
                 ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(
