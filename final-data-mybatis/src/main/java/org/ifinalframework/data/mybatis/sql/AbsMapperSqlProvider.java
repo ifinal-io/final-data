@@ -15,6 +15,10 @@
 
 package org.ifinalframework.data.mybatis.sql;
 
+import java.util.Optional;
+
+import org.springframework.core.ResolvableType;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.provider.ScriptSqlProvider;
@@ -23,9 +27,6 @@ import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.query.Query;
 import org.ifinalframework.query.QueryProvider;
-import org.springframework.core.ResolvableType;
-
-import java.util.Optional;
 
 /**
  * @author ilikly
@@ -58,12 +59,12 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         }
 
         Optional.ofNullable(provider)
-            .ifPresent(it -> {
-                Optional.ofNullable(it.where()).ifPresent(sql::append);
-                Optional.ofNullable(it.groups()).ifPresent(sql::append);
-                Optional.ofNullable(it.orders()).ifPresent(sql::append);
-                Optional.ofNullable(it.limit()).ifPresent(sql::append);
-            });
+                .ifPresent(it -> {
+                    Optional.ofNullable(it.where()).ifPresent(sql::append);
+                    Optional.ofNullable(it.groups()).ifPresent(sql::append);
+                    Optional.ofNullable(it.orders()).ifPresent(sql::append);
+                    Optional.ofNullable(it.limit()).ifPresent(sql::append);
+                });
     }
 
     default String whereIdNotNull() {
@@ -72,9 +73,9 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
 
     default String whereIdsNotNull() {
         return "<where>"
-            + "${properties.idProperty.column}"
-            + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>"
-            + "</where>";
+                + "${properties.idProperty.column}"
+                + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>"
+                + "</where>";
     }
 
 }
