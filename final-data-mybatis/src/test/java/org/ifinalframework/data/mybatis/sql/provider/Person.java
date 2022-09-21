@@ -48,6 +48,7 @@ public class Person extends AbsEntity {
 
 
     @Creator
+    @Reference(properties = {"id","name"})
     private AbsUser creator;
 
 }
