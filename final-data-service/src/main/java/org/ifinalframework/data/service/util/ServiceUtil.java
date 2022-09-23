@@ -20,6 +20,17 @@ import lombok.experimental.UtilityClass;
 /**
  * ServiceUtil.
  *
+ * <pre class="code">
+ * |--org.group
+ * |--org.group.{module}.entity
+ * |--org.group.{module}.dao.mapper
+ * |--org.group.{module}.dao.query
+ * |--org.group.{module}.service
+ * |--org.group.{module}.service.impl
+ * |--org.group.{module}.query
+ * |--org.group.{module}.web.controller
+ * </pre>
+ *
  * @author ilikly
  * @version 1.4.0
  * @since 1.4.0
@@ -27,11 +38,23 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class ServiceUtil {
     public static String packageName(Class<?> clazz) {
-        return clazz.getPackage().getName().replace(".entity", ".api.service");
+        return clazz.getPackage().getName().replace(".entity", ".service");
     }
 
     public static String serviceName(Class<?> clazz) {
         return clazz.getSimpleName() + "Service";
+    }
+
+    public static String queryPackageName(Class<?> clazz) {
+        return clazz.getPackage().getName().replace(".entity", ".query");
+    }
+
+    public static String queryName(Class<?> clazz) {
+        return clazz.getSimpleName() + "Query";
+    }
+
+    public static String queryClassName(Class<?> clazz) {
+        return String.join(".", queryPackageName(clazz), queryName(clazz));
     }
 
     public static String serviceClassName(Class<?> clazz) {

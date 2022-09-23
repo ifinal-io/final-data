@@ -13,18 +13,17 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.rest.generator;
+package org.ifinalframework.data.auto.rest.generator;
 
-import org.ifinalframework.core.IEntity;
+import com.squareup.javapoet.MethodSpec;
 
 /**
- * RestControllerGenerator.
+ * RestControllerMethodProvider.
  *
  * @author ilikly
- * @version 1.4.0
- * @since 1.4.0
+ * @version 1.4.1
+ * @since 1.4.1
  */
-public interface RestControllerGenerator {
-
-    <T extends IEntity<?>> String generate(Class<T> clazz);
+public interface RestControllerMethodProvider {
+    MethodSpec provide(Class<?> entity, String service);
 }

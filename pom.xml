@@ -161,6 +161,11 @@
                 <artifactId>final-data-printer</artifactId>
                 <version>1.4.1-SNAPSHOT</version>
             </dependency>
+            <dependency>
+                <groupId>org.ifinalframework.data</groupId>
+                <artifactId>final-data-rest</artifactId>
+                <version>1.4.1-SNAPSHOT</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

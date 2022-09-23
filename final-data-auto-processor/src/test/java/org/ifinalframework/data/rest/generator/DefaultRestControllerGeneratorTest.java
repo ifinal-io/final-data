@@ -16,11 +16,12 @@
 package org.ifinalframework.data.rest.generator;
 
 import org.ifinalframework.data.annotation.AbsUser;
+import org.ifinalframework.data.auto.annotation.RestResource;
+import org.ifinalframework.data.auto.rest.generator.DefaultRestControllerGenerator;
+import org.ifinalframework.data.auto.rest.generator.RestControllerGenerator;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DefaultRestControllerGeneratorTest.
@@ -31,7 +32,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @Slf4j
 class DefaultRestControllerGeneratorTest {
-
     private RestControllerGenerator restControllerGenerator = new DefaultRestControllerGenerator();
 
     @Test
@@ -40,7 +40,8 @@ class DefaultRestControllerGeneratorTest {
         logger.info(source);
     }
 
-    private static class User extends AbsUser{
+    @RestResource("users")
+    private static class User extends AbsUser {
 
     }
 }

@@ -13,30 +13,18 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.rest.util;
+package org.ifinalframework.data.auto.rest.generator;
 
-import lombok.experimental.UtilityClass;
+import org.ifinalframework.core.IEntity;
 
 /**
- * RestUtils.
+ * RestControllerGenerator.
  *
  * @author ilikly
  * @version 1.4.0
  * @since 1.4.0
  */
-@UtilityClass
-public class RestUtils {
-    public static String packageName(Class<?> clazz) {
-        return clazz.getPackage().getName().replace(".entity", ".api.controller");
-    }
+public interface RestControllerGenerator {
 
-    public static String controllerName(Class<?> clazz) {
-        return clazz.getSimpleName() + "Controller";
-    }
-
-    public static String controllerClassName(Class<?> clazz) {
-        return String.join(".", packageName(clazz), controllerName(clazz));
-    }
+    <T extends IEntity<?>> String generate(Class<T> clazz);
 }
-
-
