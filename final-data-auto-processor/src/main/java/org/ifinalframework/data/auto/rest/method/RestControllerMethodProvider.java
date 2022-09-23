@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.generator;
+package org.ifinalframework.data.auto.rest.method;
 
 import com.squareup.javapoet.MethodSpec;
 

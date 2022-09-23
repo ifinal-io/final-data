@@ -27,7 +27,7 @@ import java.lang.annotation.Target;
  * @version 1.4.1
  * @since 1.4.1
  */
-@Target(ElementType.TYPE)
+@Target(ElementType.PACKAGE)
 @Retention(RetentionPolicy.SOURCE)
 public @interface AutoRestController {
     String prefix() default "/api";

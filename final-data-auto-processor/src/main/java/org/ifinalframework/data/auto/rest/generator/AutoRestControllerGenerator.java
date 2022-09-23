@@ -16,28 +16,15 @@
 package org.ifinalframework.data.auto.rest.generator;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.springframework.web.bind.annotation.RestController;
-
+import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoRestController;
-import org.ifinalframework.data.auto.entity.Entity;
-import org.ifinalframework.data.auto.entity.EntityFactory;
 import org.ifinalframework.data.auto.generator.AutoGenerator;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.javapoets.JavaPoets;
-import org.ifinalframework.javapoets.JavaPoets.Javadoc;
-
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
 
 /**
  * AutoMapperGenerator.
@@ -58,6 +45,8 @@ import com.squareup.javapoet.TypeSpec;
 public class AutoRestControllerGenerator implements AutoGenerator<AutoRestController, TypeElement> {
 
     private static final String CONTROLLER_SUFFIX = "RestController";
+
+    private final RestControllerGenerator restControllerGenerator = new DefaultRestControllerGenerator();
 
     private final ProcessingEnvironment processingEnv;
 
@@ -81,9 +70,12 @@ public class AutoRestControllerGenerator implements AutoGenerator<AutoRestContro
                 final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(elementName);
 
                 try (Writer writer = sourceFile.openWriter()) {
-                    JavaFile javaFile = buildJavaFile(packageName, mapperName, entity);
-                    javaFile.writeTo(writer);
+                    Class<? extends IEntity> clazz = (Class<? extends IEntity>) Class.forName(entity.getQualifiedName().toString());
+                    String source = restControllerGenerator.generate(clazz);
+                    writer.write(source);
                     writer.flush();
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
 
             }
@@ -91,32 +83,6 @@ public class AutoRestControllerGenerator implements AutoGenerator<AutoRestContro
         } catch (IOException e) {
             error(e.getMessage());
         }
-    }
-
-    private JavaFile buildJavaFile(final String packageName, final String mapperName, final TypeElement typeElement) {
-
-        Entity entity = EntityFactory.create(processingEnv, typeElement);
-
-        // AbsMapper<I,IEntity>
-        ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(
-                ClassName.get(AbsMapper.class),
-                TypeName.get(entity.getRequiredIdProperty().getType()),
-                ClassName.get(entity.getElement())
-        );
-
-        // public interface EntityMapper extends AbsMapper<I,IEntity>
-        TypeSpec myMapper = TypeSpec.interfaceBuilder(mapperName)
-                .addModifiers(Modifier.PUBLIC)
-//                .addSuperinterface(parameterizedTypeName)
-                .addAnnotation(RestController.class)
-                .addAnnotation(JavaPoets.generated(AutoRestController.class))
-                .addJavadoc(Javadoc.author())
-                .addJavadoc(Javadoc.version())
-                .build();
-
-        return JavaFile.builder(packageName, myMapper)
-                .skipJavaLangImports(true).build();
-
     }
 
     private void error(final String msg) {

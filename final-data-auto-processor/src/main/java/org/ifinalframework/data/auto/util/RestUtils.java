@@ -27,11 +27,11 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class RestUtils {
     public static String packageName(Class<?> clazz) {
-        return clazz.getPackage().getName().replace(".entity", ".api.controller");
+        return clazz.getPackage().getName().replace(".entity", ".web.controller");
     }
 
     public static String controllerName(Class<?> clazz) {
-        return clazz.getSimpleName() + "Controller";
+        return clazz.getSimpleName() + "RestController";
     }
 
     public static String controllerClassName(Class<?> clazz) {
