@@ -71,6 +71,17 @@ import lombok.SneakyThrows;
  *          return entity.getId();
  *      }
  *
+ *      &#64;PutMapping("/{id})
+ *      public int update(&#64;PathVariable Long id, &#64;RequestBody Entity entity){
+ *          entity.setId(id);
+ *          return entityService.update(entity);
+ *      }
+ *
+ *      &#64;DeleteMapping("/{id}")
+ *      public int delete(&#64;PathVariable Long id){
+ *          return entityService.delete(id);
+ *      }
+ *
  * }
  * </pre>
  *
