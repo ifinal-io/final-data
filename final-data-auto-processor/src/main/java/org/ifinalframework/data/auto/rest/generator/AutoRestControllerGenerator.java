@@ -26,6 +26,8 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoRestController;
 import org.ifinalframework.data.auto.generator.AutoGenerator;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * AutoMapperGenerator.
  *
@@ -42,6 +44,7 @@ import org.ifinalframework.data.auto.generator.AutoGenerator;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Slf4j
 public class AutoRestControllerGenerator implements AutoGenerator<AutoRestController, TypeElement> {
 
     private static final String CONTROLLER_SUFFIX = "RestController";
@@ -56,7 +59,7 @@ public class AutoRestControllerGenerator implements AutoGenerator<AutoRestContro
 
     @Override
     public void generate(final AutoRestController ann, final TypeElement entity) {
-
+        logger.info("start generate controller for {}",entity.getQualifiedName());
         final String packageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName().toString()
                 .replace(".entity", ".web.controller");
         String mapperName = entity.getSimpleName().toString() + CONTROLLER_SUFFIX;

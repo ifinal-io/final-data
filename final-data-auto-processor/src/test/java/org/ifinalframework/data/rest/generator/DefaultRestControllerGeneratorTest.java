@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 class DefaultRestControllerGeneratorTest {
-    private RestControllerGenerator restControllerGenerator = new DefaultRestControllerGenerator();
+    private final RestControllerGenerator restControllerGenerator = new DefaultRestControllerGenerator();
 
     @Test
     void generate() {

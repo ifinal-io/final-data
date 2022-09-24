@@ -16,6 +16,18 @@
 
 package org.ifinalframework.data.auto.processor;
 
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementFilter;
+import java.lang.annotation.Annotation;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -24,17 +36,6 @@ import org.springframework.lang.Nullable;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.auto.generator.AutoGenerator;
-
-import java.lang.annotation.Annotation;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.ElementFilter;
 
 /**
  * AutoMapperGeneratorProcessor.
@@ -68,7 +69,7 @@ public abstract class AbsAutoGeneratorProcessor<A extends Annotation, E extends 
         super.init(processingEnv);
         this.typeElement = processingEnv.getElementUtils().getTypeElement(ENTITY);
         this.typeElementFilter = new TypeElementFilter(processingEnv, typeElement,
-            processingEnv.getElementUtils().getTypeElement(TRANSIENT));
+                processingEnv.getElementUtils().getTypeElement(TRANSIENT));
     }
 
     @Override
@@ -76,52 +77,53 @@ public abstract class AbsAutoGeneratorProcessor<A extends Annotation, E extends 
 
         if (roundEnv.processingOver()) {
             ElementFilter.packagesIn(autoMappers)
-                .forEach(it -> {
+                    .forEach(it -> {
 
-                    A autoMapper = it.getAnnotation(autoAnnotation);
+                        A autoMapper = it.getAnnotation(autoAnnotation);
 
-                    String packageName = it.getQualifiedName().toString();
+                        String packageName = it.getQualifiedName().toString();
 
-                    ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
-                        false);
+                        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
+                                false);
 
-                    scanner.setResourceLoader(new PathMatchingResourcePatternResolver() {
-                        @Nullable
-                        @Override
-                        public ClassLoader getClassLoader() {
-                            return AbsAutoGeneratorProcessor.this.getClass().getClassLoader();
-                        }
+                        scanner.setResourceLoader(new PathMatchingResourcePatternResolver() {
+                            @Nullable
+                            @Override
+                            public ClassLoader getClassLoader() {
+                                return AbsAutoGeneratorProcessor.this.getClass().getClassLoader();
+                            }
+                        });
+                        scanner.addIncludeFilter((metadataReader, metadataReaderFactory) -> {
+                            try {
+                                Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
+                                return IEntity.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Transient.class);
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            return false;
+                        });
+
+                        Set<BeanDefinition> components = scanner.findCandidateComponents(packageName);
+
+                        Set<String> set = components.stream().map(BeanDefinition::getBeanClassName)
+                                .collect(Collectors.toSet());
+
+//                        ElementFilter.typesIn(elements)
+//                                .stream()
+//                                .filter(element -> element.getQualifiedName().toString().startsWith(packageName))
+//                                .forEach(element -> set.add(element.getQualifiedName().toString()));
+
+                        set.stream()
+                                .map(element -> processingEnv.getElementUtils().getTypeElement(element))
+                                .filter(Objects::nonNull)
+                                .forEachOrdered(element -> getAutoGenerator().generate(autoMapper, (E) element));
+
                     });
-                    scanner.addIncludeFilter((metadataReader, metadataReaderFactory) -> {
-                        try {
-                            Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
-                            return IEntity.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Transient.class);
-                        } catch (ClassNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        return false;
-                    });
-
-                    Set<BeanDefinition> components = scanner.findCandidateComponents(packageName);
-
-                    Set<String> set = components.stream().map(BeanDefinition::getBeanClassName)
-                        .collect(Collectors.toSet());
-
-                    ElementFilter.typesIn(elements)
-                        .stream()
-                        .filter(element -> element.getQualifiedName().toString().startsWith(packageName))
-                        .forEach(element -> set.add(element.getQualifiedName().toString()));
-
-                    set.stream()
-                        .map(element -> processingEnv.getElementUtils().getTypeElement(element))
-                        .forEachOrdered(element -> getAutoGenerator().generate(autoMapper, (E) element));
-
-                });
         } else {
             ElementFilter.typesIn(roundEnv.getRootElements())
-                .stream()
-                .filter(typeElementFilter::matches)
-                .forEach(elements::add);
+                    .stream()
+                    .filter(typeElementFilter::matches)
+                    .forEach(elements::add);
 
             autoMappers.addAll(roundEnv.getElementsAnnotatedWith(autoAnnotation));
         }

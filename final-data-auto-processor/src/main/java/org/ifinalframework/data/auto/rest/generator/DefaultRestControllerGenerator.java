@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.RestResource;
+import org.ifinalframework.data.auto.rest.method.CountRestControllerMethodProvider;
 import org.ifinalframework.data.auto.rest.method.CreateRestControllerMethodProvider;
 import org.ifinalframework.data.auto.rest.method.DeleteRestControllerMethodProvider;
 import org.ifinalframework.data.auto.rest.method.QueryDetailRestControllerMethodProvider;
@@ -91,11 +92,16 @@ public class DefaultRestControllerGenerator implements RestControllerGenerator {
     private final List<RestControllerMethodProvider> providers = new ArrayList<>();
 
     public DefaultRestControllerGenerator() {
+        // select
         providers.add(new QueryRestControllerMethodProvider());
+        providers.add(new CountRestControllerMethodProvider());
         providers.add(new QueryDetailRestControllerMethodProvider());
+        // create
         providers.add(new CreateRestControllerMethodProvider());
+        // update
         providers.add(new UpdateRestControllerMethodProvider());
         providers.add(new YNRestControllerMethodProvider());
+        // delete
         providers.add(new DeleteRestControllerMethodProvider());
     }
 
