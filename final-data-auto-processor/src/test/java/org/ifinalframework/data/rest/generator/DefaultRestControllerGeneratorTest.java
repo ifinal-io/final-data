@@ -17,9 +17,11 @@ package org.ifinalframework.data.rest.generator;
 
 import org.ifinalframework.data.annotation.AbsUser;
 import org.ifinalframework.data.auto.annotation.RestResource;
-import org.ifinalframework.data.auto.rest.generator.DefaultRestControllerGenerator;
+import org.ifinalframework.data.auto.generator.RestControllerJavaFileGenerator;
 import org.ifinalframework.data.auto.rest.generator.RestControllerGenerator;
 
+import com.squareup.javapoet.JavaFile;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -32,12 +34,16 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 class DefaultRestControllerGeneratorTest {
-    private final RestControllerGenerator restControllerGenerator = new DefaultRestControllerGenerator();
+    private final RestControllerGenerator restControllerGenerator = new RestControllerJavaFileGenerator();
 
     @Test
+    @SneakyThrows
     void generate() {
-        String source = restControllerGenerator.generate(User.class);
-        logger.info(source);
+        JavaFile javaFile = restControllerGenerator.generate(User.class);
+
+        StringBuilder out = new StringBuilder();
+        javaFile.writeTo(out);
+        logger.info(out.toString());
     }
 
     @RestResource("users")

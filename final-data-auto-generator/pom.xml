@@ -1,4 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?><!--
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
   ~ Copyright 2020-2022 the original author or authors.
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -13,7 +14,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>final-data</artifactId>
@@ -22,53 +24,22 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>final-data-auto-processor</artifactId>
+    <artifactId>final-data-auto-generator</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <url>https://github.com/final-projects/final-data</url>
-
-    <scm>
-        <connection>scm:git:git://github.com/final-projects/final-data.git</connection>
-        <developerConnection>scm:git:ssh://github.com:final-projects/final-data.git</developerConnection>
-        <url>http://github.com/final-projects/final-data/tree/main</url>
-    </scm>
-
-    <developers>
-        <developer>
-            <email>569553290@qq.com</email>
-            <id>likly</id>
-            <name>likly</name>
-            <roles>
-                <role>Owner</role>
-            </roles>
-            <timezone>+8</timezone>
-        </developer>
-    </developers>
-
-    <licenses>
-        <license>
-            <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-        </license>
-    </licenses>
     <dependencies>
+        <dependency>
+            <groupId>org.ifinalframework</groupId>
+            <artifactId>final-core</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.ifinalframework.data</groupId>
             <artifactId>final-data-auto</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ifinalframework.data</groupId>
-            <artifactId>final-data-auto-generator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ifinalframework.auto</groupId>
-            <artifactId>auto-service</artifactId>
-            <scope>provided</scope>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -84,18 +55,14 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>mybatis-plus</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.ifinalframework.data</groupId>
             <artifactId>final-data-core</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.ifinalframework.data</groupId>
-            <artifactId>final-data-rest</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 

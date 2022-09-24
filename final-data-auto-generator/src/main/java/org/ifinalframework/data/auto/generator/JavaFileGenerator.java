@@ -13,20 +13,23 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.generator;
+package org.ifinalframework.data.auto.generator;
 
-import org.ifinalframework.core.IEntity;
+import java.lang.annotation.Annotation;
+
+import org.springframework.lang.NonNull;
 
 import com.squareup.javapoet.JavaFile;
 
 /**
- * RestControllerGenerator.
+ * JavaFileGenerator.
  *
  * @author ilikly
- * @version 1.4.0
- * @since 1.4.0
+ * @version 1.4.1
+ * @since 1.4.1
  */
-public interface RestControllerGenerator {
-
-    <T extends IEntity<?>> JavaFile generate(Class<T> clazz);
+@FunctionalInterface
+public interface JavaFileGenerator<A extends Annotation> {
+    @NonNull
+    JavaFile generate(@NonNull A ann, @NonNull Class<?> clazz);
 }

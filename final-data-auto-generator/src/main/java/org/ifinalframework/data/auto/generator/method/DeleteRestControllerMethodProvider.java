@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.method;
+package org.ifinalframework.data.auto.generator.method;
 
 import javax.lang.model.element.Modifier;
-import javax.validation.Valid;
 
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import org.ifinalframework.data.service.util.ServiceUtil;
+import org.ifinalframework.data.auto.generator.RestControllerMethodProvider;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -29,36 +29,30 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 
 /**
- * CountRestControllerMethodProvider.
- * <pre class="code">
- *      &#64;GetMapping("/count)
- *      public long count(EntityQuery query){
- *          return entityService.selectCount(query);
- *      }
- * </pre>
+ * DeleteRestControllerMethodProvider.
  *
  * @author ilikly
  * @version 1.4.1
  * @since 1.4.1
  */
-public class CountRestControllerMethodProvider implements RestControllerMethodProvider {
+public class DeleteRestControllerMethodProvider implements RestControllerMethodProvider {
     @Override
     public MethodSpec provide(Class<?> clazz, String service) {
-        AnnotationSpec getMapping = AnnotationSpec.builder(GetMapping.class)
-                .addMember("value", "$S","count")
+        AnnotationSpec deleteMapping = AnnotationSpec.builder(DeleteMapping.class)
+                .addMember("value", "$S", "/{id}")
                 .build();
 
-        ParameterSpec query = ParameterSpec.builder(ClassName.get(ServiceUtil.queryPackageName(clazz), ServiceUtil.queryName(clazz)), "query")
-                .addAnnotation(Valid.class)
+        ParameterSpec id = ParameterSpec.builder(ClassName.get(Long.class), "id")
+                .addAnnotation(PathVariable.class)
                 .build();
 
 
-        return MethodSpec.methodBuilder("count")
-                .addAnnotation(getMapping)
+        return MethodSpec.methodBuilder("delete")
+                .addAnnotation(deleteMapping)
                 .addModifiers(Modifier.PUBLIC)
-                .returns(TypeName.LONG)
-                .addParameter(query)
-                .addCode("return $L.selectCount(query);", service)
+                .returns(TypeName.INT)
+                .addParameter(id)
+                .addCode("return $L.delete(id);", service)
                 .build();
     }
 }

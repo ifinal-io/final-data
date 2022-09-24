@@ -22,10 +22,13 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoRestController;
 import org.ifinalframework.data.auto.generator.AutoGenerator;
+import org.ifinalframework.data.auto.generator.AutoNameHelper;
+import org.ifinalframework.data.auto.generator.RestControllerJavaFileGenerator;
 
+import com.squareup.javapoet.JavaFile;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -47,9 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AutoRestControllerGenerator implements AutoGenerator<AutoRestController, TypeElement> {
 
-    private static final String CONTROLLER_SUFFIX = "RestController";
-
-    private final RestControllerGenerator restControllerGenerator = new DefaultRestControllerGenerator();
+    private final RestControllerJavaFileGenerator restControllerGenerator = new RestControllerJavaFileGenerator();
 
     private final ProcessingEnvironment processingEnv;
 
@@ -58,13 +59,12 @@ public class AutoRestControllerGenerator implements AutoGenerator<AutoRestContro
     }
 
     @Override
+    @SneakyThrows
     public void generate(final AutoRestController ann, final TypeElement entity) {
-        logger.info("start generate controller for {}",entity.getQualifiedName());
-        final String packageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName().toString()
-                .replace(".entity", ".web.controller");
-        String mapperName = entity.getSimpleName().toString() + CONTROLLER_SUFFIX;
+        logger.info("start generate controller for {}", entity.getQualifiedName());
+        Class<?> clazz = Class.forName(entity.getQualifiedName().toString());
 
-        final String elementName = packageName + "." + mapperName;
+        final String elementName = String.join(".", AutoNameHelper.controllerPackage(clazz), AutoNameHelper.controllerName(clazz));
 
         try {
             final TypeElement mapperElement = processingEnv.getElementUtils().getTypeElement(elementName);
@@ -73,12 +73,9 @@ public class AutoRestControllerGenerator implements AutoGenerator<AutoRestContro
                 final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(elementName);
 
                 try (Writer writer = sourceFile.openWriter()) {
-                    Class<? extends IEntity> clazz = (Class<? extends IEntity>) Class.forName(entity.getQualifiedName().toString());
-                    String source = restControllerGenerator.generate(clazz);
-                    writer.write(source);
+                    JavaFile javaFile = restControllerGenerator.generate(ann, clazz);
+                    javaFile.writeTo(writer);
                     writer.flush();
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException(e);
                 }
 
             }

@@ -13,26 +13,28 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.method;
+package org.ifinalframework.data.auto.generator.method;
 
 import javax.lang.model.element.Modifier;
 import javax.validation.Valid;
-import java.beans.Introspector;
 
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 
+import org.ifinalframework.data.auto.generator.AutoNameHelper;
+import org.ifinalframework.data.auto.generator.RestControllerMethodProvider;
+
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.TypeName;
 
 /**
- * CreateRestControllerMethodProvider.
+ * CountRestControllerMethodProvider.
  * <pre class="code">
- *      &#64;PostMapping
- *      public Long create(&#64;Valid &#64;RequestBody Entity entity){
- *          entityService.insert(entity);
- *          return entity.getId();
+ *      &#64;GetMapping("/count)
+ *      public long count(EntityQuery query){
+ *          return entityService.selectCount(query);
  *      }
  * </pre>
  *
@@ -40,24 +42,24 @@ import com.squareup.javapoet.ParameterSpec;
  * @version 1.4.1
  * @since 1.4.1
  */
-public class CreateRestControllerMethodProvider implements RestControllerMethodProvider {
+public class CountRestControllerMethodProvider implements RestControllerMethodProvider {
     @Override
     public MethodSpec provide(Class<?> clazz, String service) {
-
-        String entityName = Introspector.decapitalize(clazz.getSimpleName());
-
-        ParameterSpec entity = ParameterSpec.builder(ClassName.get(clazz), entityName)
-                .addAnnotation(Valid.class)
-                .addAnnotation(RequestBody.class)
+        AnnotationSpec getMapping = AnnotationSpec.builder(GetMapping.class)
+                .addMember("value", "$S", "/count")
                 .build();
 
-        return MethodSpec.methodBuilder("create")
-                .addAnnotation(PostMapping.class)
+        ParameterSpec query = ParameterSpec.builder(ClassName.get(AutoNameHelper.queryPackage(clazz), AutoNameHelper.queryName(clazz)), "query")
+                .addAnnotation(Valid.class)
+                .build();
+
+
+        return MethodSpec.methodBuilder("count")
+                .addAnnotation(getMapping)
                 .addModifiers(Modifier.PUBLIC)
-                .returns(ClassName.get(Long.class))
-                .addParameter(entity)
-                .addCode("$L.insert($L);\n", service, entityName)
-                .addCode("return $L.getId();", entityName)
+                .returns(TypeName.LONG)
+                .addParameter(query)
+                .addCode("return $L.selectCount(query);", service)
                 .build();
     }
 }

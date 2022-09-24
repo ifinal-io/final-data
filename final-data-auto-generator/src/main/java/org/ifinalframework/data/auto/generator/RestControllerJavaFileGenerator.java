@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.generator;
+package org.ifinalframework.data.auto.generator;
 
 import javax.annotation.Resource;
 import javax.lang.model.element.Modifier;
@@ -22,22 +22,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.lang.NonNull;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import org.ifinalframework.core.IEntity;
+import org.ifinalframework.data.auto.annotation.AutoRestController;
 import org.ifinalframework.data.auto.annotation.RestResource;
-import org.ifinalframework.data.auto.rest.method.CountRestControllerMethodProvider;
-import org.ifinalframework.data.auto.rest.method.CreateRestControllerMethodProvider;
-import org.ifinalframework.data.auto.rest.method.DeleteRestControllerMethodProvider;
-import org.ifinalframework.data.auto.rest.method.QueryDetailRestControllerMethodProvider;
-import org.ifinalframework.data.auto.rest.method.QueryRestControllerMethodProvider;
-import org.ifinalframework.data.auto.rest.method.RestControllerMethodProvider;
-import org.ifinalframework.data.auto.rest.method.UpdateRestControllerMethodProvider;
-import org.ifinalframework.data.auto.rest.method.YNRestControllerMethodProvider;
-import org.ifinalframework.data.auto.util.RestUtils;
-import org.ifinalframework.data.service.util.ServiceUtil;
+import org.ifinalframework.data.auto.generator.method.CountRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.CreateRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.DeleteRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.QueryDetailRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.QueryRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.UpdateRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.YNRestControllerMethodProvider;
 import org.ifinalframework.javapoets.JavaPoets;
 
 import com.squareup.javapoet.AnnotationSpec;
@@ -87,11 +85,11 @@ import lombok.SneakyThrows;
  * @version 1.4.0
  * @since 1.4.0
  */
-public class DefaultRestControllerGenerator implements RestControllerGenerator {
+public class RestControllerJavaFileGenerator implements JavaFileGenerator<AutoRestController> {
 
     private final List<RestControllerMethodProvider> providers = new ArrayList<>();
 
-    public DefaultRestControllerGenerator() {
+    public RestControllerJavaFileGenerator() {
         // select
         providers.add(new QueryRestControllerMethodProvider());
         providers.add(new CountRestControllerMethodProvider());
@@ -105,23 +103,26 @@ public class DefaultRestControllerGenerator implements RestControllerGenerator {
         providers.add(new DeleteRestControllerMethodProvider());
     }
 
+    @NonNull
     @Override
     @SneakyThrows
-    public <T extends IEntity<?>> String generate(Class<T> clazz) {
+    public JavaFile generate(@NonNull AutoRestController ann, @NonNull Class<?> clazz) {
+
+        final String prefix = ann.prefix();
         final String path = Optional.ofNullable(clazz.getAnnotation(RestResource.class)).map(RestResource::value).orElse(clazz.getSimpleName());
-        final String packageName = RestUtils.packageName(clazz);
-        final String controllerName = RestUtils.controllerName(clazz);
+        final String packageName = AutoNameHelper.controllerPackage(clazz);
+        final String controllerName = AutoNameHelper.controllerName(clazz);
 
         // @RequestMapping("/api/${path}")
         AnnotationSpec resultMapping = AnnotationSpec.builder(RequestMapping.class)
-                .addMember("value", "$S", "/api/" + path)
+                .addMember("value", "$S", "/" + prefix + "/" + path)
                 .build();
 
 
         // public class EntityController
         TypeSpec.Builder builder = TypeSpec.classBuilder(controllerName);
 
-        String serviceName = Introspector.decapitalize(ServiceUtil.serviceName(clazz));
+        String serviceName = Introspector.decapitalize(AutoNameHelper.serviceName(clazz));
 
         for (RestControllerMethodProvider provider : providers) {
             builder.addMethod(provider.provide(clazz, serviceName));
@@ -133,27 +134,24 @@ public class DefaultRestControllerGenerator implements RestControllerGenerator {
                 .addAnnotation(Validated.class)
                 .addAnnotation(RestController.class)
                 .addAnnotation(resultMapping)
-//                .addAnnotation(JavaPoets.generated(AutoMapperGeneratorProcessor.class))
+                .addAnnotation(JavaPoets.generated(getClass()))
                 .addJavadoc(JavaPoets.Javadoc.author())
                 .addJavadoc(JavaPoets.Javadoc.version())
                 .addField(serviceField(clazz))
 
                 .build();
 
-        JavaFile javaFile = JavaFile.builder(packageName, controller)
+        return JavaFile.builder(packageName, controller)
                 .skipJavaLangImports(true)
                 .indent("    ")
                 .build();
 
-        StringBuilder out = new StringBuilder();
-        javaFile.writeTo(out);
-        return out.toString();
 
     }
 
     private FieldSpec serviceField(Class<?> clazz) {
-        String packageName = ServiceUtil.packageName(clazz);
-        String serviceName = ServiceUtil.serviceName(clazz);
+        String packageName = AutoNameHelper.servicePackage(clazz);
+        String serviceName = AutoNameHelper.serviceName(clazz);
         String fieldName = Introspector.decapitalize(serviceName);
         return FieldSpec.builder(ClassName.get(packageName, serviceName), fieldName)
                 .addAnnotation(Resource.class)

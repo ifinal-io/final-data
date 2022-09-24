@@ -44,6 +44,7 @@
         <module>final-data-jdbc</module>
         <module>final-data-service</module>
         <module>final-data-rest</module>
+        <module>final-data-auto-generator</module>
     </modules>
 
     <properties>
@@ -149,6 +150,11 @@
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-auto</artifactId>
+                <version>1.4.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ifinalframework.data</groupId>
+                <artifactId>final-data-auto-generator</artifactId>
                 <version>1.4.1-SNAPSHOT</version>
             </dependency>
             <dependency>

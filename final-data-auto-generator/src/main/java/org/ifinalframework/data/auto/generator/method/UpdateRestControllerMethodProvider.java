@@ -13,15 +13,16 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.method;
+package org.ifinalframework.data.auto.generator.method;
 
 import javax.lang.model.element.Modifier;
+import javax.validation.Valid;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 
-import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.auto.generator.RestControllerMethodProvider;
 
 import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
@@ -30,45 +31,37 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.TypeName;
 
 /**
- * <pre class="code">
- * &#64;PutMapping("/{id}/yn")
- * public int yn(&#64;PathVariable Long id, &#64;RequestParam YN yn){
- *     Entity entity = new Entity();
- *     entity.setId(id);
- *     entity.setYn(yn);
- *     return entityService.update(entity);
- * }
- * </pre>
+ * UpdateRestControllerMethodProvider.
+ *
+ * @author ilikly
+ * @version 1.4.1
+ * @since 1.4.1
  */
-public class YNRestControllerMethodProvider implements RestControllerMethodProvider {
-
+public class UpdateRestControllerMethodProvider implements RestControllerMethodProvider {
     @Override
     public MethodSpec provide(Class<?> clazz, String service) {
-        // @PostMapping
         AnnotationSpec putMapping = AnnotationSpec.builder(PutMapping.class)
-                .addMember("value", "$S", "/{id}/yn")
+                .addMember("value", "$S", "/{id}")
                 .build();
 
-        // @PathVariable Long id
+
+        ParameterSpec entity = ParameterSpec.builder(ClassName.get(clazz), "entity")
+                .addAnnotation(Valid.class)
+                .addAnnotation(RequestBody.class)
+                .build();
+
         ParameterSpec id = ParameterSpec.builder(ClassName.get(Long.class), "id")
                 .addAnnotation(PathVariable.class)
                 .build();
-        // @RequestParam YN yn
-        ParameterSpec yn = ParameterSpec.builder(ClassName.get(YN.class), "yn")
-                .addAnnotation(RequestParam.class)
-                .build();
 
 
-        String entityName = clazz.getSimpleName();
         return MethodSpec.methodBuilder("update")
                 .addAnnotation(putMapping)
                 .addModifiers(Modifier.PUBLIC)
                 .returns(TypeName.INT)
                 .addParameter(id)
-                .addParameter(yn)
-                .addCode("$L entity = new $L();\n", entityName, entityName)
+                .addParameter(entity)
                 .addCode("entity.setId(id);\n")
-                .addCode("entity.setYn(yn);\n")
                 .addCode("return $L.update(entity);", service)
                 .build();
     }

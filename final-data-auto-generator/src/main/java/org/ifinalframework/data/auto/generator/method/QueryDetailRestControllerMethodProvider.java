@@ -13,52 +13,45 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.method;
+package org.ifinalframework.data.auto.generator.method;
 
 import javax.lang.model.element.Modifier;
-import javax.validation.Valid;
-import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import org.ifinalframework.data.service.util.ServiceUtil;
+import org.ifinalframework.data.auto.generator.RestControllerMethodProvider;
 
+import com.squareup.javapoet.AnnotationSpec;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
 
 /**
- * QueryRestControllerMethodProvider.
- *
- * <pre class="code">
- *     &#64;GetMapping
- *     public List&lt;Entity&gt; query(&#64;Valid EntityQuery query){
- *         return entityService.select(query);
- *     }
- * </pre>
+ * QueryDetailRestControllerMethodProvider.
  *
  * @author ilikly
  * @version 1.4.1
  * @since 1.4.1
  */
-public class QueryRestControllerMethodProvider implements RestControllerMethodProvider {
+public class QueryDetailRestControllerMethodProvider implements RestControllerMethodProvider {
     @Override
-    public MethodSpec provide(Class<?> clazz, String service) {
+    public MethodSpec provide(Class<?> entity, String service) {
 
-        ParameterizedTypeName returnValue = ParameterizedTypeName.get(List.class, clazz);
-
-        ParameterSpec query = ParameterSpec.builder(ClassName.get(ServiceUtil.queryPackageName(clazz), ServiceUtil.queryName(clazz)), "query")
-                .addAnnotation(Valid.class)
+        AnnotationSpec getMapping = AnnotationSpec.builder(GetMapping.class)
+                .addMember("value", "$S", "/{id}")
                 .build();
 
+        ParameterSpec id = ParameterSpec.builder(ClassName.get(Long.class), "id")
+                .addAnnotation(PathVariable.class)
+                .build();
 
         return MethodSpec.methodBuilder("query")
-                .addAnnotation(GetMapping.class)
+                .addAnnotation(getMapping)
                 .addModifiers(Modifier.PUBLIC)
-                .returns(returnValue)
-                .addParameter(query)
-                .addCode("return $L.select(query);", service)
+                .returns(ClassName.get(entity))
+                .addParameter(id)
+                .addCode("return $L.selectOne(id);", service)
                 .build();
     }
 }

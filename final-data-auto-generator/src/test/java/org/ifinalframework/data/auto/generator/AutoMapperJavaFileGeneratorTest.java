@@ -13,20 +13,31 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.auto.rest.generator;
+package org.ifinalframework.data.auto.generator;
 
-import org.ifinalframework.core.IEntity;
+import org.ifinalframework.data.auto.annotation.AutoMapper;
 
 import com.squareup.javapoet.JavaFile;
+import lombok.SneakyThrows;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * RestControllerGenerator.
+ * AutoMapperJavaFileGeneratorTest.
  *
  * @author ilikly
- * @version 1.4.0
- * @since 1.4.0
+ * @version 1.4.1
+ * @since 1.4.1
  */
-public interface RestControllerGenerator {
+class AutoMapperJavaFileGeneratorTest {
 
-    <T extends IEntity<?>> JavaFile generate(Class<T> clazz);
+    @Test
+    @SneakyThrows
+    void generate() {
+        AutoMapperJavaFileGenerator generator = new AutoMapperJavaFileGenerator();
+        JavaFile javaFile = generator.generate(Mockito.mock(AutoMapper.class), AutoEntity.class);
+        javaFile.writeTo(System.out);
+    }
 }

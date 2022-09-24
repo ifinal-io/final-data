@@ -16,28 +16,17 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import org.ifinalframework.data.auto.annotation.AutoMapper;
-import org.ifinalframework.data.auto.entity.Entity;
-import org.ifinalframework.data.auto.entity.EntityFactory;
-import org.ifinalframework.data.auto.processor.AutoMapperGeneratorProcessor;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.javapoets.JavaPoets;
-import org.ifinalframework.javapoets.JavaPoets.Javadoc;
-
-import java.io.IOException;
-import java.io.Writer;
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
 
-import com.squareup.javapoet.ClassName;
+import org.ifinalframework.data.auto.annotation.AutoMapper;
+
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
-import org.apache.ibatis.annotations.Mapper;
+import lombok.SneakyThrows;
 
 /**
  * AutoMapperGenerator.
@@ -57,7 +46,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 public class AutoMapperGenerator implements AutoGenerator<AutoMapper, TypeElement> {
 
-    private static final String MAPPER_SUFFIX = "Mapper";
+    private final AutoMapperJavaFileGenerator autoMapperJavaFileGenerator = new AutoMapperJavaFileGenerator();
 
     private final ProcessingEnvironment processingEnv;
 
@@ -66,22 +55,22 @@ public class AutoMapperGenerator implements AutoGenerator<AutoMapper, TypeElemen
     }
 
     @Override
+    @SneakyThrows
     public void generate(final AutoMapper ann, final TypeElement entity) {
 
-        final String packageName = processingEnv.getElementUtils().getPackageOf(entity).getQualifiedName().toString()
-            .replace("." + ann.entity(), "." + ann.mapper());
-        String mapperName = entity.getSimpleName().toString() + MAPPER_SUFFIX;
+        Class<?> clazz = Class.forName(entity.getQualifiedName().toString());
 
-        final String elementName = packageName + "." + mapperName;
+        String mapperName = String.join(".", AutoNameHelper.mapperPackage(clazz), AutoNameHelper.mapperName(clazz));
+
 
         try {
-            final TypeElement mapperElement = processingEnv.getElementUtils().getTypeElement(elementName);
+            final TypeElement mapperElement = processingEnv.getElementUtils().getTypeElement(mapperName);
 
             if (mapperElement == null) {
-                final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(elementName);
+                final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(mapperName);
 
+                JavaFile javaFile = autoMapperJavaFileGenerator.generate(ann, clazz);
                 try (Writer writer = sourceFile.openWriter()) {
-                    JavaFile javaFile = buildJavaFile(packageName, mapperName, entity);
                     javaFile.writeTo(writer);
                     writer.flush();
                 }
@@ -93,34 +82,7 @@ public class AutoMapperGenerator implements AutoGenerator<AutoMapper, TypeElemen
         }
     }
 
-    private JavaFile buildJavaFile(final String packageName, final String mapperName, final TypeElement typeElement) {
-
-        Entity entity = EntityFactory.create(processingEnv, typeElement);
-
-        // AbsMapper<I,IEntity>
-        ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(
-            ClassName.get(AbsMapper.class),
-            TypeName.get(entity.getRequiredIdProperty().getType()),
-            ClassName.get(entity.getElement())
-        );
-
-        // public interface EntityMapper extends AbsMapper<I,IEntity>
-        TypeSpec myMapper = TypeSpec.interfaceBuilder(mapperName)
-            .addModifiers(Modifier.PUBLIC)
-            .addSuperinterface(parameterizedTypeName)
-            .addAnnotation(Mapper.class)
-            .addAnnotation(JavaPoets.generated(AutoMapperGeneratorProcessor.class))
-            .addJavadoc(Javadoc.author())
-            .addJavadoc(Javadoc.version())
-            .build();
-
-        return JavaFile.builder(packageName, myMapper)
-            .skipJavaLangImports(true).build();
-
-    }
-
     private void error(final String msg) {
-
         processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg);
     }
 
