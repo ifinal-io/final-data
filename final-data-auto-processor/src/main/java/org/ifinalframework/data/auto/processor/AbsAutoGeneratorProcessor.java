@@ -17,25 +17,32 @@
 package org.ifinalframework.data.auto.processor;
 
 import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
-import java.util.LinkedHashSet;
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.ResolvableType;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.lang.Nullable;
+import org.springframework.util.ClassUtils;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.lang.Transient;
-import org.ifinalframework.data.auto.generator.AutoGenerator;
+import org.ifinalframework.data.auto.generator.JavaFileGenerator;
+
+import com.squareup.javapoet.JavaFile;
 
 /**
  * AutoMapperGeneratorProcessor.
@@ -44,47 +51,34 @@ import org.ifinalframework.data.auto.generator.AutoGenerator;
  * @version 1.0.0
  * @since 1.0.0
  */
-public abstract class AbsAutoGeneratorProcessor<A extends Annotation, E extends Element> extends AbstractProcessor {
-
-    private Set<Element> elements = new LinkedHashSet<>();
-
-    private Set<Element> autoMappers = new LinkedHashSet<>();
-
-    private static final String ENTITY = IEntity.class.getName();
-
-    private static final String TRANSIENT = Transient.class.getName();
-
-    public AbsAutoGeneratorProcessor(final Class<A> autoAnnotation) {
-        this.autoAnnotation = autoAnnotation;
-    }
+public abstract class AbsAutoGeneratorProcessor<A extends Annotation> extends AbstractProcessor {
 
     private final Class<A> autoAnnotation;
+    private final List<JavaFileGenerator<A>> javaFileGenerators;
 
-    private TypeElementFilter typeElementFilter;
-
-    private TypeElement typeElement;
+    @SuppressWarnings("unchecked")
+    public AbsAutoGeneratorProcessor(JavaFileGenerator<A>... javaFileGenerators) {
+        this.autoAnnotation = (Class<A>) ResolvableType.forClass(this.getClass()).as(AbsAutoGeneratorProcessor.class).getGeneric().resolve();
+        this.javaFileGenerators = Arrays.asList(javaFileGenerators);
+    }
 
     @Override
-    public synchronized void init(final ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        this.typeElement = processingEnv.getElementUtils().getTypeElement(ENTITY);
-        this.typeElementFilter = new TypeElementFilter(processingEnv, typeElement,
-                processingEnv.getElementUtils().getTypeElement(TRANSIENT));
+    public Set<String> getSupportedAnnotationTypes() {
+        return Collections.singleton(autoAnnotation.getName());
     }
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 
         if (roundEnv.processingOver()) {
-            ElementFilter.packagesIn(autoMappers)
+            ElementFilter.packagesIn(roundEnv.getElementsAnnotatedWith(autoAnnotation))
                     .forEach(it -> {
 
-                        A autoMapper = it.getAnnotation(autoAnnotation);
+                        A ann = it.getAnnotation(autoAnnotation);
 
                         String packageName = it.getQualifiedName().toString();
 
-                        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
-                                false);
+                        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
 
                         scanner.setResourceLoader(new PathMatchingResourcePatternResolver() {
                             @Nullable
@@ -108,29 +102,49 @@ public abstract class AbsAutoGeneratorProcessor<A extends Annotation, E extends 
                         Set<String> set = components.stream().map(BeanDefinition::getBeanClassName)
                                 .collect(Collectors.toSet());
 
-//                        ElementFilter.typesIn(elements)
-//                                .stream()
-//                                .filter(element -> element.getQualifiedName().toString().startsWith(packageName))
-//                                .forEach(element -> set.add(element.getQualifiedName().toString()));
 
                         set.stream()
-                                .map(element -> processingEnv.getElementUtils().getTypeElement(element))
-                                .filter(Objects::nonNull)
-                                .forEachOrdered(element -> getAutoGenerator().generate(autoMapper, (E) element));
+                                .map(element -> {
+                                    try {
+                                        return ClassUtils.forName(element, getClass().getClassLoader());
+                                    } catch (ClassNotFoundException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                })
+                                .forEachOrdered(element -> doGenerate(ann, element));
 
                     });
-        } else {
-            ElementFilter.typesIn(roundEnv.getRootElements())
-                    .stream()
-                    .filter(typeElementFilter::matches)
-                    .forEach(elements::add);
-
-            autoMappers.addAll(roundEnv.getElementsAnnotatedWith(autoAnnotation));
         }
 
         return false;
     }
 
-    protected abstract AutoGenerator<A, E> getAutoGenerator();
+    private void doGenerate(A ann, Class<?> clazz) {
+        javaFileGenerators.forEach(generator -> {
+                    try {
+                        String name = generator.getName(ann, clazz);
+                        final TypeElement mapperElement = processingEnv.getElementUtils().getTypeElement(name);
+
+                        if (mapperElement == null) {
+                            final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(name);
+
+                            JavaFile javaFile = generator.generate(ann, clazz);
+                            try (Writer writer = sourceFile.openWriter()) {
+                                javaFile.writeTo(writer);
+                                writer.flush();
+                            }
+
+                        }
+
+                    } catch (IOException e) {
+                        error(e.getMessage());
+                    }
+                }
+        );
+    }
+
+    private void error(final String msg) {
+        processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg);
+    }
 
 }

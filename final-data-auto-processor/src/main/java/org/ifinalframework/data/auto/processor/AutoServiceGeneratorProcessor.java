@@ -16,16 +16,16 @@
 
 package org.ifinalframework.data.auto.processor;
 
-import org.ifinalframework.auto.service.annotation.AutoProcessor;
-import org.ifinalframework.data.auto.annotation.AutoService;
-import org.ifinalframework.data.auto.generator.AutoGenerator;
-import org.ifinalframework.data.auto.generator.AutoServiceGenerator;
-
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+
+import org.ifinalframework.auto.service.annotation.AutoProcessor;
+import org.ifinalframework.data.auto.annotation.AutoService;
+import org.ifinalframework.data.auto.generator.QueryJavaFileGenerator;
+import org.ifinalframework.data.auto.generator.ServiceImplJavaFileGenerator;
+import org.ifinalframework.data.auto.generator.ServiceJavaFileGenerator;
 
 /**
  * AutoMapperGeneratorProcessor.
@@ -37,23 +37,15 @@ import javax.lang.model.element.TypeElement;
 @AutoProcessor
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("*")
-public class AutoServiceGeneratorProcessor extends AbsAutoGeneratorProcessor<AutoService, TypeElement> {
-
-    private AutoServiceGenerator autoServiceGenerator;
+public class AutoServiceGeneratorProcessor extends AbsAutoGeneratorProcessor<AutoService> {
 
     public AutoServiceGeneratorProcessor() {
-        super(AutoService.class);
+        super(
+                new QueryJavaFileGenerator(),
+                new ServiceJavaFileGenerator(),
+                new ServiceImplJavaFileGenerator()
+        );
     }
 
-    @Override
-    public synchronized void init(final ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        this.autoServiceGenerator = new AutoServiceGenerator(processingEnv);
-    }
-
-    @Override
-    protected AutoGenerator<AutoService, TypeElement> getAutoGenerator() {
-        return autoServiceGenerator;
-    }
 
 }

@@ -16,16 +16,15 @@
 
 package org.ifinalframework.data.auto.processor;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.TypeElement;
 
 import org.ifinalframework.auto.service.annotation.AutoProcessor;
 import org.ifinalframework.data.auto.annotation.AutoRestController;
-import org.ifinalframework.data.auto.generator.AutoGenerator;
-import org.ifinalframework.data.auto.rest.generator.AutoRestControllerGenerator;
+import org.ifinalframework.data.auto.generator.RestControllerJavaFileGenerator;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * AutoMapperGeneratorProcessor.
@@ -34,26 +33,14 @@ import org.ifinalframework.data.auto.rest.generator.AutoRestControllerGenerator;
  * @version 1.4.1
  * @since 1.4.1
  */
+@Slf4j
 @AutoProcessor
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("*")
-public class AutoRestControllerGeneratorProcessor extends AbsAutoGeneratorProcessor<AutoRestController, TypeElement> {
-
-    private AutoRestControllerGenerator autoRestControllerGenerator;
+public class AutoRestControllerGeneratorProcessor extends AbsAutoGeneratorProcessor<AutoRestController> {
 
     public AutoRestControllerGeneratorProcessor() {
-        super(AutoRestController.class);
-    }
-
-    @Override
-    public synchronized void init(final ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        this.autoRestControllerGenerator = new AutoRestControllerGenerator(processingEnv);
-    }
-
-    @Override
-    protected AutoGenerator<AutoRestController, TypeElement> getAutoGenerator() {
-        return autoRestControllerGenerator;
+        super(new RestControllerJavaFileGenerator());
     }
 
 }

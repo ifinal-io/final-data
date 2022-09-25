@@ -50,6 +50,11 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 public class ServiceImplJavaFileGenerator implements JavaFileGenerator<AutoService> {
+    @Override
+    public String getName(AutoService ann, Class<?> clazz) {
+        return String.join(".", AutoNameHelper.servicePackage(clazz) + ".impl", AutoNameHelper.serviceName(clazz) + "Impl");
+    }
+
     @NonNull
     @Override
     public JavaFile generate(@NonNull AutoService ann, @NonNull Class<?> clazz) {

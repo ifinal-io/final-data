@@ -23,6 +23,7 @@ import org.ifinalframework.query.QProperty;
 import org.ifinalframework.util.Asserts;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,7 +74,6 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
         this.insert = builder.insert;
         this.update = builder.update;
 
-
         this.idProperty = builder.idProperty;
         this.readable = builder.isReadable;
         this.writeable = builder.isWriteable;
@@ -97,6 +97,10 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
     @Override
     public Class<T> getType() {
         return null;
+    }
+
+    public Type getGenericType() {
+        return property.getRequiredField().getGenericType();
     }
 
     @Override

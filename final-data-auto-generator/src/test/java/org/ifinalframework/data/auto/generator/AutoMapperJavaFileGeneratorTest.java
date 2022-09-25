@@ -22,8 +22,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * AutoMapperJavaFileGeneratorTest.
  *
@@ -36,7 +34,7 @@ class AutoMapperJavaFileGeneratorTest {
     @Test
     @SneakyThrows
     void generate() {
-        AutoMapperJavaFileGenerator generator = new AutoMapperJavaFileGenerator();
+        MapperJavaFileGenerator generator = new MapperJavaFileGenerator();
         JavaFile javaFile = generator.generate(Mockito.mock(AutoMapper.class), AutoEntity.class);
         javaFile.writeTo(System.out);
     }

@@ -49,7 +49,13 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.4.1
  */
 @Slf4j
-public class AutoMapperJavaFileGenerator implements JavaFileGenerator<AutoMapper> {
+public class MapperJavaFileGenerator implements JavaFileGenerator<AutoMapper> {
+
+    @Override
+    public String getName(AutoMapper ann, Class<?> clazz) {
+        return String.join(".", AutoNameHelper.mapperPackage(clazz), AutoNameHelper.mapperName(clazz));
+    }
+
     @NonNull
     @Override
     public JavaFile generate(@NonNull AutoMapper ann, @NonNull Class<?> clazz) {

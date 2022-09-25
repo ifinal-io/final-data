@@ -17,21 +17,21 @@ package org.ifinalframework.data.auto.generator;
 
 import org.springframework.lang.NonNull;
 
-import org.ifinalframework.data.auto.annotation.AutoRestController;
+import org.ifinalframework.data.auto.annotation.AutoDataSource;
 
 import com.squareup.javapoet.JavaFile;
 
 /**
- * AutoRestControllerJavaFileGenerator.
+ * DataSourceJavaFileGenerator.
  *
  * @author ilikly
  * @version 1.4.1
  * @since 1.4.1
  */
-public class AutoRestControllerJavaFileGenerator implements JavaFileGenerator<AutoRestController> {
+public class DataSourceJavaFileGenerator implements JavaFileGenerator<AutoDataSource> {
     @NonNull
     @Override
-    public JavaFile generate(@NonNull AutoRestController ann, @NonNull Class<?> clazz) {
+    public JavaFile generate(@NonNull AutoDataSource ann, @NonNull Class<?> clazz) {
         return null;
     }
 }

@@ -28,8 +28,10 @@ import com.squareup.javapoet.JavaFile;
  * @version 1.4.1
  * @since 1.4.1
  */
-@FunctionalInterface
 public interface JavaFileGenerator<A extends Annotation> {
+
+    String getName(@NonNull A ann, @NonNull Class<?> clazz);
+
     @NonNull
     JavaFile generate(@NonNull A ann, @NonNull Class<?> clazz);
 }

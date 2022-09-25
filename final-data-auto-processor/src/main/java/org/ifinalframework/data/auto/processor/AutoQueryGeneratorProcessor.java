@@ -16,16 +16,14 @@
 
 package org.ifinalframework.data.auto.processor;
 
-import org.ifinalframework.auto.service.annotation.AutoProcessor;
-import org.ifinalframework.data.auto.annotation.AutoQuery;
-import org.ifinalframework.data.auto.generator.AutoGenerator;
-import org.ifinalframework.data.auto.generator.AutoQueryGenerator;
-
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
+
+import org.ifinalframework.auto.service.annotation.AutoProcessor;
+import org.ifinalframework.data.auto.annotation.AutoQuery;
+import org.ifinalframework.data.auto.generator.QueryEntityJavaFileGenerator;
 
 /**
  * AutoMapperGeneratorProcessor.
@@ -37,23 +35,10 @@ import javax.lang.model.element.TypeElement;
 @AutoProcessor
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @SupportedAnnotationTypes("*")
-public class AutoQueryGeneratorProcessor extends AbsAutoGeneratorProcessor<AutoQuery, TypeElement> {
-
-    private AutoQueryGenerator autoQueryGenerator;
+public class AutoQueryGeneratorProcessor extends AbsAutoGeneratorProcessor<AutoQuery> {
 
     public AutoQueryGeneratorProcessor() {
-        super(AutoQuery.class);
-    }
-
-    @Override
-    public synchronized void init(final ProcessingEnvironment processingEnv) {
-        super.init(processingEnv);
-        this.autoQueryGenerator = new AutoQueryGenerator(processingEnv);
-    }
-
-    @Override
-    protected AutoGenerator<AutoQuery, TypeElement> getAutoGenerator() {
-        return autoQueryGenerator;
+        super( new QueryEntityJavaFileGenerator());
     }
 
 }

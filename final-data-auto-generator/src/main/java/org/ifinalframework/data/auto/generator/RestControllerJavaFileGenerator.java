@@ -103,6 +103,11 @@ public class RestControllerJavaFileGenerator implements JavaFileGenerator<AutoRe
         providers.add(new DeleteRestControllerMethodProvider());
     }
 
+    @Override
+    public String getName(AutoRestController ann, Class<?> clazz) {
+        return String.join(".", AutoNameHelper.controllerPackage(clazz), AutoNameHelper.controllerName(clazz));
+    }
+
     @NonNull
     @Override
     @SneakyThrows
