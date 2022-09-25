@@ -18,6 +18,7 @@ package org.ifinalframework.data.auto.processor;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
 import javax.tools.Diagnostic;
@@ -26,7 +27,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -43,6 +43,7 @@ import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.auto.generator.JavaFileGenerator;
 
 import com.squareup.javapoet.JavaFile;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * AutoMapperGeneratorProcessor.
@@ -51,6 +52,7 @@ import com.squareup.javapoet.JavaFile;
  * @version 1.0.0
  * @since 1.0.0
  */
+@Slf4j
 public abstract class AbsAutoGeneratorProcessor<A extends Annotation> extends AbstractProcessor {
 
     private final Class<A> autoAnnotation;
@@ -63,15 +65,13 @@ public abstract class AbsAutoGeneratorProcessor<A extends Annotation> extends Ab
     }
 
     @Override
-    public Set<String> getSupportedAnnotationTypes() {
-        return Collections.singleton(autoAnnotation.getName());
-    }
-
-    @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 
-        if (roundEnv.processingOver()) {
-            ElementFilter.packagesIn(roundEnv.getElementsAnnotatedWith(autoAnnotation))
+//        if (roundEnv.processingOver()) {
+            logger.info("try to found packages with annotation of {}", autoAnnotation);
+            Set<PackageElement> packageElements = ElementFilter.packagesIn(roundEnv.getElementsAnnotatedWith(autoAnnotation));
+            logger.info("found packages: {}",packageElements);
+            packageElements
                     .forEach(it -> {
 
                         A ann = it.getAnnotation(autoAnnotation);
@@ -114,7 +114,7 @@ public abstract class AbsAutoGeneratorProcessor<A extends Annotation> extends Ab
                                 .forEachOrdered(element -> doGenerate(ann, element));
 
                     });
-        }
+//        }
 
         return false;
     }
