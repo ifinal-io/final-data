@@ -15,19 +15,22 @@
 
 package org.ifinalframework.data.query;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import org.apache.ibatis.type.TypeHandler;
+
 import org.springframework.lang.Nullable;
 
 import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.query.QEntity;
 import org.ifinalframework.query.QProperty;
 import org.ifinalframework.util.Asserts;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.ibatis.type.TypeHandler;
 
 /**
  * @author ilikly
@@ -100,7 +103,24 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
     }
 
     public Type getGenericType() {
-        return property.getRequiredField().getGenericType();
+
+        Field field = property.getField();
+        if (Objects.nonNull(field)) {
+            return field.getGenericType();
+        }
+
+        Method getter = property.getGetter();
+        if (Objects.nonNull(getter)) {
+            return getter.getGenericReturnType();
+        }
+
+        Method setter = property.getSetter();
+        if (Objects.nonNull(setter)) {
+            return setter.getGenericParameterTypes()[0];
+        }
+
+
+        return null;
     }
 
     @Override

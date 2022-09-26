@@ -120,7 +120,7 @@ public class RestControllerJavaFileGenerator implements JavaFileGenerator<AutoRe
 
         // @RequestMapping("/api/${path}")
         AnnotationSpec resultMapping = AnnotationSpec.builder(RequestMapping.class)
-                .addMember("value", "$S", "/" + prefix + "/" + path)
+                .addMember("value", "$S",  prefix + "/" + path)
                 .build();
 
 
