@@ -32,6 +32,8 @@ import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.auto.generator.method.CountRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.CreateRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.DeleteRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.DisableRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.EnableRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.QueryDetailRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.QueryRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.UpdateRestControllerMethodProvider;
@@ -99,6 +101,8 @@ public class RestControllerJavaFileGenerator implements JavaFileGenerator<AutoRe
         // update
         providers.add(new UpdateRestControllerMethodProvider());
         providers.add(new YNRestControllerMethodProvider());
+        providers.add(new EnableRestControllerMethodProvider());
+        providers.add(new DisableRestControllerMethodProvider());
         // delete
         providers.add(new DeleteRestControllerMethodProvider());
     }

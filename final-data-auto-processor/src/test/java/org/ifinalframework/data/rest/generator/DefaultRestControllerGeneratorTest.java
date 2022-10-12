@@ -16,14 +16,15 @@
 package org.ifinalframework.data.rest.generator;
 
 import org.ifinalframework.data.annotation.AbsUser;
+import org.ifinalframework.data.auto.annotation.AutoRestController;
 import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.auto.generator.RestControllerJavaFileGenerator;
-import org.ifinalframework.data.auto.rest.generator.RestControllerGenerator;
 
 import com.squareup.javapoet.JavaFile;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /**
  * DefaultRestControllerGeneratorTest.
@@ -34,12 +35,17 @@ import org.junit.jupiter.api.Test;
  */
 @Slf4j
 class DefaultRestControllerGeneratorTest {
-    private final RestControllerGenerator restControllerGenerator = new RestControllerJavaFileGenerator();
+    private final RestControllerJavaFileGenerator restControllerGenerator = new RestControllerJavaFileGenerator();
+
 
     @Test
     @SneakyThrows
     void generate() {
-        JavaFile javaFile = restControllerGenerator.generate(User.class);
+
+        AutoRestController controller = Mockito.mock(AutoRestController.class);
+        Mockito.when(controller.prefix()).thenReturn("/api");
+
+        JavaFile javaFile = restControllerGenerator.generate(controller, User.class);
 
         StringBuilder out = new StringBuilder();
         javaFile.writeTo(out);

@@ -33,50 +33,37 @@ import com.squareup.javapoet.TypeName;
 /**
  * <pre class="code">
  * &#64;PutMapping("/{id}/yn")
- * public int yn(&#64;PathVariable Long id, &#64;RequestParam YN yn){
+ * public int enable(&#64;PathVariable Long id){
  *     Entity entity = new Entity();
  *     entity.setId(id);
- *     entity.setYn(yn);
+ *     entity.setYn(YN.YES);
  *     return entityService.update(entity);
  * }
  * </pre>
- *
- * @see EnableRestControllerMethodProvider
- * @see DisableRestControllerMethodProvider
  */
-@Deprecated
-public class YNRestControllerMethodProvider implements RestControllerMethodProvider {
+public class EnableRestControllerMethodProvider implements RestControllerMethodProvider {
 
     @Override
     public MethodSpec provide(Class<?> clazz, String service) {
         // @PostMapping
         AnnotationSpec putMapping = AnnotationSpec.builder(PutMapping.class)
-                .addMember("value", "$S", "/{id}/yn")
+                .addMember("value", "$S", "/{id}/enable")
                 .build();
 
         // @PathVariable Long id
         ParameterSpec id = ParameterSpec.builder(ClassName.get(Long.class), "id")
                 .addAnnotation(PathVariable.class)
                 .build();
-        // @RequestParam YN yn
-        ParameterSpec yn = ParameterSpec.builder(ClassName.get(YN.class), "yn")
-                .addAnnotation(RequestParam.class)
-                .build();
-
 
         String entityName = clazz.getSimpleName();
-        return MethodSpec.methodBuilder("update")
+        return MethodSpec.methodBuilder("enable")
                 .addAnnotation(putMapping)
-                .addAnnotation(Deprecated.class)
-                .addJavadoc("@see #enable(Long)\n")
-                .addJavadoc("@see #disable(Long)\n")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(TypeName.INT)
                 .addParameter(id)
-                .addParameter(yn)
                 .addCode("$L entity = new $L();\n", entityName, entityName)
                 .addCode("entity.setId(id);\n")
-                .addCode("entity.setYn(yn);\n")
+                .addCode("entity.setYn(YN.YES);\n")
                 .addCode("return $L.update(entity);", service)
                 .build();
     }
