@@ -21,13 +21,13 @@
     <parent>
         <groupId>org.ifinalframework.project</groupId>
         <artifactId>final-project</artifactId>
-        <version>1.4.1</version>
+        <version>1.4.2-SNAPSHOT</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>org.ifinalframework.data</groupId>
     <artifactId>final-data</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2-SNAPSHOT</version>
     <name>final-data</name>
     <description>Demo project for Spring Boot</description>
 
@@ -49,7 +49,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <final.version>1.4.1</final.version>
+        <final.version>1.4.2-SNAPSHOT</final.version>
     </properties>
 
     <url>https://github.com/final-projects/final-data</url>
@@ -115,62 +115,62 @@
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-core</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-jdbc</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-service</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-mybatis</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-redis</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-cache</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-sharding</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-auto</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-auto-generator</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-auto-processor</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-printer</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-rest</artifactId>
-                <version>1.4.1</version>
+                <version>1.4.2-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
