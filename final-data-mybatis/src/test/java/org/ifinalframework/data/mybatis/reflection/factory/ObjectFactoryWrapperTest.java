@@ -13,40 +13,32 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.mapping;
+package org.ifinalframework.data.mybatis.reflection.factory;
 
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
+import org.apache.ibatis.reflection.factory.ObjectFactory;
 
-import org.ifinalframework.data.annotation.AbsRecord;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.annotation.AbsUser;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
- * DefaultResultMapFactoryTest.
+ * ObjectFactoryWrapperTest.
  *
  * @author ilikly
- * @version 1.4.0
- * @since 1.4.0
+ * @version 1.4.2
+ * @since 1.4.2
  */
 @Slf4j
-class DefaultResultMapFactoryTest {
-    private final DefaultResultMapFactory factory = new DefaultResultMapFactory();
-
+class ObjectFactoryWrapperTest {
+    private final ObjectFactory objectFactory = new ObjectFactoryWrapper(new DefaultObjectFactory());
     @Test
-    void createFromAbsRecord() {
-        ResultMap resultMap = factory.create(new Configuration(), AbsRecord.class);
-        logger.info("{}",resultMap);
+    void iUser(){
+        IUser user = objectFactory.create(IUser.class);
+        assertInstanceOf(AbsUser.class,user);
     }
-
-    @Test
-    void create() {
-        ResultMap resultMap = factory.create(new Configuration(), MyRecord.class);
-    }
-
-    public static class MyRecord extends AbsRecord {
-    }
-
-    ;
 }

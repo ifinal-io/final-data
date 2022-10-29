@@ -24,13 +24,14 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.springframework.beans.BeanInfoFactory;
+import org.springframework.beans.ExtendedBeanInfoFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
 import org.springframework.data.util.TypeInformation;
 import org.springframework.lang.NonNull;
-
-import org.ifinalframework.util.Reflections;
+import org.springframework.util.ReflectionUtils;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,6 +45,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DefaultEntityFactory implements EntityFactory {
     private final Environment environment;
+
     private final Map<Class<?>, Entity<?>> cache = new ConcurrentHashMap<>(1024);
 
     public DefaultEntityFactory() {
@@ -80,7 +82,7 @@ public class DefaultEntityFactory implements EntityFactory {
 
     private Property buildProperty(AnnotationEntity<?> entity, final Class<?> entityClass, final PropertyDescriptor descriptor) {
         TypeInformation<?> typeInformation = entity.getTypeInformation();
-        final Field field = Reflections.findField(entityClass, descriptor.getName());
+        final Field field = ReflectionUtils.findField(entityClass, descriptor.getName());
         return field == null
                 ? new AnnotationProperty(
                 org.springframework.data.mapping.model.Property.of(typeInformation, descriptor), entity,

@@ -22,6 +22,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.annotation.AbsRecord;
+
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,7 +43,32 @@ import static org.junit.jupiter.api.Assertions.*;
  * @version 1.3.1
  * @since 1.3.1
  */
+@Slf4j
 class DefaultEntityFactoryTest {
+
+    @Test
+    void createFromIEntity(){
+        StandardEnvironment standardEnvironment = new StandardEnvironment();
+        DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
+        Entity<IEntity> entity = factory.create(IEntity.class);
+        Assertions.assertNotNull(entity.getRequiredPersistentProperty("id"));
+    }
+
+    @Test
+    void createFromIUser(){
+        StandardEnvironment standardEnvironment = new StandardEnvironment();
+        DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
+        Entity<IUser> entity = factory.create(IUser.class);
+        Assertions.assertNotNull(entity.getRequiredPersistentProperty("id"));
+    }
+
+    @Test
+    void createFromAbsRecord(){
+        StandardEnvironment standardEnvironment = new StandardEnvironment();
+        DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
+        Entity<AbsRecord> entity = factory.create(AbsRecord.class);
+
+    }
 
     @ParameterizedTest
     @NullSource

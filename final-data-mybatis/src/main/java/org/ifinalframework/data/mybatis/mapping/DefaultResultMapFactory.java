@@ -19,6 +19,7 @@ import org.apache.ibatis.mapping.ResultFlag;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.LongTypeHandler;
 import org.apache.ibatis.type.TypeHandler;
 
 import org.ifinalframework.core.IUser;
@@ -34,10 +35,13 @@ import org.ifinalframework.data.query.type.JsonParameterTypeHandler;
 import org.springframework.lang.NonNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * DefaultResultMapFactory.
@@ -65,20 +69,25 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                         Class<?> type = property.getType();
                         if (property.isAssociation()) {
                             final Reference reference = property.getRequiredAnnotation(Reference.class);
-                            if(IUser.class.equals(type)){
-                                type = AbsUser.class;
-                            }
+//                            if(IUser.class.equals(type)){
+//                                type = AbsUser.class;
+//                            }
                             final Entity<?> referenceEntity = Entity.from(type);
-                            Class<?> finalType = type;
                             final List<ResultMapping> composites = Arrays.stream(reference.properties())
                                     .map(referenceEntity::getPersistentProperty)
                                     .map(referenceProperty -> {
 
                                         final String name = referenceProperty.getName();
                                         String column = formatColumn(entity, property, referenceProperty);
-                                        final TypeHandler<?> typeHandler = findTypeHandler(configuration, referenceProperty);
+                                        TypeHandler<?> typeHandler;
+                                        if(IUser.class.equals(type) && "id".equals(name)){
+                                            typeHandler = new LongTypeHandler();
+                                        }else {
+                                            typeHandler = findTypeHandler(configuration, referenceProperty);
+                                        }
 
-                                        return new ResultMapping.Builder(configuration, name, column, finalType)
+
+                                        return new ResultMapping.Builder(configuration, name, column, type)
                                                 .javaType(referenceProperty.getJavaType())
                                                 .flags(referenceProperty.isIdProperty() ? Collections.singletonList(ResultFlag.ID)
                                                         : Collections.emptyList())
@@ -143,15 +152,21 @@ public class DefaultResultMapFactory implements ResultMapFactory {
 
     private TypeHandler<?> findTypeHandler(final Configuration configuration, final Property property) {
 
-        Field field = property.getField();
-        Objects.requireNonNull(field);
+        Type type = Stream.of(
+                Optional.ofNullable(property.getField()).map(Field::getGenericType).orElse(null),
+                Optional.ofNullable(property.getSetter()).map(it -> it.getGenericParameterTypes()[0]).orElse(null),
+                Optional.ofNullable(property.getGetter()).map(Method::getGenericReturnType).orElse(null)
+        ).filter(Objects::nonNull)
+                .findFirst().orElse(null);
+
+        Objects.requireNonNull(type);
 
         try {
 
             Class<? extends TypeHandler<?>> typeHandler = TypeHandlers.findTypeHandler(property);
 
             if (JsonParameterTypeHandler.class.equals(typeHandler)) {
-                return new JsonTypeReferenceTypeHandler<>(field.getGenericType());
+                return new JsonTypeReferenceTypeHandler<>(type);
             }
 
             if (typeHandler != null && !TypeHandler.class.equals(typeHandler)) {
@@ -161,17 +176,15 @@ public class DefaultResultMapFactory implements ResultMapFactory {
             throw new IllegalArgumentException(e);
         }
 
-        if (LocalDateTime.class.equals(field.getType())) {
+        if (LocalDateTime.class.equals(type)) {
             return new LocalDateTimeTypeHandler();
         }
 
         if (property.isAnnotationPresent(Json.class) || property.isCollectionLike() || property.isMap()) {
-            Objects.requireNonNull(field);
-            return new JsonTypeReferenceTypeHandler<>(field.getGenericType());
+            return new JsonTypeReferenceTypeHandler<>(type);
         }
         if (property.isEnum()) {
-            final Class<? extends Enum<?>> type = (Class<? extends Enum<?>>) property.getType();
-            return new EnumTypeHandler<>(type);
+            return new EnumTypeHandler<>((Class<? extends Enum<?>>) type);
         }
         return configuration.getTypeHandlerRegistry().getTypeHandler(property.getType());
     }
