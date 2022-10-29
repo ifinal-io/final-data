@@ -16,7 +16,11 @@
 
 package org.ifinalframework.data.mapping;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.core.env.Environment;
@@ -30,7 +34,15 @@ import org.springframework.lang.NonNull;
 import org.ifinalframework.core.lang.Default;
 import org.ifinalframework.core.lang.Final;
 import org.ifinalframework.core.lang.Transient;
-import org.ifinalframework.data.annotation.*;
+import org.ifinalframework.data.annotation.Column;
+import org.ifinalframework.data.annotation.Keyword;
+import org.ifinalframework.data.annotation.Order;
+import org.ifinalframework.data.annotation.ReadOnly;
+import org.ifinalframework.data.annotation.Reference;
+import org.ifinalframework.data.annotation.ReferenceMode;
+import org.ifinalframework.data.annotation.SqlKeyWords;
+import org.ifinalframework.data.annotation.Virtual;
+import org.ifinalframework.data.annotation.WriteOnly;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
 import org.ifinalframework.util.Asserts;
 
@@ -243,6 +255,11 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
     @Override
     public boolean isKeyword() {
         return isKeyword.get();
+    }
+
+    @Override
+    public boolean isIdProperty() {
+        return super.isIdProperty() || "id".equals(getName());
     }
 
     @Override
