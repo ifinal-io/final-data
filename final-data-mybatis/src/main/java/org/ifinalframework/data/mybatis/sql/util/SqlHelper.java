@@ -35,6 +35,7 @@ import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.ParameterMapping;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
@@ -48,6 +49,7 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
+import org.ifinalframework.data.mybatis.reflection.factory.ObjectFactoryWrapper;
 import org.ifinalframework.data.mybatis.sql.provider.*;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.query.QueryProvider;
@@ -112,6 +114,7 @@ public final class SqlHelper {
 //        PropertyTokenizerRedefiner.redefine();
         DEFAULT_CONFIGURATION.setDefaultEnumTypeHandler(EnumTypeHandler.class);
         DEFAULT_CONFIGURATION.setObjectWrapperFactory(new FinalObjectWrapperFactory());
+        DEFAULT_CONFIGURATION.setObjectFactory(new ObjectFactoryWrapper(new DefaultObjectFactory()));
 
     }
 

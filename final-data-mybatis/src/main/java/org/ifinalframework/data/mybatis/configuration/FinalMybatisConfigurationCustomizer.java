@@ -37,6 +37,7 @@ import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
+import org.ifinalframework.data.mybatis.reflection.factory.ObjectFactoryWrapper;
 
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -76,6 +77,7 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
         logger.info("setDefaultEnumTypeHandler:{}", EnumTypeHandler.class.getCanonicalName());
         configuration.getTypeHandlerRegistry().setDefaultEnumTypeHandler(EnumTypeHandler.class);
         configuration.setObjectWrapperFactory(new FinalObjectWrapperFactory());
+        configuration.setObjectFactory(new ObjectFactoryWrapper(configuration.getObjectFactory()));
 
         // scan entity class
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
