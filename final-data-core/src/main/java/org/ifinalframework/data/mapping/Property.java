@@ -30,6 +30,7 @@ import org.ifinalframework.data.annotation.ReferenceMode;
 import org.ifinalframework.data.annotation.Virtual;
 import org.ifinalframework.data.annotation.WriteOnly;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
 import javax.validation.constraints.NotNull;
@@ -172,6 +173,8 @@ public interface Property extends PersistentProperty<Property>, Ordered {
             return getType();
         }
     }
+
+    Type getGenericType();
 
     default Object get(@NotNull Object target) {
 

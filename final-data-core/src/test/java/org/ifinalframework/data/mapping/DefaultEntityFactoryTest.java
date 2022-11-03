@@ -15,10 +15,10 @@
 
 package org.ifinalframework.data.mapping;
 
+import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Objects;
 
-import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
@@ -32,9 +32,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DefaultEntityFactoryTest.
@@ -47,7 +44,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DefaultEntityFactoryTest {
 
     @Test
-    void createFromIEntity(){
+    void createFromIEntity() {
         StandardEnvironment standardEnvironment = new StandardEnvironment();
         DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
         Entity<IEntity> entity = factory.create(IEntity.class);
@@ -55,7 +52,7 @@ class DefaultEntityFactoryTest {
     }
 
     @Test
-    void createFromIUser(){
+    void createFromIUser() {
         StandardEnvironment standardEnvironment = new StandardEnvironment();
         DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
         Entity<IUser> entity = factory.create(IUser.class);
@@ -63,25 +60,25 @@ class DefaultEntityFactoryTest {
     }
 
     @Test
-    void createFromAbsRecord(){
+    void createFromAbsRecord() {
         StandardEnvironment standardEnvironment = new StandardEnvironment();
         DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
         Entity<AbsRecord> entity = factory.create(AbsRecord.class);
-
+        Property creator = entity.getRequiredPersistentProperty("creator");
     }
 
     @ParameterizedTest
     @NullSource
-    @ValueSource(strings = {"vendor","_tenant"})
+    @ValueSource(strings = {"vendor", "_tenant"})
     void create(String value) {
         StandardEnvironment standardEnvironment = new StandardEnvironment();
-        standardEnvironment.getPropertySources().addLast(new MapPropertySource("map",Collections.singletonMap("spring.tenant",value)));
+        standardEnvironment.getPropertySources().addLast(new MapPropertySource("map", Collections.singletonMap("spring.tenant", value)));
         DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
         Entity<MyEntity> entity = factory.create(MyEntity.class);
         Property tenant = entity.getRequiredPersistentProperty("tenant");
-        if(Objects.isNull(value)) {
+        if (Objects.isNull(value)) {
             Assertions.assertEquals("haha", tenant.getColumn());
-        }else {
+        } else {
             Assertions.assertEquals(value, tenant.getColumn());
         }
 

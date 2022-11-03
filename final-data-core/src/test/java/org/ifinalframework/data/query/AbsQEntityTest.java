@@ -15,13 +15,24 @@
 
 package org.ifinalframework.data.query;
 
+import org.ifinalframework.data.annotation.AbsRecord;
+
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
- * QEntityFactory.
+ * AbsQEntityTest.
  *
  * @author ilikly
- * @version 1.3.1
- * @since 1.3.1
+ * @version 1.4.2
+ * @since 1.4.2
  */
-public interface QEntityFactory {
+class AbsQEntityTest {
+
+    @Test
+    void fromAbsRecord(){
+        AbsQEntity<Long, AbsRecord> entity = new AbsQEntity<>(AbsRecord.class);
+    }
 
 }

@@ -16,12 +16,9 @@
 package org.ifinalframework.data.query;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.ibatis.type.TypeHandler;
 
@@ -62,6 +59,8 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
 
     private final boolean modifiable;
 
+    private Type genericType;
+
     private final Class<? extends TypeHandler> typeHandler;
 
     private final List<Class<?>> views;
@@ -82,6 +81,7 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
         this.writeable = builder.isWriteable;
         this.modifiable = builder.isModifiable;
 
+        this.genericType = builder.genericType;
         this.typeHandler = builder.typeHandler;
 
         this.views = Asserts.isEmpty(builder.views) ? new ArrayList<>() : builder.views;
@@ -103,24 +103,7 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
     }
 
     public Type getGenericType() {
-
-        Field field = property.getField();
-        if (Objects.nonNull(field)) {
-            return field.getGenericType();
-        }
-
-        Method getter = property.getGetter();
-        if (Objects.nonNull(getter)) {
-            return getter.getGenericReturnType();
-        }
-
-        Method setter = property.getSetter();
-        if (Objects.nonNull(setter)) {
-            return setter.getGenericParameterTypes()[0];
-        }
-
-
-        return null;
+        return genericType;
     }
 
     @Override
@@ -259,7 +242,7 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
         private boolean isWriteable = true;
 
         private boolean isModifiable = true;
-
+        private Type genericType;
         private Class<? extends TypeHandler> typeHandler;
 
         private List<Class<?>> views;
@@ -325,6 +308,11 @@ public class QPropertyImpl<T, E extends QEntity<?, ?>> implements QProperty<T> {
         public Builder<T, E> modifiable(final boolean modifiable) {
 
             this.isModifiable = modifiable;
+            return this;
+        }
+
+        public Builder<T, E> genericType(final Type genericType) {
+            this.genericType = genericType;
             return this;
         }
 

@@ -17,14 +17,25 @@
 package org.ifinalframework.data.query;
 
 import java.io.Serializable;
-import java.util.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.core.ResolvableType;
 import org.springframework.lang.NonNull;
 
+import org.ifinalframework.core.IRecord;
+import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.Column;
 import org.ifinalframework.data.annotation.Reference;
 import org.ifinalframework.data.annotation.Table;
@@ -95,6 +106,13 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
                         property.getReferenceProperties()
                                 .forEach(referenceProperty -> {
                                     Property persistentProperty = referenceEntity.getRequiredPersistentProperty(referenceProperty);
+                                    Type genericType = persistentProperty.getGenericType();
+                                    if (IRecord.class.isAssignableFrom(type) && IUser.class.isAssignableFrom(property.getType()) && "id".equals(referenceProperty)) {
+                                        genericType = ResolvableType.forClass(type).as(IRecord.class).getGeneric(1)
+                                                .as(IUser.class).resolveGeneric(0);
+                                    }
+
+
                                     final Column column = columns.get(referenceProperty);
                                     addProperty(
                                             new QPropertyImpl.Builder<>(this, persistentProperty)
@@ -108,6 +126,7 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
                                                     .readable(true)
                                                     .writeable(property.isWriteable())
                                                     .modifiable(property.isModifiable())
+                                                    .genericType(genericType)
                                                     .typeHandler(TypeHandlers.findTypeHandler(persistentProperty))
                                                     .build()
                                     );
@@ -127,6 +146,7 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
                                         .readable(!property.isTransient() && !property.isVirtual() && !property.isWriteOnly())
                                         .writeable(property.isWriteable())
                                         .modifiable(property.isModifiable())
+                                        .genericType(property.getGenericType())
                                         .typeHandler(TypeHandlers.findTypeHandler(property))
                                         .views(views)
                                         .build()

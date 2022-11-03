@@ -16,9 +16,13 @@
 
 package org.ifinalframework.data.mapping;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -275,6 +279,26 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
     @Override
     public String getReferenceColumn(final Property property) {
         return Optional.ofNullable(referenceColumns.get().get(property.getName())).orElse(property.getColumn());
+    }
+
+    @Override
+    public Type getGenericType() {
+        Field field = getField();
+        if (Objects.nonNull(field)) {
+            return field.getGenericType();
+        }
+
+        Method getter = getGetter();
+        if (Objects.nonNull(getter)) {
+            return getter.getGenericReturnType();
+        }
+
+        Method setter = getSetter();
+        if (Objects.nonNull(setter)) {
+            return setter.getGenericParameterTypes()[0];
+        }
+
+        return null;
     }
 
 }
