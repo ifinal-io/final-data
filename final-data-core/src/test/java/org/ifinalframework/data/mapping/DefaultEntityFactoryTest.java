@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.mapping;
 
-import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.Objects;
 
@@ -24,7 +23,6 @@ import org.springframework.core.env.StandardEnvironment;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.annotation.AbsRecord;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -59,13 +57,6 @@ class DefaultEntityFactoryTest {
         Assertions.assertNotNull(entity.getRequiredPersistentProperty("id"));
     }
 
-    @Test
-    void createFromAbsRecord() {
-        StandardEnvironment standardEnvironment = new StandardEnvironment();
-        DefaultEntityFactory factory = new DefaultEntityFactory(standardEnvironment);
-        Entity<AbsRecord> entity = factory.create(AbsRecord.class);
-        Property creator = entity.getRequiredPersistentProperty("creator");
-    }
 
     @ParameterizedTest
     @NullSource
