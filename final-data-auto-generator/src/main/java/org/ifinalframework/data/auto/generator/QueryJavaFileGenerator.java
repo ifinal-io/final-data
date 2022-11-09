@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
  * ServiceJavaFileGenerator.
  * <pre class="code">
  * public class EntityQuery extends PageQuery{
- *
  * }
  * </pre>
  *
@@ -42,7 +41,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class QueryJavaFileGenerator implements JavaFileGenerator<AutoService> {
     @Override
-    public String getName(AutoService ann, Class<?> clazz) {
+    public String getName(@NonNull AutoService ann, @NonNull Class<?> clazz) {
         return String.join(".", AutoNameHelper.queryPackage(clazz), AutoNameHelper.queryName(clazz));
     }
 
