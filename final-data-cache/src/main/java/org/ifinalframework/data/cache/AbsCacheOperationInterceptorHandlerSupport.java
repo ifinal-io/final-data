@@ -15,9 +15,12 @@
 
 package org.ifinalframework.data.cache;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 
 import org.ifinalframework.aop.interceptor.AbsOperationInterceptorHandlerSupport;
 import org.ifinalframework.cache.annotation.CacheLock;
@@ -27,15 +30,13 @@ import org.ifinalframework.context.expression.MethodMetadata;
 import org.ifinalframework.data.cache.interceptor.DefaultCacheExpressionEvaluator;
 import org.ifinalframework.util.Asserts;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author ilikly
  * @version 1.0.0
  * @since 1.0.0
  */
 public class AbsCacheOperationInterceptorHandlerSupport extends AbsOperationInterceptorHandlerSupport
-    implements CacheOperationHandlerSupport {
+        implements CacheOperationHandlerSupport {
 
     private final CacheExpressionEvaluator evaluator;
 
@@ -46,7 +47,6 @@ public class AbsCacheOperationInterceptorHandlerSupport extends AbsOperationInte
     }
 
     public AbsCacheOperationInterceptorHandlerSupport(final CacheExpressionEvaluator evaluator) {
-
         super(evaluator);
         this.evaluator = evaluator;
     }
@@ -90,14 +90,14 @@ public class AbsCacheOperationInterceptorHandlerSupport extends AbsOperationInte
 
     @Override
     public Object generateKey(@NonNull String[] keys, @NonNull String delimiter, @NonNull MethodMetadata metadata,
-        @NonNull EvaluationContext evaluationContext) {
+                              @NonNull EvaluationContext evaluationContext) {
 
         return evaluator.key(String.join(delimiter, keys), metadata.getMethodKey(), evaluationContext);
     }
 
     @Override
     public Object generateField(@NonNull String[] fields, @NonNull String delimiter, @NonNull MethodMetadata metadata,
-        @NonNull EvaluationContext evaluationContext) {
+                                @NonNull EvaluationContext evaluationContext) {
 
         if (Asserts.isEmpty(fields)) {
             return null;
@@ -109,23 +109,23 @@ public class AbsCacheOperationInterceptorHandlerSupport extends AbsOperationInte
 
     @Override
     public Object generateValue(@NonNull String value, final MethodMetadata metadata,
-        final EvaluationContext evaluationContext) {
+                                final EvaluationContext evaluationContext) {
 
         return evaluator.value(value, metadata.getMethodKey(), evaluationContext);
     }
 
     @Override
     public <T> T generateValue(@NonNull String value, final MethodMetadata metadata,
-        final EvaluationContext evaluationContext, final Class<T> clazz) {
+                               final EvaluationContext evaluationContext, final Class<T> clazz) {
         return evaluator.value(value, metadata.getMethodKey(), evaluationContext, clazz);
     }
 
     @Override
     public boolean isConditionPassing(final String condition, final MethodMetadata metadata,
-        final EvaluationContext evaluationContext) {
+                                      final EvaluationContext evaluationContext) {
 
         if (this.conditionPassing == null) {
-            if (condition != null) {
+            if (StringUtils.hasText(condition)) {
                 this.conditionPassing = evaluator.condition(condition, metadata.getMethodKey(), evaluationContext);
             } else {
                 this.conditionPassing = true;
@@ -136,7 +136,7 @@ public class AbsCacheOperationInterceptorHandlerSupport extends AbsOperationInte
 
     @Override
     public Object generateExpire(final String expire, final MethodMetadata metadata,
-        final EvaluationContext evaluationContext) {
+                                 final EvaluationContext evaluationContext) {
 
         if (expire != null) {
             return evaluator.expired(expire, metadata.getMethodKey(), evaluationContext);
