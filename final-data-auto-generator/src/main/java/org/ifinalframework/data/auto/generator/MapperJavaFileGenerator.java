@@ -36,11 +36,9 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * AutoMapperJavaFileGenerator.
- *
  * <pre class="code">
  * &#64;Mapper
  * public interface EntityMapper extends AbsMapper&lt;Long,Entity&gt;{
- *
  * }
  * </pre>
  *
@@ -52,7 +50,7 @@ import lombok.extern.slf4j.Slf4j;
 public class MapperJavaFileGenerator implements JavaFileGenerator<AutoMapper> {
 
     @Override
-    public String getName(AutoMapper ann, Class<?> clazz) {
+    public String getName(@NonNull AutoMapper ann, @NonNull Class<?> clazz) {
         return String.join(".", AutoNameHelper.mapperPackage(clazz), AutoNameHelper.mapperName(clazz));
     }
 
