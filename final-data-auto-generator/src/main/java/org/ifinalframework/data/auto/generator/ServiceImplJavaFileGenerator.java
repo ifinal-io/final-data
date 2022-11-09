@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import javax.lang.model.element.Modifier;
 import java.util.Objects;
 
 import org.springframework.core.ResolvableType;
@@ -24,23 +23,19 @@ import org.springframework.stereotype.Service;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoService;
-import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.service.AbsServiceImpl;
 import org.ifinalframework.javapoets.JavaPoets;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * ServiceJavaFileGenerator.
+ * Build a {@link JavaFile} which extends to the class of {@link AbsServiceImpl}.
  * <pre class="code">
- * public interface EntityService extends AbsService&lt;Long,Entity&gt;{
- *
+ * interface EntityServiceImpl extends AbsServiceImpl&lt;Long,Entity&gt;{
  * }
  * </pre>
  *
@@ -51,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ServiceImplJavaFileGenerator implements JavaFileGenerator<AutoService> {
     @Override
-    public String getName(AutoService ann, Class<?> clazz) {
+    public String getName(@NonNull AutoService ann, @NonNull Class<?> clazz) {
         return String.join(".", AutoNameHelper.servicePackage(clazz) + ".impl", AutoNameHelper.serviceName(clazz) + "Impl");
     }
 
@@ -81,32 +76,17 @@ public class ServiceImplJavaFileGenerator implements JavaFileGenerator<AutoServi
                     ClassName.get(clazz)
             );
 
-            ParameterizedTypeName repository = ParameterizedTypeName.get(
-                    ClassName.get(Repository.class),
-                    ClassName.get(id),
-                    ClassName.get(clazz)
-            );
-//
-//            MethodSpec constructor = MethodSpec.constructorBuilder()
-////                    .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
-//                    .addParameter(
-//                            ParameterSpec.builder(repository, "repository")
-//                                    .addModifiers(Modifier.FINAL).build())
-//                    .addStatement("super(repository)")
-//                    .build();
-
             //  class EntityServiceImpl extends AbsServiceImpl<I, IEntity> implements EntityService
             TypeSpec service = TypeSpec.classBuilder(serviceImplName)
                     .superclass(parameterizedTypeName)
                     .addSuperinterface(ClassName.get(servicePackage, serviceName))
-//                    .addMethod(constructor)
                     .addAnnotation(Service.class)
                     .addAnnotation(JavaPoets.generated(getClass()))
                     .addJavadoc(JavaPoets.Javadoc.author())
                     .addJavadoc(JavaPoets.Javadoc.version())
                     .build();
 
-            return JavaFile.builder(servicePackage, service)
+            return JavaFile.builder(serviceImplPackage, service)
                     .skipJavaLangImports(true)
                     .indent("    ")
                     .build();
