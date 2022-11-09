@@ -16,7 +16,11 @@
 package org.ifinalframework.data.service;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -41,12 +45,24 @@ import lombok.Setter;
 public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I>>
         implements AbsService<I, T>, SmartInitializingSingleton, ApplicationContextAware {
 
-    private final Repository<I, T> repository;
+    private Repository<I, T> repository;
     private final List<ServiceListener<T>> listeners = new LinkedList<>();
 
     @Setter
     private ApplicationContext applicationContext;
 
+    /**
+     * Autodetect {@link Repository} when the callback of {@link SmartInitializingSingleton#afterSingletonsInstantiated()}.
+     *
+     * @see #autodetectRepository(Class, Class)
+     * @see #afterSingletonsInstantiated()
+     * @since 1.4.2
+     */
+    protected AbsServiceImpl() {
+
+    }
+
+    @Deprecated
     protected AbsServiceImpl(final Repository<I, T> repository) {
         this.repository = Objects.requireNonNull(repository);
     }
@@ -75,14 +91,45 @@ public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "rawtypes"})
     public void afterSingletonsInstantiated() {
-        Class<?> entityClass = ResolvableType.forInstance(this).as(Repository.class).resolveGeneric(1);
-        ResolvableType resolvableType = ResolvableType.forClassWithGenerics(ServiceListener.class, entityClass);
+        autodetect();
+    }
+
+    private void autodetect() {
+        ResolvableType repositoryResolvableType = ResolvableType.forInstance(this).as(Repository.class);
+        Class<?> idClass = repositoryResolvableType.resolveGeneric(0);
+        Class<?> entityClass = repositoryResolvableType.resolveGeneric(1);
+
+        autodetectRepository(idClass, entityClass);
+        autodetectServiceListener(idClass, entityClass);
+    }
+
+    /**
+     * @param id     id class
+     * @param entity entity class
+     * @since 1.4.2
+     */
+    @SuppressWarnings("unchecked")
+    private void autodetectRepository(Class<?> id, Class<?> entity) {
+        if (Objects.isNull(repository)) {
+            ResolvableType repositoryType = ResolvableType.forClassWithGenerics(Repository.class, id, entity);
+            this.repository = (Repository<I, T>) applicationContext.getBeanProvider(repositoryType).getObject();
+        }
+    }
+
+    /**
+     * @param id     id class
+     * @param entity entity class
+     * @since 1.4.2
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private void autodetectServiceListener(Class<?> id, Class<?> entity) {
+        ResolvableType resolvableType = ResolvableType.forClassWithGenerics(ServiceListener.class, entity);
         List objects = applicationContext.getBeanProvider(resolvableType)
                 .orderedStream().collect(Collectors.toList());
         listeners.addAll(objects);
     }
+
 
     /*=========================================== Overridable ===========================================*/
 
