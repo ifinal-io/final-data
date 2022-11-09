@@ -60,14 +60,15 @@
     <scm>
         <connection>scm:git:git://github.com/final-projects/final-data.git</connection>
         <developerConnection>scm:git:ssh://github.com:final-projects/final-data.git</developerConnection>
-        <url>http://github.com/final-projects/final-data/tree/main</url>
+        <url>https://github.com/final-projects/final-data/tree/main</url>
     </scm>
 
     <developers>
         <developer>
+            <id>ilikly</id>
+            <url>https://github.com/ilikly</url>
             <email>569553290@qq.com</email>
-            <id>likly</id>
-            <name>likly</name>
+            <name>ilikly</name>
             <roles>
                 <role>Owner</role>
             </roles>
@@ -78,7 +79,7 @@
     <licenses>
         <license>
             <name>The Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
         </license>
     </licenses>
 
