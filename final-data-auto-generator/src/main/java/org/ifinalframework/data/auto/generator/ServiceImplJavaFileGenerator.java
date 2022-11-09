@@ -86,20 +86,20 @@ public class ServiceImplJavaFileGenerator implements JavaFileGenerator<AutoServi
                     ClassName.get(id),
                     ClassName.get(clazz)
             );
-
-            MethodSpec constructor = MethodSpec.constructorBuilder()
-//                    .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
-                    .addParameter(
-                            ParameterSpec.builder(repository, "repository")
-                                    .addModifiers(Modifier.FINAL).build())
-                    .addStatement("super(repository)")
-                    .build();
+//
+//            MethodSpec constructor = MethodSpec.constructorBuilder()
+////                    .addAnnotation(JavaPoets.generated(AutoServiceGenerator.class))
+//                    .addParameter(
+//                            ParameterSpec.builder(repository, "repository")
+//                                    .addModifiers(Modifier.FINAL).build())
+//                    .addStatement("super(repository)")
+//                    .build();
 
             //  class EntityServiceImpl extends AbsServiceImpl<I, IEntity> implements EntityService
             TypeSpec service = TypeSpec.classBuilder(serviceImplName)
                     .superclass(parameterizedTypeName)
                     .addSuperinterface(ClassName.get(servicePackage, serviceName))
-                    .addMethod(constructor)
+//                    .addMethod(constructor)
                     .addAnnotation(Service.class)
                     .addAnnotation(JavaPoets.generated(getClass()))
                     .addJavadoc(JavaPoets.Javadoc.author())
