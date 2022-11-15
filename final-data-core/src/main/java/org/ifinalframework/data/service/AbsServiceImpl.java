@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -113,7 +114,9 @@ public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I
     private void autodetectRepository(Class<?> id, Class<?> entity) {
         if (Objects.isNull(repository)) {
             ResolvableType repositoryType = ResolvableType.forClassWithGenerics(Repository.class, id, entity);
-            this.repository = (Repository<I, T>) applicationContext.getBeanProvider(repositoryType).getObject();
+            this.repository = (Repository<I, T>) applicationContext.getBeanProvider(repositoryType).stream()
+                    .filter(it -> !it.equals(this))
+                    .findFirst().orElseThrow(() -> new BeanCreationException("not found repository for class " + entity));
         }
     }
 
