@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
@@ -116,6 +117,7 @@ public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I
             ResolvableType repositoryType = ResolvableType.forClassWithGenerics(Repository.class, id, entity);
             this.repository = (Repository<I, T>) applicationContext.getBeanProvider(repositoryType).stream()
                     .filter(it -> !it.equals(this))
+                    .filter(it -> !this.getClass().equals(AopUtils.getTargetClass(it)))
                     .findFirst().orElseThrow(() -> new BeanCreationException("not found repository for class " + entity));
         }
     }
