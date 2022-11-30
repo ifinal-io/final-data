@@ -18,6 +18,7 @@ package org.ifinalframework.data.mybatis.interceptor;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
@@ -32,11 +33,12 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.defaults.DefaultSqlSession;
 
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import org.ifinalframework.context.user.UserContextHolder;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.Viewable;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.query.QEntity;
@@ -64,6 +66,7 @@ import org.ifinalframework.query.QEntity;
 public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
 
     private static final String TABLE_PARAMETER_NAME = "table";
+    private static final String QUERY_PARAMETER_NAME = "query";
 
     private static final String PROPERTIES_PARAMETER_NAME = "properties";
 
@@ -77,6 +80,12 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
 
         if (parameter instanceof Map && AbsMapper.class.isAssignableFrom(mapper)) {
             Map<String, Object> parameters = (Map<String, Object>) parameter;
+
+            IQuery query = (IQuery) parameters.get(QUERY_PARAMETER_NAME);
+
+            if (Objects.nonNull(query) && query instanceof Viewable && Objects.isNull(parameters.get("view"))) {
+                parameters.put("view", ((Viewable) query).getView());
+            }
 
             final QEntity<?, ?> entity = DefaultQEntityFactory.INSTANCE.create(entityClass);
             parameters.computeIfAbsent(TABLE_PARAMETER_NAME, k -> entity.getTable());

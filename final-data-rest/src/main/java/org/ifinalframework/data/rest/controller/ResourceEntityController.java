@@ -29,6 +29,7 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
+import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -107,17 +108,51 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
 
     @PostMapping
-    public Long create(@PathVariable String resource, @RequestBody String requestBody) {
+    public Long create(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
+        WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
+        validate(resourceEntity.getEntityClass(), entity, binder);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
         service.insert(entity);
         return entity.getId();
     }
 
+    @PostMapping("/copy")
+    public Long copy2(@PathVariable String resource, @RequestParam Long id) {
+        return copy(resource, id);
+    }
+
+
+    @PostMapping("/{id}/copy")
+    public Long copy(@PathVariable String resource, @PathVariable Long id) {
+        logger.info("==> POST /api/{}/{}/copy", resource, id);
+        ResourceEntity resourceEntity = getResourceEntity(resource);
+        AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+        IEntity<Long> entity = service.selectOne(id);
+        if (Objects.isNull(entity)) {
+            throw new NotFoundException("not found entity for " + id);
+        }
+        entity.setId(null);
+        service.insert(entity);
+        return entity.getId();
+    }
+
+    @PutMapping
+    public Integer update(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+        logger.info("==> PUT /api/{}", resource);
+        ResourceEntity resourceEntity = getResourceEntity(resource);
+        IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
+        Assert.notNull(entity.getId(), "update id is null");
+        WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
+        validate(resourceEntity.getEntityClass(), entity, binder);
+        AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+        return service.update(entity);
+    }
+
     @PutMapping("/{id}")
-    public Integer create(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody) {
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody) {
         logger.info("==> PUT /api/{}/{}", resource, id);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
@@ -168,18 +203,22 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         } else if (binder instanceof ExtendedServletRequestDataBinder && request.getNativeRequest() instanceof ServletRequest) {
             ((ExtendedServletRequestDataBinder) binder).bind((ServletRequest) request.getNativeRequest());
         }
-        BindingResult bindingResult = binder.getBindingResult();
-        for (Validator validator : binder.getValidators()) {
-            if (validator.supports(resourceEntity.getQueryClass())) {
-                validator.validate(query, bindingResult);
-            }
-        }
-        if(bindingResult.hasErrors()){
-            throw new BindException(bindingResult);
-        }
+        validate(resourceEntity.getQueryClass(), query, binder);
 
         logger.info("query={}", Json.toJson(query));
         return query;
+    }
+
+    private static void validate(Class<?> clazz, Object value, WebDataBinder binder) throws BindException {
+        BindingResult bindingResult = binder.getBindingResult();
+        for (Validator validator : binder.getValidators()) {
+            if (validator.supports(clazz)) {
+                validator.validate(value, bindingResult);
+            }
+        }
+        if (bindingResult.hasErrors()) {
+            throw new BindException(bindingResult);
+        }
     }
 
     private ResourceEntity getResourceEntity(String resource) {
