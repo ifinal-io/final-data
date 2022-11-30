@@ -36,7 +36,9 @@ import org.ifinalframework.data.auto.generator.method.DisableRestControllerMetho
 import org.ifinalframework.data.auto.generator.method.EnableRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.QueryDetailRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.QueryRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.ModifyRestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.UpdateRestControllerMethodProvider;
+import org.ifinalframework.data.auto.generator.method.YN2RestControllerMethodProvider;
 import org.ifinalframework.data.auto.generator.method.YNRestControllerMethodProvider;
 import org.ifinalframework.javapoets.JavaPoets;
 
@@ -100,7 +102,9 @@ public class RestControllerJavaFileGenerator implements JavaFileGenerator<AutoRe
         providers.add(new CreateRestControllerMethodProvider());
         // update
         providers.add(new UpdateRestControllerMethodProvider());
+        providers.add(new ModifyRestControllerMethodProvider());
         providers.add(new YNRestControllerMethodProvider());
+        providers.add(new YN2RestControllerMethodProvider());
         providers.add(new EnableRestControllerMethodProvider());
         providers.add(new DisableRestControllerMethodProvider());
         // delete
@@ -124,7 +128,7 @@ public class RestControllerJavaFileGenerator implements JavaFileGenerator<AutoRe
 
         // @RequestMapping("/api/${path}")
         AnnotationSpec resultMapping = AnnotationSpec.builder(RequestMapping.class)
-                .addMember("value", "$S",  prefix + "/" + path)
+                .addMember("value", "$S", prefix + "/" + path)
                 .build();
 
 
