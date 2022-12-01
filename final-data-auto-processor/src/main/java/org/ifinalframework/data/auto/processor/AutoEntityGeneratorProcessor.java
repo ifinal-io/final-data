@@ -38,8 +38,6 @@ import org.springframework.context.annotation.ClassPathScanningCandidateComponen
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.type.classreading.MetadataReader;
 import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
@@ -51,13 +49,11 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.auto.annotation.AutoMapper;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
-import org.ifinalframework.data.auto.annotation.AutoRestController;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.data.auto.generator.JavaFileGenerator;
 import org.ifinalframework.data.auto.generator.MapperJavaFileGenerator;
 import org.ifinalframework.data.auto.generator.QueryEntityJavaFileGenerator;
 import org.ifinalframework.data.auto.generator.QueryJavaFileGenerator;
-import org.ifinalframework.data.auto.generator.RestControllerJavaFileGenerator;
 import org.ifinalframework.data.auto.generator.ServiceImplJavaFileGenerator;
 import org.ifinalframework.data.auto.generator.ServiceJavaFileGenerator;
 
@@ -88,7 +84,6 @@ public class AutoEntityGeneratorProcessor extends AbstractProcessor {
         generatorMap.add(AutoService.class, new ServiceJavaFileGenerator());
         generatorMap.add(AutoService.class, new ServiceImplJavaFileGenerator());
 
-        generatorMap.add(AutoRestController.class, new RestControllerJavaFileGenerator());
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
