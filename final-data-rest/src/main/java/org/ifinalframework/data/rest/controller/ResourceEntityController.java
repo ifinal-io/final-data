@@ -15,6 +15,7 @@
 
 package org.ifinalframework.data.rest.controller;
 
+import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
@@ -33,6 +35,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,6 +59,8 @@ import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.auto.generator.AutoNameHelper;
 import org.ifinalframework.data.rest.model.ResourceEntity;
+import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
+import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.query.Update;
@@ -75,6 +80,9 @@ import org.slf4j.LoggerFactory;
 @RequestMapping("/api/{resource}")
 public class ResourceEntityController implements ApplicationContextAware, SmartInitializingSingleton {
     private static final Logger logger = LoggerFactory.getLogger(ResourceEntityController.class);
+
+    @Resource
+    private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
 
     private Map<String, ResourceEntity> resourceEntityMap = new LinkedHashMap<>();
 
@@ -113,7 +121,8 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
         WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
-        validate(resourceEntity.getEntityClass(), entity, binder);
+        Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
+        validate(resourceEntity.getEntityClass(), entity, binder, validationGroups);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
         service.insert(entity);
         return entity.getId();
@@ -195,7 +204,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         return service.selectCount(query);
     }
 
-    private static IQuery bindQuery(NativeWebRequest request, WebDataBinderFactory binderFactory, ResourceEntity resourceEntity) throws Exception {
+    private IQuery bindQuery(NativeWebRequest request, WebDataBinderFactory binderFactory, ResourceEntity resourceEntity) throws Exception {
         IQuery query = BeanUtils.instantiateClass(resourceEntity.getQueryClass());
         WebDataBinder binder = binderFactory.createBinder(request, query, "query");
         if (binder instanceof WebRequestDataBinder) {
@@ -203,18 +212,21 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         } else if (binder instanceof ExtendedServletRequestDataBinder && request.getNativeRequest() instanceof ServletRequest) {
             ((ExtendedServletRequestDataBinder) binder).bind((ServletRequest) request.getNativeRequest());
         }
-        validate(resourceEntity.getQueryClass(), query, binder);
+        Class<?>[] validationGroups = validationGroupsProvider.getQueryValidationGroups(resourceEntity.getEntityClass(), resourceEntity.getQueryClass());
+        validate(resourceEntity.getQueryClass(), query, binder, validationGroups);
 
         logger.info("query={}", Json.toJson(query));
         return query;
     }
 
-    private static void validate(Class<?> clazz, Object value, WebDataBinder binder) throws BindException {
+    private static void validate(Class<?> clazz, Object value, WebDataBinder binder, Class<?>... groups) throws BindException {
         BindingResult bindingResult = binder.getBindingResult();
         for (Validator validator : binder.getValidators()) {
-            if (validator.supports(clazz)) {
-                validator.validate(value, bindingResult);
+            ValidationUtils.invokeValidator(validator, value, bindingResult, groups);
+            if (bindingResult.hasErrors()) {
+                break;
             }
+
         }
         if (bindingResult.hasErrors()) {
             throw new BindException(bindingResult);
