@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
@@ -58,6 +59,8 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.auto.generator.AutoNameHelper;
+import org.ifinalframework.data.rest.function.QueryConsumer;
+import org.ifinalframework.data.rest.function.QueryConsumerComposite;
 import org.ifinalframework.data.rest.model.ResourceEntity;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
@@ -85,6 +88,12 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
 
     private Map<String, ResourceEntity> resourceEntityMap = new LinkedHashMap<>();
+
+    private final QueryConsumerComposite queryConsumerComposite;
+
+    public ResourceEntityController(ObjectProvider<QueryConsumer> queryConsumerProvider) {
+        this.queryConsumerComposite = new QueryConsumerComposite(queryConsumerProvider.orderedStream().collect(Collectors.toList()));
+    }
 
     @Setter
     private ApplicationContext applicationContext;
@@ -214,7 +223,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         }
         Class<?>[] validationGroups = validationGroupsProvider.getQueryValidationGroups(resourceEntity.getEntityClass(), resourceEntity.getQueryClass());
         validate(resourceEntity.getQueryClass(), query, binder, validationGroups);
-
+        queryConsumerComposite.accept(query);
         logger.info("query={}", Json.toJson(query));
         return query;
     }
@@ -246,6 +255,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @Override
     @SuppressWarnings("unchecked")
     public void afterSingletonsInstantiated() {
+
+
+
         resourceEntityMap = applicationContext.getBeanProvider(AbsService.class).stream()
                 .map(service -> {
                     Class<?> entityClass = ResolvableType.forClass(AopUtils.getTargetClass(service)).as(AbsService.class).resolveGeneric(1);
