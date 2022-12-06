@@ -17,6 +17,7 @@ package org.ifinalframework.data.rest.controller;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ import org.springframework.web.bind.support.WebRequestDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 
+import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
@@ -128,13 +130,29 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     public Long create(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
         ResourceEntity resourceEntity = getResourceEntity(resource);
-        IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
-        WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
-        Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
-        validate(resourceEntity.getEntityClass(), entity, binder, validationGroups);
-        AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
-        service.insert(entity);
-        return entity.getId();
+
+        if(requestBody.startsWith("{")){
+            IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
+            WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
+            Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
+            validate(resourceEntity.getEntityClass(), entity, binder, validationGroups);
+            AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+            service.insert(entity);
+            return entity.getId();
+        }else if(requestBody.startsWith("[")){
+            List<? extends IEntity<Long>> entities = Json.toList(requestBody, resourceEntity.getEntityClass());
+            WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
+            Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
+            validate(resourceEntity.getEntityClass(), entities, binder, validationGroups);
+            AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+            return service.insert((Collection<IEntity<Long>>) entities) * 1L;
+        }
+
+        throw new BadRequestException("unsupported requestBody format of " + requestBody);
+
+
+
+
     }
 
     @PostMapping("/copy")
@@ -231,6 +249,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     private static void validate(Class<?> clazz, Object value, WebDataBinder binder, Class<?>... groups) throws BindException {
         BindingResult bindingResult = binder.getBindingResult();
         for (Validator validator : binder.getValidators()) {
+            logger.info("validator:{},groups={}",validator.getClass(),groups);
             ValidationUtils.invokeValidator(validator, value, bindingResult, groups);
             if (bindingResult.hasErrors()) {
                 break;
