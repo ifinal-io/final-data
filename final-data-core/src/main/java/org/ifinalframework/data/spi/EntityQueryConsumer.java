@@ -13,34 +13,20 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.rest.model;
+package org.ifinalframework.data.spi;
 
-import java.io.Serializable;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.service.AbsService;
-import org.ifinalframework.data.spi.PostQueryConsumer;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
- * ResourceEntity.
+ * EntityQueryConsumer.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-@Getter
-@RequiredArgsConstructor
-public class ResourceEntity implements Serializable {
-    private final String resource;
-    private final Class<? extends IQuery> queryClass;
-    private final AbsService<Long, IEntity<Long>> service;
-    private final Class<? extends IEntity<Long>> entityClass;
-    private final PostQueryConsumer<IEntity<Long>, IQuery, IUser<?>> postQueryConsumer;
+public interface EntityQueryConsumer<T extends IEntity<Long>, Q extends IQuery> extends BiConsumer<List<T>, Q> {
 }
-
-

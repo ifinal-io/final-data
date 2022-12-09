@@ -29,12 +29,12 @@ import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.SmartInitializingSingleton;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ValidationUtils;
@@ -56,8 +56,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequ
 
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.NotFoundException;
+import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.auto.generator.AutoNameHelper;
@@ -67,6 +69,8 @@ import org.ifinalframework.data.rest.model.ResourceEntity;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.service.AbsService;
+import org.ifinalframework.data.spi.PostQueryConsumer;
+import org.ifinalframework.data.spi.PostQueryConsumerComposite;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.query.Update;
 
@@ -103,10 +107,16 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @GetMapping
     public List<? extends IEntity<Long>> query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> GET /api/{}", resource);
+
+        IUser<?> user = UserContextHolder.getUser();
+
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IQuery query = bindQuery(request, binderFactory, resourceEntity);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
-        return service.select(query);
+        List<IEntity<Long>> entities = service.select(query);
+        if (CollectionUtils.isEmpty(entities)) return null;
+        entities.forEach(it -> resourceEntity.getPostQueryConsumer().accept(it, query, user));
+        return entities;
     }
 
     @GetMapping("/{id}")
@@ -115,6 +125,11 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         ResourceEntity resourceEntity = getResourceEntity(resource);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
         return service.selectOne(id);
+    }
+
+    @DeleteMapping("/delete")
+    public Integer deleteFromParam(@PathVariable String resource, @RequestParam Long id) {
+        return this.delete(resource, id);
     }
 
     @DeleteMapping("/{id}")
@@ -131,7 +146,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         logger.info("==> POST /api/{}", resource);
         ResourceEntity resourceEntity = getResourceEntity(resource);
 
-        if(requestBody.startsWith("{")){
+        if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
@@ -139,7 +154,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
             service.insert(entity);
             return entity.getId();
-        }else if(requestBody.startsWith("[")){
+        } else if (requestBody.startsWith("[")) {
             List<? extends IEntity<Long>> entities = Json.toList(requestBody, resourceEntity.getEntityClass());
             WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
@@ -149,8 +164,6 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         }
 
         throw new BadRequestException("unsupported requestBody format of " + requestBody);
-
-
 
 
     }
@@ -249,7 +262,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     private static void validate(Class<?> clazz, Object value, WebDataBinder binder, Class<?>... groups) throws BindException {
         BindingResult bindingResult = binder.getBindingResult();
         for (Validator validator : binder.getValidators()) {
-            logger.info("validator:{},groups={}",validator.getClass(),groups);
+            logger.info("validator:{},groups={}", validator.getClass(), groups);
             ValidationUtils.invokeValidator(validator, value, bindingResult, groups);
             if (bindingResult.hasErrors()) {
                 break;
@@ -275,6 +288,13 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @SuppressWarnings("unchecked")
     public void afterSingletonsInstantiated() {
 
+        Map<? extends Class<?>, List<PostQueryConsumer>> entityPostQueryConsumers = applicationContext.getBeanProvider(PostQueryConsumer.class)
+                .orderedStream()
+                .collect(Collectors.groupingBy(it -> {
+                    return ResolvableType.forClass(AopUtils.getTargetClass(it))
+                            .as(PostQueryConsumer.class)
+                            .resolveGeneric(0);
+                }));
 
 
         resourceEntityMap = applicationContext.getBeanProvider(AbsService.class).stream()
@@ -295,7 +315,11 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                         throw new RuntimeException(e);
                     }
 
-                    return new ResourceEntity(restResource.value(), (Class<? extends IQuery>) queryClass, service, (Class<? extends IEntity<Long>>) entityClass);
+                    List collect = entityPostQueryConsumers.get(entityClass);
+
+                    final PostQueryConsumer consumerComposite = new PostQueryConsumerComposite(collect);
+
+                    return new ResourceEntity(restResource.value(), (Class<? extends IQuery>) queryClass, service, (Class<? extends IEntity<Long>>) entityClass, consumerComposite);
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(ResourceEntity::getResource, Function.identity()));
