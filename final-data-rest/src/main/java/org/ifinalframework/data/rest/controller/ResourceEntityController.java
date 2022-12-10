@@ -114,7 +114,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         IQuery query = bindQuery(request, binderFactory, resourceEntity);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
         List<IEntity<Long>> entities = service.select(query);
-        if (CollectionUtils.isEmpty(entities)) return null;
+        if (CollectionUtils.isEmpty(entities)) return entities;
         entities.forEach(it -> resourceEntity.getPostQueryConsumer().accept(it, query, user));
         return entities;
     }
@@ -288,14 +288,11 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @SuppressWarnings("unchecked")
     public void afterSingletonsInstantiated() {
 
-        Map<? extends Class<?>, List<PostQueryConsumer>> entityPostQueryConsumers = applicationContext.getBeanProvider(PostQueryConsumer.class)
-                .orderedStream()
-                .collect(Collectors.groupingBy(it -> {
-                    return ResolvableType.forClass(AopUtils.getTargetClass(it))
-                            .as(PostQueryConsumer.class)
-                            .resolveGeneric(0);
-                }));
+        String userClassName = applicationContext.getEnvironment().getRequiredProperty("final.data.spi.user-class");
 
+        Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
+
+        logger.info("userClass:{}", userClass);
 
         resourceEntityMap = applicationContext.getBeanProvider(AbsService.class).stream()
                 .map(service -> {
@@ -315,7 +312,17 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                         throw new RuntimeException(e);
                     }
 
-                    List collect = entityPostQueryConsumers.get(entityClass);
+
+                    List collect = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostQueryConsumer.class, entityClass, queryClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
+                    logger.info("found PostQueryConsumer:");
+                    logger.info("entityClass:{}", entityClass);
+                    logger.info("queryClass:{}", queryClass);
+                    logger.info("userClass:{}", userClass);
+                    collect.forEach(it -> logger.info("postQueryConsumer:{}", AopUtils.getTargetClass(it)));
+
 
                     final PostQueryConsumer consumerComposite = new PostQueryConsumerComposite(collect);
 
@@ -324,6 +331,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(ResourceEntity::getResource, Function.identity()));
     }
+
 }
 
 

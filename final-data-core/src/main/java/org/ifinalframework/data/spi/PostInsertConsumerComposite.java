@@ -16,45 +16,35 @@
 package org.ifinalframework.data.spi;
 
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.BiPredicate;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
-
 /**
- * After entity found.
+ * PostInsertConsumerComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public class EntityQueryConsumerComposite implements EntityQueryConsumer<IEntity<Long>, IQuery> {
-    private final List<BiConsumer<List<IEntity<Long>>, IQuery>> consumers;
+public class PostInsertConsumerComposite<T, U> implements PostInsertConsumer<T, U> {
+    private final List<PostInsertConsumer<T, U>> consumers;
 
-    public EntityQueryConsumerComposite(List<BiConsumer<List<IEntity<Long>>, IQuery>> consumers) {
+    public PostInsertConsumerComposite(List<PostInsertConsumer<T, U>> consumers) {
         this.consumers = consumers;
     }
 
     @Override
-    public void accept(List<IEntity<Long>> entities, IQuery query) {
+    public void accept(@NonNull T entity, @Nullable U user) {
         if (CollectionUtils.isEmpty(consumers)) {
             return;
         }
 
-        for (BiConsumer<List<IEntity<Long>>, IQuery> consumer : consumers) {
-            if (consumer instanceof BiPredicate) {
-                boolean test = ((BiPredicate<List<IEntity<Long>>, IQuery>) consumer).test(entities, query);
-                if (test) {
-                    consumer.accept(entities, query);
-                }
-            } else {
-                consumer.accept(entities, query);
-            }
+        for (PostInsertConsumer<T, U> consumer : consumers) {
+            consumer.accept(entity, user);
         }
-
-
     }
 }
+
+

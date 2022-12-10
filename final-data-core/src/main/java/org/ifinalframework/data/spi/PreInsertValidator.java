@@ -15,18 +15,18 @@
 
 package org.ifinalframework.data.spi;
 
-import java.util.List;
-import java.util.function.BiConsumer;
-
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 /**
- * EntityQueryConsumer.
+ * PreInsertValidator.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public interface EntityQueryConsumer<T extends IEntity<Long>, Q extends IQuery> extends BiConsumer<List<T>, Q> {
+public interface PreInsertValidator<T, U> {
+    void validate(@NonNull T entity, @Nullable U user);
 }
+
+
