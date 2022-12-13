@@ -18,7 +18,6 @@ package org.ifinalframework.data.spi;
 import java.util.List;
 
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
 /**
@@ -37,7 +36,7 @@ public class PreInsertConsumerComposite<T, U> implements PreInsertConsumer<T, U>
     }
 
     @Override
-    public void accept(@NonNull T entity, @Nullable U user) {
+    public void accept(@NonNull T entity, @NonNull U user) {
         if (CollectionUtils.isEmpty(consumers)) {
             return;
         }

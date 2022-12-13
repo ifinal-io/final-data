@@ -15,15 +15,38 @@
 
 package org.ifinalframework.data.spi;
 
+import java.util.List;
+
 import org.springframework.lang.NonNull;
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.annotation.YN;
 
 /**
- * PreInsertConsumer.
+ * PreUpdateYnValidatorComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public interface PreInsertConsumer<T, U> {
-    void accept(@NonNull T entity, @NonNull U user);
+public class PreUpdateYnValidatorComposite<T, U> implements PreUpdateYnValidator<T, U> {
+    private final List<PreUpdateYnValidator<T, U>> validators;
+
+    public PreUpdateYnValidatorComposite(List<PreUpdateYnValidator<T, U>> validators) {
+        this.validators = validators;
+    }
+
+    @Override
+    public void validate(@NonNull T entity, @NonNull YN yn, @NonNull U user) {
+        if (CollectionUtils.isEmpty(validators)) {
+            return;
+        }
+
+        for (PreUpdateYnValidator<T, U> validator : validators) {
+            validator.validate(entity, yn, user);
+        }
+
+    }
 }
+
+

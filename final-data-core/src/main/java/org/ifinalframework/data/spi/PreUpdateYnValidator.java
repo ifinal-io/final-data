@@ -17,13 +17,15 @@ package org.ifinalframework.data.spi;
 
 import org.springframework.lang.NonNull;
 
+import org.ifinalframework.data.annotation.YN;
+
 /**
- * PreInsertConsumer.
+ * PreUpdateYnValidator.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public interface PreInsertConsumer<T, U> {
-    void accept(@NonNull T entity, @NonNull U user);
+public interface PreUpdateYnValidator<T, U> {
+    void validate(@NonNull T entity, @NonNull YN yn, @NonNull U user);
 }

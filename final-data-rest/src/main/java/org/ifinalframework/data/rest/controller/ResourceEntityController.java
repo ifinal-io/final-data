@@ -71,6 +71,10 @@ import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumerComposite;
+import org.ifinalframework.data.spi.PreInsertConsumer;
+import org.ifinalframework.data.spi.PreInsertConsumerComposite;
+import org.ifinalframework.data.spi.PreUpdateYnValidator;
+import org.ifinalframework.data.spi.PreUpdateYnValidatorComposite;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.query.Update;
 
@@ -144,7 +148,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @PostMapping
     public Long create(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
+        IUser<?> user = UserContextHolder.getUser();
         ResourceEntity resourceEntity = getResourceEntity(resource);
+        PreInsertConsumer<IEntity<Long>, IUser<?>> preInsertConsumer = resourceEntity.getPreInsertConsumer();
 
         if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
@@ -152,6 +158,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
             validate(resourceEntity.getEntityClass(), entity, binder, validationGroups);
             AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+            preInsertConsumer.accept(entity, user);
             service.insert(entity);
             return entity.getId();
         } else if (requestBody.startsWith("[")) {
@@ -160,6 +167,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
             validate(resourceEntity.getEntityClass(), entities, binder, validationGroups);
             AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+            for (IEntity<Long> entity : entities) {
+                preInsertConsumer.accept(entity, user);
+            }
             return service.insert((Collection<IEntity<Long>>) entities) * 1L;
         }
 
@@ -213,9 +223,19 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @PutMapping("/{id}/yn")
     public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
+        IUser<?> user = UserContextHolder.getUser();
         ResourceEntity resourceEntity = getResourceEntity(resource);
         Update update = Update.update().set("yn", yn);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+
+        IEntity<Long> entity = service.selectOne(id);
+
+        if (Objects.isNull(entity)) {
+            throw new NotFoundException("not found entity for resource: " + resource + " by id= " + id);
+        }
+
+        resourceEntity.getPreUpdateYnValidator().validate(entity,yn,user);
+
         return service.update(update, id);
     }
 
@@ -323,10 +343,25 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                     logger.info("userClass:{}", userClass);
                     collect.forEach(it -> logger.info("postQueryConsumer:{}", AopUtils.getTargetClass(it)));
 
+                    List preInsertConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertConsumer.class, entityClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
+                    List preUpdateYnValidators = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreUpdateYnValidator.class, entityClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
 
                     final PostQueryConsumer consumerComposite = new PostQueryConsumerComposite(collect);
-
-                    return new ResourceEntity(restResource.value(), (Class<? extends IQuery>) queryClass, service, (Class<? extends IEntity<Long>>) entityClass, consumerComposite);
+                    final PreInsertConsumer preInsertConsumerComposite = new PreInsertConsumerComposite(preInsertConsumers);
+                    final PreUpdateYnValidator preUpdateYnValidator = new PreUpdateYnValidatorComposite(preUpdateYnValidators);
+                    return new ResourceEntity(restResource.value(),
+                            (Class<? extends IQuery>) queryClass,
+                            service,
+                            (Class<? extends IEntity<Long>>) entityClass,
+                            consumerComposite,
+                            preInsertConsumerComposite,
+                            preUpdateYnValidator
+                    );
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(ResourceEntity::getResource, Function.identity()));
