@@ -23,10 +23,11 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
+import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * ResourceEntity.
@@ -36,15 +37,19 @@ import lombok.RequiredArgsConstructor;
  * @since 1.4.2
  */
 @Getter
-@RequiredArgsConstructor
+@Builder
 public class ResourceEntity implements Serializable {
     private final String resource;
     private final Class<? extends IQuery> queryClass;
     private final AbsService<Long, IEntity<Long>> service;
     private final Class<? extends IEntity<Long>> entityClass;
     private final PostQueryConsumer<IEntity<Long>, IQuery, IUser<?>> postQueryConsumer;
-    private final PreInsertConsumer<IEntity<Long>,IUser<?>> preInsertConsumer;
-    private final PreUpdateYnValidator<IEntity<Long>,IUser<?>> preUpdateYnValidator;
+    private final PreInsertConsumer<IEntity<Long>, IUser<?>> preInsertConsumer;
+    private final PreUpdateYnValidator<IEntity<Long>, IUser<?>> preUpdateYnValidator;
+
+    private final Class<?> createEntityClass;
+    private final PreInsertFunction preInsertFunction;
+
 }
 
 

@@ -60,6 +60,7 @@ import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.auto.generator.AutoNameHelper;
@@ -73,6 +74,7 @@ import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumerComposite;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumerComposite;
+import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
 import org.ifinalframework.data.spi.PreUpdateYnValidatorComposite;
 import org.ifinalframework.json.Json;
@@ -152,7 +154,17 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         ResourceEntity resourceEntity = getResourceEntity(resource);
         PreInsertConsumer<IEntity<Long>, IUser<?>> preInsertConsumer = resourceEntity.getPreInsertConsumer();
 
-        if (requestBody.startsWith("{")) {
+        Class<?> createEntityClass = resourceEntity.getCreateEntityClass();
+        if (Objects.nonNull(createEntityClass)) {
+            Object createEntity = Json.toObject(requestBody, createEntityClass);
+            WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
+            Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
+            validate(resourceEntity.getEntityClass(), createEntity, binder, validationGroups);
+            AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+            List<IEntity<Long>> entities = resourceEntity.getPreInsertFunction().map(createEntity,user);
+            entities.forEach(it -> preInsertConsumer.accept(it,user));
+            return service.insert(entities) * 1L;
+        } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
@@ -234,7 +246,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             throw new NotFoundException("not found entity for resource: " + resource + " by id= " + id);
         }
 
-        resourceEntity.getPreUpdateYnValidator().validate(entity,yn,user);
+        resourceEntity.getPreUpdateYnValidator().validate(entity, yn, user);
 
         return service.update(update, id);
     }
@@ -323,6 +335,8 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                         return null;
                     }
 
+                    ResourceEntity.ResourceEntityBuilder builder = ResourceEntity.builder();
+
                     String queryClassName = String.join(".", AutoNameHelper.queryPackage(entityClass), AutoNameHelper.queryName(entityClass));
 
                     Class<?> queryClass = null;
@@ -332,6 +346,22 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                         throw new RuntimeException(e);
                     }
 
+                    builder.resource(restResource.value().trim())
+                            .entityClass((Class<? extends IEntity<Long>>) entityClass)
+                            .queryClass((Class<? extends IQuery>) queryClass);
+
+                    String dtoClassName = AutoNameHelper.dtoClassName(entityClass, IView.Create.class.getSimpleName());
+
+                    if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
+                        Class<?> dtoClass = null;
+                        try {
+                            dtoClass = ClassUtils.forName(dtoClassName, entityClass.getClassLoader());
+                        } catch (ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                        PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass,userClass, entityClass)).getObject();
+                        builder.createEntityClass(dtoClass).preInsertFunction(preInsertFunction);
+                    }
 
                     List collect = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostQueryConsumer.class, entityClass, queryClass, userClass))
                             .orderedStream()
@@ -354,14 +384,12 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                     final PostQueryConsumer consumerComposite = new PostQueryConsumerComposite(collect);
                     final PreInsertConsumer preInsertConsumerComposite = new PreInsertConsumerComposite(preInsertConsumers);
                     final PreUpdateYnValidator preUpdateYnValidator = new PreUpdateYnValidatorComposite(preUpdateYnValidators);
-                    return new ResourceEntity(restResource.value(),
-                            (Class<? extends IQuery>) queryClass,
-                            service,
-                            (Class<? extends IEntity<Long>>) entityClass,
-                            consumerComposite,
-                            preInsertConsumerComposite,
-                            preUpdateYnValidator
-                    );
+
+                    builder.postQueryConsumer(consumerComposite);
+                    builder.preInsertConsumer(preInsertConsumerComposite);
+                    builder.preUpdateYnValidator(preUpdateYnValidator);
+
+                    return builder.service(service).build();
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(ResourceEntity::getResource, Function.identity()));

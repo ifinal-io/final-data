@@ -58,6 +58,12 @@ public class AutoNameHelper {
         return entity.getSimpleName() + "Service";
     }
 
+    public static String dtoClassName(Class<?> entity, String action) {
+        final String dtoPackageName = entity.getPackage().getName().replace(".entity", ".domain.dto");
+        final String dtoName = action + entity.getSimpleName();
+        return String.join(".", dtoPackageName, dtoName);
+    }
+
     public static String controllerPackage(Class<?> entity) {
         return entity.getPackage().getName().replace(".entity", ".web.controller");
     }
