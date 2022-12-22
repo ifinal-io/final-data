@@ -21,29 +21,28 @@ import org.springframework.lang.NonNull;
 import org.springframework.util.CollectionUtils;
 
 /**
- * PostQueryConsumerComposite.
+ * PreDeleteConsumerComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public final class PostQueryConsumerComposite<T, Q, U> implements PostQueryConsumer<T, Q, U> {
+public class PreDeleteConsumerComposite<T, U> implements PreDeleteConsumer<T, U> {
+    private final List<PreDeleteConsumer<T, U>> consumers;
 
-    private final List<PostQueryConsumer<T, Q, U>> consumers;
-
-    public PostQueryConsumerComposite(List<PostQueryConsumer<T, Q, U>> consumers) {
+    public PreDeleteConsumerComposite(List<PreDeleteConsumer<T, U>> consumers) {
         this.consumers = consumers;
     }
 
     @Override
-    public void accept(@NonNull T entity, @NonNull Q query,@NonNull U user) {
+    public void accept(@NonNull T entity, @NonNull U user) {
         if (CollectionUtils.isEmpty(consumers)) {
             return;
         }
-        for (PostQueryConsumer<T, Q, U> consumer : consumers) {
-            consumer.accept(entity, query, user);
-        }
 
+        for (PreDeleteConsumer<T, U> consumer : consumers) {
+            consumer.accept(entity, user);
+        }
     }
 }
 

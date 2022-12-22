@@ -15,6 +15,8 @@
 
 package org.ifinalframework.data.spi;
 
+import org.springframework.lang.NonNull;
+
 /**
  * PostQueryConsumer.
  *
@@ -25,6 +27,6 @@ package org.ifinalframework.data.spi;
 @FunctionalInterface
 public interface PostQueryConsumer<T, Q, U> {
 
-    void accept(T entity, Q query, U user);
+    void accept(@NonNull T entity,@NonNull Q query,@NonNull U user);
 
 }

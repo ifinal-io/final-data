@@ -18,7 +18,6 @@ package org.ifinalframework.data.spi;
 import java.util.List;
 
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IQuery;
@@ -40,7 +39,7 @@ public class PreQueryConsumerComposite implements PreQueryConsumer<IQuery, IUser
 
     @Override
     @SuppressWarnings("unchecked")
-    public void accept(@NonNull IQuery query, @Nullable IUser<?> iUser) {
+    public void accept(@NonNull IQuery query, @NonNull IUser<?> iUser) {
         if (CollectionUtils.isEmpty(consumers)) {
             return;
         }

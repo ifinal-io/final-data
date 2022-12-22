@@ -16,7 +16,6 @@
 package org.ifinalframework.data.spi;
 
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 /**
  * PreQueryConsumer.
@@ -27,5 +26,5 @@ import org.springframework.lang.Nullable;
  */
 @FunctionalInterface
 public interface PreQueryConsumer<Q, U> {
-    void accept(@NonNull Q query, @Nullable U user);
+    void accept(@NonNull Q query, @NonNull U user);
 }

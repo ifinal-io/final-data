@@ -21,9 +21,13 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.service.AbsService;
+import org.ifinalframework.data.spi.PostDeleteConsumer;
+import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
+import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
+import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
 
 import lombok.Builder;
@@ -43,9 +47,16 @@ public class ResourceEntity implements Serializable {
     private final Class<? extends IQuery> queryClass;
     private final AbsService<Long, IEntity<Long>> service;
     private final Class<? extends IEntity<Long>> entityClass;
+
+    private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
     private final PostQueryConsumer<IEntity<Long>, IQuery, IUser<?>> postQueryConsumer;
     private final PreInsertConsumer<IEntity<Long>, IUser<?>> preInsertConsumer;
+    private final PostInsertConsumer<IEntity<Long>, IUser<?>> postInsertConsumer;
     private final PreUpdateYnValidator<IEntity<Long>, IUser<?>> preUpdateYnValidator;
+
+    private final PreDeleteConsumer<IEntity<Long>, IUser<?>> preDeleteConsumer;
+    private final PostDeleteConsumer<IEntity<Long>, IUser<?>> postDeleteConsumer;
+
 
     private final Class<?> createEntityClass;
     private final PreInsertFunction preInsertFunction;

@@ -70,11 +70,19 @@ import org.ifinalframework.data.rest.model.ResourceEntity;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.service.AbsService;
+import org.ifinalframework.data.spi.PostDeleteConsumer;
+import org.ifinalframework.data.spi.PostDeleteConsumerComposite;
+import org.ifinalframework.data.spi.PostInsertConsumer;
+import org.ifinalframework.data.spi.PostInsertConsumerComposite;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumerComposite;
+import org.ifinalframework.data.spi.PreDeleteConsumer;
+import org.ifinalframework.data.spi.PreDeleteConsumerComposite;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumerComposite;
 import org.ifinalframework.data.spi.PreInsertFunction;
+import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.PreQueryConsumerComposite;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
 import org.ifinalframework.data.spi.PreUpdateYnValidatorComposite;
 import org.ifinalframework.json.Json;
@@ -115,9 +123,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         logger.info("==> GET /api/{}", resource);
 
         IUser<?> user = UserContextHolder.getUser();
-
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IQuery query = bindQuery(request, binderFactory, resourceEntity);
+        resourceEntity.getPreQueryConsumer().accept(query, user);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
         List<IEntity<Long>> entities = service.select(query);
         if (CollectionUtils.isEmpty(entities)) return entities;
@@ -134,21 +142,31 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     }
 
     @DeleteMapping("/delete")
-    public Integer deleteFromParam(@PathVariable String resource, @RequestParam Long id) {
-        return this.delete(resource, id);
+    public Integer deleteFromParam(@PathVariable String resource, @RequestParam Long id, IUser<?> user) {
+        return this.delete(resource, id, user);
     }
 
     @DeleteMapping("/{id}")
-    public Integer delete(@PathVariable String resource, @PathVariable Long id) {
+    public Integer delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
-        return service.delete(id);
+
+        IEntity<Long> entity = service.selectOne(id);
+
+        if (Objects.isNull(entity)) {
+            throw new NotFoundException("not found delete target. id=" + id);
+        }
+
+        resourceEntity.getPreDeleteConsumer().accept(entity, user);
+        int delete = service.delete(id);
+        resourceEntity.getPostDeleteConsumer().accept(entity, user);
+        return delete;
     }
 
 
     @PostMapping
-    public Long create(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+    public Object create(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
         IUser<?> user = UserContextHolder.getUser();
         ResourceEntity resourceEntity = getResourceEntity(resource);
@@ -161,9 +179,11 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(resourceEntity.getEntityClass());
             validate(resourceEntity.getEntityClass(), createEntity, binder, validationGroups);
             AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
-            List<IEntity<Long>> entities = resourceEntity.getPreInsertFunction().map(createEntity,user);
-            entities.forEach(it -> preInsertConsumer.accept(it,user));
-            return service.insert(entities) * 1L;
+            List<IEntity<Long>> entities = resourceEntity.getPreInsertFunction().map(createEntity, user);
+            entities.forEach(it -> preInsertConsumer.accept(it, user));
+            int result = service.insert(entities);
+            entities.forEach(it -> resourceEntity.getPostInsertConsumer().accept(it, user));
+            return result;
         } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
@@ -172,6 +192,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
             preInsertConsumer.accept(entity, user);
             service.insert(entity);
+            resourceEntity.getPostInsertConsumer().accept(entity, user);
             return entity.getId();
         } else if (requestBody.startsWith("[")) {
             List<? extends IEntity<Long>> entities = Json.toList(requestBody, resourceEntity.getEntityClass());
@@ -182,7 +203,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             for (IEntity<Long> entity : entities) {
                 preInsertConsumer.accept(entity, user);
             }
-            return service.insert((Collection<IEntity<Long>>) entities) * 1L;
+            int result = service.insert((Collection<IEntity<Long>>) entities);
+            entities.forEach(it -> resourceEntity.getPostInsertConsumer().accept(it, user));
+            return result;
         }
 
         throw new BadRequestException("unsupported requestBody format of " + requestBody);
@@ -359,7 +382,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                         } catch (ClassNotFoundException e) {
                             throw new RuntimeException(e);
                         }
-                        PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass,userClass, entityClass)).getObject();
+                        PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass)).getObject();
                         builder.createEntityClass(dtoClass).preInsertFunction(preInsertFunction);
                     }
 
@@ -377,16 +400,46 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                             .orderedStream()
                             .collect(Collectors.toList());
 
+                    List postInsertConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostInsertConsumer.class, entityClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
                     List preUpdateYnValidators = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreUpdateYnValidator.class, entityClass, userClass))
                             .orderedStream()
                             .collect(Collectors.toList());
 
+                    List preDeleteConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreDeleteConsumer.class, entityClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
+                    List postDeleteConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostDeleteConsumer.class, entityClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
+
                     final PostQueryConsumer consumerComposite = new PostQueryConsumerComposite(collect);
                     final PreInsertConsumer preInsertConsumerComposite = new PreInsertConsumerComposite(preInsertConsumers);
+                    final PostInsertConsumer postInsertConsumer = new PostInsertConsumerComposite(postInsertConsumers);
                     final PreUpdateYnValidator preUpdateYnValidator = new PreUpdateYnValidatorComposite(preUpdateYnValidators);
 
+                    final PreDeleteConsumer preDeleteConsumer = new PreDeleteConsumerComposite(preDeleteConsumers);
+                    final PostDeleteConsumer postDeleteConsumer = new PostDeleteConsumerComposite(postDeleteConsumers);
+
+                    List preQueryConsumers = applicationContext.getBeanProvider(
+                                    ResolvableType.forClassWithGenerics(PreQueryConsumer.class, queryClass, userClass)
+                            )
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
+                    builder.preQueryConsumer(new PreQueryConsumerComposite(preQueryConsumers));
                     builder.postQueryConsumer(consumerComposite);
+
                     builder.preInsertConsumer(preInsertConsumerComposite);
+                    builder.postInsertConsumer(postInsertConsumer);
+
+                    builder.preDeleteConsumer(preDeleteConsumer);
+                    builder.postDeleteConsumer(postDeleteConsumer);
+
                     builder.preUpdateYnValidator(preUpdateYnValidator);
 
                     return builder.service(service).build();
