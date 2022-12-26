@@ -81,7 +81,7 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
         if (parameter instanceof Map && AbsMapper.class.isAssignableFrom(mapper)) {
             Map<String, Object> parameters = (Map<String, Object>) parameter;
 
-            if (parameters.containsKey(QUERY_PARAMETER_NAME)) {
+            if (parameters.containsKey(QUERY_PARAMETER_NAME) && parameters.containsKey("view")) {
                 IQuery query = (IQuery) parameters.get(QUERY_PARAMETER_NAME);
                 if (Objects.nonNull(query) && query instanceof Viewable && Objects.isNull(parameters.get("view"))) {
                     parameters.put("view", ((Viewable) query).getView());

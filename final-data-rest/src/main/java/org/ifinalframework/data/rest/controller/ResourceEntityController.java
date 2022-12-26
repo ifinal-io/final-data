@@ -56,7 +56,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequ
 
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.NotFoundException;
-import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
@@ -76,6 +75,8 @@ import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumerComposite;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumerComposite;
+import org.ifinalframework.data.spi.PostUpdateConsumer;
+import org.ifinalframework.data.spi.PostUpdateConsumerComposite;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumerComposite;
 import org.ifinalframework.data.spi.PreInsertConsumer;
@@ -83,6 +84,8 @@ import org.ifinalframework.data.spi.PreInsertConsumerComposite;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreQueryConsumerComposite;
+import org.ifinalframework.data.spi.PreUpdateConsumer;
+import org.ifinalframework.data.spi.PreUpdateConsumerComposite;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
 import org.ifinalframework.data.spi.PreUpdateYnValidatorComposite;
 import org.ifinalframework.json.Json;
@@ -119,10 +122,8 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     private ApplicationContext applicationContext;
 
     @GetMapping
-    public List<? extends IEntity<Long>> query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+    public List<? extends IEntity<Long>> query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}", resource);
-
-        IUser<?> user = UserContextHolder.getUser();
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IQuery query = bindQuery(request, binderFactory, resourceEntity);
         resourceEntity.getPreQueryConsumer().accept(query, user);
@@ -166,9 +167,8 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
 
     @PostMapping
-    public Object create(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+    public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
-        IUser<?> user = UserContextHolder.getUser();
         ResourceEntity resourceEntity = getResourceEntity(resource);
         PreInsertConsumer<IEntity<Long>, IUser<?>> preInsertConsumer = resourceEntity.getPreInsertConsumer();
 
@@ -234,31 +234,37 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     }
 
     @PutMapping
-    public Integer update(@PathVariable String resource, @RequestBody String requestBody, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
-        logger.info("==> PUT /api/{}", resource);
-        ResourceEntity resourceEntity = getResourceEntity(resource);
-        IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
-        Assert.notNull(entity.getId(), "update id is null");
-        WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
-        validate(resourceEntity.getEntityClass(), entity, binder);
-        AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
-        return service.update(entity);
+    public Integer update(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+        return doUpdate(resource, null, requestBody, user, request, binderFactory);
     }
 
     @PutMapping("/{id}")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody) {
-        logger.info("==> PUT /api/{}/{}", resource, id);
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+        return doUpdate(resource, id, requestBody, user, request, binderFactory);
+    }
+
+    private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+        logger.info("==> PUT /api/{}", resource);
         ResourceEntity resourceEntity = getResourceEntity(resource);
-        IEntity<Long> entity = Json.toObject(requestBody, resourceEntity.getEntityClass());
-        entity.setId(id);
+        IEntity<Long> entity = Json.toObject(body, resourceEntity.getEntityClass());
+        if (Objects.nonNull(id)) {
+            entity.setId(id);
+        } else {
+            Assert.notNull(entity.getId(), "update id is null");
+        }
+        WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
+
+        validate(resourceEntity.getEntityClass(), entity, binder);
+        resourceEntity.getPreUpdateConsumer().accept(entity, user);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
+        resourceEntity.getPostUpdateConsumer().accept(entity, user);
         return service.update(entity);
     }
 
+
     @PutMapping("/{id}/yn")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn) {
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
-        IUser<?> user = UserContextHolder.getUser();
         ResourceEntity resourceEntity = getResourceEntity(resource);
         Update update = Update.update().set("yn", yn);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
@@ -275,18 +281,18 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     }
 
     @PutMapping("/{id}/disable")
-    public Integer disable(@PathVariable String resource, @PathVariable Long id) {
-        return this.update(resource, id, YN.NO);
+    public Integer disable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+        return this.update(resource, id, YN.NO, user);
     }
 
     @PutMapping("/{id}/enable")
-    public Integer enable(@PathVariable String resource, @PathVariable Long id) {
-        return this.update(resource, id, YN.YES);
+    public Integer enable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+        return this.update(resource, id, YN.YES, user);
     }
 
     @PutMapping("/yn")
-    public Integer yn(@PathVariable String resource, @RequestParam Long id, @RequestParam YN yn) {
-        return this.update(resource, id, yn);
+    public Integer yn(@PathVariable String resource, @RequestParam Long id, @RequestParam YN yn, IUser<?> user) {
+        return this.update(resource, id, yn, user);
     }
 
 
@@ -416,11 +422,22 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                             .orderedStream()
                             .collect(Collectors.toList());
 
+                    List preUpdateConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreUpdateConsumer.class, entityClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
+                    List postUpdateConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostUpdateConsumer.class, entityClass, userClass))
+                            .orderedStream()
+                            .collect(Collectors.toList());
+
 
                     final PostQueryConsumer consumerComposite = new PostQueryConsumerComposite(collect);
                     final PreInsertConsumer preInsertConsumerComposite = new PreInsertConsumerComposite(preInsertConsumers);
                     final PostInsertConsumer postInsertConsumer = new PostInsertConsumerComposite(postInsertConsumers);
                     final PreUpdateYnValidator preUpdateYnValidator = new PreUpdateYnValidatorComposite(preUpdateYnValidators);
+
+                    final PreUpdateConsumer preUpdateConsumer = new PreUpdateConsumerComposite(preUpdateConsumers);
+                    final PostUpdateConsumer postUpdateConsumer = new PostUpdateConsumerComposite(postUpdateConsumers);
 
                     final PreDeleteConsumer preDeleteConsumer = new PreDeleteConsumerComposite(preDeleteConsumers);
                     final PostDeleteConsumer postDeleteConsumer = new PostDeleteConsumerComposite(postDeleteConsumers);
@@ -436,6 +453,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
                     builder.preInsertConsumer(preInsertConsumerComposite);
                     builder.postInsertConsumer(postInsertConsumer);
+
+                    builder.preUpdateConsumer(preUpdateConsumer);
+                    builder.postUpdateConsumer(postUpdateConsumer);
 
                     builder.preDeleteConsumer(preDeleteConsumer);
                     builder.postDeleteConsumer(postDeleteConsumer);

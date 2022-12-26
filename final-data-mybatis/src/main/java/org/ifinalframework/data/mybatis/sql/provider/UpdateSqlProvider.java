@@ -143,8 +143,8 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                 record.setLastModifier(UserContextHolder.getUser());
             } else if (parameters.containsKey(UPDATE_PARAMETER_NAME) && Objects.nonNull(parameters.get(UPDATE_PARAMETER_NAME))) {
                 final Update update = (Update) parameters.get(UPDATE_PARAMETER_NAME);
-                update.set(properties.getRequiredProperty("creator.id"), user.getId());
-                update.set(properties.getRequiredProperty("creator.name"), user.getName());
+                update.set(properties.getRequiredProperty("lastModifier.id"), user.getId());
+                update.set(properties.getRequiredProperty("lastModifier.name"), user.getName());
             }
         }
 

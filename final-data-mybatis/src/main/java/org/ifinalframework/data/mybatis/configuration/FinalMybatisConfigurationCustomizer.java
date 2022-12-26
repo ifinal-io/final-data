@@ -17,6 +17,7 @@ package org.ifinalframework.data.mybatis.configuration;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.ibatis.session.Configuration;
@@ -78,6 +79,8 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
         configuration.getTypeHandlerRegistry().setDefaultEnumTypeHandler(EnumTypeHandler.class);
         configuration.setObjectWrapperFactory(new FinalObjectWrapperFactory());
         configuration.setObjectFactory(new ObjectFactoryWrapper(configuration.getObjectFactory()));
+        Properties properties = configuration.getVariables();
+        properties.setProperty("mapUnderscoreToCamelCase","true");
 
         // scan entity class
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(
