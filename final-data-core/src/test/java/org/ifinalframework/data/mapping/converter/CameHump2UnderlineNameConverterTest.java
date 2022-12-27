@@ -31,6 +31,5 @@ class CameHump2UnderlineNameConverterTest {
     @Test
     void convert() {
         assertEquals("last_modified desc",converter.convert("lastModified DESC"));
-        assertEquals("creator_id asc",converter.convert("creator.id ASC"));
     }
 }

@@ -21,10 +21,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -56,7 +57,8 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
 
     private final List<QProperty<?>> properties = new ArrayList<>();
 
-    private final Map<String, QProperty<?>> pathProperties = new HashMap<>();
+    private final Map<String, QProperty<?>> pathProperties = new LinkedHashMap<>();
+    private final Map<String, QProperty<?>> columnProperties = new LinkedHashMap<>();
 
     private final Class<T> type;
 
@@ -160,6 +162,7 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
 
         this.properties.add(property);
         this.pathProperties.put(property.getPath(), property);
+        this.columnProperties.put(property.getColumn(), property);
         if (property.isIdProperty()) {
             this.idProperty = property;
         } else if (property.isVersionProperty()) {
@@ -192,8 +195,11 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
     @Override
     @SuppressWarnings("unchecked")
     public <E> QProperty<E> getProperty(final String path) {
-
-        return (QProperty<E>) pathProperties.get(path);
+        QProperty<?> property = pathProperties.get(path);
+        if (Objects.isNull(property)) {
+            property = columnProperties.get(path);
+        }
+        return (QProperty<E>) property;
     }
 
     @Override

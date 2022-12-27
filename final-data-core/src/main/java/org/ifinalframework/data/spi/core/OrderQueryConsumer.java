@@ -46,6 +46,11 @@ public class OrderQueryConsumer implements QueryConsumer<IQuery, IEntity<?>> {
 
     @Override
     public void accept(@NonNull IQuery query, @NonNull Class<IEntity<?>> clazz) {
+
+        if (!(query instanceof Orderable)) {
+            return;
+        }
+
         Orderable orderable = (Orderable) query;
         List<String> orders = orderable.getOrders();
         if (!CollectionUtils.isEmpty(orders)) {
