@@ -13,20 +13,40 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
+
+import java.util.List;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.spi.PostInsertConsumer;
 
 /**
- * PreQueryValidator.
+ * PostInsertConsumerComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
- * @see PreQueryConsumer
  */
-@FunctionalInterface
-public interface PreQueryValidator<Q, U> {
-    void validate(@NonNull Q query, @Nullable U user);
+public class PostInsertConsumerComposite<T, U> implements PostInsertConsumer<T, U> {
+    private final List<PostInsertConsumer<T, U>> consumers;
+
+    public PostInsertConsumerComposite(List<PostInsertConsumer<T, U>> consumers) {
+        this.consumers = consumers;
+    }
+
+    @Override
+    public void accept(@NonNull T entity, @Nullable U user) {
+        if (CollectionUtils.isEmpty(consumers)) {
+            return;
+        }
+
+        for (PostInsertConsumer<T, U> consumer : consumers) {
+            consumer.accept(entity, user);
+        }
+    }
 }
+
+

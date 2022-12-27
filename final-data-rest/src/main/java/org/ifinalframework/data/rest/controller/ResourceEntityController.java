@@ -63,31 +63,31 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.auto.generator.AutoNameHelper;
-import org.ifinalframework.data.rest.function.QueryConsumer;
-import org.ifinalframework.data.rest.function.QueryConsumerComposite;
 import org.ifinalframework.data.rest.model.ResourceEntity;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
-import org.ifinalframework.data.spi.PostDeleteConsumerComposite;
 import org.ifinalframework.data.spi.PostInsertConsumer;
-import org.ifinalframework.data.spi.PostInsertConsumerComposite;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostQueryConsumerComposite;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
-import org.ifinalframework.data.spi.PostUpdateConsumerComposite;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
-import org.ifinalframework.data.spi.PreDeleteConsumerComposite;
 import org.ifinalframework.data.spi.PreInsertConsumer;
-import org.ifinalframework.data.spi.PreInsertConsumerComposite;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.PreQueryConsumerComposite;
 import org.ifinalframework.data.spi.PreUpdateConsumer;
-import org.ifinalframework.data.spi.PreUpdateConsumerComposite;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
-import org.ifinalframework.data.spi.PreUpdateYnValidatorComposite;
+import org.ifinalframework.data.spi.QueryConsumer;
+import org.ifinalframework.data.spi.composite.PostDeleteConsumerComposite;
+import org.ifinalframework.data.spi.composite.PostInsertConsumerComposite;
+import org.ifinalframework.data.spi.composite.PostQueryConsumerComposite;
+import org.ifinalframework.data.spi.composite.PostUpdateConsumerComposite;
+import org.ifinalframework.data.spi.composite.PreDeleteConsumerComposite;
+import org.ifinalframework.data.spi.composite.PreInsertConsumerComposite;
+import org.ifinalframework.data.spi.composite.PreQueryConsumerComposite;
+import org.ifinalframework.data.spi.composite.PreUpdateConsumerComposite;
+import org.ifinalframework.data.spi.composite.PreUpdateYnValidatorComposite;
+import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.query.Update;
 
@@ -107,6 +107,7 @@ import org.slf4j.LoggerFactory;
 public class ResourceEntityController implements ApplicationContextAware, SmartInitializingSingleton {
     private static final Logger logger = LoggerFactory.getLogger(ResourceEntityController.class);
 
+
     @Resource
     private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
 
@@ -114,8 +115,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
     private final QueryConsumerComposite queryConsumerComposite;
 
-    public ResourceEntityController(ObjectProvider<QueryConsumer> queryConsumerProvider) {
-        this.queryConsumerComposite = new QueryConsumerComposite(queryConsumerProvider.orderedStream().collect(Collectors.toList()));
+    public ResourceEntityController(ObjectProvider<QueryConsumer<?,?>> queryConsumerProvider) {
+        List consumers = queryConsumerProvider.orderedStream().collect(Collectors.toList());
+        this.queryConsumerComposite = new QueryConsumerComposite(consumers);
     }
 
     @Setter
@@ -305,6 +307,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         return service.selectCount(query);
     }
 
+    @SuppressWarnings("unchecked")
     private IQuery bindQuery(NativeWebRequest request, WebDataBinderFactory binderFactory, ResourceEntity resourceEntity) throws Exception {
         IQuery query = BeanUtils.instantiateClass(resourceEntity.getQueryClass());
         WebDataBinder binder = binderFactory.createBinder(request, query, "query");
@@ -313,9 +316,11 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         } else if (binder instanceof ExtendedServletRequestDataBinder && request.getNativeRequest() instanceof ServletRequest) {
             ((ExtendedServletRequestDataBinder) binder).bind((ServletRequest) request.getNativeRequest());
         }
-        Class<?>[] validationGroups = validationGroupsProvider.getQueryValidationGroups(resourceEntity.getEntityClass(), resourceEntity.getQueryClass());
+        Class entityClass = resourceEntity.getEntityClass();
+        Class<?>[] validationGroups = validationGroupsProvider.getQueryValidationGroups(entityClass, resourceEntity.getQueryClass());
         validate(resourceEntity.getQueryClass(), query, binder, validationGroups);
-        queryConsumerComposite.accept(query);
+
+        queryConsumerComposite.accept(query, entityClass);
         logger.info("query={}", Json.toJson(query));
         return query;
     }

@@ -13,24 +13,27 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
 
 import java.util.List;
 
 import org.springframework.lang.NonNull;
 import org.springframework.util.CollectionUtils;
 
+import org.ifinalframework.data.spi.PreInsertConsumer;
+
 /**
- * PreUpdateConsumerComposite.
+ * PreInsertConsumerComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public class PreUpdateConsumerComposite<T, U> implements PreUpdateConsumer<T, U> {
-    private final List<PreUpdateConsumer<T, U>> consumers;
+public class PreInsertConsumerComposite<T, U> implements PreInsertConsumer<T, U> {
 
-    public PreUpdateConsumerComposite(List<PreUpdateConsumer<T, U>> consumers) {
+    private final List<PreInsertConsumer<T, U>> consumers;
+
+    public PreInsertConsumerComposite(List<PreInsertConsumer<T, U>> consumers) {
         this.consumers = consumers;
     }
 
@@ -40,7 +43,10 @@ public class PreUpdateConsumerComposite<T, U> implements PreUpdateConsumer<T, U>
             return;
         }
 
-        consumers.forEach(it -> it.accept(entity, user));
+        for (PreInsertConsumer<T, U> consumer : consumers) {
+            consumer.accept(entity, user);
+        }
+
     }
 }
 

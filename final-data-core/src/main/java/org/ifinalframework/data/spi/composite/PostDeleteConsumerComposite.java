@@ -13,19 +13,40 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
 
 import java.util.List;
 
 import org.springframework.lang.NonNull;
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.spi.PostDeleteConsumer;
 
 /**
- * PreInsertFunction.
+ * PostDeleteConsumerComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public interface PreInsertFunction<T,U, R> {
-    List<R> map(@NonNull T dto,@NonNull U user);
+public class PostDeleteConsumerComposite<T, U> implements PostDeleteConsumer<T, U> {
+
+    private final List<PostDeleteConsumer<T, U>> consumers;
+
+    public PostDeleteConsumerComposite(List<PostDeleteConsumer<T, U>> consumers) {
+        this.consumers = consumers;
+    }
+
+    @Override
+    public void accept(@NonNull T entity, @NonNull U user) {
+        if (CollectionUtils.isEmpty(consumers)) {
+            return;
+        }
+
+        for (PostDeleteConsumer<T, U> consumer : consumers) {
+            consumer.accept(entity, user);
+        }
+    }
 }
+
+

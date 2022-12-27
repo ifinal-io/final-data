@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
 
 import java.util.List;
 
@@ -22,6 +22,8 @@ import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.PreQueryPredicate;
 
 /**
  * PreQueryConsumerComposite.

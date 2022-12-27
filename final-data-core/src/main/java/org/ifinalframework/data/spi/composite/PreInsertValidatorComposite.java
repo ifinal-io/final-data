@@ -13,36 +13,39 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
 
 import java.util.List;
 
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
+import org.ifinalframework.data.spi.PreInsertValidator;
+
 /**
- * PostDeleteConsumerComposite.
+ * PreInsertValidatorComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public class PostDeleteConsumerComposite<T, U> implements PostDeleteConsumer<T, U> {
+public class PreInsertValidatorComposite<T, U> implements PreInsertValidator<T, U> {
 
-    private final List<PostDeleteConsumer<T, U>> consumers;
+    private final List<PreInsertValidator<T, U>> validators;
 
-    public PostDeleteConsumerComposite(List<PostDeleteConsumer<T, U>> consumers) {
-        this.consumers = consumers;
+    public PreInsertValidatorComposite(List<PreInsertValidator<T, U>> validators) {
+        this.validators = validators;
     }
 
     @Override
-    public void accept(@NonNull T entity, @NonNull U user) {
-        if (CollectionUtils.isEmpty(consumers)) {
+    public void validate(@NonNull T entity, @Nullable U user) {
+        if (CollectionUtils.isEmpty(validators)) {
             return;
         }
 
-        for (PostDeleteConsumer<T, U> consumer : consumers) {
-            consumer.accept(entity, user);
+        for (PreInsertValidator<T, U> validator : validators) {
+            validator.validate(entity, user);
         }
     }
 }

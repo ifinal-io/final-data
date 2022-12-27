@@ -13,37 +13,40 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
 
 import java.util.List;
 
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
+import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.spi.PreUpdateYnValidator;
+
 /**
- * PostInsertConsumerComposite.
+ * PreUpdateYnValidatorComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public class PostInsertConsumerComposite<T, U> implements PostInsertConsumer<T, U> {
-    private final List<PostInsertConsumer<T, U>> consumers;
+public class PreUpdateYnValidatorComposite<T, U> implements PreUpdateYnValidator<T, U> {
+    private final List<PreUpdateYnValidator<T, U>> validators;
 
-    public PostInsertConsumerComposite(List<PostInsertConsumer<T, U>> consumers) {
-        this.consumers = consumers;
+    public PreUpdateYnValidatorComposite(List<PreUpdateYnValidator<T, U>> validators) {
+        this.validators = validators;
     }
 
     @Override
-    public void accept(@NonNull T entity, @Nullable U user) {
-        if (CollectionUtils.isEmpty(consumers)) {
+    public void validate(@NonNull T entity, @NonNull YN yn, @NonNull U user) {
+        if (CollectionUtils.isEmpty(validators)) {
             return;
         }
 
-        for (PostInsertConsumer<T, U> consumer : consumers) {
-            consumer.accept(entity, user);
+        for (PreUpdateYnValidator<T, U> validator : validators) {
+            validator.validate(entity, yn, user);
         }
+
     }
 }
 

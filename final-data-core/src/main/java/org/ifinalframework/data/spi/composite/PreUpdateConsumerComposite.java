@@ -13,19 +13,37 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
+
+import java.util.List;
 
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.spi.PreUpdateConsumer;
 
 /**
- * PreQueryPredicate.
+ * PreUpdateConsumerComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-@FunctionalInterface
-public interface PreQueryPredicate<Q, U> {
-    boolean test(@NonNull Q query, @Nullable U user);
+public class PreUpdateConsumerComposite<T, U> implements PreUpdateConsumer<T, U> {
+    private final List<PreUpdateConsumer<T, U>> consumers;
+
+    public PreUpdateConsumerComposite(List<PreUpdateConsumer<T, U>> consumers) {
+        this.consumers = consumers;
+    }
+
+    @Override
+    public void accept(@NonNull T entity, @NonNull U user) {
+        if (CollectionUtils.isEmpty(consumers)) {
+            return;
+        }
+
+        consumers.forEach(it -> it.accept(entity, user));
+    }
 }
+
+

@@ -13,12 +13,14 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
 
 import java.util.List;
 
 import org.springframework.lang.NonNull;
 import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.spi.PostQueryConsumer;
 
 /**
  * PostQueryConsumerComposite.

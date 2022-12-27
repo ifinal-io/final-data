@@ -13,12 +13,18 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.rest.function;
+package org.ifinalframework.data.spi.composite;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.lang.NonNull;
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.data.spi.QueryConsumer;
+import org.ifinalframework.data.spi.QueryPredicate;
 
 /**
  * QueryConsumerComposite.
@@ -27,29 +33,34 @@ import org.ifinalframework.core.IQuery;
  * @version 1.4.2
  * @since 1.4.2
  */
-public class QueryConsumerComposite implements QueryConsumer {
+public class QueryConsumerComposite implements QueryConsumer<IQuery, IEntity<?>> {
 
-    private final List<QueryConsumer> list;
+    private final List<QueryConsumer<IQuery, IEntity<?>>> list;
 
     public QueryConsumerComposite() {
         this(new ArrayList<>());
     }
 
-    public QueryConsumerComposite(List<QueryConsumer> list) {
+    public QueryConsumerComposite(List<QueryConsumer<IQuery, IEntity<?>>> list) {
         this.list = list;
     }
 
     @Override
-    public void accept(IQuery iQuery) {
-        for (QueryConsumer consumer : list) {
+    public void accept(@NonNull IQuery query, @NonNull Class<IEntity<?>> clazz) {
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+
+        for (QueryConsumer<IQuery, IEntity<?>> consumer : list) {
             if (consumer instanceof QueryPredicate) {
-                if (((QueryPredicate) consumer).test(iQuery)) {
-                    consumer.accept(iQuery);
+                if (((QueryPredicate) consumer).test(query, clazz)) {
+                    consumer.accept(query, clazz);
                 }
             } else {
-                consumer.accept(iQuery);
+                consumer.accept(query, clazz);
             }
         }
+
     }
 }
 

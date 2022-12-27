@@ -13,20 +13,38 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.spi.composite;
+
+import java.util.List;
 
 import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.spi.PostUpdateConsumer;
 
 /**
- * PreInsertValidator.
+ * PostUpdateConsumerComposite.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public interface PreInsertValidator<T, U> {
-    void validate(@NonNull T entity, @Nullable U user);
+public class PostUpdateConsumerComposite<T, U> implements PostUpdateConsumer<T, U> {
+
+    private final List<PostUpdateConsumer<T, U>> consumers;
+
+    public PostUpdateConsumerComposite(List<PostUpdateConsumer<T, U>> consumers) {
+        this.consumers = consumers;
+    }
+
+    @Override
+    public void accept(@NonNull T entity, @NonNull U user) {
+        if (CollectionUtils.isEmpty(consumers)) {
+            return;
+        }
+        consumers.forEach(it -> it.accept(entity, user));
+
+    }
 }
 
 

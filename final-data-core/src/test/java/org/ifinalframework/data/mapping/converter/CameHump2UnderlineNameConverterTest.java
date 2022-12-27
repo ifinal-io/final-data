@@ -13,17 +13,24 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.spi;
+package org.ifinalframework.data.mapping.converter;
 
-import org.springframework.lang.NonNull;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * PreUpdateConsumer.
+ * CameHump2UnderlineNameConverterTest.
  *
  * @author ilikly
  * @version 1.4.2
  * @since 1.4.2
  */
-public interface PreUpdateConsumer<T, U> {
-    void accept(@NonNull T entity, @NonNull U user);
+class CameHump2UnderlineNameConverterTest {
+    private final CameHump2UnderlineNameConverter converter = new CameHump2UnderlineNameConverter();
+    @Test
+    void convert() {
+        assertEquals("last_modified desc",converter.convert("lastModified DESC"));
+        assertEquals("creator_id asc",converter.convert("creator.id ASC"));
+    }
 }
