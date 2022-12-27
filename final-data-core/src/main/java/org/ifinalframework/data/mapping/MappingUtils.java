@@ -16,16 +16,15 @@
 
 package org.ifinalframework.data.mapping;
 
+import java.util.Optional;
+
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import org.ifinalframework.data.annotation.Prefix;
-import org.ifinalframework.data.annotation.ReferenceMode;
 import org.ifinalframework.data.annotation.SqlKeyWords;
 import org.ifinalframework.data.annotation.UpperCase;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
-
-import java.util.Optional;
 
 /**
  * @author ilikly
@@ -40,14 +39,12 @@ public interface MappingUtils {
             return property.getName();
         }
 
-        return referenceProperty.isIdProperty() && property.getReferenceMode() == ReferenceMode.SIMPLE
-            ? property.getName()
-            : property.getName() + referenceProperty.getName().substring(0, 1).toUpperCase() + referenceProperty
+        return property.getName() + referenceProperty.getName().substring(0, 1).toUpperCase() + referenceProperty
                 .getName().substring(1);
     }
 
     static String formatColumn(final Entity<?> entity, final @NonNull Property property,
-        final @Nullable Property referenceProperty) {
+                               final @Nullable Property referenceProperty) {
 
         String column = null;
         if (referenceProperty == null) {
@@ -58,12 +55,10 @@ public interface MappingUtils {
 
         } else {
             final String referenceColumn = property.getReferenceColumn(referenceProperty);
-            column = referenceProperty.isIdProperty() && property.getReferenceMode() == ReferenceMode.SIMPLE
-                ? property.getColumn()
-                : property.getColumn() + referenceColumn.substring(0, 1).toUpperCase() + referenceColumn.substring(1);
+            column = property.getColumn() + referenceColumn.substring(0, 1).toUpperCase() + referenceColumn.substring(1);
         }
 
-        if(SqlKeyWords.contains(column)){
+        if (SqlKeyWords.isKeyWord(column)) {
             column = String.format("`%s`", column);
         }
 
@@ -74,7 +69,7 @@ public interface MappingUtils {
         column = NameConverterRegistry.getInstance().getColumnNameConverter().convert(column);
 
         if (Optional.ofNullable(referenceProperty).orElse(property).isAnnotationPresent(UpperCase.class) || entity
-            .isAnnotationPresent(UpperCase.class)) {
+                .isAnnotationPresent(UpperCase.class)) {
             column = column.toUpperCase();
         }
         return column;

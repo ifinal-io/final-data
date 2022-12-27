@@ -58,6 +58,8 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
     private final List<QProperty<?>> properties = new ArrayList<>();
 
     private final Map<String, QProperty<?>> pathProperties = new LinkedHashMap<>();
+
+    private final Map<String, QProperty<?>> nameProperties = new LinkedHashMap<>();
     private final Map<String, QProperty<?>> columnProperties = new LinkedHashMap<>();
 
     private final Class<T> type;
@@ -163,6 +165,7 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
         this.properties.add(property);
         this.pathProperties.put(property.getPath(), property);
         this.columnProperties.put(property.getColumn(), property);
+        this.nameProperties.put(property.getName(), property);
         if (property.isIdProperty()) {
             this.idProperty = property;
         } else if (property.isVersionProperty()) {
@@ -198,6 +201,9 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
         QProperty<?> property = pathProperties.get(path);
         if (Objects.isNull(property)) {
             property = columnProperties.get(path);
+        }
+        if (Objects.isNull(property)) {
+            property = nameProperties.get(path);
         }
         return (QProperty<E>) property;
     }

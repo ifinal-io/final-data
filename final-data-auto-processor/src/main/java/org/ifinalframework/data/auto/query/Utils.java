@@ -19,7 +19,6 @@ package org.ifinalframework.data.auto.query;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
-import org.ifinalframework.data.annotation.ReferenceMode;
 import org.ifinalframework.data.auto.entity.Property;
 
 /**
@@ -34,18 +33,8 @@ public interface Utils {
         if (referenceProperty == null) {
             return property.getName();
         } else {
-
-            if (property.isIdProperty()) {
-                if (referenceProperty.referenceMode() == ReferenceMode.SIMPLE) {
-                    return referenceProperty.getName();
-                }
-
-                return referenceProperty.getName() + property.getName().substring(0, 1).toUpperCase() + property
-                    .getName().substring(1);
-            }
-
             return referenceProperty.getName() + property.getName().substring(0, 1).toUpperCase() + property.getName()
-                .substring(1);
+                    .substring(1);
         }
     }
 

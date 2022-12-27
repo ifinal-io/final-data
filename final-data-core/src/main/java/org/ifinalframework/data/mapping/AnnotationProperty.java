@@ -43,7 +43,6 @@ import org.ifinalframework.data.annotation.Keyword;
 import org.ifinalframework.data.annotation.Order;
 import org.ifinalframework.data.annotation.ReadOnly;
 import org.ifinalframework.data.annotation.Reference;
-import org.ifinalframework.data.annotation.ReferenceMode;
 import org.ifinalframework.data.annotation.SqlKeyWords;
 import org.ifinalframework.data.annotation.Virtual;
 import org.ifinalframework.data.annotation.WriteOnly;
@@ -116,9 +115,6 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
      * @see Keyword
      */
     private final Lazy<Boolean> isKeyword;
-
-    private final Lazy<ReferenceMode> referenceMode = Lazy
-            .of(isReference() ? getRequiredAnnotation(Reference.class).mode() : ReferenceMode.SIMPLE);
 
     private final Lazy<Map<String, String>> referenceColumns = Lazy.of(() -> {
 
@@ -266,10 +262,6 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
         return super.isIdProperty() || "id".equals(getName());
     }
 
-    @Override
-    public ReferenceMode getReferenceMode() {
-        return referenceMode.get();
-    }
 
     @Override
     public Set<String> getReferenceProperties() {

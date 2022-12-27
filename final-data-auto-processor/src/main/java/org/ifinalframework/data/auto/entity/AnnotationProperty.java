@@ -16,25 +16,6 @@
 
 package org.ifinalframework.data.auto.entity;
 
-import org.springframework.data.util.Lazy;
-import org.springframework.data.util.Optionals;
-
-import org.ifinalframework.core.lang.Transient;
-import org.ifinalframework.data.annotation.PrimaryKey;
-import org.ifinalframework.data.annotation.Reference;
-import org.ifinalframework.data.annotation.ReferenceMode;
-import org.ifinalframework.data.annotation.Version;
-import org.ifinalframework.data.auto.beans.PropertyDescriptor;
-import org.ifinalframework.data.auto.utils.Annotations;
-
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -48,6 +29,24 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleTypeVisitor8;
 import javax.lang.model.util.Types;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.springframework.data.util.Lazy;
+import org.springframework.data.util.Optionals;
+
+import org.ifinalframework.core.lang.Transient;
+import org.ifinalframework.data.annotation.PrimaryKey;
+import org.ifinalframework.data.annotation.Reference;
+import org.ifinalframework.data.annotation.Version;
+import org.ifinalframework.data.auto.beans.PropertyDescriptor;
+import org.ifinalframework.data.auto.utils.Annotations;
 
 /**
  * @author ilikly
@@ -89,13 +88,10 @@ public class AnnotationProperty implements Property {
     private final TypeElement javaTypeElement;
 
     private List<String> referenceProperties;
-
-    private ReferenceMode referenceMode;
-
     private Map<String, String> referenceColumns;
 
     public AnnotationProperty(final ProcessingEnvironment processEnv, final Optional<VariableElement> field,
-        final Optional<PropertyDescriptor> descriptor) {
+                              final Optional<PropertyDescriptor> descriptor) {
 
         this.elements = processEnv.getElementUtils();
         this.types = processEnv.getTypeUtils();
@@ -112,14 +108,14 @@ public class AnnotationProperty implements Property {
 
         this.element = Lazy.of(() -> withFieldOrMethod(Function.identity(), Function.identity(), Function.identity()));
         this.name = Lazy
-            .of(() -> withFieldOrDescriptor(it -> it.getSimpleName().toString(), PropertyDescriptor::getName));
+                .of(() -> withFieldOrDescriptor(it -> it.getSimpleName().toString(), PropertyDescriptor::getName));
 
         this.type = Lazy.of(() ->
-            withFieldOrMethod(
-                Element::asType,
-                setter -> setter.getParameters().get(0).asType(),
-                ExecutableElement::getReturnType
-            )
+                withFieldOrMethod(
+                        Element::asType,
+                        setter -> setter.getParameters().get(0).asType(),
+                        ExecutableElement::getReturnType
+                )
         );
 
         this.isCollection = Lazy.of(() -> initIsCollection(getType()));
@@ -140,26 +136,26 @@ public class AnnotationProperty implements Property {
     }
 
     private <T> T withFieldOrMethod(final Function<? super VariableElement, T> field,
-        final Function<? super ExecutableElement, T> setter,
-        final Function<? super ExecutableElement, T> getter
+                                    final Function<? super ExecutableElement, T> setter,
+                                    final Function<? super ExecutableElement, T> getter
     ) {
 
         return Optionals.firstNonEmpty(
-            () -> this.field.map(field),
-            () -> this.writeMethod.map(setter),
-            () -> this.readMethod.map(getter))
-            .orElseThrow(
-                () -> new IllegalStateException("Should not occur! Either field or descriptor has to be given"));
+                        () -> this.field.map(field),
+                        () -> this.writeMethod.map(setter),
+                        () -> this.readMethod.map(getter))
+                .orElseThrow(
+                        () -> new IllegalStateException("Should not occur! Either field or descriptor has to be given"));
     }
 
     private <T> T withFieldOrDescriptor(final Function<? super VariableElement, T> field,
-        final Function<? super PropertyDescriptor, T> descriptor) {
+                                        final Function<? super PropertyDescriptor, T> descriptor) {
 
         return Optionals.firstNonEmpty(
-            () -> this.field.map(field),
-            () -> this.descriptor.map(descriptor))
-            .orElseThrow(
-                () -> new IllegalStateException("Should not occur! Either field or descriptor has to be given"));
+                        () -> this.field.map(field),
+                        () -> this.descriptor.map(descriptor))
+                .orElseThrow(
+                        () -> new IllegalStateException("Should not occur! Either field or descriptor has to be given"));
     }
 
     private boolean initIsCollection(final TypeMirror type) {
@@ -173,7 +169,7 @@ public class AnnotationProperty implements Property {
 
     private void initReferenceColumn(final Reference ann) {
 
-        initReference(ann.mode(), ann.properties(), ann.delimiter());
+        initReference(ann.properties(), ann.delimiter());
     }
 
     private boolean initIsMap(final TypeMirror type) {
@@ -187,9 +183,8 @@ public class AnnotationProperty implements Property {
         return this.element.get();
     }
 
-    private void initReference(final ReferenceMode mode, final String[] properties, final String delimiter) {
+    private void initReference(final String[] properties, final String delimiter) {
 
-        this.referenceMode = mode;
         List<String> referencePropertiesLocal = new ArrayList<>(properties.length);
         Map<String, String> referenceColumnsLocal = new HashMap<>(properties.length);
         for (String property : properties) {
@@ -243,11 +238,6 @@ public class AnnotationProperty implements Property {
     @Override
     public boolean isReference() {
         return isReference.get();
-    }
-
-    @Override
-    public ReferenceMode referenceMode() {
-        return referenceMode;
     }
 
     @Override

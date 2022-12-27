@@ -15,6 +15,20 @@
 
 package org.ifinalframework.data.mybatis.mapping;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.apache.ibatis.mapping.ResultFlag;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
@@ -22,8 +36,12 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.LongTypeHandler;
 import org.apache.ibatis.type.TypeHandler;
 
+import org.springframework.lang.NonNull;
+
 import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.annotation.*;
+import org.ifinalframework.data.annotation.Json;
+import org.ifinalframework.data.annotation.Reference;
+import org.ifinalframework.data.annotation.UpperCase;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
@@ -32,16 +50,6 @@ import org.ifinalframework.data.mybatis.handler.JsonTypeReferenceTypeHandler;
 import org.ifinalframework.data.mybatis.handler.sharing.LocalDateTimeTypeHandler;
 import org.ifinalframework.data.query.TypeHandlers;
 import org.ifinalframework.data.query.type.JsonParameterTypeHandler;
-import org.springframework.lang.NonNull;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * DefaultResultMapFactory.
@@ -80,9 +88,9 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                                         final String name = referenceProperty.getName();
                                         String column = formatColumn(entity, property, referenceProperty);
                                         TypeHandler<?> typeHandler;
-                                        if(IUser.class.equals(type) && "id".equals(name)){
+                                        if (IUser.class.equals(type) && "id".equals(name)) {
                                             typeHandler = new LongTypeHandler();
-                                        }else {
+                                        } else {
                                             typeHandler = findTypeHandler(configuration, referenceProperty);
                                         }
 
@@ -138,9 +146,7 @@ public class DefaultResultMapFactory implements ResultMapFactory {
             column = referenceProperty.getColumn();
         } else {
             final String referenceColumn = property.getReferenceColumn(referenceProperty);
-            column = referenceProperty.isIdProperty() && property.getReferenceMode() == ReferenceMode.SIMPLE
-                    ? property.getColumn()
-                    : property.getColumn() + referenceColumn.substring(0, 1).toUpperCase() + referenceColumn.substring(1);
+            column = property.getColumn() + referenceColumn.substring(0, 1).toUpperCase() + referenceColumn.substring(1);
         }
         column = NameConverterRegistry.getInstance().getColumnNameConverter().convert(column);
         if (Optional.ofNullable(property).orElse(referenceProperty).isAnnotationPresent(UpperCase.class) || entity
@@ -153,10 +159,10 @@ public class DefaultResultMapFactory implements ResultMapFactory {
     private TypeHandler<?> findTypeHandler(final Configuration configuration, final Property property) {
 
         Type type = Stream.of(
-                Optional.ofNullable(property.getField()).map(Field::getGenericType).orElse(null),
-                Optional.ofNullable(property.getSetter()).map(it -> it.getGenericParameterTypes()[0]).orElse(null),
-                Optional.ofNullable(property.getGetter()).map(Method::getGenericReturnType).orElse(null)
-        ).filter(Objects::nonNull)
+                        Optional.ofNullable(property.getField()).map(Field::getGenericType).orElse(null),
+                        Optional.ofNullable(property.getSetter()).map(it -> it.getGenericParameterTypes()[0]).orElse(null),
+                        Optional.ofNullable(property.getGetter()).map(Method::getGenericReturnType).orElse(null)
+                ).filter(Objects::nonNull)
                 .findFirst().orElse(null);
 
         Objects.requireNonNull(type);
