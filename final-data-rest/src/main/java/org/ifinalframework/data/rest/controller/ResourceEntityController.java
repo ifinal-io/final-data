@@ -68,6 +68,7 @@ import org.ifinalframework.data.auto.generator.AutoNameHelper;
 import org.ifinalframework.data.rest.model.ResourceEntity;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
+import org.ifinalframework.data.security.ResourceSecurity;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
@@ -77,6 +78,7 @@ import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.PreResourceAuthorize;
 import org.ifinalframework.data.spi.PreUpdateConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
 import org.ifinalframework.data.spi.QueryConsumer;
@@ -115,6 +117,8 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
     private Map<String, ResourceEntity> resourceEntityMap = new LinkedHashMap<>();
 
+    private PreResourceAuthorize<IUser<?>> preResourceAuthorize;
+
     private final QueryConsumerComposite queryConsumerComposite;
 
     public ResourceEntityController(ObjectProvider<QueryConsumer<?, ?>> queryConsumerProvider) {
@@ -125,9 +129,17 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @Setter
     private ApplicationContext applicationContext;
 
+    private void applyPreResourceAuthorize(ResourceSecurity resourceSecurity, String resource, IUser<?> user) {
+        if (Objects.nonNull(preResourceAuthorize)) {
+            preResourceAuthorize.auth(resourceSecurity.format(resource), user);
+        }
+    }
+
+
     @GetMapping
     public List<? extends IEntity<Long>> query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}", resource);
+        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IQuery query = bindQuery(request, binderFactory, resourceEntity);
         resourceEntity.getPreQueryConsumer().accept(query, user);
@@ -139,8 +151,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     }
 
     @GetMapping("/{id}")
-    public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id) {
+    public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
+        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
         return service.selectOne(id);
@@ -154,6 +167,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @DeleteMapping("/{id}")
     public Integer delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
+        applyPreResourceAuthorize(ResourceSecurity.DELETE, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
 
@@ -173,6 +187,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @PostMapping
     public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
+        applyPreResourceAuthorize(ResourceSecurity.INSERT, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         PreInsertConsumer<IEntity<Long>, IUser<?>> preInsertConsumer = resourceEntity.getPreInsertConsumer();
 
@@ -249,6 +264,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
     private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
+        applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IEntity<Long> entity = Json.toObject(body, resourceEntity.getEntityClass());
         if (Objects.nonNull(id)) {
@@ -278,6 +294,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
     @SuppressWarnings("unchecked")
     private Integer doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
+        applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         Class<? extends IEntity<Long>> entityClass = resourceEntity.getEntityClass();
 
@@ -302,6 +319,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @PutMapping("/{id}/yn")
     public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
+        applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         Update update = Update.update().set("yn", yn);
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
@@ -334,8 +352,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
 
     @GetMapping("/count")
-    public Long count(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+    public Long count(@PathVariable String resource, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> GET /api/{}", resource);
+        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         ResourceEntity resourceEntity = getResourceEntity(resource);
         IQuery query = bindQuery(request, binderFactory, resourceEntity);
         AbsService<Long, ? extends IEntity<Long>> service = resourceEntity.getService();
@@ -388,6 +407,9 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @Override
     @SuppressWarnings("unchecked")
     public void afterSingletonsInstantiated() {
+
+        this.preResourceAuthorize = applicationContext.getBeanProvider(PreResourceAuthorize.class).getIfAvailable();
+
 
         String userClassName = applicationContext.getEnvironment().getRequiredProperty("final.data.spi.user-class");
 
