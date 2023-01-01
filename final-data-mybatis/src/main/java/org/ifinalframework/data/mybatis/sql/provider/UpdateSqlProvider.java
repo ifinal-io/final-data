@@ -15,8 +15,13 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import java.util.Map;
+import java.util.Objects;
+
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.type.TypeHandler;
+
+import org.springframework.lang.NonNull;
 
 import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IRecord;
@@ -25,14 +30,13 @@ import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.mybatis.sql.ScriptMapperHelper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.*;
+import org.ifinalframework.query.Criterion;
+import org.ifinalframework.query.CriterionAttributes;
+import org.ifinalframework.query.QEntity;
+import org.ifinalframework.query.QProperty;
+import org.ifinalframework.query.Update;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
-
-import org.springframework.lang.NonNull;
-
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author ilikly
@@ -122,7 +126,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         if (parameters.containsKey(IDS_PARAMETER_NAME) && parameters.get(IDS_PARAMETER_NAME) != null) {
             sql.append(whereIdsNotNull());
         } else {
-            appendQuery(sql, entity, query);
+            appendQuery(sql, entity, query, false);
         }
 
     }

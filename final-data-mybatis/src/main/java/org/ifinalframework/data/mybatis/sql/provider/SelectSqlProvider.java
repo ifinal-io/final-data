@@ -15,6 +15,13 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
+
+import org.apache.ibatis.builder.annotation.ProviderContext;
+import org.apache.ibatis.type.TypeHandler;
+
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IQuery;
@@ -26,13 +33,6 @@ import org.ifinalframework.query.QEntity;
 import org.ifinalframework.query.QProperty;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
-
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Map;
-
-import org.apache.ibatis.builder.annotation.ProviderContext;
-import org.apache.ibatis.type.TypeHandler;
 
 /**
  * @author ilikly
@@ -62,7 +62,7 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
     @Override
     @SuppressWarnings("unchecked")
     public void doProvide(final StringBuilder sql, final ProviderContext context,
-        final Map<String, Object> parameters) {
+                          final Map<String, Object> parameters) {
 
         final Class<?> entity = getEntityClass(context.getMapperType());
         final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);
@@ -72,18 +72,19 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
         appendColumns(sql, properties);
         sql.append("</trim>");
         sql.append("<trim prefix=\"FROM\">")
-            .append("${table}")
-            .append("</trim>");
+                .append("${table}")
+                .append("</trim>");
 
         Object query = parameters.get(QUERY_PARAMETER_NAME);
 
-        if (SELECT_ONE_METHOD_NAME.equals(context.getMapperMethod().getName()) && parameters.get("id") != null) {
+        String mapperMethodName = context.getMapperMethod().getName();
+        if (SELECT_ONE_METHOD_NAME.equals(mapperMethodName) && parameters.get("id") != null) {
             // <where> id = #{id} </where>
             sql.append(whereIdNotNull());
-        } else if (SELECT_METHOD_NAME.equals(context.getMapperMethod().getName()) && parameters.get("ids") != null) {
+        } else if (SELECT_METHOD_NAME.equals(mapperMethodName) && parameters.get("ids") != null) {
             sql.append(whereIdsNotNull());
         } else {
-            appendQuery(sql, entity, query);
+            appendQuery(sql, entity, query, SELECT_ONE_METHOD_NAME.equals(mapperMethodName));
         }
 
     }
@@ -91,25 +92,25 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
     private void appendColumns(final @NonNull StringBuilder sql, final @NonNull QEntity<?, ?> entity) {
 
         entity.stream()
-            .filter(QProperty::isReadable)
-            .forEach(property -> {
-                sql.append("<if test=\"entity.getRequiredProperty('")
-                    .append(property.getPath())
-                    .append("').hasView(view)\">");
+                .filter(QProperty::isReadable)
+                .forEach(property -> {
+                    sql.append("<if test=\"entity.getRequiredProperty('")
+                            .append(property.getPath())
+                            .append("').hasView(view)\">");
 
-                final Metadata metadata = new Metadata();
+                    final Metadata metadata = new Metadata();
 
-                metadata.setProperty(property.getName());
-                metadata.setColumn(property.getColumn());
-                metadata.setValue(property.getName());
-                metadata.setJavaType(property.getType());
-                metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
+                    metadata.setProperty(property.getName());
+                    metadata.setColumn(property.getColumn());
+                    metadata.setValue(property.getName());
+                    metadata.setJavaType(property.getType());
+                    metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
 
-                final String reader = Asserts.isBlank(property.getReader()) ? DEFAULT_READER : property.getReader();
+                    final String reader = Asserts.isBlank(property.getReader()) ? DEFAULT_READER : property.getReader();
 
-                sql.append(Velocities.getValue(reader, metadata));
-                sql.append(",</if>");
-            });
+                    sql.append(Velocities.getValue(reader, metadata));
+                    sql.append(",</if>");
+                });
     }
 
 }

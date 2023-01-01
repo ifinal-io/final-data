@@ -48,7 +48,7 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         return new DefaultQueryProvider(query);
     }
 
-    default void appendQuery(StringBuilder sql, Class<?> entity, Object query) {
+    default void appendQuery(StringBuilder sql, Class<?> entity, Object query, boolean selectOne) {
 
         QueryProvider provider = null;
 
@@ -63,7 +63,14 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
                     Optional.ofNullable(it.where()).ifPresent(sql::append);
                     Optional.ofNullable(it.groups()).ifPresent(sql::append);
                     Optional.ofNullable(it.orders()).ifPresent(sql::append);
-                    Optional.ofNullable(it.limit()).ifPresent(sql::append);
+
+                    if (selectOne) {
+                        sql.append(" LIMIT 1");
+                    } else {
+                        Optional.ofNullable(it.limit()).ifPresent(sql::append);
+                    }
+
+
                 });
     }
 

@@ -15,15 +15,15 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import java.util.Map;
+
+import org.apache.ibatis.builder.annotation.ProviderContext;
+
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.query.QEntity;
-
-import java.util.Map;
-
-import org.apache.ibatis.builder.annotation.ProviderContext;
 
 /**
  * @author ilikly
@@ -50,7 +50,7 @@ public class SelectIdsSqlProvider implements AbsMapperSqlProvider {
     @Override
     @SuppressWarnings("unchecked")
     public void doProvide(final StringBuilder sql, final ProviderContext context,
-        final Map<String, Object> parameters) {
+                          final Map<String, Object> parameters) {
 
         final Class<?> entity = getEntityClass(context.getMapperType());
         final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);
@@ -66,12 +66,12 @@ public class SelectIdsSqlProvider implements AbsMapperSqlProvider {
         sql.append("</trim>");
 
         sql.append("<trim prefix=\"FROM\">")
-            .append("${table}")
-            .append("</trim>");
+                .append("${table}")
+                .append("</trim>");
 
         Object query = parameters.get(QUERY_PARAMETER_NAME);
 
-        appendQuery(sql, entity, query);
+        appendQuery(sql, entity, query, false);
     }
 
 }

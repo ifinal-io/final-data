@@ -38,7 +38,7 @@ public class PostInsertConsumerComposite<T, U> implements PostInsertConsumer<T, 
     }
 
     @Override
-    public void accept(@NonNull T entity, @Nullable U user) {
+    public void accept(@NonNull T entity, @NonNull U user) {
         if (CollectionUtils.isEmpty(consumers)) {
             return;
         }

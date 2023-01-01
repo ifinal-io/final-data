@@ -39,7 +39,7 @@ public class PreInsertValidatorComposite<T, U> implements PreInsertValidator<T, 
     }
 
     @Override
-    public void validate(@NonNull T entity, @Nullable U user) {
+    public void validate(@NonNull T entity, @NonNull U user) {
         if (CollectionUtils.isEmpty(validators)) {
             return;
         }

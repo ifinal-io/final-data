@@ -15,14 +15,14 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
-
 import java.util.Collection;
 import java.util.Map;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
+
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 
 /**
  * <pre class="code">
@@ -54,7 +54,7 @@ public class DeleteSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     @Override
     @SuppressWarnings("unchecked")
     public void doProvide(final StringBuilder sql, final ProviderContext context,
-        final Map<String, Object> parameters) {
+                          final Map<String, Object> parameters) {
 
         Object ids = parameters.get("ids");
         Object query = parameters.get(QUERY_PARAMETER_NAME);
@@ -66,7 +66,7 @@ public class DeleteSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         if (ids != null) {
             sql.append(whereIdsNotNull());
         } else {
-            appendQuery(sql, entity, query);
+            appendQuery(sql, entity, query, false);
         }
 
     }

@@ -42,6 +42,7 @@ import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,6 +59,7 @@ import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
@@ -115,7 +117,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
     private final QueryConsumerComposite queryConsumerComposite;
 
-    public ResourceEntityController(ObjectProvider<QueryConsumer<?,?>> queryConsumerProvider) {
+    public ResourceEntityController(ObjectProvider<QueryConsumer<?, ?>> queryConsumerProvider) {
         List consumers = queryConsumerProvider.orderedStream().collect(Collectors.toList());
         this.queryConsumerComposite = new QueryConsumerComposite(consumers);
     }
@@ -261,6 +263,39 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
         resourceEntity.getPostUpdateConsumer().accept(entity, user);
         return service.update(entity);
+    }
+
+    @PatchMapping("/{id}/status")
+    public Integer status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user) {
+        return doUpdateStatus(resource, id, status, user);
+    }
+
+    @PatchMapping("/status")
+    public Integer status2(@PathVariable String resource, @RequestParam Long id, @RequestParam String status, IUser<?> user) {
+        return doUpdateStatus(resource, id, status, user);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    private Integer doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
+        ResourceEntity resourceEntity = getResourceEntity(resource);
+        Class<? extends IEntity<Long>> entityClass = resourceEntity.getEntityClass();
+
+        if (!IStatus.class.isAssignableFrom(entityClass)) {
+            throw new BadRequestException("resource is not supports status");
+        }
+
+        Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
+        Object statusValue = Json.toObject(status, statusClass);
+
+        if (Objects.isNull(statusValue)) {
+            throw new BadRequestException("not status of " + status);
+        }
+
+
+        Update update = Update.update().set("status", statusValue);
+        return resourceEntity.getService().update(update, id);
+
     }
 
 
