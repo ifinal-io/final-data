@@ -405,7 +405,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked,rawtypes")
     public void afterSingletonsInstantiated() {
 
         this.preResourceAuthorize = applicationContext.getBeanProvider(PreResourceAuthorize.class).getIfAvailable();
@@ -430,12 +430,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
                     String queryClassName = String.join(".", AutoNameHelper.queryPackage(entityClass), AutoNameHelper.queryName(entityClass));
 
-                    Class<?> queryClass = null;
-                    try {
-                        queryClass = ClassUtils.forName(queryClassName, entityClass.getClassLoader());
-                    } catch (ClassNotFoundException e) {
-                        throw new RuntimeException(e);
-                    }
+                    Class<?> queryClass = ClassUtils.resolveClassName(queryClassName, entityClass.getClassLoader());
 
                     builder.resource(restResource.value().trim())
                             .entityClass((Class<? extends IEntity<Long>>) entityClass)
@@ -444,90 +439,35 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
                     String dtoClassName = AutoNameHelper.dtoClassName(entityClass, IView.Create.class.getSimpleName());
 
                     if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
-                        Class<?> dtoClass = null;
-                        try {
-                            dtoClass = ClassUtils.forName(dtoClassName, entityClass.getClassLoader());
-                        } catch (ClassNotFoundException e) {
-                            throw new RuntimeException(e);
-                        }
+                        Class<?> dtoClass = ClassUtils.resolveClassName(dtoClassName, entityClass.getClassLoader());
                         PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass)).getObject();
                         builder.createEntityClass(dtoClass).preInsertFunction(preInsertFunction);
                     }
 
-                    List collect = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostQueryConsumer.class, entityClass, queryClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
+                    builder.preQueryConsumer(new PreQueryConsumerComposite(getBeansOf(PreQueryConsumer.class, queryClass, userClass)));
+                    builder.postQueryConsumer(new PostQueryConsumerComposite(getBeansOf(PostQueryConsumer.class, entityClass, queryClass, userClass)));
 
-                    logger.info("found PostQueryConsumer:");
-                    logger.info("entityClass:{}", entityClass);
-                    logger.info("queryClass:{}", queryClass);
-                    logger.info("userClass:{}", userClass);
-                    collect.forEach(it -> logger.info("postQueryConsumer:{}", AopUtils.getTargetClass(it)));
+                    builder.preInsertConsumer(new PreInsertConsumerComposite(getBeansOf(PreInsertConsumer.class, entityClass, userClass)));
+                    builder.postInsertConsumer(new PostInsertConsumerComposite(getBeansOf(PostInsertConsumer.class, entityClass, userClass)));
 
-                    List preInsertConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertConsumer.class, entityClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
+                    builder.preUpdateConsumer(new PreUpdateConsumerComposite(getBeansOf(PreUpdateConsumer.class, entityClass, userClass)));
+                    builder.postUpdateConsumer(new PostUpdateConsumerComposite(getBeansOf(PostUpdateConsumer.class, entityClass, userClass)));
 
-                    List postInsertConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostInsertConsumer.class, entityClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
+                    builder.preDeleteConsumer(new PreDeleteConsumerComposite(getBeansOf(PreDeleteConsumer.class, entityClass, userClass)));
+                    builder.postDeleteConsumer(new PostDeleteConsumerComposite(getBeansOf(PostDeleteConsumer.class, entityClass, userClass)));
 
-                    List preUpdateYnValidators = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreUpdateYnValidator.class, entityClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
-
-                    List preDeleteConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreDeleteConsumer.class, entityClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
-
-                    List postDeleteConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostDeleteConsumer.class, entityClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
-
-                    List preUpdateConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreUpdateConsumer.class, entityClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
-
-                    List postUpdateConsumers = applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostUpdateConsumer.class, entityClass, userClass))
-                            .orderedStream()
-                            .collect(Collectors.toList());
-
-
-                    final PostQueryConsumer consumerComposite = new PostQueryConsumerComposite(collect);
-                    final PreInsertConsumer preInsertConsumerComposite = new PreInsertConsumerComposite(preInsertConsumers);
-                    final PostInsertConsumer postInsertConsumer = new PostInsertConsumerComposite(postInsertConsumers);
-                    final PreUpdateYnValidator preUpdateYnValidator = new PreUpdateYnValidatorComposite(preUpdateYnValidators);
-
-                    final PreUpdateConsumer preUpdateConsumer = new PreUpdateConsumerComposite(preUpdateConsumers);
-                    final PostUpdateConsumer postUpdateConsumer = new PostUpdateConsumerComposite(postUpdateConsumers);
-
-                    final PreDeleteConsumer preDeleteConsumer = new PreDeleteConsumerComposite(preDeleteConsumers);
-                    final PostDeleteConsumer postDeleteConsumer = new PostDeleteConsumerComposite(postDeleteConsumers);
-
-                    List preQueryConsumers = applicationContext.getBeanProvider(
-                                    ResolvableType.forClassWithGenerics(PreQueryConsumer.class, queryClass, userClass)
-                            )
-                            .orderedStream()
-                            .collect(Collectors.toList());
-
-                    builder.preQueryConsumer(new PreQueryConsumerComposite(preQueryConsumers));
-                    builder.postQueryConsumer(consumerComposite);
-
-                    builder.preInsertConsumer(preInsertConsumerComposite);
-                    builder.postInsertConsumer(postInsertConsumer);
-
-                    builder.preUpdateConsumer(preUpdateConsumer);
-                    builder.postUpdateConsumer(postUpdateConsumer);
-
-                    builder.preDeleteConsumer(preDeleteConsumer);
-                    builder.postDeleteConsumer(postDeleteConsumer);
-
-                    builder.preUpdateYnValidator(preUpdateYnValidator);
+                    builder.preUpdateYnValidator(new PreUpdateYnValidatorComposite(getBeansOf(PreUpdateYnValidator.class, entityClass, userClass)));
 
                     return builder.service(service).build();
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(ResourceEntity::getResource, Function.identity()));
+    }
+
+    private List getBeansOf(Class<?> type, Class<?>... generics) {
+        return applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(type, generics))
+                .orderedStream()
+                .collect(Collectors.toList());
     }
 
 }
