@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 the original author or authors.
+ * Copyright 2020-2023 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,15 +13,16 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.core;
+package org.ifinalframework.data.core;
+
+import java.util.function.Supplier;
 
 /**
- * MapperMethodConsumer.
+ * TenantSupplier.
  *
  * @author ilikly
- * @version 1.3.1
- * @since 1.3.1
+ * @version 1.4.3
+ * @since 1.4.3
  */
-public interface MapperMethodConsumer {
-    void accept(Class<?> mapper, Object parameter);
+public interface TenantSupplier<T> extends Supplier<T> {
 }

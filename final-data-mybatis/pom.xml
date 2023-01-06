@@ -18,7 +18,7 @@
     <parent>
         <artifactId>final-data</artifactId>
         <groupId>org.ifinalframework.data</groupId>
-        <version>1.4.3-SNAPSHOT</version>
+        <version>1.4.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -98,11 +98,17 @@
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus</artifactId>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <artifactId>pagehelper</artifactId>
             <groupId>com.github.pagehelper</groupId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.jsqlparser</groupId>
+            <artifactId>jsqlparser</artifactId>
+            <version>4.5</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
