@@ -70,7 +70,7 @@ public interface Entity<T> extends PersistentEntity<T, Property>, Streamable<Pro
         if (isAnnotationPresent(Table.class)) {
             Table table = getRequiredAnnotation(Table.class);
             if (Asserts.nonEmpty(table.value())) {
-                return nameConverter.convert(table.value());
+                return nameConverter.convert(table.value()[0]);
             }
         }
 

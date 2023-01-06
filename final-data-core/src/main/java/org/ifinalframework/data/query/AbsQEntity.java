@@ -40,6 +40,7 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.Column;
 import org.ifinalframework.data.annotation.Reference;
 import org.ifinalframework.data.annotation.Table;
+import org.ifinalframework.data.annotation.Tenant;
 import org.ifinalframework.data.annotation.View;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.MappingUtils;
@@ -69,13 +70,14 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
     private QProperty<?> idProperty;
 
     private QProperty<?> versionProperty;
+    private QProperty<?> tenantProperty;
 
     public AbsQEntity(final Class<T> type) {
 
         this(type, NameConverterRegistry.getInstance().getTableNameConverter().convert(
-                type.getAnnotation(Table.class) == null || type.getAnnotation(Table.class).value().isEmpty()
+                type.getAnnotation(Table.class) == null || type.getAnnotation(Table.class).value().length == 0
                         ? type.getSimpleName()
-                        : type.getAnnotation(Table.class).value()
+                        : type.getAnnotation(Table.class).value()[0]
         ));
     }
 
@@ -170,6 +172,8 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
             this.idProperty = property;
         } else if (property.isVersionProperty()) {
             this.versionProperty = property;
+        } else if (property.isAnnotationPresent(Tenant.class)) {
+            this.tenantProperty = property;
         }
     }
 
@@ -193,6 +197,12 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
     @SuppressWarnings("unchecked")
     public <E> QProperty<E> getVersionProperty() {
         return (QProperty<E>) this.versionProperty;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <E> QProperty<E> getTenantProperty() {
+        return (QProperty<E>) this.tenantProperty;
     }
 
     @Override

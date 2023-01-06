@@ -15,12 +15,14 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
+import java.sql.Connection;
+
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
+import org.apache.ibatis.executor.statement.StatementHandler;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Intercepts;
-import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -31,8 +33,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
-
-import org.ifinalframework.data.annotation.Tenant;
 
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
@@ -47,8 +47,8 @@ import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerIntercept
  */
 @Intercepts(
         {
-//                @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
-//                @Signature(type = StatementHandler.class, method = "getBoundSql", args = {}),
+                @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
+                @Signature(type = StatementHandler.class, method = "getBoundSql", args = {}),
                 @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
                 @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}),
                 @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}),
@@ -58,24 +58,14 @@ import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerIntercept
 @Component
 @ConditionalOnClass(TenantLineHandler.class)
 @ConditionalOnBean(TenantLineHandler.class)
-public class TenantInterceptor extends AbsMapperInterceptor {
+public class TenantInterceptor extends MybatisPlusInterceptor {
 
-    private final MybatisPlusInterceptor mybatisPlusInterceptor = new MybatisPlusInterceptor();
 
     public TenantInterceptor(@Autowired TenantLineHandler tenantLineHandler) {
         TenantLineInnerInterceptor tenantLineInnerInterceptor = new TenantLineInnerInterceptor();
         tenantLineInnerInterceptor.setTenantLineHandler(tenantLineHandler);
-        mybatisPlusInterceptor.addInnerInterceptor(tenantLineInnerInterceptor);
+        addInnerInterceptor(tenantLineInnerInterceptor);
 
     }
 
-    @Override
-    protected Object intercept(Invocation invocation, Class<?> mapper, Class<?> entity) throws Throwable {
-
-        if (entity.isAnnotationPresent(Tenant.class)) {
-            return mybatisPlusInterceptor.intercept(invocation);
-        }
-
-        return invocation.proceed();
-    }
 }

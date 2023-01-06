@@ -16,11 +16,10 @@
 
 package org.ifinalframework.data.auto.entity;
 
-import org.springframework.lang.NonNull;
-
-import org.ifinalframework.data.annotation.Table;
-import org.ifinalframework.util.Asserts;
-
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -28,10 +27,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
+
+import org.springframework.lang.NonNull;
+
+import org.ifinalframework.data.annotation.Table;
+import org.ifinalframework.util.Asserts;
 
 /**
  * @author ilikly
@@ -73,7 +73,7 @@ public class BaseEntity implements MutableEntity {
 
     private String initTable() {
         Table annotation = getAnnotation(Table.class);
-        return Asserts.isNull(annotation) ? this.typeElement.getSimpleName().toString() : annotation.value();
+        return Asserts.isNull(annotation) ? this.typeElement.getSimpleName().toString() : annotation.value()[0];
     }
 
     @Override
@@ -82,14 +82,14 @@ public class BaseEntity implements MutableEntity {
         if (property.isIdProperty()) {
             if (idProperty != null) {
                 throw new IllegalArgumentException(
-                    "the entity must only have only one id property!,entity=" + getType());
+                        "the entity must only have only one id property!,entity=" + getType());
             }
             this.idProperty = property;
         }
 
         if (propertyCache.containsKey(property.getName())) {
             throw new IllegalArgumentException(
-                String.format("the entity have not only one property named %s", property.getName()));
+                    String.format("the entity have not only one property named %s", property.getName()));
         } else {
             propertyCache.put(property.getName(), property);
             properties.add(property);
