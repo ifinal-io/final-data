@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
@@ -128,7 +129,7 @@ class SqlHelperTest {
     }
 
     @Data
-    static class AndQuery implements IQuery {
+    static class AndQuery extends PageQuery {
 
         @Equal
         private String columnA;
@@ -140,7 +141,7 @@ class SqlHelperTest {
 
     @Data
     @Or
-    static class OrQuery implements IQuery {
+    static class OrQuery extends PageQuery {
 
         @Equal
         private String columnA;
@@ -154,7 +155,7 @@ class SqlHelperTest {
     }
 
     @Data
-    static class AndOrQuery implements IQuery {
+    static class AndOrQuery extends PageQuery {
 
         @Equal
         private String columnA;
@@ -166,7 +167,7 @@ class SqlHelperTest {
 
     @Data
     @Or
-    static class OrAndQuery implements IQuery {
+    static class OrAndQuery extends PageQuery {
 
         @Equal
         private String columnA;
