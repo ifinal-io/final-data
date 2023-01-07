@@ -29,10 +29,11 @@ import lombok.ToString;
  * @since 1.0.0
  */
 @Data
+@Tenant
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 @Transient
-public class Person extends AbsEntity {
+public class Person extends AbsTenantEntity {
 
     //    @Virtual
     @Column

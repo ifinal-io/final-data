@@ -67,6 +67,7 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
         final Class<?> entity = getEntityClass(context.getMapperType());
         final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);
         parameters.put("entity", properties);
+        parameters.put("properties", properties);
 
         sql.append("<trim prefix=\"SELECT\" suffixOverrides=\",\">");
         appendColumns(sql, properties);

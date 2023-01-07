@@ -21,9 +21,29 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
 import java.sql.Date;
-import java.sql.*;
-import java.util.*;
+import java.sql.NClob;
+import java.sql.ParameterMetaData;
+import java.sql.PreparedStatement;
+import java.sql.Ref;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.SQLXML;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.apache.ibatis.annotations.DeleteProvider;
 import org.apache.ibatis.annotations.InsertProvider;
@@ -50,7 +70,13 @@ import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
 import org.ifinalframework.data.mybatis.reflection.factory.ObjectFactoryWrapper;
-import org.ifinalframework.data.mybatis.sql.provider.*;
+import org.ifinalframework.data.mybatis.sql.provider.DeleteSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.InsertSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.SelectSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.SqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
+import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.query.QueryProvider;
 
@@ -151,7 +177,10 @@ public final class SqlHelper {
     }
 
     public static String query(final Class<? extends IEntity<?>> entity, final IQuery query) {
-        return sql(boundSql(entity, query), Collections.singletonMap(PARAMETER_NAME_QUERY, query));
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("properties", DefaultQEntityFactory.INSTANCE.create(entity));
+        parameters.put("query", query);
+        return sql(boundSql(entity, query, parameters), parameters);
     }
 
     private static String sql(BoundSql boundSql, Map<String, Object> parameters) {
@@ -189,7 +218,7 @@ public final class SqlHelper {
         return providerSqlSource.getBoundSql(new HashMap<>(parameters));
     }
 
-    public static BoundSql boundSql(final Class<? extends IEntity<?>> entity, final IQuery query) {
+    public static BoundSql boundSql(final Class<? extends IEntity<?>> entity, final IQuery query, Map<String, Object> parameters) {
         StringBuilder sql = new StringBuilder();
 
         sql.append("<script>");
@@ -213,8 +242,6 @@ public final class SqlHelper {
         String script = sql.toString();
 
         SqlSource sqlSource = new XMLLanguageDriver().createSqlSource(DEFAULT_CONFIGURATION, script, Map.class);
-        Map<String, Object> parameters = new HashMap<>();
-        parameters.put(PARAMETER_NAME_QUERY, query);
         return sqlSource.getBoundSql(parameters);
     }
 
@@ -227,18 +254,15 @@ public final class SqlHelper {
         }
 
         private void setParameter(Object obj) {
-            if (obj instanceof String ) {
-                if(((String) obj).contains("$")){
-                    obj = StringUtils.replace((String) obj,"$","\\$");
+            if (obj instanceof String) {
+                if (((String) obj).contains("$")) {
+                    obj = StringUtils.replace((String) obj, "$", "\\$");
                 }
                 // if we have a String, include '' in the saved value
                 sql = sql.replaceFirst("\\?", "'" + obj + "'");
-            }
-            else if(obj instanceof Date){
+            } else if (obj instanceof Date) {
                 sql = sql.replaceFirst("\\?", "'" + obj + "'");
-            }
-
-            else {
+            } else {
                 if (obj == null) {
                     // convert null to the string null
                     sql = sql.replaceFirst("\\?", "null");

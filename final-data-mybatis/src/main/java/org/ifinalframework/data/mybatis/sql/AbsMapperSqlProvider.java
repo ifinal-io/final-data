@@ -75,11 +75,18 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
     }
 
     default String whereIdNotNull() {
-        return "<where>${properties.idProperty.column} = #{id}</where>";
+        return "<where>"
+                + "<if test=\"properties.hasTenantProperty() and tenant != null\">"
+                + "     ${properties.tenantProperty.column} = #{tenant} AND "
+                + "</if>"
+                + "${properties.idProperty.column} = #{id}</where>";
     }
 
     default String whereIdsNotNull() {
         return "<where>"
+                + "<if test=\"properties.hasTenantProperty() and tenant != null\">"
+                + "     ${properties.tenantProperty.column} = #{tenant} AND "
+                + "</if>"
                 + "${properties.idProperty.column}"
                 + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>"
                 + "</where>";

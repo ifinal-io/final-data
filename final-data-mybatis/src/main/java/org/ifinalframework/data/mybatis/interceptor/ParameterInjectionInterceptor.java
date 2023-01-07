@@ -34,6 +34,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.defaults.DefaultSqlSession;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
@@ -41,6 +42,7 @@ import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.Viewable;
+import org.ifinalframework.data.core.TenantSupplier;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
@@ -80,6 +82,12 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             )
     );
 
+    private final TenantSupplier<?> tenantSupplier;
+
+    public ParameterInjectionInterceptor(ObjectProvider<TenantSupplier<?>> tenantSupplierObjectProvider) {
+        this.tenantSupplier = tenantSupplierObjectProvider.getIfAvailable();
+    }
+
     @Override
     protected Object intercept(Invocation invocation, Class<?> mapper, Class<?> entityClass) throws Throwable {
 
@@ -106,6 +114,12 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             parameters.computeIfAbsent(TABLE_PARAMETER_NAME, k -> entity.getTable());
             parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
             parameters.putIfAbsent("USER", UserContextHolder.getUser());
+
+            if (Objects.nonNull(tenantSupplier)) {
+                parameters.put("tenant", tenantSupplier.get());
+            } else {
+                parameters.put("tenant", null);
+            }
 
             args[1] = buildParamMap(parameters);
 

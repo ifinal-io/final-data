@@ -43,11 +43,11 @@ public class DefaultQueryProvider extends AbsQueryProvider {
     public String where() {
 
         final StringBuilder sql = new StringBuilder();
-
         sql.append("<where>");
-
+        sql.append("<if test=\"properties.hasTenantProperty() and tenant != null\">")
+                .append("${properties.tenantProperty.column} = #{tenant} ")
+                .append("</if>");
         appendCriteria(sql, query.getCriteria(), AndOr.AND, "query.criteria");
-
         sql.append("</where>");
 
         return sql.toString();
@@ -76,8 +76,8 @@ public class DefaultQueryProvider extends AbsQueryProvider {
                 target.put(CriterionAttributes.ATTRIBUTE_NAME_VALUE, String.format("%s[%d].value", expression, i));
 
                 String value = new VelocityCriterionValue(
-                    attributes.getString(CriterionAttributes.ATTRIBUTE_NAME_EXPRESSION))
-                    .value(target);
+                        attributes.getString(CriterionAttributes.ATTRIBUTE_NAME_EXPRESSION))
+                        .value(target);
                 sql.append(value);
             } else if (criterion instanceof Criteria) {
 

@@ -17,7 +17,9 @@ package org.ifinalframework.data.mybatis.sql.provider;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
@@ -88,7 +90,10 @@ class SqlHelperTest {
     void sql() {
         final PersonQuery query = new PersonQuery();
         query.setName("haha");
-        logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", Collections.singletonMap("query", query)));
+        Map<String, Object> parameters =new LinkedHashMap<>();
+        parameters.put("query",query);
+        parameters.put("tenant",1);
+        logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", parameters));
         logger.info("query={}", SqlHelper.query(Person.class, query));
     }
 

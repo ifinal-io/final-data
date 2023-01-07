@@ -20,6 +20,7 @@ import org.ifinalframework.data.core.TenantTableService;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 
 /**
@@ -29,6 +30,7 @@ import net.sf.jsqlparser.expression.Expression;
  * @version 1.4.3
  * @since 1.4.3
  */
+@Slf4j
 @RequiredArgsConstructor
 public class FinalTenantLineHandler implements TenantLineHandler {
     private final String tenantColumn;
@@ -52,6 +54,10 @@ public class FinalTenantLineHandler implements TenantLineHandler {
 
     @Override
     public boolean ignoreTable(String tableName) {
-        return !tenantTableService.isTenantTable(tableName);
+        boolean isTenantTable = !tenantTableService.isTenantTable(tableName);
+        if (logger.isDebugEnabled()) {
+            logger.info("{}:isTenantTable:{}", tableName, isTenantTable);
+        }
+        return isTenantTable;
     }
 }
