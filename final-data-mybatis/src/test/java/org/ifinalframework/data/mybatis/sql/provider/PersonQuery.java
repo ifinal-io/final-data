@@ -15,14 +15,13 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import lombok.Data;
+import java.awt.*;
+
 import org.ifinalframework.core.PageQuery;
-import org.ifinalframework.query.Direction;
 import org.ifinalframework.query.annotation.Equal;
 import org.ifinalframework.query.annotation.LessThan;
-import org.ifinalframework.query.annotation.Order;
 
-import java.awt.*;
+import lombok.Data;
 
 /**
  * @author ilikly
@@ -40,12 +39,6 @@ public class PersonQuery extends PageQuery {
     @LessThan(property = "name")
     private Long distance;
 
-
-    @Order(property = "name", order = 1)
-    private Direction orderByName = Direction.DESC;
-
-    @Order(property = "age", order = 2)
-    private String orderByAge = "ASC";
 
 }
 
