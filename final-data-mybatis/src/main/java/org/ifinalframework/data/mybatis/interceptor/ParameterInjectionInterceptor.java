@@ -42,6 +42,7 @@ import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.Viewable;
+import org.ifinalframework.data.annotation.Tenant;
 import org.ifinalframework.data.core.TenantSupplier;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
@@ -115,7 +116,7 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
             parameters.putIfAbsent("USER", UserContextHolder.getUser());
 
-            if (Objects.nonNull(tenantSupplier)) {
+            if (Objects.nonNull(tenantSupplier) && entityClass.isAnnotationPresent(Tenant.class)) {
                 parameters.put("tenant", tenantSupplier.get());
             } else {
                 parameters.put("tenant", null);
