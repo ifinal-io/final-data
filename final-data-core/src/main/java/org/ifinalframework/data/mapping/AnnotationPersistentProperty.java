@@ -57,10 +57,7 @@ import org.ifinalframework.util.Asserts;
  * @see AnnotationBasedPersistentProperty
  * @since 1.0.0
  */
-public class AnnotationProperty extends AnnotationBasedPersistentProperty<Property> implements Property {
-
-    private final Environment environment;
-
+public class AnnotationPersistentProperty extends AnnotationBasedPersistentProperty<Property> implements Property {
     /**
      * @see Column#value()
      * @see Column#name()
@@ -136,9 +133,8 @@ public class AnnotationProperty extends AnnotationBasedPersistentProperty<Proper
     });
 
 
-    public AnnotationProperty(org.springframework.data.mapping.model.Property property, PersistentEntity<?, Property> owner, SimpleTypeHolder simpleTypeHolder, Environment environment) {
+    public AnnotationPersistentProperty(org.springframework.data.mapping.model.Property property, PersistentEntity<?, Property> owner, SimpleTypeHolder simpleTypeHolder, Environment environment) {
         super(property, owner, simpleTypeHolder);
-        this.environment = environment;
 
         this.column = Lazy.of(() -> {
             final Column annotation = findAnnotation(Column.class);

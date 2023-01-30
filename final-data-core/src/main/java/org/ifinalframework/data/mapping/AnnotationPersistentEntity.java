@@ -29,15 +29,15 @@ import org.springframework.data.util.TypeInformation;
  * @version 1.0.0
  * @since 1.0.0
  */
-public class AnnotationEntity<T> extends BasicPersistentEntity<T, Property> implements Entity<T> {
+public class AnnotationPersistentEntity<T> extends BasicPersistentEntity<T, Property> implements Entity<T> {
 
     private final List<Property> properties = new ArrayList<>();
 
-    private AnnotationEntity(final TypeInformation<T> information) {
+    private AnnotationPersistentEntity(final TypeInformation<T> information) {
         super(information);
     }
 
-    public AnnotationEntity(final Class<T> entityClass) {
+    public AnnotationPersistentEntity(final Class<T> entityClass) {
         this(ClassTypeInformation.from(entityClass));
     }
 

@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.BeanInfoFactory;
-import org.springframework.beans.ExtendedBeanInfoFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.StandardEnvironment;
 import org.springframework.data.mapping.model.SimpleTypeHolder;
@@ -61,7 +59,7 @@ public class DefaultEntityFactory implements EntityFactory {
     @SuppressWarnings("unchecked")
     public <T> Entity<T> create(@NonNull Class<T> clazz) {
         return (Entity<T>) cache.computeIfAbsent(clazz, key -> {
-            final AnnotationEntity<T> entity = new AnnotationEntity<>(clazz);
+            final AnnotationPersistentEntity<T> entity = new AnnotationPersistentEntity<>(clazz);
 
             try {
                 final Class<?> entityClass = entity.getType();
@@ -80,14 +78,14 @@ public class DefaultEntityFactory implements EntityFactory {
         });
     }
 
-    private Property buildProperty(AnnotationEntity<?> entity, final Class<?> entityClass, final PropertyDescriptor descriptor) {
+    private Property buildProperty(AnnotationPersistentEntity<?> entity, final Class<?> entityClass, final PropertyDescriptor descriptor) {
         TypeInformation<?> typeInformation = entity.getTypeInformation();
         final Field field = ReflectionUtils.findField(entityClass, descriptor.getName());
         return field == null
-                ? new AnnotationProperty(
+                ? new AnnotationPersistentProperty(
                 org.springframework.data.mapping.model.Property.of(typeInformation, descriptor), entity,
                 SimpleTypeHolder.DEFAULT, environment)
-                : new AnnotationProperty(
+                : new AnnotationPersistentProperty(
                 org.springframework.data.mapping.model.Property.of(typeInformation, field, descriptor), entity,
                 SimpleTypeHolder.DEFAULT, environment);
     }
