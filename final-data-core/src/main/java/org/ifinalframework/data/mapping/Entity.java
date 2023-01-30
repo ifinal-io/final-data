@@ -16,17 +16,16 @@
 
 package org.ifinalframework.data.mapping;
 
-import org.springframework.data.mapping.PersistentEntity;
-
-import org.ifinalframework.data.annotation.NameConverter;
-import org.ifinalframework.data.annotation.NonCompare;
-import org.ifinalframework.data.annotation.Table;
-import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
-import org.ifinalframework.util.Asserts;
-import org.ifinalframework.util.stream.Streamable;
-
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.mapping.PersistentEntity;
+
+import org.ifinalframework.data.annotation.NonCompare;
+import org.ifinalframework.data.util.TableUtils;
+import org.ifinalframework.util.Asserts;
+import org.ifinalframework.util.stream.Streamable;
 
 /**
  * @author ilikly
@@ -53,12 +52,12 @@ public interface Entity<T> extends PersistentEntity<T, Property>, Streamable<Pro
 
         Entity<T> entity = (Entity<T>) from(before.getClass());
         return entity.stream()
-            .filter(it -> !it.isTransient() && !it.isAnnotationPresent(NonCompare.class))
-            .map(property -> CompareProperty.builder()
-                .property(property)
-                .value(property.get(before), property.get(after))
-                .build())
-            .collect(Collectors.toList());
+                .filter(it -> !it.isTransient() && !it.isAnnotationPresent(NonCompare.class))
+                .map(property -> CompareProperty.builder()
+                        .property(property)
+                        .value(property.get(before), property.get(after))
+                        .build())
+                .collect(Collectors.toList());
     }
 
     default String getSimpleName() {
@@ -66,15 +65,7 @@ public interface Entity<T> extends PersistentEntity<T, Property>, Streamable<Pro
     }
 
     default String getTable() {
-        NameConverter nameConverter = NameConverterRegistry.getInstance().getTableNameConverter();
-        if (isAnnotationPresent(Table.class)) {
-            Table table = getRequiredAnnotation(Table.class);
-            if (Asserts.nonEmpty(table.value())) {
-                return nameConverter.convert(table.value()[0]);
-            }
-        }
-
-        return nameConverter.convert(getSimpleName());
+        return TableUtils.getTable(getType());
     }
 
     /**
@@ -83,12 +74,7 @@ public interface Entity<T> extends PersistentEntity<T, Property>, Streamable<Pro
      * @return an instance
      */
     default T getInstance() {
-        try {
-            return getType().getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                String.format("the entity of %s must have no args constructor!", getType().getName()));
-        }
+        return BeanUtils.instantiateClass(getType());
     }
 
 }
