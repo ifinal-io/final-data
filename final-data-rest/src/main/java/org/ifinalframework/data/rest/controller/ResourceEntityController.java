@@ -32,6 +32,7 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
@@ -106,6 +107,7 @@ import org.slf4j.LoggerFactory;
  * @version 1.4.2
  * @since 1.4.2
  */
+@Transactional
 @RestController
 @RequestMapping("/api/{resource}")
 public class ResourceEntityController implements ApplicationContextAware, SmartInitializingSingleton {
