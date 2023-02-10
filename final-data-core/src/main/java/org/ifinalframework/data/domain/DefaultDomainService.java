@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
@@ -62,7 +63,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final Map<Class<?>, Class<? extends IQuery>> queryClass;
     private final Map<Class<?>, Class<?>> domainClassMap;
 
-    private final PreInsertFunction<Object,IUser<?>,T> preInsertFunction;
+    private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
     private final PreInsertConsumer<T, IUser<?>> preInsertConsumer;
     private final PostInsertConsumer<T, IUser<?>> postInsertConsumer;
     private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
@@ -76,6 +77,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PreDeleteConsumer<T, IUser<?>> preDeleteConsumer;
     private final PostDeleteConsumer<T, IUser<?>> postDeleteConsumer;
 
+    @NonNull
     @Override
     public Class<T> entityClass() {
         return entityClass;

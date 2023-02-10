@@ -25,29 +25,29 @@ import java.util.stream.Collectors;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.lang.NonNull;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
+import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
+import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
+import org.ifinalframework.data.spi.PreInsertValidator;
 import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.PreQueryPredicate;
+import org.ifinalframework.data.spi.PreUpdateConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
-import org.ifinalframework.data.spi.composite.PostDeleteConsumerComposite;
-import org.ifinalframework.data.spi.composite.PostInsertConsumerComposite;
-import org.ifinalframework.data.spi.composite.PostQueryConsumerComposite;
-import org.ifinalframework.data.spi.composite.PreDeleteConsumerComposite;
-import org.ifinalframework.data.spi.composite.PreInsertConsumerComposite;
-import org.ifinalframework.data.spi.composite.PreQueryConsumerComposite;
-import org.ifinalframework.data.spi.composite.PreUpdateYnValidatorComposite;
 
 import lombok.RequiredArgsConstructor;
 
@@ -76,6 +76,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         // entity
         final Map<Class<?>, Class<?>> domainEntityClassMap = new LinkedHashMap<>();
+        builder.domainClassMap(domainEntityClassMap);
 
         // query
         final Map<Class<?>, Class<? extends IQuery>> queryClassMap = new LinkedHashMap<>();
@@ -103,6 +104,10 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // delete
         builder.preDeleteConsumer(new PreDeleteConsumerComposite<>(getBeansOf(PreDeleteConsumer.class, entityClass, userClass)));
         builder.postDeleteConsumer(new PostDeleteConsumerComposite<>(getBeansOf(PostDeleteConsumer.class, entityClass, userClass)));
+
+        // update
+        builder.preUpdateConsumer(new PreUpdateConsumerComposite<>(getBeansOf(PreUpdateConsumer.class, entityClass, userClass)));
+        builder.postUpdateConsumer(new PostUpdateConsumerComposite<>(getBeansOf(PostUpdateConsumer.class, entityClass, userClass)));
 
 
         // list
@@ -135,5 +140,276 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         return applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(type, generics))
                 .orderedStream()
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * PostQueryConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static final class PostQueryConsumerComposite<T, Q, U> implements PostQueryConsumer<T, Q, U> {
+
+        private final List<PostQueryConsumer<T, Q, U>> consumers;
+
+        public PostQueryConsumerComposite(List<PostQueryConsumer<T, Q, U>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull Q query, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            for (PostQueryConsumer<T, Q, U> consumer : consumers) {
+                consumer.accept(entity, query, user);
+            }
+
+        }
+    }
+
+    /**
+     * PostDeleteConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PostDeleteConsumerComposite<T, U> implements PostDeleteConsumer<T, U> {
+
+        private final List<PostDeleteConsumer<T, U>> consumers;
+
+        public PostDeleteConsumerComposite(List<PostDeleteConsumer<T, U>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            for (PostDeleteConsumer<T, U> consumer : consumers) {
+                consumer.accept(entity, user);
+            }
+        }
+    }
+
+    /**
+     * PostInsertConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PostInsertConsumerComposite<T, U> implements PostInsertConsumer<T, U> {
+        private final List<PostInsertConsumer<T, U>> consumers;
+
+        public PostInsertConsumerComposite(List<PostInsertConsumer<T, U>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            for (PostInsertConsumer<T, U> consumer : consumers) {
+                consumer.accept(entity, user);
+            }
+        }
+    }
+
+    /**
+     * PostUpdateConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PostUpdateConsumerComposite<T, U> implements PostUpdateConsumer<T, U> {
+
+        private final List<PostUpdateConsumer<T, U>> consumers;
+
+        public PostUpdateConsumerComposite(List<PostUpdateConsumer<T, U>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(entity, user));
+
+        }
+    }
+
+    /**
+     * PreDeleteConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PreDeleteConsumerComposite<T, U> implements PreDeleteConsumer<T, U> {
+        private final List<PreDeleteConsumer<T, U>> consumers;
+
+        public PreDeleteConsumerComposite(List<PreDeleteConsumer<T, U>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            for (PreDeleteConsumer<T, U> consumer : consumers) {
+                consumer.accept(entity, user);
+            }
+        }
+    }
+
+    /**
+     * PreInsertConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PreInsertConsumerComposite<T, U> implements PreInsertConsumer<T, U> {
+
+        private final List<PreInsertConsumer<T, U>> consumers;
+
+        public PreInsertConsumerComposite(List<PreInsertConsumer<T, U>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            for (PreInsertConsumer<T, U> consumer : consumers) {
+                consumer.accept(entity, user);
+            }
+
+        }
+    }
+
+    /**
+     * PreInsertValidatorComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PreInsertValidatorComposite<T, U> implements PreInsertValidator<T, U> {
+
+        private final List<PreInsertValidator<T, U>> validators;
+
+        public PreInsertValidatorComposite(List<PreInsertValidator<T, U>> validators) {
+            this.validators = validators;
+        }
+
+        @Override
+        public void validate(@NonNull T entity, @NonNull U user) {
+            if (CollectionUtils.isEmpty(validators)) {
+                return;
+            }
+
+            for (PreInsertValidator<T, U> validator : validators) {
+                validator.validate(entity, user);
+            }
+        }
+    }
+
+    /**
+     * PreQueryConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PreQueryConsumerComposite implements PreQueryConsumer<IQuery, IUser<?>> {
+        private final List<PreQueryConsumer<IQuery, IUser<?>>> consumers;
+
+        public PreQueryConsumerComposite(List<PreQueryConsumer<IQuery, IUser<?>>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void accept(@NonNull IQuery query, @NonNull IUser<?> iUser) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            for (PreQueryConsumer<IQuery, IUser<?>> consumer : consumers) {
+                if (consumer instanceof PreQueryPredicate) {
+                    if (((PreQueryPredicate<IQuery, IUser<?>>) consumer).test(query, iUser)) {
+                        consumer.accept(query, iUser);
+                    }
+                } else {
+                    consumer.accept(query, iUser);
+                }
+            }
+
+        }
+    }
+
+    /**
+     * PreUpdateConsumerComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PreUpdateConsumerComposite<T, U> implements PreUpdateConsumer<T, U> {
+        private final List<PreUpdateConsumer<T, U>> consumers;
+
+        public PreUpdateConsumerComposite(List<PreUpdateConsumer<T, U>> consumers) {
+            this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            consumers.forEach(it -> it.accept(entity, user));
+        }
+    }
+
+    /**
+     * PreUpdateYnValidatorComposite.
+     *
+     * @author ilikly
+     * @version 1.4.2
+     * @since 1.4.2
+     */
+    private static class PreUpdateYnValidatorComposite<T, U> implements PreUpdateYnValidator<T, U> {
+        private final List<PreUpdateYnValidator<T, U>> validators;
+
+        public PreUpdateYnValidatorComposite(List<PreUpdateYnValidator<T, U>> validators) {
+            this.validators = validators;
+        }
+
+        @Override
+        public void validate(@NonNull T entity, @NonNull YN yn, @NonNull U user) {
+            if (CollectionUtils.isEmpty(validators)) {
+                return;
+            }
+
+            for (PreUpdateYnValidator<T, U> validator : validators) {
+                validator.validate(entity, yn, user);
+            }
+
+        }
     }
 }
