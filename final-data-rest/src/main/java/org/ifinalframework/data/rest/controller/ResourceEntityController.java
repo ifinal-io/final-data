@@ -22,7 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.aop.support.AopUtils;
@@ -64,16 +63,13 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.auto.annotation.RestResource;
-import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.domain.DefaultDomainServiceFactory;
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.DomainServiceFactory;
-import org.ifinalframework.data.rest.model.ResourceEntity;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.security.ResourceSecurity;
 import org.ifinalframework.data.service.AbsService;
-import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreResourceAuthorize;
 import org.ifinalframework.data.spi.QueryConsumer;
 import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
@@ -99,7 +95,6 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     @Resource
     private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
 
-    private Map<String, ResourceEntity> resourceEntityMap = new LinkedHashMap<>();
     private final Map<String, DomainService<Long, IEntity<Long>>> domainServiceMap = new LinkedHashMap<>();
     private PreResourceAuthorize<IUser<?>> preResourceAuthorize;
 
@@ -124,7 +119,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     public List<? extends IEntity<Long>> query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.List.class);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
@@ -135,7 +130,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         return domainService.detail(id, user);
     }
 
@@ -148,7 +143,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     public Integer delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
         applyPreResourceAuthorize(ResourceSecurity.DELETE, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         return domainService.delete(id, user);
     }
 
@@ -157,17 +152,16 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.INSERT, resource, user);
-        ResourceEntity resourceEntity = getResourceEntity(resource);
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
-        Class<?> createEntityClass = resourceEntity.getCreateEntityClass();
+        Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
         if (Objects.nonNull(createEntityClass)) {
             Object createEntity = Json.toObject(requestBody, createEntityClass);
             WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
             validate(entityClass, createEntity, binder, validationGroups);
-            List<IEntity<Long>> entities = resourceEntity.getPreInsertFunction().map(createEntity, user);
+            List<IEntity<Long>> entities = domainService.preInsertFunction().map(createEntity, user);
             return domainService.create(entities, user);
         } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, entityClass);
@@ -189,26 +183,6 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
     }
 
-    @PostMapping("/copy")
-    public Long copy2(@PathVariable String resource, @RequestParam Long id) {
-        return copy(resource, id);
-    }
-
-
-    @PostMapping("/{id}/copy")
-    public Long copy(@PathVariable String resource, @PathVariable Long id) {
-        logger.info("==> POST /api/{}/{}/copy", resource, id);
-        ResourceEntity resourceEntity = getResourceEntity(resource);
-        AbsService<Long, IEntity<Long>> service = resourceEntity.getService();
-        IEntity<Long> entity = service.selectOne(id);
-        if (Objects.isNull(entity)) {
-            throw new NotFoundException("not found entity for " + id);
-        }
-        entity.setId(null);
-        service.insert(entity);
-        return entity.getId();
-    }
-
     @PutMapping
     public Integer update(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         return doUpdate(resource, null, requestBody, user, request, binderFactory);
@@ -222,7 +196,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
         IEntity<Long> entity = Json.toObject(body, entityClass);
         if (Objects.nonNull(id)) {
@@ -251,7 +225,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     private Integer doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
         applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
 
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         if (!IStatus.class.isAssignableFrom(entityClass)) {
@@ -274,7 +248,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
         applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         return domainService.yn(id, yn, user);
     }
 
@@ -298,7 +272,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
     public Long count(@PathVariable String resource, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> GET /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Count.class);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
@@ -337,13 +311,13 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         }
     }
 
-    private ResourceEntity getResourceEntity(String resource) {
-        ResourceEntity resourceEntity = resourceEntityMap.get(resource);
+    private DomainService<Long, IEntity<Long>> getDomainService(String resource) {
+        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
 
-        if (Objects.isNull(resourceEntity)) {
+        if (Objects.isNull(domainService)) {
             throw new NotFoundException("not found resource for " + resource);
         }
-        return resourceEntity;
+        return domainService;
     }
 
 
@@ -362,42 +336,20 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
         logger.info("userClass:{}", userClass);
 
-        resourceEntityMap = applicationContext.getBeanProvider(AbsService.class).stream()
-                .map(service -> {
+        applicationContext.getBeanProvider(AbsService.class).stream()
+                .forEach(service -> {
                     Class<?> entityClass = ResolvableType.forClass(AopUtils.getTargetClass(service)).as(AbsService.class).resolveGeneric(1);
                     RestResource restResource = entityClass.getAnnotation(RestResource.class);
 
-                    if (Objects.isNull(restResource)) {
-                        return null;
-                    }
-
-                    DomainService domainService = domainServiceFactory.create(service);
-                    domainServiceMap.put(restResource.value(), domainService);
-
-                    ResourceEntity.ResourceEntityBuilder builder = ResourceEntity.builder();
-
-                    builder.resource(restResource.value().trim());
-
-                    String dtoClassName = AutoNameHelper.dtoClassName(entityClass, IView.Create.class.getSimpleName());
-
-                    if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
-                        Class<?> dtoClass = ClassUtils.resolveClassName(dtoClassName, entityClass.getClassLoader());
-                        PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass)).getObject();
-                        builder.createEntityClass(dtoClass).preInsertFunction(preInsertFunction);
+                    if (Objects.nonNull(restResource)) {
+                        DomainService domainService = domainServiceFactory.create(service);
+                        domainServiceMap.put(restResource.value(), domainService);
                     }
 
 
-                    return builder.service(service).build();
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toMap(ResourceEntity::getResource, Function.identity()));
+                });
     }
 
-    private List getBeansOf(Class<?> type, Class<?>... generics) {
-        return applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(type, generics))
-                .orderedStream()
-                .collect(Collectors.toList());
-    }
 
 }
 

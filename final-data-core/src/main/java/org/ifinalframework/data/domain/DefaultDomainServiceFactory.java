@@ -38,6 +38,7 @@ import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
+import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
 import org.ifinalframework.data.spi.composite.PostDeleteConsumerComposite;
@@ -73,6 +74,9 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         builder.entityClass((Class<T>) entityClass);
         ClassLoader classLoader = entityClass.getClassLoader();
 
+        // entity
+        final Map<Class<?>, Class<?>> domainEntityClassMap = new LinkedHashMap<>();
+
         // query
         final Map<Class<?>, Class<? extends IQuery>> queryClassMap = new LinkedHashMap<>();
         builder.queryClass(queryClassMap);
@@ -82,6 +86,15 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         final Class<?> defaultqueryClass = ClassUtils.resolveClassName(defaultQueryClassName, classLoader);
 
         // create
+
+        String dtoClassName = AutoNameHelper.dtoClassName(entityClass, IView.Create.class.getSimpleName());
+
+        if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
+            Class<?> dtoClass = ClassUtils.resolveClassName(dtoClassName, entityClass.getClassLoader());
+            domainEntityClassMap.put(IView.Create.class,dtoClass);
+            PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass)).getObject();
+        }
+
         builder.preInsertConsumer(new PreInsertConsumerComposite<>(getBeansOf(PreInsertConsumer.class, entityClass, userClass)));
         builder.postInsertConsumer(new PostInsertConsumerComposite<>(getBeansOf(PostInsertConsumer.class, entityClass, userClass)));
 

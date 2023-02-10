@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.context.exception.NotFoundException;
@@ -58,6 +59,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final Class<T> entityClass;
 
     private final Map<Class<?>, Class<? extends IQuery>> queryClass;
+    private final Map<Class<?>, Class<?>> domainClassMap;
 
     private final PreInsertConsumer<T, IUser<?>> preInsertConsumer;
     private final PostInsertConsumer<T, IUser<?>> postInsertConsumer;
@@ -75,6 +77,12 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     @Override
     public Class<T> entityClass() {
         return entityClass;
+    }
+
+    @Nullable
+    @Override
+    public Class<?> domainEntityClass(Class<?> prefix) {
+        return domainClassMap.get(prefix);
     }
 
     @Override

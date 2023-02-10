@@ -18,11 +18,15 @@ package org.ifinalframework.data.domain;
 import java.io.Serializable;
 import java.util.List;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.spi.PreInsertFunction;
 
 /**
  * DomainService.
@@ -33,9 +37,15 @@ import org.ifinalframework.data.annotation.YN;
  */
 public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
 
+    @NonNull
     Class<T> entityClass();
 
+    @Nullable
+    Class<?> domainEntityClass(Class<?> prefix);
+
     Class<? extends IQuery> domainQueryClass(Class<?> prefix);
+
+    PreInsertFunction<Object,IUser<?>,T> preInsertFunction();
 
     Integer create(List<T> entities, IUser<?> user);
 
