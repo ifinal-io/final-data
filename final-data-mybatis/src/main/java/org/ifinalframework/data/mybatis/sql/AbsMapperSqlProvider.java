@@ -19,7 +19,10 @@ import java.util.Optional;
 
 import org.springframework.core.ResolvableType;
 
+import org.ifinalframework.core.Groupable;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.Limitable;
+import org.ifinalframework.core.Orderable;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.provider.ScriptSqlProvider;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
@@ -61,12 +64,17 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         Optional.ofNullable(provider)
                 .ifPresent(it -> {
                     Optional.ofNullable(it.where()).ifPresent(sql::append);
-                    Optional.ofNullable(it.groups()).ifPresent(sql::append);
-                    Optional.ofNullable(it.orders()).ifPresent(sql::append);
+                    if (query instanceof Groupable) {
+                        Optional.ofNullable(it.groups()).ifPresent(sql::append);
+                    }
+
+                    if (query instanceof Orderable) {
+                        Optional.ofNullable(it.orders()).ifPresent(sql::append);
+                    }
 
                     if (selectOne) {
                         sql.append(" LIMIT 1");
-                    } else {
+                    } else if (query instanceof Limitable) {
                         Optional.ofNullable(it.limit()).ifPresent(sql::append);
                     }
 

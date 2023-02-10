@@ -33,25 +33,25 @@ import org.ifinalframework.data.spi.QueryPredicate;
  * @version 1.4.2
  * @since 1.4.2
  */
-public class QueryConsumerComposite implements QueryConsumer<IQuery, IEntity<?>> {
+public class QueryConsumerComposite implements QueryConsumer<IQuery, IEntity<Long>> {
 
-    private final List<QueryConsumer<IQuery, IEntity<?>>> list;
+    private final List<QueryConsumer<IQuery, IEntity<Long>>> list;
 
     public QueryConsumerComposite() {
         this(new ArrayList<>());
     }
 
-    public QueryConsumerComposite(List<QueryConsumer<IQuery, IEntity<?>>> list) {
+    public QueryConsumerComposite(List<QueryConsumer<IQuery, IEntity<Long>>> list) {
         this.list = list;
     }
 
     @Override
-    public void accept(@NonNull IQuery query, @NonNull Class<IEntity<?>> clazz) {
+    public void accept(@NonNull IQuery query, @NonNull Class<IEntity<Long>> clazz) {
         if (CollectionUtils.isEmpty(list)) {
             return;
         }
 
-        for (QueryConsumer<IQuery, IEntity<?>> consumer : list) {
+        for (QueryConsumer<IQuery, IEntity<Long>> consumer : list) {
             if (consumer instanceof QueryPredicate) {
                 if (((QueryPredicate) consumer).test(query, clazz)) {
                     consumer.accept(query, clazz);

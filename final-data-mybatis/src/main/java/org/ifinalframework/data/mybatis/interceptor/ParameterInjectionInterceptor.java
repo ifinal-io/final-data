@@ -103,7 +103,7 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
                 IQuery query = (IQuery) parameters.get(QUERY_PARAMETER_NAME);
 
                 if (Objects.nonNull(query)) {
-                    queryConsumerComposite.accept(query, (Class<IEntity<?>>) entityClass);
+                    queryConsumerComposite.accept(query, (Class<IEntity<Long>>) entityClass);
                 }
 
                 if (Objects.nonNull(query) && parameters.containsKey("view") && query instanceof Viewable && Objects.isNull(parameters.get("view"))) {

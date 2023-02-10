@@ -25,6 +25,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoMapper;
+import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.javapoets.JavaPoets;
 

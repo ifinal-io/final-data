@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 the original author or authors.
+ * Copyright 2020-2023 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,33 +13,21 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.rest.model;
+package org.ifinalframework.data.domain;
 
 import java.io.Serializable;
 
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.service.AbsService;
-import org.ifinalframework.data.spi.PreInsertFunction;
-
-import lombok.Builder;
-import lombok.Getter;
+import org.ifinalframework.data.repository.Repository;
 
 /**
- * ResourceEntity.
+ * DomainServiceFactory.
  *
  * @author ilikly
- * @version 1.4.2
- * @since 1.4.2
+ * @version 1.4.3
+ * @since 1.4.3
  */
-@Getter
-@Builder
-public class ResourceEntity implements Serializable {
-    private final String resource;
-    private final AbsService<Long, IEntity<Long>> service;
-
-    private final Class<?> createEntityClass;
-    private final PreInsertFunction preInsertFunction;
-
+@FunctionalInterface
+public interface DomainServiceFactory {
+    <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> create(Repository<ID, T> repository);
 }
-
-

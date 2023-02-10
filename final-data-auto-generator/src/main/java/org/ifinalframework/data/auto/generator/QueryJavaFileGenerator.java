@@ -21,6 +21,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
+import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.javapoets.JavaPoets;
 
 import com.squareup.javapoet.JavaFile;

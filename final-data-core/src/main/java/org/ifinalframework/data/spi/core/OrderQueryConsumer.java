@@ -41,11 +41,11 @@ import org.ifinalframework.query.QProperty;
  * @since 1.4.2
  */
 @Component
-public class OrderQueryConsumer implements QueryConsumer<IQuery, IEntity<?>> {
+public class OrderQueryConsumer implements QueryConsumer<IQuery, IEntity<Long>> {
     private final QEntityFactory entityFactory = DefaultQEntityFactory.INSTANCE;
 
     @Override
-    public void accept(@NonNull IQuery query, @NonNull Class<IEntity<?>> clazz) {
+    public void accept(@NonNull IQuery query, @NonNull Class<IEntity<Long>> clazz) {
 
         if (!(query instanceof Orderable)) {
             return;

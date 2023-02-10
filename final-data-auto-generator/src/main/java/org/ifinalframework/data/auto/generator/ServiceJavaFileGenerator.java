@@ -23,6 +23,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoService;
+import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.javapoets.JavaPoets;
 

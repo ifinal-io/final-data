@@ -25,6 +25,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
+import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.query.AbsQEntity;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.javapoets.JavaPoets;

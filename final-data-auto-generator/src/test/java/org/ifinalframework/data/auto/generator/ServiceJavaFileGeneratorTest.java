@@ -17,6 +17,7 @@ package org.ifinalframework.data.auto.generator;
 
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.auto.annotation.AutoService;
+import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;
