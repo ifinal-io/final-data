@@ -158,6 +158,16 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         }
 
         @Override
+        public void accept(@NonNull List<T> entities, @NonNull Q query, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            for (PostQueryConsumer<T, Q, U> consumer : consumers) {
+                consumer.accept(entities, query, user);
+            }
+        }
+
+        @Override
         public void accept(@NonNull T entity, @NonNull Q query, @NonNull U user) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
@@ -208,6 +218,14 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         public PostInsertConsumerComposite(List<PostInsertConsumer<T, U>> consumers) {
             this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull List<T> entities, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(entities, user));
         }
 
         @Override
@@ -286,6 +304,14 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         public PreInsertConsumerComposite(List<PreInsertConsumer<T, U>> consumers) {
             this.consumers = consumers;
+        }
+
+        @Override
+        public void accept(@NonNull List<T> entities, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(entities, user));
         }
 
         @Override

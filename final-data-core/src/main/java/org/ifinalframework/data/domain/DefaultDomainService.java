@@ -101,9 +101,9 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Integer create(List<T> entities, IUser<?> user) {
-        entities.forEach(it -> preInsertConsumer.accept(it, user));
+        preInsertConsumer.accept(entities, user);
         int result = repository.insert(entities);
-        entities.forEach(it -> postInsertConsumer.accept(it, user));
+        postInsertConsumer.accept(entities, user);
         return result;
     }
 
@@ -114,7 +114,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         if (CollectionUtils.isEmpty(list)) {
             return list;
         }
-        list.forEach(item -> postQueryConsumer.accept(item, query, user));
+        postQueryConsumer.accept(list, query, user);
 
         return list;
     }

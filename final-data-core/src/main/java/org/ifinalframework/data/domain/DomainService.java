@@ -45,8 +45,15 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
 
     Class<? extends IQuery> domainQueryClass(Class<?> prefix);
 
-    PreInsertFunction<Object,IUser<?>,T> preInsertFunction();
+    PreInsertFunction<Object, IUser<?>, T> preInsertFunction();
 
+    /**
+     * @param entities
+     * @param user
+     * @return
+     * @see org.ifinalframework.data.spi.PreInsertConsumer
+     * @see org.ifinalframework.data.spi.PostInsertConsumer
+     */
     Integer create(List<T> entities, IUser<?> user);
 
     /**
