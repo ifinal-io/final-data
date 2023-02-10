@@ -36,6 +36,7 @@ import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
+import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
@@ -61,6 +62,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final Map<Class<?>, Class<? extends IQuery>> queryClass;
     private final Map<Class<?>, Class<?>> domainClassMap;
 
+    private final PreInsertFunction<Object,IUser<?>,T> preInsertFunction;
     private final PreInsertConsumer<T, IUser<?>> preInsertConsumer;
     private final PostInsertConsumer<T, IUser<?>> postInsertConsumer;
     private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
@@ -88,6 +90,11 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     @Override
     public Class<? extends IQuery> domainQueryClass(Class<?> prefix) {
         return queryClass.get(prefix);
+    }
+
+    @Override
+    public PreInsertFunction<Object, IUser<?>, T> preInsertFunction() {
+        return preInsertFunction;
     }
 
     @Override

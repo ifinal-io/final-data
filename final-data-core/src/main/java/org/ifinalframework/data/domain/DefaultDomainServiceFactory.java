@@ -91,8 +91,10 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
             Class<?> dtoClass = ClassUtils.resolveClassName(dtoClassName, entityClass.getClassLoader());
-            domainEntityClassMap.put(IView.Create.class,dtoClass);
+            domainEntityClassMap.put(IView.Create.class, dtoClass);
             PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass)).getObject();
+            builder.preInsertFunction(preInsertFunction);
+
         }
 
         builder.preInsertConsumer(new PreInsertConsumerComposite<>(getBeansOf(PreInsertConsumer.class, entityClass, userClass)));
