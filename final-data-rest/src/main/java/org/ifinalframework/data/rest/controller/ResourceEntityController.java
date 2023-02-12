@@ -57,6 +57,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequ
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
@@ -239,7 +240,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
             throw new BadRequestException("not status of " + status);
         }
 
-        return domainService.status(id, (IStatus<?>) statusValue, user);
+        return domainService.status(id, (IEnum<?>) statusValue, user);
 
     }
 

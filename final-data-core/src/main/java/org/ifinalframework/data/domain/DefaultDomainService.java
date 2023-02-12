@@ -26,6 +26,7 @@ import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
@@ -168,7 +169,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int status(ID id, IStatus<?> status, IUser<?> user) {
+    public int status(ID id, IEnum<?> status, IUser<?> user) {
         T entity = repository.selectOne(id);
         if (Objects.isNull(entity)) {
             throw new NotFoundException("not found entity by id= " + id);

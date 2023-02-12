@@ -22,6 +22,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
@@ -97,7 +98,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      */
     int yn(ID id, YN yn, IUser<?> user);
 
-    int status(ID id, IStatus<?> status, IUser<?> user);
+    int status(ID id, IEnum<?> status, IUser<?> user);
 
 
 }
