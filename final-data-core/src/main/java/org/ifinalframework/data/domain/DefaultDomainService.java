@@ -65,7 +65,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     private final Class<T> entityClass;
 
-    private final Map<Class<?>, Class<? extends IQuery>> queryClass;
+    private final Map<Class<?>, Class<? extends IQuery>> queryClassMap;
     private final Map<Class<?>, Class<?>> domainClassMap;
 
     private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
@@ -107,7 +107,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Class<? extends IQuery> domainQueryClass(Class<?> prefix) {
-        return queryClass.get(prefix);
+        return queryClassMap.get(prefix);
     }
 
     @Override

@@ -84,7 +84,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         // query
         final Map<Class<?>, Class<? extends IQuery>> queryClassMap = new LinkedHashMap<>();
-        builder.queryClass(queryClassMap);
+        builder.queryClassMap(queryClassMap);
         final String queryPackage = AutoNameHelper.queryPackage(entityClass);
         final String defaultQueryName = AutoNameHelper.queryName(entityClass);
         final String defaultQueryClassName = String.join(".", queryPackage, defaultQueryName);
