@@ -29,14 +29,18 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
+import org.ifinalframework.data.spi.PostDetailConsumer;
+import org.ifinalframework.data.spi.PostDetailQueryConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
+import org.ifinalframework.data.spi.PreDetailQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
@@ -67,15 +71,25 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
     private final PreInsertConsumer<T, IUser<?>> preInsertConsumer;
     private final PostInsertConsumer<T, IUser<?>> postInsertConsumer;
+
+    // list
     private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
     private final PostQueryConsumer<T, IQuery, IUser<?>> postQueryConsumer;
 
+    // detail
+    private final PreDetailQueryConsumer<IQuery, IUser<?>> preDetailQueryConsumer;
+    private final PostDetailQueryConsumer<T, IQuery, IUser<?>> postDetailQueryConsumer;
+    private final PostDetailConsumer<T, IUser<?>> postDetailConsumer;
+
+    // update
     private final PreUpdateConsumer<T, IUser<?>> preUpdateConsumer;
     private final PostUpdateConsumer<T, IUser<?>> postUpdateConsumer;
 
+    // update yn
     private final PreUpdateYnValidator<T, IUser<?>> preUpdateYnValidator;
     private final PostUpdateYNConsumer<T, IUser<?>> postUpdateYNConsumer;
 
+    // delete
     private final PreDeleteConsumer<T, IUser<?>> preDeleteConsumer;
     private final PostDeleteConsumer<T, IUser<?>> postDeleteConsumer;
 
@@ -122,8 +136,23 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
+    public T detail(IQuery query, IUser<?> user) {
+        preDetailQueryConsumer.accept(query, user);
+        T entity = repository.selectOne(IView.Detail.class, query);
+        if (Objects.nonNull(entity)) {
+            postDetailQueryConsumer.accept(entity, query, user);
+            postDetailConsumer.accept(entity, user);
+        }
+        return entity;
+    }
+
+    @Override
     public T detail(ID id, IUser<?> user) {
-        return repository.selectOne(id);
+        T entity = repository.selectOne(id);
+        if (Objects.nonNull(entity)) {
+            postDetailConsumer.accept(entity, user);
+        }
+        return entity;
     }
 
     @Override

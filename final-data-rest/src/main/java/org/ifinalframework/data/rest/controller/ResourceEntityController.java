@@ -127,6 +127,17 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
         return domainService.list(query, user);
     }
 
+    @GetMapping("/detail")
+    public IEntity<Long> detail(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
+        logger.info("==> GET /api/{}/detail", resource);
+        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Detail.class);
+        Class<IEntity<Long>> entityClass = domainService.entityClass();
+        IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
+        return domainService.detail(query, user);
+    }
+
     @GetMapping("/{id}")
     public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);

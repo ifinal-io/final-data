@@ -67,6 +67,8 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      */
     List<T> list(IQuery query, IUser<?> user);
 
+    T detail(IQuery query, IUser<?> user);
+
     /**
      * @param id
      * @param user
