@@ -40,6 +40,7 @@ import org.ifinalframework.data.spi.PostDeleteConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
+import org.ifinalframework.data.spi.PostUpdateYNConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
@@ -122,6 +123,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         // yn
         builder.preUpdateYnValidator(new PreUpdateYnValidatorComposite<>(getBeansOf(PreUpdateYnValidator.class, entityClass, userClass)));
+        builder.postUpdateYNConsumer(new PostUpdateYnConsumerComposite<>(getBeansOf(PostUpdateYNConsumer.class, entityClass, userClass)));
         return builder.build();
     }
 
@@ -436,6 +438,30 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                 validator.validate(entity, yn, user);
             }
 
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class PostUpdateYnConsumerComposite<T, U> implements PostUpdateYNConsumer<T, U> {
+
+        private final List<PostUpdateYNConsumer<T, U>> consumers;
+
+        @Override
+        public void accept(@NonNull List<T> entities, @NonNull YN yn, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            consumers.forEach(it -> it.accept(entities, yn, user));
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull YN yn, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            consumers.forEach(it -> it.accept(entity, yn, user));
         }
     }
 }

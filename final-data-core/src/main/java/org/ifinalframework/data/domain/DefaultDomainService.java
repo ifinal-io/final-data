@@ -28,7 +28,6 @@ import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
@@ -36,6 +35,7 @@ import org.ifinalframework.data.spi.PostDeleteConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
+import org.ifinalframework.data.spi.PostUpdateYNConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
@@ -74,6 +74,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PostUpdateConsumer<T, IUser<?>> postUpdateConsumer;
 
     private final PreUpdateYnValidator<T, IUser<?>> preUpdateYnValidator;
+    private final PostUpdateYNConsumer<T, IUser<?>> postUpdateYNConsumer;
 
     private final PreDeleteConsumer<T, IUser<?>> preDeleteConsumer;
     private final PostDeleteConsumer<T, IUser<?>> postDeleteConsumer;
@@ -165,7 +166,9 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
         preUpdateYnValidator.validate(entity, yn, user);
         Update update = Update.update().set("yn", yn);
-        return repository.update(update, id);
+        int rows = repository.update(update, id);
+        postUpdateYNConsumer.accept(entity, yn, user);
+        return rows;
     }
 
     @Override

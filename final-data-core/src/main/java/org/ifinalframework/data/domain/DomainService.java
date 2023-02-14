@@ -24,7 +24,6 @@ import org.springframework.lang.Nullable;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.spi.PreInsertFunction;
@@ -95,6 +94,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param yn
      * @param user
      * @see org.ifinalframework.data.spi.PreUpdateYnValidator
+     * @see org.ifinalframework.data.spi.PostUpdateYNConsumer
      */
     int yn(ID id, YN yn, IUser<?> user);
 
