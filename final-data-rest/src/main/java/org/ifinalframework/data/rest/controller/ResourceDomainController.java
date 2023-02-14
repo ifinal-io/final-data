@@ -340,7 +340,7 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
         this.preResourceAuthorize = applicationContext.getBeanProvider(PreResourceAuthorize.class).getIfAvailable();
 
 
-        String userClassName = applicationContext.getEnvironment().getRequiredProperty("final.data.spi.user-class");
+        String userClassName = applicationContext.getEnvironment().getRequiredProperty("final.security.user-class");
 
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
