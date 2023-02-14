@@ -51,6 +51,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param entities
      * @param user
      * @return
+     * @see org.ifinalframework.core.IView.Create
      * @see org.ifinalframework.data.spi.PreInsertConsumer
      * @see org.ifinalframework.data.spi.PostInsertConsumer
      */
@@ -60,11 +61,18 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param query
      * @param user
      * @return
+     * @see org.ifinalframework.core.IView.List
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
      */
     List<T> list(IQuery query, IUser<?> user);
 
+    /**
+     * @param id
+     * @param user
+     * @return
+     * @see org.ifinalframework.core.IView.Detail
+     */
     T detail(ID id, IUser<?> user);
 
     Long count(IQuery query, IUser<?> user);
@@ -73,6 +81,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param id
      * @param user
      * @return
+     * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.PreDeleteConsumer
      * @see org.ifinalframework.data.spi.PostDeleteConsumer
      */
@@ -84,6 +93,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param selective
      * @param user
      * @return
+     * @see org.ifinalframework.core.IView.Update
      * @see org.ifinalframework.data.spi.PreUpdateConsumer
      * @see org.ifinalframework.data.spi.PostUpdateConsumer
      */
