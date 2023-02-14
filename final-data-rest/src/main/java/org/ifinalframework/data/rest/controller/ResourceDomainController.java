@@ -81,7 +81,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ResourceEntityController.
+ * ResourceDomainController.
  *
  * @author ilikly
  * @version 1.4.2
@@ -90,8 +90,8 @@ import org.slf4j.LoggerFactory;
 @Transactional
 @RestController
 @RequestMapping("/api/{resource}")
-public class ResourceEntityController implements ApplicationContextAware, SmartInitializingSingleton {
-    private static final Logger logger = LoggerFactory.getLogger(ResourceEntityController.class);
+public class ResourceDomainController implements ApplicationContextAware, SmartInitializingSingleton {
+    private static final Logger logger = LoggerFactory.getLogger(ResourceDomainController.class);
 
     @Resource
     private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
@@ -101,7 +101,7 @@ public class ResourceEntityController implements ApplicationContextAware, SmartI
 
     private final QueryConsumerComposite queryConsumerComposite;
 
-    public ResourceEntityController(ObjectProvider<QueryConsumer<?, ?>> queryConsumerProvider) {
+    public ResourceDomainController(ObjectProvider<QueryConsumer<?, ?>> queryConsumerProvider) {
         List consumers = queryConsumerProvider.orderedStream().collect(Collectors.toList());
         this.queryConsumerComposite = new QueryConsumerComposite(consumers);
     }
