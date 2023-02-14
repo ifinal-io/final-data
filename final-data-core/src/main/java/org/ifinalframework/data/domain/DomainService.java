@@ -75,6 +75,12 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      */
     T detail(ID id, IUser<?> user);
 
+    /**
+     * @param query
+     * @param user
+     * @return
+     * @see org.ifinalframework.core.IView.Count
+     */
     Long count(IQuery query, IUser<?> user);
 
     /**
