@@ -34,6 +34,7 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
+import org.ifinalframework.data.spi.PostDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PostDetailConsumer;
 import org.ifinalframework.data.spi.PostDetailQueryConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
@@ -94,6 +95,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     // delete
 
     private final PreDeleteQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
+    private final PostDeleteQueryConsumer<T, IQuery, IUser<?>> postDeleteQueryConsumer;
     private final PreDeleteConsumer<T, IUser<?>> preDeleteConsumer;
     private final PostDeleteConsumer<T, IUser<?>> postDeleteConsumer;
 
@@ -173,6 +175,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         }
         preDeleteConsumer.accept(entities, user);
         int delete = repository.delete(entities.stream().map(T::getId).collect(Collectors.toList()));
+        postDeleteQueryConsumer.accept(entities, query, user);
         postDeleteConsumer.accept(entities, user);
         return delete;
     }

@@ -37,6 +37,7 @@ import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
+import org.ifinalframework.data.spi.PostDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PostDetailConsumer;
 import org.ifinalframework.data.spi.PostDetailQueryConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
@@ -111,6 +112,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
         builder.preDeleteQueryConsumer(new PreDeleteQueryConsumerComposite<>(getBeansOf(PreDeleteQueryConsumer.class, deleteQueryClass, userClass)));
         builder.preDeleteConsumer(new PreDeleteConsumerComposite<>(getBeansOf(PreDeleteConsumer.class, entityClass, userClass)));
+        builder.postDeleteQueryConsumer(new PostDeleteQueryConsumerComposite<>(getBeansOf(PostDeleteQueryConsumer.class,entityClass,deleteQueryClass,userClass)));
         builder.postDeleteConsumer(new PostDeleteConsumerComposite<>(getBeansOf(PostDeleteConsumer.class, entityClass, userClass)));
 
         // update
@@ -291,6 +293,29 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                 return;
             }
             consumers.forEach(it -> it.accept(query, user));
+        }
+    }
+
+
+    @RequiredArgsConstructor
+    private static class PostDeleteQueryConsumerComposite<T, Q, U> implements PostDeleteQueryConsumer<T, Q, U> {
+        private final List<PostDeleteQueryConsumer<T, Q, U>> consumers;
+
+        @Override
+        public void accept(@NonNull List<T> entities, @NonNull Q query, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+
+            consumers.forEach(it -> it.accept(entities, query, user));
+        }
+
+        @Override
+        public void accept(@NonNull T entity, @NonNull Q query, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(entity, query, user));
         }
     }
 
