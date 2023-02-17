@@ -67,6 +67,15 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      */
     List<T> list(IQuery query, IUser<?> user);
 
+    /**
+     * @param query
+     * @param user
+     * @return
+     * @see org.ifinalframework.core.IView.Detail
+     * @see org.ifinalframework.data.spi.PreDeleteQueryConsumer
+     * @see org.ifinalframework.data.spi.PostDetailQueryConsumer
+     * @see org.ifinalframework.data.spi.PostDetailConsumer
+     */
     T detail(IQuery query, IUser<?> user);
 
     /**
@@ -74,6 +83,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user
      * @return
      * @see org.ifinalframework.core.IView.Detail
+     * @see org.ifinalframework.data.spi.PostDetailConsumer
      */
     T detail(ID id, IUser<?> user);
 
