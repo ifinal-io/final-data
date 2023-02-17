@@ -86,9 +86,9 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     Long count(IQuery query, IUser<?> user);
 
     /**
-     * @param query
-     * @param user
-     * @return
+     * @param query the query of deleted.
+     * @param user  the current user.
+     * @return deleted rows.
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.PreDeleteQueryConsumer
      * @see org.ifinalframework.data.spi.PreDeleteConsumer
@@ -98,9 +98,10 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     int delete(IQuery query, IUser<?> user);
 
     /**
-     * @param id
-     * @param user
-     * @return
+     * @param id   the id of deleted.
+     * @param user the current user.
+     * @return deleted rows.
+     * @throws org.ifinalframework.context.exception.NotFoundException throw this exception when can not find entity by the {@code id}.
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.PreDeleteConsumer
      * @see org.ifinalframework.data.spi.PostDeleteConsumer
