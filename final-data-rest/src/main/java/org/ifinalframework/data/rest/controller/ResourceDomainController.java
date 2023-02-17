@@ -146,6 +146,16 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
         return domainService.detail(id, user);
     }
 
+    // delete
+
+    @DeleteMapping
+    public Integer delete(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user) {
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Delete.class);
+        IQuery query = Json.toObject(requestBody, queryClass);
+        return domainService.delete(query, user);
+    }
+
     @DeleteMapping("/delete")
     public Integer deleteFromParam(@PathVariable String resource, @RequestParam Long id, IUser<?> user) {
         return this.delete(resource, id, user);

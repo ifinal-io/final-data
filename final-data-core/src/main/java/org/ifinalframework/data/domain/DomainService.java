@@ -86,6 +86,16 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     Long count(IQuery query, IUser<?> user);
 
     /**
+     * @param query
+     * @param user
+     * @return
+     * @see org.ifinalframework.core.IView.Delete
+     * @see org.ifinalframework.data.spi.PreDeleteConsumer
+     * @see org.ifinalframework.data.spi.PostDeleteConsumer
+     */
+    int delete(IQuery query, IUser<?> user);
+
+    /**
      * @param id
      * @param user
      * @return

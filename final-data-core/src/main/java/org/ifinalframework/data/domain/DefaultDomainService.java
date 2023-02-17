@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
@@ -40,6 +41,7 @@ import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
+import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PreDetailQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
@@ -90,6 +92,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PostUpdateYNConsumer<T, IUser<?>> postUpdateYNConsumer;
 
     // delete
+
+    private final PreDeleteQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
     private final PreDeleteConsumer<T, IUser<?>> preDeleteConsumer;
     private final PostDeleteConsumer<T, IUser<?>> postDeleteConsumer;
 
@@ -158,6 +162,19 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     @Override
     public Long count(IQuery query, IUser<?> user) {
         return repository.selectCount(query);
+    }
+
+    @Override
+    public int delete(IQuery query, IUser<?> user) {
+        preDeleteQueryConsumer.accept(query, user);
+        List<T> entities = repository.select(query);
+        if (CollectionUtils.isEmpty(entities)) {
+            return 0;
+        }
+        preDeleteConsumer.accept(entities, user);
+        int delete = repository.delete(entities.stream().map(T::getId).collect(Collectors.toList()));
+        postDeleteConsumer.accept(entities, user);
+        return delete;
     }
 
     @Override

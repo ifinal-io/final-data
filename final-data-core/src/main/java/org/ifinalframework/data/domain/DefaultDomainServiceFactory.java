@@ -44,6 +44,7 @@ import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
+import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PreDetailQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
@@ -106,6 +107,9 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         builder.postInsertConsumer(new PostInsertConsumerComposite<>(getBeansOf(PostInsertConsumer.class, entityClass, userClass)));
 
         // delete
+        final Class<?> deleteQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Delete.class, defaultQueryName), defaultqueryClass);
+        queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
+        builder.preDeleteQueryConsumer(new PreDeleteQueryConsumerComposite<>(getBeansOf(PreDeleteQueryConsumer.class, deleteQueryClass, userClass)));
         builder.preDeleteConsumer(new PreDeleteConsumerComposite<>(getBeansOf(PreDeleteConsumer.class, entityClass, userClass)));
         builder.postDeleteConsumer(new PostDeleteConsumerComposite<>(getBeansOf(PostDeleteConsumer.class, entityClass, userClass)));
 
@@ -274,6 +278,19 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             }
             consumers.forEach(it -> it.accept(entity, user));
 
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class PreDeleteQueryConsumerComposite<Q, U> implements PreDeleteQueryConsumer<Q, U> {
+        private final List<PreDeleteQueryConsumer<Q, U>> consumers;
+
+        @Override
+        public void accept(@NonNull Q query, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(query, user));
         }
     }
 
