@@ -111,6 +111,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         return domainClassMap.get(prefix);
     }
 
+    @NonNull
     @Override
     public Class<? extends IQuery> domainQueryClass(Class<?> prefix) {
         return queryClassMap.get(prefix);
@@ -122,7 +123,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Integer create(List<T> entities, IUser<?> user) {
+    public Integer create(@NonNull List<T> entities, @NonNull IUser<?> user) {
         preInsertConsumer.accept(entities, user);
         int result = repository.insert(entities);
         postInsertConsumer.accept(entities, user);
@@ -142,7 +143,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public T detail(IQuery query, IUser<?> user) {
+    public T detail(@NonNull IQuery query, @NonNull IUser<?> user) {
         preDetailQueryConsumer.accept(query, user);
         T entity = repository.selectOne(IView.Detail.class, query);
         if (Objects.nonNull(entity)) {
@@ -153,7 +154,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public T detail(ID id, IUser<?> user) {
+    public T detail(@NonNull ID id, @NonNull IUser<?> user) {
         T entity = repository.selectOne(id);
         if (Objects.nonNull(entity)) {
             postDetailConsumer.accept(entity, user);
@@ -162,12 +163,12 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Long count(IQuery query, IUser<?> user) {
+    public Long count(@NonNull IQuery query, @NonNull IUser<?> user) {
         return repository.selectCount(query);
     }
 
     @Override
-    public int delete(IQuery query, IUser<?> user) {
+    public int delete(@NonNull IQuery query, @NonNull IUser<?> user) {
         preDeleteQueryConsumer.accept(query, user);
         List<T> entities = repository.select(query);
         if (CollectionUtils.isEmpty(entities)) {
@@ -181,7 +182,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int delete(ID id, IUser<?> user) {
+    public int delete(@NonNull ID id, @NonNull IUser<?> user) {
         T entity = repository.selectOne(id);
 
         if (Objects.isNull(entity)) {
@@ -195,7 +196,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int update(T entity, ID id, boolean selective, IUser<?> user) {
+    public int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull IUser<?> user) {
         T dbEntity = repository.selectOne(id);
         if (Objects.isNull(dbEntity)) {
             throw new NotFoundException("not found entity by id= " + id);
@@ -207,7 +208,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int yn(ID id, YN yn, IUser<?> user) {
+    public int yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user) {
         T entity = repository.selectOne(id);
         if (Objects.isNull(entity)) {
             throw new NotFoundException("not found entity by id= " + id);
@@ -221,7 +222,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int status(ID id, IEnum<?> status, IUser<?> user) {
+    public int status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user) {
         T entity = repository.selectOne(id);
         if (Objects.isNull(entity)) {
             throw new NotFoundException("not found entity by id= " + id);

@@ -43,8 +43,10 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     @Nullable
     Class<?> domainEntityClass(Class<?> prefix);
 
+    @NonNull
     Class<? extends IQuery> domainQueryClass(Class<?> prefix);
 
+    @Nullable
     PreInsertFunction<Object, IUser<?>, T> preInsertFunction();
 
     /**
@@ -55,7 +57,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PreInsertConsumer
      * @see org.ifinalframework.data.spi.PostInsertConsumer
      */
-    Integer create(List<T> entities, IUser<?> user);
+    Integer create(@NonNull List<T> entities,@NonNull IUser<?> user);
 
     /**
      * @param query the query of list.
@@ -76,7 +78,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PostDetailQueryConsumer
      * @see org.ifinalframework.data.spi.PostDetailConsumer
      */
-    T detail(IQuery query, IUser<?> user);
+    T detail(@NonNull IQuery query,@NonNull IUser<?> user);
 
     /**
      * @param id
@@ -85,7 +87,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.PostDetailConsumer
      */
-    T detail(ID id, IUser<?> user);
+    T detail(@NonNull ID id,@NonNull IUser<?> user);
 
     /**
      * @param query
@@ -93,7 +95,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @return
      * @see org.ifinalframework.core.IView.Count
      */
-    Long count(IQuery query, IUser<?> user);
+    Long count(@NonNull IQuery query,@NonNull IUser<?> user);
 
     /**
      * @param query the query of deleted.
@@ -105,7 +107,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PostDeleteQueryConsumer
      * @see org.ifinalframework.data.spi.PostDeleteConsumer
      */
-    int delete(IQuery query, IUser<?> user);
+    int delete(@NonNull IQuery query,@NonNull IUser<?> user);
 
     /**
      * @param id   the id of deleted.
@@ -116,7 +118,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PreDeleteConsumer
      * @see org.ifinalframework.data.spi.PostDeleteConsumer
      */
-    int delete(ID id, IUser<?> user);
+    int delete(@NonNull ID id,@NonNull IUser<?> user);
 
     /**
      * @param entity
@@ -128,7 +130,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PreUpdateConsumer
      * @see org.ifinalframework.data.spi.PostUpdateConsumer
      */
-    int update(T entity, ID id, boolean selective, IUser<?> user);
+    int update(@NonNull T entity,@NonNull  ID id, boolean selective,@NonNull  IUser<?> user);
 
     /**
      * @param id
@@ -137,9 +139,9 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PreUpdateYnValidator
      * @see org.ifinalframework.data.spi.PostUpdateYNConsumer
      */
-    int yn(ID id, YN yn, IUser<?> user);
+    int yn(@NonNull ID id,@NonNull  YN yn,@NonNull  IUser<?> user);
 
-    int status(ID id, IEnum<?> status, IUser<?> user);
+    int status(@NonNull ID id,@NonNull  IEnum<?> status,@NonNull  IUser<?> user);
 
 
 }
