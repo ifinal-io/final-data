@@ -48,6 +48,7 @@ import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PreDetailQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
+import org.ifinalframework.data.spi.PreInsertFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreInsertValidator;
 import org.ifinalframework.data.spi.PreQueryConsumer;
@@ -104,6 +105,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         }
 
+        builder.preInsertFilter(new PreInsertFilterComposite<>(getBeansOf(PreInsertFilter.class, entityClass, userClass)));
         builder.preInsertConsumer(new PreInsertConsumerComposite<>(getBeansOf(PreInsertConsumer.class, entityClass, userClass)));
         builder.postInsertConsumer(new PostInsertConsumerComposite<>(getBeansOf(PostInsertConsumer.class, entityClass, userClass)));
 
@@ -112,7 +114,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
         builder.preDeleteQueryConsumer(new PreDeleteQueryConsumerComposite<>(getBeansOf(PreDeleteQueryConsumer.class, deleteQueryClass, userClass)));
         builder.preDeleteConsumer(new PreDeleteConsumerComposite<>(getBeansOf(PreDeleteConsumer.class, entityClass, userClass)));
-        builder.postDeleteQueryConsumer(new PostDeleteQueryConsumerComposite<>(getBeansOf(PostDeleteQueryConsumer.class,entityClass,deleteQueryClass,userClass)));
+        builder.postDeleteQueryConsumer(new PostDeleteQueryConsumerComposite<>(getBeansOf(PostDeleteQueryConsumer.class, entityClass, deleteQueryClass, userClass)));
         builder.postDeleteConsumer(new PostDeleteConsumerComposite<>(getBeansOf(PostDeleteConsumer.class, entityClass, userClass)));
 
         // update
@@ -342,6 +344,31 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             for (PreDeleteConsumer<T, U> consumer : consumers) {
                 consumer.accept(entity, user);
             }
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class PreInsertFilterComposite<T, U> implements PreInsertFilter<T, U> {
+        private final List<PreInsertFilter<T, U>> filters;
+
+        @Override
+        public boolean test(@NonNull T entity, @NonNull U user) {
+
+            if (CollectionUtils.isEmpty(filters)) {
+                return true;
+            }
+
+            for (PreInsertFilter<T, U> filter : filters) {
+                boolean test = filter.test(entity, user);
+
+                if (test) {
+                    return true;
+                }
+
+            }
+
+
+            return false;
         }
     }
 

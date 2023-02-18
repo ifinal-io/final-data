@@ -45,6 +45,7 @@ import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PreDetailQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
+import org.ifinalframework.data.spi.PreInsertFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateConsumer;
@@ -72,6 +73,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final Map<Class<?>, Class<?>> domainClassMap;
 
     private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
+
+    private final PreInsertFilter<T, IUser<?>> preInsertFilter;
     private final PreInsertConsumer<T, IUser<?>> preInsertConsumer;
     private final PostInsertConsumer<T, IUser<?>> postInsertConsumer;
 
@@ -124,6 +127,13 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Integer create(@NonNull List<T> entities, @NonNull IUser<?> user) {
+
+        entities = entities.stream().filter(item -> preInsertFilter.test(item, user)).collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(entities)) {
+            return 0;
+        }
+
         preInsertConsumer.accept(entities, user);
         int result = repository.insert(entities);
         postInsertConsumer.accept(entities, user);
