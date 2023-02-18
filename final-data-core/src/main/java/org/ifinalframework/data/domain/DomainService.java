@@ -58,14 +58,14 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     Integer create(List<T> entities, IUser<?> user);
 
     /**
-     * @param query
-     * @param user
-     * @return
+     * @param query the query of list.
+     * @param user  the current user.
+     * @return entity list of matches query.
      * @see org.ifinalframework.core.IView.List
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
      */
-    List<T> list(IQuery query, IUser<?> user);
+    List<T> list(@NonNull IQuery query,@NonNull IUser<?> user);
 
     /**
      * @param query

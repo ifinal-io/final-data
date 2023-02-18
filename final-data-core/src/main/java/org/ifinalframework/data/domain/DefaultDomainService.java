@@ -130,7 +130,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public List<T> list(IQuery query, IUser<?> user) {
+    public List<T> list(@NonNull IQuery query, @NonNull IUser<?> user) {
         preQueryConsumer.accept(query, user);
         List<T> list = repository.select(query);
         if (CollectionUtils.isEmpty(list)) {
