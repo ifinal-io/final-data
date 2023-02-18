@@ -123,11 +123,11 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     int delete(@NonNull ID id, @NonNull IUser<?> user);
 
     /**
-     * @param entity
-     * @param id
-     * @param selective
-     * @param user
-     * @return
+     * @param entity    the entity to update.
+     * @param id        the entity id to update.
+     * @param selective update selective.
+     * @param user      the current user.
+     * @return update rows.
      * @see org.ifinalframework.core.IView.Update
      * @see org.ifinalframework.data.spi.PreUpdateConsumer
      * @see org.ifinalframework.data.spi.PostUpdateConsumer
@@ -135,9 +135,9 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull IUser<?> user);
 
     /**
-     * @param id
-     * @param yn
-     * @param user
+     * @param id   the entity id to update.
+     * @param yn   the entity yn to update.
+     * @param user the current user.
      * @see org.ifinalframework.data.spi.PreUpdateYnValidator
      * @see org.ifinalframework.data.spi.PostUpdateYNConsumer
      */
