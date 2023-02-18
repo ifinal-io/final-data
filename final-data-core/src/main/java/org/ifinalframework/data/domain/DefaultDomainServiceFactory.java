@@ -44,6 +44,7 @@ import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
+import org.ifinalframework.data.spi.PreCountQueryConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PreDetailQueryConsumer;
@@ -138,6 +139,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // count
         final Class<?> countQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Count.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Count.class, (Class<? extends IQuery>) countQueryClass);
+        builder.preCountQueryConsumer(new PreCountQueryConsumerComposite<>(getBeansOf(PreCountQueryConsumer.class, countQueryClass, userClass)));
 
         // yn
         builder.preUpdateYnValidator(new PreUpdateYnValidatorComposite<>(getBeansOf(PreUpdateYnValidator.class, entityClass, userClass)));
@@ -195,6 +197,20 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             for (PostQueryConsumer<T, Q, U> consumer : consumers) {
                 consumer.accept(entity, query, user);
             }
+
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static class PreCountQueryConsumerComposite<Q, U> implements PreCountQueryConsumer<Q, U> {
+        private final List<PreCountQueryConsumer<Q, U>> consumers;
+
+        @Override
+        public void accept(@NonNull Q query, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(query, user));
 
         }
     }

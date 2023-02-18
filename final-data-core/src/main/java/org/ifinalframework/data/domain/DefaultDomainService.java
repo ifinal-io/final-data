@@ -41,6 +41,7 @@ import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
+import org.ifinalframework.data.spi.PreCountQueryConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PreDetailQueryConsumer;
@@ -86,6 +87,9 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PreDetailQueryConsumer<IQuery, IUser<?>> preDetailQueryConsumer;
     private final PostDetailQueryConsumer<T, IQuery, IUser<?>> postDetailQueryConsumer;
     private final PostDetailConsumer<T, IUser<?>> postDetailConsumer;
+
+    // count
+    private final PreCountQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;
 
     // update
     private final PreUpdateConsumer<T, IUser<?>> preUpdateConsumer;
@@ -174,6 +178,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Long count(@NonNull IQuery query, @NonNull IUser<?> user) {
+        preCountQueryConsumer.accept(query, user);
         return repository.selectCount(query);
     }
 

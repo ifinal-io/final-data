@@ -71,9 +71,9 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     List<T> list(@NonNull IQuery query, @NonNull IUser<?> user);
 
     /**
-     * @param query
-     * @param user
-     * @return
+     * @param query the query of detail.
+     * @param user  the current user.
+     * @return the detail entity of matches detail query.
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.PreDeleteQueryConsumer
      * @see org.ifinalframework.data.spi.PostDetailQueryConsumer
@@ -82,19 +82,20 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     T detail(@NonNull IQuery query, @NonNull IUser<?> user);
 
     /**
-     * @param id
-     * @param user
-     * @return
+     * @param id   the id of entity.
+     * @param user the current user.
+     * @return the detail entity of {@code id}.
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.PostDetailConsumer
      */
     T detail(@NonNull ID id, @NonNull IUser<?> user);
 
     /**
-     * @param query
-     * @param user
-     * @return
+     * @param query the query of count.
+     * @param user  the current user.
+     * @return the count of query.
      * @see org.ifinalframework.core.IView.Count
+     * @see org.ifinalframework.data.spi.PreCountQueryConsumer
      */
     Long count(@NonNull IQuery query, @NonNull IUser<?> user);
 
