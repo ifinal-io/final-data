@@ -33,10 +33,11 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
+import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
+import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
 import org.ifinalframework.data.spi.PostDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PostDetailConsumer;
-import org.ifinalframework.data.spi.PostDetailQueryConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
@@ -44,7 +45,6 @@ import org.ifinalframework.data.spi.PostUpdateYNConsumer;
 import org.ifinalframework.data.spi.PreCountQueryConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
-import org.ifinalframework.data.spi.PreDetailQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
@@ -83,9 +83,12 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
     private final PostQueryConsumer<T, IQuery, IUser<?>> postQueryConsumer;
 
+    private final AfterThrowingQueryConsumer<T, IQuery, IUser<?>> afterThrowingQueryConsumer;
+    private final AfterReturnQueryConsumer<T, IQuery, IUser<?>> afterReturnQueryConsumer;
+
     // detail
-    private final PreDetailQueryConsumer<IQuery, IUser<?>> preDetailQueryConsumer;
-    private final PostDetailQueryConsumer<T, IQuery, IUser<?>> postDetailQueryConsumer;
+    private final PreQueryConsumer<IQuery, IUser<?>> preDetailQueryConsumer;
+    private final PostQueryConsumer<T, IQuery, IUser<?>> postDetailQueryConsumer;
     private final PostDetailConsumer<T, IUser<?>> postDetailConsumer;
 
     // count
@@ -146,25 +149,47 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public List<T> list(@NonNull IQuery query, @NonNull IUser<?> user) {
-        preQueryConsumer.accept(query, user);
-        List<T> list = repository.select(query);
-        if (CollectionUtils.isEmpty(list)) {
-            return list;
-        }
-        postQueryConsumer.accept(list, query, user);
+        List<T> list = null;
+        Throwable throwable = null;
+        try {
+            preQueryConsumer.accept(query, user);
+            list = repository.select(query);
+            if (CollectionUtils.isEmpty(list)) {
+                return list;
+            }
+            postQueryConsumer.accept(list, query, user);
 
-        return list;
+            return list;
+        } catch (Exception e) {
+            throwable = e;
+            afterThrowingQueryConsumer.accept(list, query, user, e);
+            throw e;
+        } finally {
+            afterReturnQueryConsumer.accept(list, query, user, throwable);
+        }
     }
 
     @Override
     public T detail(@NonNull IQuery query, @NonNull IUser<?> user) {
-        preDetailQueryConsumer.accept(query, user);
-        T entity = repository.selectOne(IView.Detail.class, query);
-        if (Objects.nonNull(entity)) {
-            postDetailQueryConsumer.accept(entity, query, user);
-            postDetailConsumer.accept(entity, user);
+
+        T entity = null;
+        Throwable throwable = null;
+        try {
+
+            preDetailQueryConsumer.accept(query, user);
+            entity = repository.selectOne(IView.Detail.class, query);
+            if (Objects.nonNull(entity)) {
+                postDetailQueryConsumer.accept(entity, query, user);
+                postDetailConsumer.accept(entity, user);
+            }
+            return entity;
+        } catch (Throwable e) {
+            throwable = e;
+            afterThrowingQueryConsumer.accept(entity, query, user, e);
+            throw e;
+        } finally {
+            afterReturnQueryConsumer.accept(entity, query, user, throwable);
         }
-        return entity;
     }
 
     @Override

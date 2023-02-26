@@ -57,6 +57,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PreInsertFilter
      * @see org.ifinalframework.data.spi.PreInsertConsumer
      * @see org.ifinalframework.data.spi.PostInsertConsumer
+     * @see org.ifinalframework.data.spi.AfterReturnInsertConsumer
      */
     Integer create(@NonNull List<T> entities, @NonNull IUser<?> user);
 
@@ -67,6 +68,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.List
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
+     * @see org.ifinalframework.data.spi.AfterReturnQueryConsumer
      */
     List<T> list(@NonNull IQuery query, @NonNull IUser<?> user);
 
@@ -75,8 +77,8 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user  the current user.
      * @return the detail entity of matches detail query.
      * @see org.ifinalframework.core.IView.Detail
-     * @see org.ifinalframework.data.spi.PreDeleteQueryConsumer
-     * @see org.ifinalframework.data.spi.PostDetailQueryConsumer
+     * @see org.ifinalframework.data.spi.PreQueryConsumer
+     * @see org.ifinalframework.data.spi.PostQueryConsumer
      * @see org.ifinalframework.data.spi.PostDetailConsumer
      */
     T detail(@NonNull IQuery query, @NonNull IUser<?> user);
@@ -131,6 +133,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Update
      * @see org.ifinalframework.data.spi.PreUpdateConsumer
      * @see org.ifinalframework.data.spi.PostUpdateConsumer
+     * @see org.ifinalframework.data.spi.AfterReturnUpdateConsumer
      */
     int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull IUser<?> user);
 
@@ -140,6 +143,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user the current user.
      * @see org.ifinalframework.data.spi.PreUpdateYnValidator
      * @see org.ifinalframework.data.spi.PostUpdateYNConsumer
+     * @see org.ifinalframework.data.spi.AfterReturnUpdateYnConsumer
      */
     int yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);
 
