@@ -97,7 +97,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user  the current user.
      * @return the count of query.
      * @see org.ifinalframework.core.IView.Count
-     * @see org.ifinalframework.data.spi.PreCountQueryConsumer
+     * @see org.ifinalframework.data.spi.PreQueryConsumer
      */
     Long count(@NonNull IQuery query, @NonNull IUser<?> user);
 

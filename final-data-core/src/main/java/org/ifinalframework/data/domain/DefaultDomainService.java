@@ -41,7 +41,6 @@ import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
-import org.ifinalframework.data.spi.PreCountQueryConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFilter;
@@ -90,7 +89,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PostDetailConsumer<T, IUser<?>> postDetailConsumer;
 
     // count
-    private final PreCountQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;
+    private final PreQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;
 
     // update
     private final PreUpdateConsumer<T, IUser<?>> preUpdateConsumer;

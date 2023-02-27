@@ -45,7 +45,6 @@ import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
-import org.ifinalframework.data.spi.PreCountQueryConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFilter;
@@ -112,7 +111,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // delete
         final Class<?> deleteQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Delete.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
-        builder.preDeleteQueryConsumer(new PreQueryConsumerComposite(getBeansOf(PreQueryConsumer.class, deleteQueryClass, userClass)));
+        builder.preDeleteQueryConsumer(new PreQueryConsumerComposite<>(getBeansOf(PreQueryConsumer.class, deleteQueryClass, userClass)));
         builder.preDeleteConsumer(new PreDeleteConsumerComposite<>(getBeansOf(PreDeleteConsumer.class, entityClass, userClass)));
         builder.postDeleteQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(PostQueryConsumer.class, entityClass, deleteQueryClass, userClass)));
         builder.postDeleteConsumer(new PostDeleteConsumerComposite<>(getBeansOf(PostDeleteConsumer.class, entityClass, userClass)));
@@ -140,7 +139,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // count
         final Class<?> countQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Count.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Count.class, (Class<? extends IQuery>) countQueryClass);
-        builder.preCountQueryConsumer(new PreCountQueryConsumerComposite<>(getBeansOf(PreCountQueryConsumer.class, countQueryClass, userClass)));
+        builder.preCountQueryConsumer(new PreQueryConsumerComposite<>(getBeansOf(PreQueryConsumer.class, countQueryClass, userClass)));
 
         // yn
         builder.preUpdateYnValidator(new PreUpdateYnValidatorComposite<>(getBeansOf(PreUpdateYnValidator.class, entityClass, userClass)));
@@ -246,19 +245,6 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         }
     }
 
-    @RequiredArgsConstructor
-    private static class PreCountQueryConsumerComposite<Q, U> implements PreCountQueryConsumer<Q, U> {
-        private final List<PreCountQueryConsumer<Q, U>> consumers;
-
-        @Override
-        public void accept(@NonNull Q query, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-            consumers.forEach(it -> it.accept(query, user));
-
-        }
-    }
 
     /**
      * PostDeleteConsumerComposite.
@@ -467,23 +453,20 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
      * @version 1.4.2
      * @since 1.4.2
      */
-    private static class PreQueryConsumerComposite implements PreQueryConsumer<IQuery, IUser<?>> {
-        private final List<PreQueryConsumer<IQuery, IUser<?>>> consumers;
-
-        public PreQueryConsumerComposite(List<PreQueryConsumer<IQuery, IUser<?>>> consumers) {
-            this.consumers = consumers;
-        }
+    @RequiredArgsConstructor
+    private static class PreQueryConsumerComposite<Q, U> implements PreQueryConsumer<Q, U> {
+        private final List<PreQueryConsumer<Q, U>> consumers;
 
         @Override
         @SuppressWarnings("unchecked")
-        public void accept(@NonNull IQuery query, @NonNull IUser<?> iUser) {
+        public void accept(@NonNull Q query, @NonNull U iUser) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
 
-            for (PreQueryConsumer<IQuery, IUser<?>> consumer : consumers) {
+            for (PreQueryConsumer<Q, U> consumer : consumers) {
                 if (consumer instanceof PreQueryPredicate) {
-                    if (((PreQueryPredicate<IQuery, IUser<?>>) consumer).test(query, iUser)) {
+                    if (((PreQueryPredicate<Q, U>) consumer).test(query, iUser)) {
                         consumer.accept(query, iUser);
                     }
                 } else {
