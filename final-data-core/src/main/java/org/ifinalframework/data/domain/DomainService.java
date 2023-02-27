@@ -106,9 +106,9 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user  the current user.
      * @return deleted rows.
      * @see org.ifinalframework.core.IView.Delete
-     * @see org.ifinalframework.data.spi.PreDeleteQueryConsumer
+     * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.PreDeleteConsumer
-     * @see org.ifinalframework.data.spi.PostDeleteQueryConsumer
+     * @see org.ifinalframework.data.spi.PostQueryConsumer
      * @see org.ifinalframework.data.spi.PostDeleteConsumer
      */
     int delete(@NonNull IQuery query, @NonNull IUser<?> user);

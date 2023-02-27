@@ -36,7 +36,6 @@ import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.PostDeleteConsumer;
-import org.ifinalframework.data.spi.PostDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PostDetailConsumer;
 import org.ifinalframework.data.spi.PostInsertConsumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
@@ -44,7 +43,6 @@ import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
 import org.ifinalframework.data.spi.PreCountQueryConsumer;
 import org.ifinalframework.data.spi.PreDeleteConsumer;
-import org.ifinalframework.data.spi.PreDeleteQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertConsumer;
 import org.ifinalframework.data.spi.PreInsertFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
@@ -104,8 +102,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     // delete
 
-    private final PreDeleteQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
-    private final PostDeleteQueryConsumer<T, IQuery, IUser<?>> postDeleteQueryConsumer;
+    private final PreQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
+    private final PostQueryConsumer<T, IQuery, IUser<?>> postDeleteQueryConsumer;
     private final PreDeleteConsumer<T, IUser<?>> preDeleteConsumer;
     private final PostDeleteConsumer<T, IUser<?>> postDeleteConsumer;
 
