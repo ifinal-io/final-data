@@ -35,19 +35,14 @@ import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
-import org.ifinalframework.data.spi.PostDeleteConsumer;
-import org.ifinalframework.data.spi.PostDetailConsumer;
-import org.ifinalframework.data.spi.PostInsertConsumer;
+import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
-import org.ifinalframework.data.spi.PreDeleteConsumer;
-import org.ifinalframework.data.spi.PreInsertConsumer;
-import org.ifinalframework.data.spi.PreInsertFilter;
+import org.ifinalframework.data.spi.PreFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.PreUpdateConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
+import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.query.Update;
 
 import lombok.Builder;
@@ -72,9 +67,9 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
 
-    private final PreInsertFilter<T, IUser<?>> preInsertFilter;
-    private final PreInsertConsumer<T, IUser<?>> preInsertConsumer;
-    private final PostInsertConsumer<T, IUser<?>> postInsertConsumer;
+    private final PreFilter<T, IUser<?>> preInsertFilter;
+    private final Consumer<T, IUser<?>> preInsertConsumer;
+    private final Consumer<T, IUser<?>> postInsertConsumer;
 
     // list
     private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
@@ -86,14 +81,14 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     // detail
     private final PreQueryConsumer<IQuery, IUser<?>> preDetailQueryConsumer;
     private final PostQueryConsumer<T, IQuery, IUser<?>> postDetailQueryConsumer;
-    private final PostDetailConsumer<T, IUser<?>> postDetailConsumer;
+    private final Consumer<T, IUser<?>> postDetailConsumer;
 
     // count
     private final PreQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;
 
     // update
-    private final PreUpdateConsumer<T, IUser<?>> preUpdateConsumer;
-    private final PostUpdateConsumer<T, IUser<?>> postUpdateConsumer;
+    private final Consumer<T, IUser<?>> preUpdateConsumer;
+    private final Consumer<T, IUser<?>> postUpdateConsumer;
 
     // update yn
     private final PreUpdateYnValidator<T, IUser<?>> preUpdateYnValidator;
@@ -103,8 +98,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     private final PreQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
     private final PostQueryConsumer<T, IQuery, IUser<?>> postDeleteQueryConsumer;
-    private final PreDeleteConsumer<T, IUser<?>> preDeleteConsumer;
-    private final PostDeleteConsumer<T, IUser<?>> postDeleteConsumer;
+    private final Consumer<T, IUser<?>> preDeleteConsumer;
+    private final Consumer<T, IUser<?>> postDeleteConsumer;
 
     @NonNull
     @Override
@@ -138,9 +133,9 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
             return 0;
         }
 
-        preInsertConsumer.accept(entities, user);
+        preInsertConsumer.accept(SpiAction.PRE_CREATE, entities, user);
         int result = repository.insert(entities);
-        postInsertConsumer.accept(entities, user);
+        postInsertConsumer.accept(SpiAction.POST_CREATE, entities, user);
         return result;
     }
 
@@ -149,13 +144,12 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         List<T> list = null;
         Throwable throwable = null;
         try {
-            preQueryConsumer.accept(query, user);
+            preQueryConsumer.accept(SpiAction.PRE_LIST, query, user);
             list = repository.select(query);
             if (CollectionUtils.isEmpty(list)) {
                 return list;
             }
-            postQueryConsumer.accept(list, query, user);
-
+            postQueryConsumer.accept(SpiAction.POST_LIST, list, query, user);
             return list;
         } catch (Exception e) {
             throwable = e;
@@ -173,11 +167,11 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         Throwable throwable = null;
         try {
 
-            preDetailQueryConsumer.accept(query, user);
+            preDetailQueryConsumer.accept(SpiAction.PRE_DETAIL, query, user);
             entity = repository.selectOne(IView.Detail.class, query);
             if (Objects.nonNull(entity)) {
-                postDetailQueryConsumer.accept(entity, query, user);
-                postDetailConsumer.accept(entity, user);
+                postDetailQueryConsumer.accept(SpiAction.POST_DETAIL, entity, query, user);
+                postDetailConsumer.accept(SpiAction.POST_DETAIL, entity, user);
             }
             return entity;
         } catch (Throwable e) {
@@ -193,28 +187,28 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     public T detail(@NonNull ID id, @NonNull IUser<?> user) {
         T entity = repository.selectOne(id);
         if (Objects.nonNull(entity)) {
-            postDetailConsumer.accept(entity, user);
+            postDetailConsumer.accept(SpiAction.POST_DETAIL, entity, user);
         }
         return entity;
     }
 
     @Override
     public Long count(@NonNull IQuery query, @NonNull IUser<?> user) {
-        preCountQueryConsumer.accept(query, user);
+        preCountQueryConsumer.accept(SpiAction.PRE_COUNT, query, user);
         return repository.selectCount(query);
     }
 
     @Override
     public int delete(@NonNull IQuery query, @NonNull IUser<?> user) {
-        preDeleteQueryConsumer.accept(query, user);
+        preDeleteQueryConsumer.accept(SpiAction.PRE_DELETE, query, user);
         List<T> entities = repository.select(query);
         if (CollectionUtils.isEmpty(entities)) {
             return 0;
         }
-        preDeleteConsumer.accept(entities, user);
+        preDeleteConsumer.accept(SpiAction.PRE_DELETE, entities, user);
         int delete = repository.delete(entities.stream().map(T::getId).collect(Collectors.toList()));
-        postDeleteQueryConsumer.accept(entities, query, user);
-        postDeleteConsumer.accept(entities, user);
+        postDeleteQueryConsumer.accept(SpiAction.POST_DELETE, entities, query, user);
+        postDeleteConsumer.accept(SpiAction.POST_DETAIL, entities, user);
         return delete;
     }
 
@@ -226,9 +220,9 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
             throw new NotFoundException("not found delete target. id=" + id);
         }
 
-        preDeleteConsumer.accept(entity, user);
+        preDeleteConsumer.accept(SpiAction.PRE_DELETE, entity, user);
         int delete = repository.delete(id);
-        postDeleteConsumer.accept(entity, user);
+        postDeleteConsumer.accept(SpiAction.POST_DELETE, entity, user);
         return delete;
     }
 
@@ -238,9 +232,9 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         if (Objects.isNull(dbEntity)) {
             throw new NotFoundException("not found entity by id= " + id);
         }
-        preUpdateConsumer.accept(entity, user);
+        preUpdateConsumer.accept(SpiAction.PRE_UPDATE, entity, user);
         int update = repository.update(entity, selective, id);
-        postUpdateConsumer.accept(entity, user);
+        postUpdateConsumer.accept(SpiAction.POST_UPDATE, entity, user);
         return update;
     }
 

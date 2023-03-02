@@ -26,6 +26,7 @@ import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.spi.PreFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 
 /**
@@ -54,9 +55,8 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user     the current user.
      * @return created rows.
      * @see org.ifinalframework.core.IView.Create
-     * @see org.ifinalframework.data.spi.PreInsertFilter
-     * @see org.ifinalframework.data.spi.PreInsertConsumer
-     * @see org.ifinalframework.data.spi.PostInsertConsumer
+     * @see PreFilter
+     * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.AfterReturnInsertConsumer
      */
     Integer create(@NonNull List<T> entities, @NonNull IUser<?> user);
@@ -79,7 +79,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
-     * @see org.ifinalframework.data.spi.PostDetailConsumer
+     * @see org.ifinalframework.data.spi.Consumer
      */
     T detail(@NonNull IQuery query, @NonNull IUser<?> user);
 
@@ -88,7 +88,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user the current user.
      * @return the detail entity of {@code id}.
      * @see org.ifinalframework.core.IView.Detail
-     * @see org.ifinalframework.data.spi.PostDetailConsumer
+     * @see org.ifinalframework.data.spi.Consumer
      */
     T detail(@NonNull ID id, @NonNull IUser<?> user);
 
@@ -107,9 +107,8 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @return deleted rows.
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.PreQueryConsumer
-     * @see org.ifinalframework.data.spi.PreDeleteConsumer
+     * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
-     * @see org.ifinalframework.data.spi.PostDeleteConsumer
      */
     int delete(@NonNull IQuery query, @NonNull IUser<?> user);
 
@@ -119,8 +118,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @return deleted rows.
      * @throws org.ifinalframework.context.exception.NotFoundException throw this exception when can not find entity by the {@code id}.
      * @see org.ifinalframework.core.IView.Delete
-     * @see org.ifinalframework.data.spi.PreDeleteConsumer
-     * @see org.ifinalframework.data.spi.PostDeleteConsumer
+     * @see org.ifinalframework.data.spi.Consumer
      */
     int delete(@NonNull ID id, @NonNull IUser<?> user);
 
@@ -131,8 +129,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user      the current user.
      * @return update rows.
      * @see org.ifinalframework.core.IView.Update
-     * @see org.ifinalframework.data.spi.PreUpdateConsumer
-     * @see org.ifinalframework.data.spi.PostUpdateConsumer
+     * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.AfterReturnUpdateConsumer
      */
     int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull IUser<?> user);

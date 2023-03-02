@@ -39,23 +39,19 @@ import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
-import org.ifinalframework.data.spi.PostDeleteConsumer;
-import org.ifinalframework.data.spi.PostDetailConsumer;
-import org.ifinalframework.data.spi.PostInsertConsumer;
+import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostUpdateConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
-import org.ifinalframework.data.spi.PreDeleteConsumer;
-import org.ifinalframework.data.spi.PreInsertConsumer;
-import org.ifinalframework.data.spi.PreInsertFilter;
+import org.ifinalframework.data.spi.PreFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreInsertValidator;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreQueryPredicate;
-import org.ifinalframework.data.spi.PreUpdateConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
+import org.ifinalframework.data.spi.SpiAction;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DefaultDomainServiceFactory.
@@ -64,6 +60,7 @@ import lombok.RequiredArgsConstructor;
  * @version 1.4.3
  * @since 1.4.3
  */
+@Slf4j
 @RequiredArgsConstructor
 public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
@@ -104,46 +101,46 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         }
 
-        builder.preInsertFilter(new PreInsertFilterComposite<>(getBeansOf(PreInsertFilter.class, entityClass, userClass)));
-        builder.preInsertConsumer(new PreInsertConsumerComposite<>(getBeansOf(PreInsertConsumer.class, entityClass, userClass)));
-        builder.postInsertConsumer(new PostInsertConsumerComposite<>(getBeansOf(PostInsertConsumer.class, entityClass, userClass)));
+        builder.preInsertFilter(new PreFilterComposite<>(getBeansOf(PreFilter.class, entityClass, userClass)));
+        builder.preInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.PRE_CREATE, Consumer.class, entityClass, userClass)));
+        builder.postInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_CREATE, Consumer.class, entityClass, userClass)));
 
         // delete
         final Class<?> deleteQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Delete.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
-        builder.preDeleteQueryConsumer(new PreQueryConsumerComposite<>(getBeansOf(PreQueryConsumer.class, deleteQueryClass, userClass)));
-        builder.preDeleteConsumer(new PreDeleteConsumerComposite<>(getBeansOf(PreDeleteConsumer.class, entityClass, userClass)));
-        builder.postDeleteQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(PostQueryConsumer.class, entityClass, deleteQueryClass, userClass)));
-        builder.postDeleteConsumer(new PostDeleteConsumerComposite<>(getBeansOf(PostDeleteConsumer.class, entityClass, userClass)));
+        builder.preDeleteQueryConsumer(new PreQueryConsumerComposite<>(getBeansOf(SpiAction.PRE_DELETE, PreQueryConsumer.class, deleteQueryClass, userClass)));
+        builder.preDeleteConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.PRE_DELETE, Consumer.class, entityClass, userClass)));
+        builder.postDeleteQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(SpiAction.POST_DETAIL, PostQueryConsumer.class, entityClass, deleteQueryClass, userClass)));
+        builder.postDeleteConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_DELETE, Consumer.class, entityClass, userClass)));
 
         // update
-        builder.preUpdateConsumer(new PreUpdateConsumerComposite<>(getBeansOf(PreUpdateConsumer.class, entityClass, userClass)));
-        builder.postUpdateConsumer(new PostUpdateConsumerComposite<>(getBeansOf(PostUpdateConsumer.class, entityClass, userClass)));
+        builder.preUpdateConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.PRE_UPDATE, Consumer.class, entityClass, userClass)));
+        builder.postUpdateConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_UPDATE, Consumer.class, entityClass, userClass)));
 
 
         // list
         final Class<?> listQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.List.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.List.class, (Class<? extends IQuery>) listQueryClass);
-        builder.preQueryConsumer(new PreQueryConsumerComposite(getBeansOf(PreQueryConsumer.class, listQueryClass, userClass)));
-        builder.postQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(PostQueryConsumer.class, entityClass, listQueryClass, userClass)));
-        builder.afterThrowingQueryConsumer(new AfterThrowingQueryConsumerComposite<>(getBeansOf(AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass)));
-        builder.afterReturnQueryConsumer(new AfterReturnQueryConsumerComposite<>(getBeansOf(AfterReturnQueryConsumer.class, entityClass, listQueryClass, userClass)));
+        builder.preQueryConsumer(new PreQueryConsumerComposite(getBeansOf(SpiAction.PRE_LIST, PreQueryConsumer.class, listQueryClass, userClass)));
+        builder.postQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(SpiAction.POST_LIST, PostQueryConsumer.class, entityClass, listQueryClass, userClass)));
+        builder.afterThrowingQueryConsumer(new AfterThrowingQueryConsumerComposite<>(getBeansOf(SpiAction.POST_LIST, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass)));
+        builder.afterReturnQueryConsumer(new AfterReturnQueryConsumerComposite<>(getBeansOf(SpiAction.POST_LIST, AfterReturnQueryConsumer.class, entityClass, listQueryClass, userClass)));
 
         // detail
         final Class<?> detailQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Detail.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Detail.class, (Class<? extends IQuery>) detailQueryClass);
-        builder.preDetailQueryConsumer(new PreQueryConsumerComposite(getBeansOf(PreQueryConsumer.class, detailQueryClass, userClass)));
-        builder.postDetailQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(PostQueryConsumer.class, entityClass, detailQueryClass, userClass)));
-        builder.postDetailConsumer(new PostDetailConsumerComposite<>(getBeansOf(PostDetailConsumer.class, entityClass, userClass)));
+        builder.preDetailQueryConsumer(new PreQueryConsumerComposite(getBeansOf(SpiAction.PRE_DETAIL, PreQueryConsumer.class, detailQueryClass, userClass)));
+        builder.postDetailQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(SpiAction.POST_DETAIL, PostQueryConsumer.class, entityClass, detailQueryClass, userClass)));
+        builder.postDetailConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_DETAIL, Consumer.class, entityClass, userClass)));
 
         // count
         final Class<?> countQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Count.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Count.class, (Class<? extends IQuery>) countQueryClass);
-        builder.preCountQueryConsumer(new PreQueryConsumerComposite<>(getBeansOf(PreQueryConsumer.class, countQueryClass, userClass)));
+        builder.preCountQueryConsumer(new PreQueryConsumerComposite<>(getBeansOf(SpiAction.PRE_COUNT, PreQueryConsumer.class, countQueryClass, userClass)));
 
         // yn
-        builder.preUpdateYnValidator(new PreUpdateYnValidatorComposite<>(getBeansOf(PreUpdateYnValidator.class, entityClass, userClass)));
-        builder.postUpdateYNConsumer(new PostUpdateYnConsumerComposite<>(getBeansOf(PostUpdateYNConsumer.class, entityClass, userClass)));
+        builder.preUpdateYnValidator(new PreUpdateYnValidatorComposite<>(getBeansOf(SpiAction.PRE_YN, PreUpdateYnValidator.class, entityClass, userClass)));
+        builder.postUpdateYNConsumer(new PostUpdateYnConsumerComposite<>(getBeansOf(SpiAction.POST_YN, PostUpdateYNConsumer.class, entityClass, userClass)));
         return builder.build();
     }
 
@@ -159,8 +156,23 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
     }
 
     private List getBeansOf(Class<?> type, Class<?>... generics) {
+        return getBeansOf(null, type, generics);
+    }
+
+    private List getBeansOf(SpiAction action, Class<?> type, Class<?>... generics) {
         return applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(type, generics))
                 .orderedStream()
+                .filter(it -> {
+                    final Class<?> targetClass = AopUtils.getTargetClass(it);
+                    for (final String name : action.getValues()) {
+                        if (targetClass.getSimpleName().contains(name)) {
+                            logger.info("found type={} for action={}", type, action);
+                            return true;
+                        }
+                    }
+                    return false;
+
+                })
                 .collect(Collectors.toList());
     }
 
@@ -180,22 +192,22 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         }
 
         @Override
-        public void accept(@NonNull List<T> entities, @NonNull Q query, @NonNull U user) {
+        public void accept(@NonNull SpiAction action, @NonNull List<T> entities, @NonNull Q query, @NonNull U user) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
             for (PostQueryConsumer<T, Q, U> consumer : consumers) {
-                consumer.accept(entities, query, user);
+                consumer.accept(action, entities, query, user);
             }
         }
 
         @Override
-        public void accept(@NonNull T entity, @NonNull Q query, @NonNull U user) {
+        public void accept(@NonNull SpiAction action, @NonNull T entity, @NonNull Q query, @NonNull U user) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
             for (PostQueryConsumer<T, Q, U> consumer : consumers) {
-                consumer.accept(entity, query, user);
+                consumer.accept(action, entity, query, user);
             }
 
         }
@@ -247,120 +259,43 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
 
     /**
-     * PostDeleteConsumerComposite.
-     *
-     * @author ilikly
-     * @version 1.4.2
-     * @since 1.4.2
-     */
-    private static class PostDeleteConsumerComposite<T, U> implements PostDeleteConsumer<T, U> {
-
-        private final List<PostDeleteConsumer<T, U>> consumers;
-
-        public PostDeleteConsumerComposite(List<PostDeleteConsumer<T, U>> consumers) {
-            this.consumers = consumers;
-        }
-
-        @Override
-        public void accept(@NonNull T entity, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-
-            for (PostDeleteConsumer<T, U> consumer : consumers) {
-                consumer.accept(entity, user);
-            }
-        }
-    }
-
-    /**
-     * PostInsertConsumerComposite.
-     *
-     * @author ilikly
-     * @version 1.4.2
-     * @since 1.4.2
-     */
-    private static class PostInsertConsumerComposite<T, U> implements PostInsertConsumer<T, U> {
-        private final List<PostInsertConsumer<T, U>> consumers;
-
-        public PostInsertConsumerComposite(List<PostInsertConsumer<T, U>> consumers) {
-            this.consumers = consumers;
-        }
-
-        @Override
-        public void accept(@NonNull List<T> entities, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-            consumers.forEach(it -> it.accept(entities, user));
-        }
-
-        @Override
-        public void accept(@NonNull T entity, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-
-            for (PostInsertConsumer<T, U> consumer : consumers) {
-                consumer.accept(entity, user);
-            }
-        }
-    }
-
-    /**
-     * PostUpdateConsumerComposite.
-     *
-     * @author ilikly
-     * @version 1.4.2
-     * @since 1.4.2
-     */
-    private static class PostUpdateConsumerComposite<T, U> implements PostUpdateConsumer<T, U> {
-
-        private final List<PostUpdateConsumer<T, U>> consumers;
-
-        public PostUpdateConsumerComposite(List<PostUpdateConsumer<T, U>> consumers) {
-            this.consumers = consumers;
-        }
-
-        @Override
-        public void accept(@NonNull T entity, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-            consumers.forEach(it -> it.accept(entity, user));
-
-        }
-    }
-
-    /**
      * PreDeleteConsumerComposite.
      *
      * @author ilikly
      * @version 1.4.2
+     * @see PreQueryConsumerComposite
      * @since 1.4.2
      */
-    private static class PreDeleteConsumerComposite<T, U> implements PreDeleteConsumer<T, U> {
-        private final List<PreDeleteConsumer<T, U>> consumers;
+    private static class ConsumerComposite<T, U> implements Consumer<T, U> {
+        private final List<Consumer<T, U>> consumers;
 
-        public PreDeleteConsumerComposite(List<PreDeleteConsumer<T, U>> consumers) {
+        public ConsumerComposite(List<Consumer<T, U>> consumers) {
             this.consumers = consumers;
         }
 
         @Override
-        public void accept(@NonNull T entity, @NonNull U user) {
+        public void accept(@NonNull SpiAction action, @NonNull List<T> entities, @NonNull U user) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(action, entities, user));
+        }
+
+        @Override
+        public void accept(@NonNull SpiAction action, @NonNull T entity, @NonNull U user) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
 
-            for (PreDeleteConsumer<T, U> consumer : consumers) {
-                consumer.accept(entity, user);
+            for (Consumer<T, U> consumer : consumers) {
+                consumer.accept(action, entity, user);
             }
         }
     }
 
     @RequiredArgsConstructor
-    private static class PreInsertFilterComposite<T, U> implements PreInsertFilter<T, U> {
-        private final List<PreInsertFilter<T, U>> filters;
+    private static class PreFilterComposite<T, U> implements PreFilter<T, U> {
+        private final List<PreFilter<T, U>> filters;
 
         @Override
         public boolean test(@NonNull T entity, @NonNull U user) {
@@ -369,7 +304,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                 return true;
             }
 
-            for (PreInsertFilter<T, U> filter : filters) {
+            for (PreFilter<T, U> filter : filters) {
                 boolean test = filter.test(entity, user);
 
                 if (test) {
@@ -383,41 +318,6 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         }
     }
 
-    /**
-     * PreInsertConsumerComposite.
-     *
-     * @author ilikly
-     * @version 1.4.2
-     * @since 1.4.2
-     */
-    private static class PreInsertConsumerComposite<T, U> implements PreInsertConsumer<T, U> {
-
-        private final List<PreInsertConsumer<T, U>> consumers;
-
-        public PreInsertConsumerComposite(List<PreInsertConsumer<T, U>> consumers) {
-            this.consumers = consumers;
-        }
-
-        @Override
-        public void accept(@NonNull List<T> entities, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-            consumers.forEach(it -> it.accept(entities, user));
-        }
-
-        @Override
-        public void accept(@NonNull T entity, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-
-            for (PreInsertConsumer<T, U> consumer : consumers) {
-                consumer.accept(entity, user);
-            }
-
-        }
-    }
 
     /**
      * PreInsertValidatorComposite.
@@ -451,6 +351,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
      *
      * @author ilikly
      * @version 1.4.2
+     * @see PostQueryConsumerComposite
      * @since 1.4.2
      */
     @RequiredArgsConstructor
@@ -459,7 +360,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         @Override
         @SuppressWarnings("unchecked")
-        public void accept(@NonNull Q query, @NonNull U iUser) {
+        public void accept(@NonNull SpiAction action, @NonNull Q query, @NonNull U iUser) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
@@ -467,53 +368,16 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             for (PreQueryConsumer<Q, U> consumer : consumers) {
                 if (consumer instanceof PreQueryPredicate) {
                     if (((PreQueryPredicate<Q, U>) consumer).test(query, iUser)) {
-                        consumer.accept(query, iUser);
+                        consumer.accept(action, query, iUser);
                     }
                 } else {
-                    consumer.accept(query, iUser);
+                    consumer.accept(action, query, iUser);
                 }
             }
 
         }
     }
 
-    @RequiredArgsConstructor
-    private static class PostDetailConsumerComposite<T, U> implements PostDetailConsumer<T, U> {
-        private final List<PostDetailConsumer<T, U>> consumers;
-
-        @Override
-        public void accept(@NonNull T entity, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-
-            consumers.forEach(it -> it.accept(entity, user));
-        }
-    }
-
-    /**
-     * PreUpdateConsumerComposite.
-     *
-     * @author ilikly
-     * @version 1.4.2
-     * @since 1.4.2
-     */
-    private static class PreUpdateConsumerComposite<T, U> implements PreUpdateConsumer<T, U> {
-        private final List<PreUpdateConsumer<T, U>> consumers;
-
-        public PreUpdateConsumerComposite(List<PreUpdateConsumer<T, U>> consumers) {
-            this.consumers = consumers;
-        }
-
-        @Override
-        public void accept(@NonNull T entity, @NonNull U user) {
-            if (CollectionUtils.isEmpty(consumers)) {
-                return;
-            }
-
-            consumers.forEach(it -> it.accept(entity, user));
-        }
-    }
 
     /**
      * PreUpdateYnValidatorComposite.
