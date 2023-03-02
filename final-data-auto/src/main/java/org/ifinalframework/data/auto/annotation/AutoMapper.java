@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
  * Auto generate java mapper source.
  *
  * <pre class="code">
- *      &64;Mapper
+ *      &#64;Mapper
  *      public interface XXXMapper extends AbsMapper&lt;Long,XXX&gt;{
  *
  *      }
