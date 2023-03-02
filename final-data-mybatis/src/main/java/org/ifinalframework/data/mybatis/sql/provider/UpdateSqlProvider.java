@@ -183,7 +183,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                     metadata.setValue("entity." + property.getPath());
                     metadata.setJavaType(property.getType());
                     if (Objects.nonNull(property.getTypeHandler())) {
-                        metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
+                        metadata.setTypeHandler(property.getTypeHandler());
                     }
 
                     final String writer = Asserts.isBlank(property.getUpdate()) ? DEFAULT_WRITER : property.getUpdate();
@@ -210,7 +210,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         metadata.setValue("entity." + property.getPath());
         metadata.setJavaType(property.getType());
         if (Objects.nonNull(property.getTypeHandler())) {
-            metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
+            metadata.setTypeHandler(property.getTypeHandler());
         }
 
         final String value = Velocities.eval(update, metadata);

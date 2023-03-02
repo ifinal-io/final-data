@@ -105,7 +105,7 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
                     metadata.setColumn(property.getColumn());
                     metadata.setValue(property.getName());
                     metadata.setJavaType(property.getType());
-                    metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
+                    metadata.setTypeHandler(property.getTypeHandler());
 
                     final String reader = Asserts.isBlank(property.getReader()) ? DEFAULT_READER : property.getReader();
 

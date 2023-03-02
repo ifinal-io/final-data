@@ -249,7 +249,7 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         metadata.setColumn(property.getColumn());
         metadata.setValue("item." + property.getPath());
         metadata.setJavaType(property.getType());
-        metadata.setTypeHandler((Class<? extends TypeHandler>) property.getTypeHandler());
+        metadata.setTypeHandler(property.getTypeHandler());
         return metadata;
     }
 
