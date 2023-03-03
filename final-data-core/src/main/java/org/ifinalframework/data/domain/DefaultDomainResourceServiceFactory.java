@@ -38,6 +38,8 @@ import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
+import org.ifinalframework.data.spi.AfterReturningConsumer;
+import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
@@ -104,6 +106,8 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         builder.preInsertFilter(new FilterComposite<>(getBeansOf(Filter.class, entityClass, userClass)));
         builder.preInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.PRE_CREATE, Consumer.class, entityClass, userClass)));
         builder.postInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_CREATE, Consumer.class, entityClass, userClass)));
+        builder.afterThrowingInsertConsumer(new AfterThrowingConsumerComposite<>(getBeansOf(SpiAction.CREATE, AfterThrowingConsumer.class, entityClass, userClass)));
+        builder.afterReturningInsertConsumer(new AfterReturningConsumerComposite<>(getBeansOf(SpiAction.CREATE, AfterReturningConsumer.class, entityClass, Integer.class, userClass)));
 
         // delete
         final Class<?> deleteQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Delete.class, defaultQueryName), defaultqueryClass);
@@ -290,6 +294,48 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
             for (Consumer<T, U> consumer : consumers) {
                 consumer.accept(action, entity, user);
             }
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static final class AfterThrowingConsumerComposite<T, U> implements AfterThrowingConsumer<T, U> {
+        private final List<AfterThrowingConsumer<T, U>> consumers;
+
+        @Override
+        public void accept(@NonNull SpiAction action, @NonNull List<T> entities, @NonNull U user, @NonNull Throwable throwable) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(action, entities, user, throwable));
+        }
+
+        @Override
+        public void accept(@NonNull SpiAction action, @NonNull T entity, @NonNull U user, @NonNull Throwable throwable) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(action, entity, user, throwable));
+        }
+    }
+
+    @RequiredArgsConstructor
+    private static final class AfterReturningConsumerComposite<T, R, U> implements AfterReturningConsumer<T, R, U> {
+        private final List<AfterReturningConsumer<T, R, U>> consumers;
+
+        @Override
+        public void accept(@NonNull SpiAction action, @NonNull List<T> entities, @Nullable R result, @NonNull U user, @Nullable Throwable throwable) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(action, entities, result, user, throwable));
+        }
+
+        @Override
+        public void accept(@NonNull SpiAction action, @NonNull T entity, @Nullable R result, @NonNull U user, @Nullable Throwable throwable) {
+            if (CollectionUtils.isEmpty(consumers)) {
+                return;
+            }
+            consumers.forEach(it -> it.accept(action, entity, result, user, throwable));
         }
     }
 

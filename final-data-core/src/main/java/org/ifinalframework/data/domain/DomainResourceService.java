@@ -50,6 +50,7 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
     @Nullable
     PreInsertFunction<Object, IUser<?>, T> preInsertFunction();
 
+
     /**
      * @param entities the entities to create.
      * @param user     the current user.
@@ -57,7 +58,8 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @see org.ifinalframework.core.IView.Create
      * @see Filter
      * @see org.ifinalframework.data.spi.Consumer
-     * @see org.ifinalframework.data.spi.AfterReturnInsertConsumer
+     * @see org.ifinalframework.data.spi.AfterThrowingConsumer
+     * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
     Integer create(@NonNull List<T> entities, @NonNull IUser<?> user);
 

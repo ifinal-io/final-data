@@ -34,6 +34,8 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
+import org.ifinalframework.data.spi.AfterReturningConsumer;
+import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
@@ -67,9 +69,13 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
 
     private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
 
+    // create
     private final Filter<T, IUser<?>> preInsertFilter;
     private final Consumer<T, IUser<?>> preInsertConsumer;
     private final Consumer<T, IUser<?>> postInsertConsumer;
+    private final AfterThrowingConsumer<T, IUser<?>> afterThrowingInsertConsumer;
+    private final AfterReturningConsumer<T, Integer, IUser<?>> afterReturningInsertConsumer;
+
 
     // list
     private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
@@ -126,17 +132,26 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
 
     @Override
     public Integer create(@NonNull List<T> entities, @NonNull IUser<?> user) {
+        Integer result = null;
+        Throwable exception = null;
+        try {
+            entities = entities.stream().filter(item -> preInsertFilter.test(SpiAction.PRE_CREATE, item, user)).collect(Collectors.toList());
 
-        entities = entities.stream().filter(item -> preInsertFilter.test(SpiAction.PRE_CREATE, item, user)).collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(entities)) {
+                return result = 0;
+            }
 
-        if (CollectionUtils.isEmpty(entities)) {
-            return 0;
+            preInsertConsumer.accept(SpiAction.PRE_CREATE, entities, user);
+            result = repository.insert(entities);
+            postInsertConsumer.accept(SpiAction.POST_CREATE, entities, user);
+            return result;
+        } catch (Throwable e) {
+            exception = e;
+            afterThrowingInsertConsumer.accept(SpiAction.CREATE, entities, user, exception);
+            throw e;
+        } finally {
+            afterReturningInsertConsumer.accept(SpiAction.CREATE, entities, result, user, exception);
         }
-
-        preInsertConsumer.accept(SpiAction.PRE_CREATE, entities, user);
-        int result = repository.insert(entities);
-        postInsertConsumer.accept(SpiAction.POST_CREATE, entities, user);
-        return result;
     }
 
     @Override
