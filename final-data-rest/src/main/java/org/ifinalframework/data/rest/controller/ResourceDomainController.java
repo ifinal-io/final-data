@@ -31,6 +31,7 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -62,8 +63,8 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
+import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.auto.annotation.RestResource;
 import org.ifinalframework.data.domain.DefaultDomainServiceFactory;
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.DomainServiceFactory;
@@ -361,11 +362,13 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
         applicationContext.getBeanProvider(AbsService.class).stream()
                 .forEach(service -> {
                     Class<?> entityClass = ResolvableType.forClass(AopUtils.getTargetClass(service)).as(AbsService.class).resolveGeneric(1);
-                    RestResource restResource = entityClass.getAnnotation(RestResource.class);
+                    final DomainResource domainResource = AnnotationUtils.findAnnotation(entityClass, DomainResource.class);
 
-                    if (Objects.nonNull(restResource)) {
+                    if (Objects.nonNull(domainResource)) {
                         DomainService domainService = domainServiceFactory.create(service);
-                        domainServiceMap.put(restResource.value(), domainService);
+                        for (final String resource : domainResource.value()) {
+                            domainServiceMap.put(resource, domainService);
+                        }
                     }
 
 
