@@ -108,9 +108,6 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     private final Consumer<T, IUser<?>> preDeleteConsumer;
     private final Consumer<T, IUser<?>> postDeleteConsumer;
 
-    private final AfterThrowingConsumer<T, IUser<?>> afterThrowingDeleteConsumer;
-    private final AfterReturningConsumer<T, Integer, IUser<?>> afterReturningDeleteConsumer;
-
     @NonNull
     @Override
     public Class<T> entityClass() {

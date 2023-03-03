@@ -103,8 +103,10 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
 
         }
 
+        // PreInsert
         builder.preInsertFilter(new FilterComposite<>(getBeansOf(Filter.class, entityClass, userClass)));
         builder.preInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.PRE_CREATE, Consumer.class, entityClass, userClass)));
+        // PostInsert
         builder.postInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_CREATE, Consumer.class, entityClass, userClass)));
         builder.afterThrowingInsertConsumer(new AfterThrowingConsumerComposite<>(getBeansOf(SpiAction.CREATE, AfterThrowingConsumer.class, entityClass, userClass)));
         builder.afterReturningInsertConsumer(new AfterReturningConsumerComposite<>(getBeansOf(SpiAction.CREATE, AfterReturningConsumer.class, entityClass, Integer.class, userClass)));
@@ -112,8 +114,10 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         // delete
         final Class<?> deleteQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Delete.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
+        // PreDelete
         builder.preDeleteQueryConsumer(new PreQueryConsumerComposite<>(getBeansOf(SpiAction.PRE_DELETE, PreQueryConsumer.class, deleteQueryClass, userClass)));
         builder.preDeleteConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.PRE_DELETE, Consumer.class, entityClass, userClass)));
+        // PostDelete
         builder.postDeleteQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(SpiAction.POST_DETAIL, PostQueryConsumer.class, entityClass, deleteQueryClass, userClass)));
         builder.postDeleteConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_DELETE, Consumer.class, entityClass, userClass)));
 
