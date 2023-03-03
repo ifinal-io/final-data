@@ -40,7 +40,7 @@ import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostUpdateYNConsumer;
+import org.ifinalframework.data.spi.PostUpdateYnConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
@@ -99,7 +99,7 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
 
     // update yn
     private final PreUpdateYnValidator<T, IUser<?>> preUpdateYnValidator;
-    private final PostUpdateYNConsumer<T, IUser<?>> postUpdateYNConsumer;
+    private final PostUpdateYnConsumer<T, IUser<?>> postUpdateYnConsumer;
 
     // delete
 
@@ -136,15 +136,15 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         Integer result = null;
         Throwable exception = null;
         try {
-            entities = entities.stream().filter(item -> preInsertFilter.test(SpiAction.PRE_CREATE, item, user)).collect(Collectors.toList());
+            entities = entities.stream().filter(item -> preInsertFilter.test(SpiAction.CREATE, item, user)).collect(Collectors.toList());
 
             if (CollectionUtils.isEmpty(entities)) {
                 return result = 0;
             }
 
-            preInsertConsumer.accept(SpiAction.PRE_CREATE, entities, user);
+            preInsertConsumer.accept(SpiAction.CREATE, SpiAction.Advice.PRE, entities, user);
             result = repository.insert(entities);
-            postInsertConsumer.accept(SpiAction.POST_CREATE, entities, user);
+            postInsertConsumer.accept(SpiAction.CREATE, SpiAction.Advice.POST, entities, user);
             return result;
         } catch (Throwable e) {
             exception = e;
@@ -160,12 +160,12 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         List<T> list = null;
         Throwable throwable = null;
         try {
-            preQueryConsumer.accept(SpiAction.PRE_LIST, query, user);
+            preQueryConsumer.accept(SpiAction.LIST, query, user);
             list = repository.select(query);
             if (CollectionUtils.isEmpty(list)) {
                 return list;
             }
-            postQueryConsumer.accept(SpiAction.POST_LIST, list, query, user);
+            postQueryConsumer.accept(SpiAction.LIST, list, query, user);
             return list;
         } catch (Exception e) {
             throwable = e;
@@ -183,11 +183,11 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         Throwable throwable = null;
         try {
 
-            preDetailQueryConsumer.accept(SpiAction.PRE_DETAIL, query, user);
+            preDetailQueryConsumer.accept(SpiAction.DETAIL, query, user);
             entity = repository.selectOne(IView.Detail.class, query);
             if (Objects.nonNull(entity)) {
-                postDetailQueryConsumer.accept(SpiAction.POST_DETAIL, entity, query, user);
-                postDetailConsumer.accept(SpiAction.POST_DETAIL, entity, user);
+                postDetailQueryConsumer.accept(SpiAction.DETAIL, entity, query, user);
+                postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, entity, user);
             }
             return entity;
         } catch (Throwable e) {
@@ -203,28 +203,28 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     public T detail(@NonNull ID id, @NonNull IUser<?> user) {
         T entity = repository.selectOne(id);
         if (Objects.nonNull(entity)) {
-            postDetailConsumer.accept(SpiAction.POST_DETAIL, entity, user);
+            postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, entity, user);
         }
         return entity;
     }
 
     @Override
     public Long count(@NonNull IQuery query, @NonNull IUser<?> user) {
-        preCountQueryConsumer.accept(SpiAction.PRE_COUNT, query, user);
+        preCountQueryConsumer.accept(SpiAction.COUNT, query, user);
         return repository.selectCount(query);
     }
 
     @Override
     public int delete(@NonNull IQuery query, @NonNull IUser<?> user) {
-        preDeleteQueryConsumer.accept(SpiAction.PRE_DELETE, query, user);
+        preDeleteQueryConsumer.accept(SpiAction.DELETE, query, user);
         List<T> entities = repository.select(query);
         if (CollectionUtils.isEmpty(entities)) {
             return 0;
         }
-        preDeleteConsumer.accept(SpiAction.PRE_DELETE, entities, user);
+        preDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.PRE, entities, user);
         int delete = repository.delete(entities.stream().map(T::getId).collect(Collectors.toList()));
-        postDeleteQueryConsumer.accept(SpiAction.POST_DELETE, entities, query, user);
-        postDeleteConsumer.accept(SpiAction.POST_DETAIL, entities, user);
+        postDeleteQueryConsumer.accept(SpiAction.DELETE, entities, query, user);
+        postDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.POST, entities, user);
         return delete;
     }
 
@@ -236,9 +236,9 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             throw new NotFoundException("not found delete target. id=" + id);
         }
 
-        preDeleteConsumer.accept(SpiAction.PRE_DELETE, entity, user);
+        preDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.PRE, entity, user);
         int delete = repository.delete(id);
-        postDeleteConsumer.accept(SpiAction.POST_DELETE, entity, user);
+        postDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.POST, entity, user);
         return delete;
     }
 
@@ -248,9 +248,9 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         if (Objects.isNull(dbEntity)) {
             throw new NotFoundException("not found entity by id= " + id);
         }
-        preUpdateConsumer.accept(SpiAction.PRE_UPDATE, entity, user);
+        preUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.PRE, entity, user);
         int update = repository.update(entity, selective, id);
-        postUpdateConsumer.accept(SpiAction.POST_UPDATE, entity, user);
+        postUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.POST, entity, user);
         return update;
     }
 
@@ -264,7 +264,7 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         preUpdateYnValidator.validate(entity, yn, user);
         Update update = Update.update().set("yn", yn);
         int rows = repository.update(update, id);
-        postUpdateYNConsumer.accept(entity, yn, user);
+        postUpdateYnConsumer.accept(entity, yn, user);
         return rows;
     }
 
