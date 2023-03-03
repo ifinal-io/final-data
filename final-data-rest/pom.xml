@@ -42,10 +42,6 @@
             <artifactId>final-data-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ifinalframework.data</groupId>
-            <artifactId>final-data-service</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.ifinalframework</groupId>
             <artifactId>final-web</artifactId>
         </dependency>
