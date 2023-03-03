@@ -56,7 +56,7 @@ import lombok.Builder;
  */
 @Builder
 @SuppressWarnings("unchecked")
-public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>> implements DomainService<ID, T> {
+public class DefaultDomainResourceService<ID extends Serializable, T extends IEntity<ID>> implements DomainResourceService<ID, T> {
 
     private final Repository<ID, T> repository;
 

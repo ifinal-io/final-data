@@ -65,9 +65,9 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.DefaultDomainServiceFactory;
-import org.ifinalframework.data.domain.DomainService;
-import org.ifinalframework.data.domain.DomainServiceFactory;
+import org.ifinalframework.data.domain.DefaultDomainResourceServiceFactory;
+import org.ifinalframework.data.domain.DomainResourceService;
+import org.ifinalframework.data.domain.DomainResourceServiceFactory;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.security.ResourceSecurity;
@@ -91,18 +91,18 @@ import org.slf4j.LoggerFactory;
 @Transactional
 @RestController
 @RequestMapping("/api/{resource}")
-public class ResourceDomainController implements ApplicationContextAware, SmartInitializingSingleton {
-    private static final Logger logger = LoggerFactory.getLogger(ResourceDomainController.class);
+public class DomainResourceController implements ApplicationContextAware, SmartInitializingSingleton {
+    private static final Logger logger = LoggerFactory.getLogger(DomainResourceController.class);
 
     @Resource
     private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
 
-    private final Map<String, DomainService<Long, IEntity<Long>>> domainServiceMap = new LinkedHashMap<>();
+    private final Map<String, DomainResourceService<Long, IEntity<Long>>> domainServiceMap = new LinkedHashMap<>();
     private PreResourceAuthorize<IUser<?>> preResourceAuthorize;
 
     private final QueryConsumerComposite queryConsumerComposite;
 
-    public ResourceDomainController(ObjectProvider<QueryConsumer<?, ?>> queryConsumerProvider) {
+    public DomainResourceController(ObjectProvider<QueryConsumer<?, ?>> queryConsumerProvider) {
         List consumers = queryConsumerProvider.orderedStream().collect(Collectors.toList());
         this.queryConsumerComposite = new QueryConsumerComposite(consumers);
     }
@@ -121,40 +121,40 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
     public List<? extends IEntity<Long>> query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.List.class);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.List.class);
+        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
-        return domainService.list(query, user);
+        return domainResourceService.list(query, user);
     }
 
     @GetMapping("/detail")
     public IEntity<Long> detail(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}/detail", resource);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Detail.class);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Detail.class);
+        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
-        return domainService.detail(query, user);
+        return domainResourceService.detail(query, user);
     }
 
     @GetMapping("/{id}")
     public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        return domainService.detail(id, user);
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        return domainResourceService.detail(id, user);
     }
 
     // delete
 
     @DeleteMapping
     public Integer delete(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user) {
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Delete.class);
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Delete.class);
         IQuery query = Json.toObject(requestBody, queryClass);
-        return domainService.delete(query, user);
+        return domainResourceService.delete(query, user);
     }
 
     @DeleteMapping("/delete")
@@ -166,8 +166,8 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
     public Integer delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
         applyPreResourceAuthorize(ResourceSecurity.DELETE, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        return domainService.delete(id, user);
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        return domainResourceService.delete(id, user);
     }
 
 
@@ -175,30 +175,30 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
     public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.INSERT, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
 
-        Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
+        Class<?> createEntityClass = domainResourceService.domainEntityClass(IView.Create.class);
         if (Objects.nonNull(createEntityClass)) {
             Object createEntity = Json.toObject(requestBody, createEntityClass);
             WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
             validate(entityClass, createEntity, binder, validationGroups);
-            List<IEntity<Long>> entities = domainService.preInsertFunction().map(createEntity, user);
-            return domainService.create(entities, user);
+            List<IEntity<Long>> entities = domainResourceService.preInsertFunction().map(createEntity, user);
+            return domainResourceService.create(entities, user);
         } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
             validate(entityClass, entity, binder, validationGroups);
-            domainService.create(Collections.singletonList(entity), user);
+            domainResourceService.create(Collections.singletonList(entity), user);
             return entity.getId();
         } else if (requestBody.startsWith("[")) {
             List<IEntity<Long>> entities = Json.toList(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
             validate(entityClass, entities, binder, validationGroups);
-            return domainService.create(entities, user);
+            return domainResourceService.create(entities, user);
         }
 
         throw new BadRequestException("unsupported requestBody format of " + requestBody);
@@ -219,8 +219,8 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
     private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
         IEntity<Long> entity = Json.toObject(body, entityClass);
         if (Objects.nonNull(id)) {
             entity.setId(id);
@@ -230,7 +230,7 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
         WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
 
         validate(entityClass, entity, binder);
-        return domainService.update(entity, id, true, user);
+        return domainResourceService.update(entity, id, true, user);
     }
 
     @PatchMapping("/{id}/status")
@@ -248,8 +248,8 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
     private Integer doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
         applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
 
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
 
         if (!IStatus.class.isAssignableFrom(entityClass)) {
             throw new BadRequestException("resource is not supports status");
@@ -262,7 +262,7 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
             throw new BadRequestException("not status of " + status);
         }
 
-        return domainService.status(id, (IEnum<?>) statusValue, user);
+        return domainResourceService.status(id, (IEnum<?>) statusValue, user);
 
     }
 
@@ -271,8 +271,8 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
     public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
         applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        return domainService.yn(id, yn, user);
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        return domainResourceService.yn(id, yn, user);
     }
 
     @PutMapping("/{id}/disable")
@@ -295,11 +295,11 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
     public Long count(@PathVariable String resource, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> GET /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Count.class);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Count.class);
+        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
-        return domainService.count(query, user);
+        return domainResourceService.count(query, user);
     }
 
     @SuppressWarnings("unchecked")
@@ -334,13 +334,13 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
         }
     }
 
-    private DomainService<Long, IEntity<Long>> getDomainService(String resource) {
-        DomainService<Long, IEntity<Long>> domainService = domainServiceMap.get(resource);
+    private DomainResourceService<Long, IEntity<Long>> getDomainService(String resource) {
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = domainServiceMap.get(resource);
 
-        if (Objects.isNull(domainService)) {
+        if (Objects.isNull(domainResourceService)) {
             throw new NotFoundException("not found resource for " + resource);
         }
-        return domainService;
+        return domainResourceService;
     }
 
 
@@ -355,7 +355,7 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
 
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
-        final DomainServiceFactory domainServiceFactory = new DefaultDomainServiceFactory((Class<? extends IUser<?>>) userClass, applicationContext);
+        final DomainResourceServiceFactory domainResourceServiceFactory = new DefaultDomainResourceServiceFactory((Class<? extends IUser<?>>) userClass, applicationContext);
 
         logger.info("userClass:{}", userClass);
 
@@ -365,9 +365,9 @@ public class ResourceDomainController implements ApplicationContextAware, SmartI
                     final DomainResource domainResource = AnnotationUtils.findAnnotation(entityClass, DomainResource.class);
 
                     if (Objects.nonNull(domainResource)) {
-                        DomainService domainService = domainServiceFactory.create(service);
+                        DomainResourceService domainResourceService = domainResourceServiceFactory.create(service);
                         for (final String resource : domainResource.value()) {
-                            domainServiceMap.put(resource, domainService);
+                            domainServiceMap.put(resource, domainResourceService);
                         }
                     }
 

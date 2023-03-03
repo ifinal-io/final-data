@@ -28,6 +28,6 @@ import org.ifinalframework.data.repository.Repository;
  * @since 1.4.3
  */
 @FunctionalInterface
-public interface DomainServiceFactory {
-    <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> create(Repository<ID, T> repository);
+public interface DomainResourceServiceFactory {
+    <ID extends Serializable, T extends IEntity<ID>> DomainResourceService<ID, T> create(Repository<ID, T> repository);
 }

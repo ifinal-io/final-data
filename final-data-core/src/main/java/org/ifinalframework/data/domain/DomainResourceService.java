@@ -36,7 +36,7 @@ import org.ifinalframework.data.spi.PreInsertFunction;
  * @version 1.4.3
  * @since 1.4.3
  */
-public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
+public interface DomainResourceService<ID extends Serializable, T extends IEntity<ID>> {
 
     @NonNull
     Class<T> entityClass();
