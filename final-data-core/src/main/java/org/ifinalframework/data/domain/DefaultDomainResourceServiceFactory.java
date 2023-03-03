@@ -37,7 +37,7 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
+import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
@@ -128,7 +128,7 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         builder.preQueryConsumer(new PreQueryConsumerComposite(getBeansOf(SpiAction.PRE_LIST, PreQueryConsumer.class, listQueryClass, userClass)));
         builder.postQueryConsumer(new PostQueryConsumerComposite<>(getBeansOf(SpiAction.POST_LIST, PostQueryConsumer.class, entityClass, listQueryClass, userClass)));
         builder.afterThrowingQueryConsumer(new AfterThrowingQueryConsumerComposite<>(getBeansOf(SpiAction.POST_LIST, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass)));
-        builder.afterReturnQueryConsumer(new AfterReturnQueryConsumerComposite<>(getBeansOf(SpiAction.POST_LIST, AfterReturnQueryConsumer.class, entityClass, listQueryClass, userClass)));
+        builder.afterReturningQueryConsumer(new AfterReturningQueryConsumerComposite<>(getBeansOf(SpiAction.POST_LIST, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass)));
 
         // detail
         final Class<?> detailQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Detail.class, defaultQueryName), defaultqueryClass);
@@ -240,8 +240,8 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
     }
 
     @RequiredArgsConstructor
-    private static final class AfterReturnQueryConsumerComposite<T, Q, U> implements AfterReturnQueryConsumer<T, Q, U> {
-        private final List<AfterReturnQueryConsumer<T, Q, U>> consumers;
+    private static final class AfterReturningQueryConsumerComposite<T, Q, U> implements AfterReturningQueryConsumer<T, Q, U> {
+        private final List<AfterReturningQueryConsumer<T, Q, U>> consumers;
 
         @Override
         public void accept(@NonNull SpiAction action, @Nullable List<T> entities, @NonNull Q query, @NonNull U user, @Nullable Throwable e) {

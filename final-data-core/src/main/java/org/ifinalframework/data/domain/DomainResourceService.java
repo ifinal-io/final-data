@@ -26,6 +26,7 @@ import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 
@@ -70,7 +71,9 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @see org.ifinalframework.core.IView.List
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
-     * @see org.ifinalframework.data.spi.AfterReturnQueryConsumer
+     * @see AfterReturningQueryConsumer
+     * @see org.ifinalframework.data.spi.AfterThrowingConsumer
+     * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
     List<T> list(@NonNull IQuery query, @NonNull IUser<?> user);
 

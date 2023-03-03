@@ -33,8 +33,8 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
+import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
@@ -82,12 +82,13 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     private final PostQueryConsumer<T, IQuery, IUser<?>> postQueryConsumer;
 
     private final AfterThrowingQueryConsumer<T, IQuery, IUser<?>> afterThrowingQueryConsumer;
-    private final AfterReturnQueryConsumer<T, IQuery, IUser<?>> afterReturnQueryConsumer;
+    private final AfterReturningQueryConsumer<T, IQuery, IUser<?>> afterReturningQueryConsumer;
 
     // detail
     private final PreQueryConsumer<IQuery, IUser<?>> preDetailQueryConsumer;
     private final PostQueryConsumer<T, IQuery, IUser<?>> postDetailQueryConsumer;
     private final Consumer<T, IUser<?>> postDetailConsumer;
+
 
     // count
     private final PreQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;
@@ -171,7 +172,7 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             afterThrowingQueryConsumer.accept(SpiAction.LIST, list, query, user, e);
             throw e;
         } finally {
-            afterReturnQueryConsumer.accept(SpiAction.LIST, list, query, user, throwable);
+            afterReturningQueryConsumer.accept(SpiAction.LIST, list, query, user, throwable);
         }
     }
 
@@ -194,7 +195,7 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             afterThrowingQueryConsumer.accept(SpiAction.DETAIL, entity, query, user, e);
             throw e;
         } finally {
-            afterReturnQueryConsumer.accept(SpiAction.DETAIL, entity, query, user, throwable);
+            afterReturningQueryConsumer.accept(SpiAction.DETAIL, entity, query, user, throwable);
         }
     }
 
