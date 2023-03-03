@@ -68,10 +68,8 @@ jobs:
             ]
       - name: Cat Setting.xml
         run : cat /home/runner/.m2/settings.xml
-      - name: Build with Maven
-        run: mvn -B package -Pci --file pom.xml
-      - name: Deploy with Maven
-        run: mvn -B deploy -Pci --file pom.xml
+      - name: Build & Deploy with Maven
+        run: mvn -B clear package deploy -Pci --file pom.xml
       - name: Codecov
         uses: codecov/codecov-action@v3
       - name: Cache SonarCloud packages
