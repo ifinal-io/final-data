@@ -40,9 +40,9 @@ import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
+import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
-import org.ifinalframework.data.spi.PreFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreInsertValidator;
 import org.ifinalframework.data.spi.PreQueryConsumer;
@@ -101,7 +101,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
         }
 
-        builder.preInsertFilter(new PreFilterComposite<>(getBeansOf(PreFilter.class, entityClass, userClass)));
+        builder.preInsertFilter(new FilterComposite<>(getBeansOf(Filter.class, entityClass, userClass)));
         builder.preInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.PRE_CREATE, Consumer.class, entityClass, userClass)));
         builder.postInsertConsumer(new ConsumerComposite<>(getBeansOf(SpiAction.POST_CREATE, Consumer.class, entityClass, userClass)));
 
@@ -294,18 +294,18 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
     }
 
     @RequiredArgsConstructor
-    private static class PreFilterComposite<T, U> implements PreFilter<T, U> {
-        private final List<PreFilter<T, U>> filters;
+    private static class FilterComposite<T, U> implements Filter<T, U> {
+        private final List<Filter<T, U>> filters;
 
         @Override
-        public boolean test(@NonNull T entity, @NonNull U user) {
+        public boolean test(@NonNull SpiAction action, @NonNull T entity, @NonNull U user) {
 
             if (CollectionUtils.isEmpty(filters)) {
                 return true;
             }
 
-            for (PreFilter<T, U> filter : filters) {
-                boolean test = filter.test(entity, user);
+            for (Filter<T, U> filter : filters) {
+                boolean test = filter.test(action, entity, user);
 
                 if (test) {
                     return true;

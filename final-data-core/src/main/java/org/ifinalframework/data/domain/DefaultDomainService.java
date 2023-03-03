@@ -36,9 +36,9 @@ import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturnQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
+import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PostUpdateYNConsumer;
-import org.ifinalframework.data.spi.PreFilter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateYnValidator;
@@ -67,7 +67,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
 
-    private final PreFilter<T, IUser<?>> preInsertFilter;
+    private final Filter<T, IUser<?>> preInsertFilter;
     private final Consumer<T, IUser<?>> preInsertConsumer;
     private final Consumer<T, IUser<?>> postInsertConsumer;
 
@@ -127,7 +127,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     @Override
     public Integer create(@NonNull List<T> entities, @NonNull IUser<?> user) {
 
-        entities = entities.stream().filter(item -> preInsertFilter.test(item, user)).collect(Collectors.toList());
+        entities = entities.stream().filter(item -> preInsertFilter.test(SpiAction.PRE_CREATE, item, user)).collect(Collectors.toList());
 
         if (CollectionUtils.isEmpty(entities)) {
             return 0;

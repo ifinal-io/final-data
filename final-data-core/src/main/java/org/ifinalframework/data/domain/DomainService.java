@@ -26,7 +26,7 @@ import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.spi.PreFilter;
+import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 
 /**
@@ -55,7 +55,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user     the current user.
      * @return created rows.
      * @see org.ifinalframework.core.IView.Create
-     * @see PreFilter
+     * @see Filter
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.AfterReturnInsertConsumer
      */
