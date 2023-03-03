@@ -218,19 +218,19 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         private final List<AfterThrowingQueryConsumer<T, Q, U>> consumers;
 
         @Override
-        public void accept(@Nullable List<T> entities, @NonNull Q query, @NonNull U user, @NonNull Throwable e) {
+        public void accept(@NonNull SpiAction action, @Nullable List<T> entities, @NonNull Q query, @NonNull U user, @NonNull Throwable e) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
-            consumers.forEach(it -> it.accept(entities, query, user, e));
+            consumers.forEach(it -> it.accept(action, entities, query, user, e));
         }
 
         @Override
-        public void accept(@Nullable T entity, @NonNull Q query, @NonNull U user, @NonNull Throwable e) {
+        public void accept(@NonNull SpiAction action, @Nullable T entity, @NonNull Q query, @NonNull U user, @NonNull Throwable e) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
-            consumers.forEach(it -> it.accept(entity, query, user, e));
+            consumers.forEach(it -> it.accept(action, entity, query, user, e));
 
         }
     }
@@ -240,20 +240,20 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         private final List<AfterReturnQueryConsumer<T, Q, U>> consumers;
 
         @Override
-        public void accept(@Nullable List<T> entities, @NonNull Q query, @NonNull U user, @Nullable Throwable e) {
+        public void accept(@NonNull SpiAction action, @Nullable List<T> entities, @NonNull Q query, @NonNull U user, @Nullable Throwable e) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
 
-            consumers.forEach(it -> it.accept(entities, query, user, e));
+            consumers.forEach(it -> it.accept(action, entities, query, user, e));
         }
 
         @Override
-        public void accept(@Nullable T entity, @NonNull Q query, @NonNull U user, @Nullable Throwable e) {
+        public void accept(@NonNull SpiAction action, @Nullable T entity, @NonNull Q query, @NonNull U user, @Nullable Throwable e) {
             if (CollectionUtils.isEmpty(consumers)) {
                 return;
             }
-            consumers.forEach(it -> it.accept(entity, query, user, e));
+            consumers.forEach(it -> it.accept(action, entity, query, user, e));
         }
     }
 

@@ -153,10 +153,10 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             return list;
         } catch (Exception e) {
             throwable = e;
-            afterThrowingQueryConsumer.accept(list, query, user, e);
+            afterThrowingQueryConsumer.accept(SpiAction.LIST, list, query, user, e);
             throw e;
         } finally {
-            afterReturnQueryConsumer.accept(list, query, user, throwable);
+            afterReturnQueryConsumer.accept(SpiAction.LIST, list, query, user, throwable);
         }
     }
 
@@ -176,10 +176,10 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             return entity;
         } catch (Throwable e) {
             throwable = e;
-            afterThrowingQueryConsumer.accept(entity, query, user, e);
+            afterThrowingQueryConsumer.accept(SpiAction.DETAIL, entity, query, user, e);
             throw e;
         } finally {
-            afterReturnQueryConsumer.accept(entity, query, user, throwable);
+            afterReturnQueryConsumer.accept(SpiAction.DETAIL, entity, query, user, throwable);
         }
     }
 
