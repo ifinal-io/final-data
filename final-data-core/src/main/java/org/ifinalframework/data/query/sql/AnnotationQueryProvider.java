@@ -33,11 +33,11 @@ import org.ifinalframework.core.Groupable;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.Limitable;
 import org.ifinalframework.core.Orderable;
-import org.ifinalframework.data.annotation.Tenant;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.criterion.CriterionHandlerRegistry;
+import org.ifinalframework.data.util.TenantUtils;
 import org.ifinalframework.query.AndOr;
 import org.ifinalframework.query.CriterionAttributes;
 import org.ifinalframework.query.QEntity;
@@ -84,7 +84,7 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
         whereBuilder.append("<where>");
         final QEntity<?, ?> properties = entityFactory.create(entity);
 
-        if (entity.isAnnotationPresent(Tenant.class)) {
+        if (TenantUtils.isTenant(entity)) {
             whereBuilder.append("<if test=\"properties.hasTenantProperty() and tenant != null\">")
                     .append("${properties.tenantProperty.column} = #{tenant} ")
                     .append("</if>");
