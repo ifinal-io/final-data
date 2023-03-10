@@ -29,7 +29,6 @@ import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PreInsertFunction;
-import org.ifinalframework.data.spi.UpdateConsumer;
 
 /**
  * DomainService.
@@ -145,7 +144,7 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @param yn   the entity yn to update.
      * @param user the current user.
      * @see org.ifinalframework.data.spi.PreUpdateValidator
-     * @see UpdateConsumer
+     * @see org.ifinalframework.data.spi.UpdateConsumer
      * @see org.ifinalframework.data.spi.AfterReturnUpdateYnConsumer
      */
     int yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);
