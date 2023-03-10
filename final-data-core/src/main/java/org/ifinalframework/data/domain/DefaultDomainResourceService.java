@@ -16,6 +16,7 @@
 package org.ifinalframework.data.domain;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,11 +41,11 @@ import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostUpdateYnConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.PreUpdateYnValidator;
+import org.ifinalframework.data.spi.PreUpdateValidator;
 import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.query.Update;
 
 import lombok.Builder;
@@ -98,8 +99,9 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     private final Consumer<T, IUser<?>> postUpdateConsumer;
 
     // update yn
-    private final PreUpdateYnValidator<T, IUser<?>> preUpdateYnValidator;
-    private final PostUpdateYnConsumer<T, IUser<?>> postUpdateYnConsumer;
+    private final PreUpdateValidator<T, YN, IUser<?>> preUpdateYnValidator;
+
+    private final UpdateConsumer<T, YN, IUser<?>> postUpdateYnConsumer;
 
     // delete
 
@@ -186,16 +188,16 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             preDetailQueryConsumer.accept(SpiAction.DETAIL, query, user);
             entity = repository.selectOne(IView.Detail.class, query);
             if (Objects.nonNull(entity)) {
-                postDetailQueryConsumer.accept(SpiAction.DETAIL, entity, query, user);
-                postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, entity, user);
+                postDetailQueryConsumer.accept(SpiAction.DETAIL, Collections.singletonList(entity), query, user);
+                postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, Collections.singletonList(entity), user);
             }
             return entity;
         } catch (Throwable e) {
             throwable = e;
-            afterThrowingQueryConsumer.accept(SpiAction.DETAIL, entity, query, user, e);
+            afterThrowingQueryConsumer.accept(SpiAction.DETAIL, Collections.singletonList(entity), query, user, e);
             throw e;
         } finally {
-            afterReturningQueryConsumer.accept(SpiAction.DETAIL, entity, query, user, throwable);
+            afterReturningQueryConsumer.accept(SpiAction.DETAIL, Collections.singletonList(entity), query, user, throwable);
         }
     }
 
@@ -203,7 +205,7 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     public T detail(@NonNull ID id, @NonNull IUser<?> user) {
         T entity = repository.selectOne(id);
         if (Objects.nonNull(entity)) {
-            postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, entity, user);
+            postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, Collections.singletonList(entity), user);
         }
         return entity;
     }
@@ -236,9 +238,9 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             throw new NotFoundException("not found delete target. id=" + id);
         }
 
-        preDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.PRE, entity, user);
+        preDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.PRE, Collections.singletonList(entity), user);
         int delete = repository.delete(id);
-        postDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.POST, entity, user);
+        postDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.POST, Collections.singletonList(entity), user);
         return delete;
     }
 
@@ -248,9 +250,9 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         if (Objects.isNull(dbEntity)) {
             throw new NotFoundException("not found entity by id= " + id);
         }
-        preUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.PRE, entity, user);
+        preUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.PRE, Collections.singletonList(entity), user);
         int update = repository.update(entity, selective, id);
-        postUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.POST, entity, user);
+        postUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.POST, Collections.singletonList(entity), user);
         return update;
     }
 
@@ -261,10 +263,10 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
             throw new NotFoundException("not found entity by id= " + id);
         }
 
-        preUpdateYnValidator.validate(entity, yn, user);
+        preUpdateYnValidator.validate(Collections.singletonList(entity), yn, user);
         Update update = Update.update().set("yn", yn);
         int rows = repository.update(update, id);
-        postUpdateYnConsumer.accept(entity, yn, user);
+        postUpdateYnConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.POST, Collections.singletonList(entity), yn, user);
         return rows;
     }
 

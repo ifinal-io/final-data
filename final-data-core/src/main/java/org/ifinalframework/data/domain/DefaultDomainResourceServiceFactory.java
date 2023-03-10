@@ -31,6 +31,7 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
+import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
@@ -40,11 +41,11 @@ import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostUpdateYnConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.PreUpdateYnValidator;
+import org.ifinalframework.data.spi.PreUpdateValidator;
 import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.util.CompositeProxies;
 
 import lombok.RequiredArgsConstructor;
@@ -143,9 +144,9 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         queryClassMap.put(IView.Count.class, (Class<? extends IQuery>) countQueryClass);
         builder.preCountQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE, PreQueryConsumer.class, countQueryClass, userClass));
 
-        // yn
-        builder.preUpdateYnValidator(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.PRE, PreUpdateYnValidator.class, entityClass, userClass));
-        builder.postUpdateYnConsumer(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.POST, PostUpdateYnConsumer.class, entityClass, userClass));
+        // update yn
+        builder.preUpdateYnValidator(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.PRE, PreUpdateValidator.class, entityClass, YN.class, userClass));
+        builder.postUpdateYnConsumer(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, YN.class, userClass));
         return builder.build();
     }
 
