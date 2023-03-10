@@ -16,6 +16,7 @@
 package org.ifinalframework.data.domain;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,9 @@ import java.util.stream.Collectors;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.lang.NonNull;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
@@ -163,7 +166,11 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
 
     @SuppressWarnings("unchecked")
     private <SPI> SPI getSpiComposite(SpiAction action, SpiAction.Advice advice, Class<SPI> type, Class<?>... generics) {
-        return (SPI) CompositeProxies.composite(type, getBeansOf(action, advice, type, generics));
+        List beans = getBeansOf(action, advice, type, generics);
+        if (CollectionUtils.isEmpty(beans) && type == Filter.class) {
+            beans = Collections.singletonList((Filter) (action1, entity, user) -> true);
+        }
+        return (SPI) CompositeProxies.composite(type, beans);
     }
 
 
