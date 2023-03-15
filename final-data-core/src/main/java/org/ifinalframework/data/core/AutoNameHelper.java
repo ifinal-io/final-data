@@ -20,6 +20,16 @@ import lombok.experimental.UtilityClass;
 /**
  * AutoNameHelper.
  *
+ * <pre class="code">
+ * **.***.entity.scope
+ *       .repository.scope.query
+ *       .repository.scope.mapper
+ *       .domain.scope.query
+ *       .domain.scope.service
+ *       .domain.scope.entity
+ *       .domain.scope.spi
+ * </pre>
+ *
  * @author ilikly
  * @version 1.4.1
  * @since 1.4.1
@@ -27,7 +37,7 @@ import lombok.experimental.UtilityClass;
 @UtilityClass
 public class AutoNameHelper {
     public static String mapperPackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".dao.mapper");
+        return entity.getPackage().getName().replace(".entity", ".repository") + ".mapper";
     }
 
     public static String mapperName(Class<?> entity) {
@@ -35,7 +45,7 @@ public class AutoNameHelper {
     }
 
     public static String queryEntityPackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".dao.query");
+        return entity.getPackage().getName().replace(".entity", ".repository") + ".query";
     }
 
     public static String queryEntityName(Class<?> entity) {
@@ -43,7 +53,7 @@ public class AutoNameHelper {
     }
 
     public static String queryPackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".query");
+        return entity.getPackage().getName().replace(".entity", ".domain") + ".query";
     }
 
     public static String queryName(Class<?> entity) {
@@ -51,15 +61,15 @@ public class AutoNameHelper {
     }
 
     public static String servicePackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".service");
+        return entity.getPackage().getName().replace(".entity", ".domain") + ".service";
     }
 
     public static String serviceName(Class<?> entity) {
         return entity.getSimpleName() + "Service";
     }
 
-    public static String dtoClassName(Class<?> entity, String action) {
-        final String dtoPackageName = entity.getPackage().getName().replace(".entity", ".domain.dto");
+    public static String modelClassName(Class<?> entity, String action) {
+        final String dtoPackageName = entity.getPackage().getName().replace(".entity", ".domain") + ".model";
         final String dtoName = action + entity.getSimpleName();
         return String.join(".", dtoPackageName, dtoName);
     }

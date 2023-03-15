@@ -230,7 +230,7 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
         WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
 
         validate(entityClass, entity, binder);
-        return domainResourceService.update(entity, id, true, user);
+        return domainResourceService.update(entity, entity.getId(), true, user);
     }
 
     @PatchMapping("/{id}/status")

@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
-import org.springframework.lang.NonNull;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
@@ -94,7 +94,7 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
 
         // create
 
-        String dtoClassName = AutoNameHelper.dtoClassName(entityClass, IView.Create.class.getSimpleName());
+        String dtoClassName = AutoNameHelper.modelClassName(entityClass, IView.Create.class.getSimpleName());
 
         if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
             Class<?> dtoClass = ClassUtils.resolveClassName(dtoClassName, entityClass.getClassLoader());
@@ -150,6 +150,15 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         // update yn
         builder.preUpdateYnValidator(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.PRE, PreUpdateValidator.class, entityClass, YN.class, userClass));
         builder.postUpdateYnConsumer(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, YN.class, userClass));
+
+        // update status
+        if(IStatus.class.isAssignableFrom(entityClass)){
+            final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
+            builder.preUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.PRE, UpdateConsumer.class,entityClass,statusClass,userClass));
+            builder.postUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.POST, UpdateConsumer.class,entityClass,statusClass,userClass));
+        }
+
+
         return builder.build();
     }
 

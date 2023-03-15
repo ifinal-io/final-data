@@ -103,6 +103,10 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
 
     private final UpdateConsumer<T, YN, IUser<?>> postUpdateYnConsumer;
 
+    // update status
+    private final UpdateConsumer<T, IEnum<?>, IUser<?>> preUpdateStatusConsumer;
+    private final UpdateConsumer<T, IEnum<?>, IUser<?>> postUpdateStatusConsumer;
+
     // delete
 
     private final PreQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
@@ -276,7 +280,10 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         if (Objects.isNull(entity)) {
             throw new NotFoundException("not found entity by id= " + id);
         }
+        preUpdateStatusConsumer.accept(SpiAction.UPDATE_STATUS, SpiAction.Advice.PRE, Collections.singletonList(entity), status, user);
         Update update = Update.update().set("status", status);
-        return repository.update(update, id);
+        final int rows = repository.update(update, id);
+        postUpdateStatusConsumer.accept(SpiAction.UPDATE_STATUS, SpiAction.Advice.POST, Collections.singletonList(entity), status, user);
+        return rows;
     }
 }
