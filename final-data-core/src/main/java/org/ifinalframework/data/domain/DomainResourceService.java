@@ -15,11 +15,13 @@
 
 package org.ifinalframework.data.domain;
 
+import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.annotation.Validated;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
@@ -37,6 +39,7 @@ import org.ifinalframework.data.spi.PreInsertFunction;
  * @version 1.4.3
  * @since 1.4.3
  */
+@Validated
 public interface DomainResourceService<ID extends Serializable, T extends IEntity<ID>> {
 
     @NonNull
@@ -62,7 +65,7 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
-    Integer create(@NonNull List<T> entities, @NonNull IUser<?> user);
+    Integer create(@NonNull @Valid List<T> entities, @NonNull IUser<?> user);
 
     /**
      * @param query the query of list.
@@ -75,7 +78,7 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
-    List<T> list(@NonNull IQuery query, @NonNull IUser<?> user);
+    List<T> list(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
 
     /**
      * @param query the query of detail.
@@ -86,7 +89,7 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @see org.ifinalframework.data.spi.PostQueryConsumer
      * @see org.ifinalframework.data.spi.Consumer
      */
-    T detail(@NonNull IQuery query, @NonNull IUser<?> user);
+    T detail(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
 
     /**
      * @param id   the id of entity.
@@ -104,7 +107,7 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @see org.ifinalframework.core.IView.Count
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      */
-    Long count(@NonNull IQuery query, @NonNull IUser<?> user);
+    Long count(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
 
     /**
      * @param query the query of deleted.
@@ -115,7 +118,7 @@ public interface DomainResourceService<ID extends Serializable, T extends IEntit
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
      */
-    int delete(@NonNull IQuery query, @NonNull IUser<?> user);
+    int delete(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
 
     /**
      * @param id   the id of deleted.

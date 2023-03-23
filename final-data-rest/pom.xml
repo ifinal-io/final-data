@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>org.ifinalframework</groupId>
-            <artifactId>final-web</artifactId>
+            <artifactId>final-webmvc</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ifinalframework.data</groupId>

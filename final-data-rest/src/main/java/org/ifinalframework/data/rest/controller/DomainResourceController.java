@@ -36,9 +36,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -183,21 +180,30 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
             Object createEntity = Json.toObject(requestBody, createEntityClass);
             WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
-            validate(entityClass, createEntity, binder, validationGroups);
+            binder.validate(validationGroups);
+            if(binder.getBindingResult().hasErrors()){
+                throw new BindException(binder.getBindingResult());
+            }
             List<IEntity<Long>> entities = domainResourceService.preInsertFunction().map(createEntity, user);
             return domainResourceService.create(entities, user);
         } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
-            validate(entityClass, entity, binder, validationGroups);
+            binder.validate(validationGroups);
+            if(binder.getBindingResult().hasErrors()){
+                throw new BindException(binder.getBindingResult());
+            }
             domainResourceService.create(Collections.singletonList(entity), user);
             return entity.getId();
         } else if (requestBody.startsWith("[")) {
             List<IEntity<Long>> entities = Json.toList(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
-            validate(entityClass, entities, binder, validationGroups);
+            binder.validate(validationGroups);
+            if(binder.getBindingResult().hasErrors()){
+                throw new BindException(binder.getBindingResult());
+            }
             return domainResourceService.create(entities, user);
         }
 
@@ -228,8 +234,10 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
             Assert.notNull(entity.getId(), "update id is null");
         }
         WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
-
-        validate(entityClass, entity, binder);
+        binder.validate(entity);
+        if(binder.getBindingResult().hasErrors()){
+            throw new BindException(binder.getBindingResult());
+        }
         return domainResourceService.update(entity, entity.getId(), true, user);
     }
 
@@ -312,26 +320,13 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
             ((ExtendedServletRequestDataBinder) binder).bind((ServletRequest) request.getNativeRequest());
         }
         Class<?>[] validationGroups = validationGroupsProvider.getQueryValidationGroups(entityClass, queryClass);
-        validate(queryClass, query, binder, validationGroups);
-
+        binder.validate(validationGroups);
+        if(binder.getBindingResult().hasErrors()){
+            throw new BindException(binder.getBindingResult());
+        }
         queryConsumerComposite.accept(query, entityClass);
         logger.info("query={}", Json.toJson(query));
         return query;
-    }
-
-    private static void validate(Class<?> clazz, Object value, WebDataBinder binder, Class<?>... groups) throws BindException {
-        BindingResult bindingResult = binder.getBindingResult();
-        for (Validator validator : binder.getValidators()) {
-            logger.info("validator:{},groups={}", validator.getClass(), groups);
-            ValidationUtils.invokeValidator(validator, value, bindingResult, groups);
-            if (bindingResult.hasErrors()) {
-                break;
-            }
-
-        }
-        if (bindingResult.hasErrors()) {
-            throw new BindException(bindingResult);
-        }
     }
 
     private DomainResourceService<Long, IEntity<Long>> getDomainService(String resource) {
