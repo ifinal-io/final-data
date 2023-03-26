@@ -42,19 +42,7 @@ public interface ScriptSqlProvider extends SqlProvider {
         sql.append("<script>");
         doProvide(sql, context, parameters);
         sql.append("</script>");
-        String value = sql.toString();
-        if (logger.isDebugEnabled()) {
-            String script = XmlFormatter.format(value);
-
-            String[] nodes = script.split("\n");
-
-            for (final String node : nodes) {
-                logger.debug("{}", node);
-
-            }
-
-        }
-        return value;
+        return sql.toString();
     }
 
     void doProvide(StringBuilder sql, ProviderContext context, Map<String, Object> parameters);

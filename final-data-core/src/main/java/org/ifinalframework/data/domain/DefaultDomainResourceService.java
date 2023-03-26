@@ -26,9 +26,11 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
+import org.ifinalframework.context.exception.ForbiddenException;
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
+import org.ifinalframework.core.ILock;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
@@ -41,6 +43,7 @@ import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
+import org.ifinalframework.data.spi.PostQueryFunction;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateValidator;
@@ -82,6 +85,8 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
     private final PostQueryConsumer<T, IQuery, IUser<?>> postQueryConsumer;
 
+    private final PostQueryFunction<List<T>, IQuery, IUser<?>> postQueryFunction;
+
     private final AfterThrowingQueryConsumer<T, IQuery, IUser<?>> afterThrowingQueryConsumer;
     private final AfterReturningQueryConsumer<T, IQuery, IUser<?>> afterReturningQueryConsumer;
 
@@ -106,6 +111,10 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     // update status
     private final UpdateConsumer<T, IEnum<?>, IUser<?>> preUpdateStatusConsumer;
     private final UpdateConsumer<T, IEnum<?>, IUser<?>> postUpdateStatusConsumer;
+
+    // update locked
+    private final UpdateConsumer<T, Boolean, IUser<?>> preUpdateLockedConsumer;
+    private final UpdateConsumer<T, Boolean, IUser<?>> postUpdateLockedConsumer;
 
     // delete
 
@@ -162,7 +171,7 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
     }
 
     @Override
-    public List<T> list(@NonNull IQuery query, @NonNull IUser<?> user) {
+    public Object list(@NonNull IQuery query, @NonNull IUser<?> user) {
         List<T> list = null;
         Throwable throwable = null;
         try {
@@ -172,6 +181,12 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
                 return list;
             }
             postQueryConsumer.accept(SpiAction.LIST, list, query, user);
+
+            if (Objects.nonNull(postQueryFunction)) {
+                return postQueryFunction.map(list, query, user);
+            }
+
+
             return list;
         } catch (Exception e) {
             throwable = e;
@@ -280,10 +295,24 @@ public class DefaultDomainResourceService<ID extends Serializable, T extends IEn
         if (Objects.isNull(entity)) {
             throw new NotFoundException("not found entity by id= " + id);
         }
+
         preUpdateStatusConsumer.accept(SpiAction.UPDATE_STATUS, SpiAction.Advice.PRE, Collections.singletonList(entity), status, user);
         Update update = Update.update().set("status", status);
         final int rows = repository.update(update, id);
         postUpdateStatusConsumer.accept(SpiAction.UPDATE_STATUS, SpiAction.Advice.POST, Collections.singletonList(entity), status, user);
         return rows;
+    }
+
+    @Override
+    public int lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user) {
+        T entity = repository.selectOne(id);
+        if (Objects.isNull(entity)) {
+            throw new NotFoundException("not found entity by id= " + id);
+        }
+        preUpdateLockedConsumer.accept(SpiAction.UPDATE_LOCKED, SpiAction.Advice.PRE, Collections.singletonList(entity), locked, user);
+        Update update = Update.update().set("locked", locked);
+        final int rows = repository.update(update, id);
+        postUpdateLockedConsumer.accept(SpiAction.UPDATE_LOCKED, SpiAction.Advice.POST, Collections.singletonList(entity), locked, user);
+        return 0;
     }
 }

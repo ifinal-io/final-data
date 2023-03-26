@@ -115,7 +115,7 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
 
 
     @GetMapping
-    public List<? extends IEntity<Long>> query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
+    public Object query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}", resource);
         applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
@@ -181,7 +181,7 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
             WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
             binder.validate(validationGroups);
-            if(binder.getBindingResult().hasErrors()){
+            if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
             List<IEntity<Long>> entities = domainResourceService.preInsertFunction().map(createEntity, user);
@@ -191,7 +191,7 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
             binder.validate(validationGroups);
-            if(binder.getBindingResult().hasErrors()){
+            if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
             domainResourceService.create(Collections.singletonList(entity), user);
@@ -201,7 +201,7 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
             WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
             Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
             binder.validate(validationGroups);
-            if(binder.getBindingResult().hasErrors()){
+            if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
             return domainResourceService.create(entities, user);
@@ -235,7 +235,7 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
         }
         WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
         binder.validate(entity);
-        if(binder.getBindingResult().hasErrors()){
+        if (binder.getBindingResult().hasErrors()) {
             throw new BindException(binder.getBindingResult());
         }
         return domainResourceService.update(entity, entity.getId(), true, user);
@@ -321,7 +321,7 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
         }
         Class<?>[] validationGroups = validationGroupsProvider.getQueryValidationGroups(entityClass, queryClass);
         binder.validate(validationGroups);
-        if(binder.getBindingResult().hasErrors()){
+        if (binder.getBindingResult().hasErrors()) {
             throw new BindException(binder.getBindingResult());
         }
         queryConsumerComposite.accept(query, entityClass);

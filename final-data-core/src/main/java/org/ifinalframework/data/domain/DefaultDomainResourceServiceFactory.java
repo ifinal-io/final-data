@@ -30,6 +30,7 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.ILock;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
@@ -44,6 +45,7 @@ import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
+import org.ifinalframework.data.spi.PostQueryFunction;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateValidator;
@@ -134,6 +136,13 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         builder.postQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, listQueryClass, userClass));
         builder.afterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
         builder.afterReturningQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
+        // PostQueryFunction<List<T>,IQuery,IUser>
+        applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostQueryFunction.class,
+                ResolvableType.forClassWithGenerics(List.class, entityClass),
+                ResolvableType.forClass(listQueryClass),
+                ResolvableType.forClass(userClass)
+        )).ifAvailable(postQueryFunction -> builder.postQueryFunction((PostQueryFunction<List<T>, IQuery, IUser<?>>) postQueryFunction));
+
 
         // detail
         final Class<?> detailQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Detail.class, defaultQueryName), defaultqueryClass);
@@ -152,10 +161,15 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
         builder.postUpdateYnConsumer(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, YN.class, userClass));
 
         // update status
-        if(IStatus.class.isAssignableFrom(entityClass)){
+        if (IStatus.class.isAssignableFrom(entityClass)) {
             final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
-            builder.preUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.PRE, UpdateConsumer.class,entityClass,statusClass,userClass));
-            builder.postUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.POST, UpdateConsumer.class,entityClass,statusClass,userClass));
+            builder.preUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, statusClass, userClass));
+            builder.postUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, statusClass, userClass));
+        }
+        // update locked
+        if (ILock.class.isAssignableFrom(entityClass)) {
+            builder.preUpdateLockedConsumer(getSpiComposite(SpiAction.UPDATE_LOCKED, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, Boolean.class, userClass));
+            builder.postUpdateLockedConsumer(getSpiComposite(SpiAction.UPDATE_LOCKED, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, Boolean.class, userClass));
         }
 
 
