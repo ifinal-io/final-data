@@ -10,6 +10,9 @@ spring:
   h2:
     console:
       enabled: true
+final:
+  security:
+    user-class: org.ifinalframework.data.mybatis.entity.User
 logging:
   level:
     org.ifinal.finalframework.mybatis: debug
