@@ -19,6 +19,7 @@ import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,11 +58,10 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.DomainServiceRegistry;
-import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
-import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.spi.QueryConsumer;
 import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
 import org.ifinalframework.json.Json;
+import org.ifinalframework.validation.GlobalValidationGroupsProvider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ public class DomainResourceController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceController.class);
 
     @Resource
-    private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
+    private GlobalValidationGroupsProvider globalValidationGroupsProvider;
     @Resource
     private DomainServiceRegistry domainServiceRegistry;
 
@@ -147,12 +148,12 @@ public class DomainResourceController {
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
+        List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups());
         Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
         if (Objects.nonNull(createEntityClass)) {
             Object createEntity = Json.toObject(requestBody, createEntityClass);
             WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
-            Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
-            binder.validate(validationGroups);
+            binder.validate(ClassUtils.toClassArray(validationGroups));
             if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
@@ -161,8 +162,7 @@ public class DomainResourceController {
         } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
-            Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
-            binder.validate(validationGroups);
+            binder.validate(ClassUtils.toClassArray(validationGroups));
             if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
@@ -171,8 +171,7 @@ public class DomainResourceController {
         } else if (requestBody.startsWith("[")) {
             List<IEntity<Long>> entities = Json.toList(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
-            Class<?>[] validationGroups = validationGroupsProvider.getEntityValidationGroups(entityClass);
-            binder.validate(validationGroups);
+            binder.validate(ClassUtils.toClassArray(validationGroups));
             if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
@@ -302,8 +301,9 @@ public class DomainResourceController {
         } else if (binder instanceof ExtendedServletRequestDataBinder && request.getNativeRequest() instanceof ServletRequest) {
             ((ExtendedServletRequestDataBinder) binder).bind((ServletRequest) request.getNativeRequest());
         }
-        Class<?>[] validationGroups = validationGroupsProvider.getQueryValidationGroups(entityClass, queryClass);
-        binder.validate(validationGroups);
+        final Object target = binder.getTarget();
+        List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups());
+        binder.validate(ClassUtils.toClassArray(validationGroups));
         if (binder.getBindingResult().hasErrors()) {
             throw new BindException(binder.getBindingResult());
         }
