@@ -19,23 +19,15 @@ import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.SmartInitializingSingleton;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.ResolvableType;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -61,21 +53,15 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
-import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.DefaultDomainResourceServiceFactory;
 import org.ifinalframework.data.domain.DomainResourceService;
-import org.ifinalframework.data.domain.DomainResourceServiceFactory;
+import org.ifinalframework.data.domain.DomainResourceServiceRegistry;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
-import org.ifinalframework.data.security.ResourceSecurity;
-import org.ifinalframework.data.service.AbsService;
-import org.ifinalframework.data.spi.PreResourceAuthorize;
 import org.ifinalframework.data.spi.QueryConsumer;
 import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
 import org.ifinalframework.json.Json;
 
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,14 +75,13 @@ import org.slf4j.LoggerFactory;
 @Transactional
 @RestController
 @RequestMapping("/api/{resource}")
-public class DomainResourceController implements ApplicationContextAware, SmartInitializingSingleton {
+public class DomainResourceController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceController.class);
 
     @Resource
     private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
-
-    private final Map<String, DomainResourceService<Long, IEntity<Long>>> domainServiceMap = new LinkedHashMap<>();
-    private PreResourceAuthorize<IUser<?>> preResourceAuthorize;
+    @Resource
+    private DomainResourceServiceRegistry domainResourceServiceRegistry;
 
     private final QueryConsumerComposite queryConsumerComposite;
 
@@ -105,20 +90,10 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
         this.queryConsumerComposite = new QueryConsumerComposite(consumers);
     }
 
-    @Setter
-    private ApplicationContext applicationContext;
-
-    private void applyPreResourceAuthorize(ResourceSecurity resourceSecurity, String resource, IUser<?> user) {
-        if (Objects.nonNull(preResourceAuthorize)) {
-            preResourceAuthorize.auth(resourceSecurity.format(resource), user);
-        }
-    }
-
 
     @GetMapping
     public Object query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}", resource);
-        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.List.class);
         Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
@@ -129,7 +104,6 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
     @GetMapping("/detail")
     public IEntity<Long> detail(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}/detail", resource);
-        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Detail.class);
         Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
@@ -140,7 +114,6 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
     @GetMapping("/{id}")
     public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         return domainResourceService.detail(id, user);
     }
@@ -163,7 +136,6 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
     @DeleteMapping("/{id}")
     public Integer delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        applyPreResourceAuthorize(ResourceSecurity.DELETE, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         return domainResourceService.delete(id, user);
     }
@@ -172,7 +144,6 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
     @PostMapping
     public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
-        applyPreResourceAuthorize(ResourceSecurity.INSERT, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
 
@@ -225,7 +196,6 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
 
     private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
-        applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
         IEntity<Long> entity = Json.toObject(body, entityClass);
@@ -255,8 +225,6 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
 
     @SuppressWarnings("unchecked")
     private Integer doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
-        applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
-
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
 
@@ -280,22 +248,21 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
 
     // lock
     @PatchMapping("/{id}/lock")
-    public Integer lock(@PathVariable String resource,@PathVariable Long id,IUser<?> user){
+    public Integer lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        return domainResourceService.lock(id,true,user);
+        return domainResourceService.lock(id, true, user);
     }
 
     @PatchMapping("/{id}/unlock")
-    public Integer unlock(@PathVariable String resource,@PathVariable Long id,IUser<?> user){
+    public Integer unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        return domainResourceService.lock(id,false,user);
+        return domainResourceService.lock(id, false, user);
     }
 
 
     @PutMapping("/{id}/yn")
     public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
-        applyPreResourceAuthorize(ResourceSecurity.UPDATE, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         return domainResourceService.yn(id, yn, user);
     }
@@ -319,7 +286,6 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
     @GetMapping("/count")
     public Long count(@PathVariable String resource, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> GET /api/{}", resource);
-        applyPreResourceAuthorize(ResourceSecurity.QUERY, resource, user);
         DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
         Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Count.class);
         Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
@@ -347,44 +313,12 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
     }
 
     private DomainResourceService<Long, IEntity<Long>> getDomainService(String resource) {
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = domainServiceMap.get(resource);
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = domainResourceServiceRegistry.getDomainResourceService(resource);
 
         if (Objects.isNull(domainResourceService)) {
             throw new NotFoundException("not found resource for " + resource);
         }
         return domainResourceService;
-    }
-
-
-    @Override
-    @SuppressWarnings("unchecked,rawtypes")
-    public void afterSingletonsInstantiated() {
-
-        this.preResourceAuthorize = applicationContext.getBeanProvider(PreResourceAuthorize.class).getIfAvailable();
-
-
-        String userClassName = applicationContext.getEnvironment().getRequiredProperty("final.security.user-class");
-
-        Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
-
-        final DomainResourceServiceFactory domainResourceServiceFactory = new DefaultDomainResourceServiceFactory((Class<? extends IUser<?>>) userClass, applicationContext);
-
-        logger.info("userClass:{}", userClass);
-
-        applicationContext.getBeanProvider(AbsService.class).stream()
-                .forEach(service -> {
-                    Class<?> entityClass = ResolvableType.forClass(AopUtils.getTargetClass(service)).as(AbsService.class).resolveGeneric(1);
-                    final DomainResource domainResource = AnnotationUtils.findAnnotation(entityClass, DomainResource.class);
-
-                    if (Objects.nonNull(domainResource)) {
-                        DomainResourceService domainResourceService = domainResourceServiceFactory.create(service);
-                        for (final String resource : domainResource.value()) {
-                            domainServiceMap.put(resource, domainResourceService);
-                        }
-                    }
-
-
-                });
     }
 
 
