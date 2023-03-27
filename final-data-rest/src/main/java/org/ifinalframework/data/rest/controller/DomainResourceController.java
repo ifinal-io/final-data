@@ -17,6 +17,7 @@ package org.ifinalframework.data.rest.controller;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletRequest;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -263,15 +264,31 @@ public class DomainResourceController implements ApplicationContextAware, SmartI
             throw new BadRequestException("resource is not supports status");
         }
 
-        Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
-        Object statusValue = Json.toObject(status, statusClass);
+        Class<? extends IEnum<?>> statusClass = (Class<? extends IEnum<?>>) ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
+        final IEnum<?> statusValue = Arrays.stream(statusClass.getEnumConstants())
+                .filter(it -> it.getCode().toString().equals(status))
+                .findFirst().orElse(null);
+
 
         if (Objects.isNull(statusValue)) {
             throw new BadRequestException("not status of " + status);
         }
 
-        return domainResourceService.status(id, (IEnum<?>) statusValue, user);
+        return domainResourceService.status(id, statusValue, user);
 
+    }
+
+    // lock
+    @PatchMapping("/{id}/lock")
+    public Integer lock(@PathVariable String resource,@PathVariable Long id,IUser<?> user){
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        return domainResourceService.lock(id,true,user);
+    }
+
+    @PatchMapping("/{id}/unlock")
+    public Integer unlock(@PathVariable String resource,@PathVariable Long id,IUser<?> user){
+        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
+        return domainResourceService.lock(id,false,user);
     }
 
 
