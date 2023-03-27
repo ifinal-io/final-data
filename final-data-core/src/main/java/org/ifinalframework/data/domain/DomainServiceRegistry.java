@@ -18,16 +18,16 @@ package org.ifinalframework.data.domain;
 import java.io.Serializable;
 
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.repository.Repository;
 
 /**
- * DomainServiceFactory.
+ * DomainResourceManager.
  *
  * @author ilikly
- * @version 1.4.3
- * @since 1.4.3
+ * @version 1.5.0
+ * @since 1.5.0
  */
 @FunctionalInterface
-public interface DomainResourceServiceFactory {
-    <ID extends Serializable, T extends IEntity<ID>> DomainResourceService<ID, T> create(Repository<ID, T> repository);
+public interface DomainServiceRegistry {
+    <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> getDomainService(String resource);
+
 }

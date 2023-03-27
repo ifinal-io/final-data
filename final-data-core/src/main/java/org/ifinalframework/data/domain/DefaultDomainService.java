@@ -26,11 +26,9 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
-import org.ifinalframework.context.exception.ForbiddenException;
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
-import org.ifinalframework.core.ILock;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
@@ -62,7 +60,7 @@ import lombok.Builder;
  */
 @Builder
 @SuppressWarnings("unchecked")
-public class DefaultDomainResourceService<ID extends Serializable, T extends IEntity<ID>> implements DomainResourceService<ID, T> {
+public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>> implements DomainService<ID, T> {
 
     private final Repository<ID, T> repository;
 

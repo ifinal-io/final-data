@@ -65,7 +65,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultDomainResourceServiceFactory implements DomainResourceServiceFactory {
+public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
     private final Class<? extends IUser<?>> userClass;
     private final ApplicationContext applicationContext;
@@ -74,8 +74,8 @@ public class DefaultDomainResourceServiceFactory implements DomainResourceServic
 
     @Override
     @SuppressWarnings("unchecked,rawtypes")
-    public <ID extends Serializable, T extends IEntity<ID>> DomainResourceService<ID, T> create(Repository<ID, T> repository) {
-        DefaultDomainResourceService.DefaultDomainResourceServiceBuilder<ID, T> builder = DefaultDomainResourceService.builder();
+    public <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> create(Repository<ID, T> repository) {
+        DefaultDomainService.DefaultDomainServiceBuilder<ID, T> builder = DefaultDomainService.builder();
         builder.repository(repository);
         ResolvableType repositoryResolvableType = ResolvableType.forClass(AopUtils.getTargetClass(repository)).as(Repository.class);
         Class<?> entityClass = Objects.requireNonNull(repositoryResolvableType.resolveGeneric(1));

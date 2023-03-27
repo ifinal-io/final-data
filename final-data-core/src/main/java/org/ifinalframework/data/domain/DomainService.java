@@ -40,7 +40,7 @@ import org.ifinalframework.data.spi.PreInsertFunction;
  * @since 1.4.3
  */
 @Validated
-public interface DomainResourceService<ID extends Serializable, T extends IEntity<ID>> {
+public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
 
     @NonNull
     Class<T> entityClass();

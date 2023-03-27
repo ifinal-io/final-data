@@ -44,15 +44,15 @@ import lombok.Setter;
  * @since 1.5.0
  */
 @Component
-public class DefaultDomainResourceServiceRegistry implements DomainResourceServiceRegistry, ApplicationContextAware, SmartInitializingSingleton {
-    private final Map<String, DomainResourceService<Long, IEntity<Long>>> domainServiceMap = new LinkedHashMap<>();
+public class DefaultDomainServiceRegistry implements DomainServiceRegistry, ApplicationContextAware, SmartInitializingSingleton {
+    private final Map<String, DomainService<Long, IEntity<Long>>> domainServiceMap = new LinkedHashMap<>();
 
     @Setter
     private ApplicationContext applicationContext;
 
     @Override
-    public <ID extends Serializable, T extends IEntity<ID>> DomainResourceService<ID, T> getDomainResourceService(String resource) {
-        return (DomainResourceService<ID, T>) domainServiceMap.get(resource);
+    public <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> getDomainService(String resource) {
+        return (DomainService<ID, T>) domainServiceMap.get(resource);
     }
 
     @Override
@@ -63,7 +63,7 @@ public class DefaultDomainResourceServiceRegistry implements DomainResourceServi
 
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
-        final DomainResourceServiceFactory domainResourceServiceFactory = new DefaultDomainResourceServiceFactory((Class<? extends IUser<?>>) userClass, applicationContext);
+        final DomainServiceFactory domainServiceFactory = new DefaultDomainServiceFactory((Class<? extends IUser<?>>) userClass, applicationContext);
 
         applicationContext.getBeanProvider(AbsService.class).stream()
                 .forEach(service -> {
@@ -71,9 +71,9 @@ public class DefaultDomainResourceServiceRegistry implements DomainResourceServi
                     final DomainResource domainResource = AnnotationUtils.findAnnotation(entityClass, DomainResource.class);
 
                     if (Objects.nonNull(domainResource)) {
-                        DomainResourceService domainResourceService = domainResourceServiceFactory.create(service);
+                        DomainService domainService = domainServiceFactory.create(service);
                         for (final String resource : domainResource.value()) {
-                            domainServiceMap.put(resource, domainResourceService);
+                            domainServiceMap.put(resource, domainService);
                         }
                     }
 

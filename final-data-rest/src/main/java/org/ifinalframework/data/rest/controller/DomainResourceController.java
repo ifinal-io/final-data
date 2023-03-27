@@ -54,8 +54,8 @@ import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.DomainResourceService;
-import org.ifinalframework.data.domain.DomainResourceServiceRegistry;
+import org.ifinalframework.data.domain.DomainService;
+import org.ifinalframework.data.domain.DomainServiceRegistry;
 import org.ifinalframework.data.rest.validation.NoValidationGroupsProvider;
 import org.ifinalframework.data.rest.validation.ValidationGroupsProvider;
 import org.ifinalframework.data.spi.QueryConsumer;
@@ -81,7 +81,7 @@ public class DomainResourceController {
     @Resource
     private ValidationGroupsProvider validationGroupsProvider = new NoValidationGroupsProvider();
     @Resource
-    private DomainResourceServiceRegistry domainResourceServiceRegistry;
+    private DomainServiceRegistry domainServiceRegistry;
 
     private final QueryConsumerComposite queryConsumerComposite;
 
@@ -94,38 +94,38 @@ public class DomainResourceController {
     @GetMapping
     public Object query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}", resource);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.List.class);
-        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.List.class);
+        Class<IEntity<Long>> entityClass = domainService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
-        return domainResourceService.list(query, user);
+        return domainService.list(query, user);
     }
 
     @GetMapping("/detail")
     public IEntity<Long> detail(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}/detail", resource);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Detail.class);
-        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Detail.class);
+        Class<IEntity<Long>> entityClass = domainService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
-        return domainResourceService.detail(query, user);
+        return domainService.detail(query, user);
     }
 
     @GetMapping("/{id}")
     public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        return domainResourceService.detail(id, user);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        return domainService.detail(id, user);
     }
 
     // delete
 
     @DeleteMapping
     public Integer delete(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user) {
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Delete.class);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Delete.class);
         IQuery query = Json.toObject(requestBody, queryClass);
-        return domainResourceService.delete(query, user);
+        return domainService.delete(query, user);
     }
 
     @DeleteMapping("/delete")
@@ -136,18 +136,18 @@ public class DomainResourceController {
     @DeleteMapping("/{id}")
     public Integer delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        return domainResourceService.delete(id, user);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        return domainService.delete(id, user);
     }
 
 
     @PostMapping
     public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<IEntity<Long>> entityClass = domainService.entityClass();
 
-        Class<?> createEntityClass = domainResourceService.domainEntityClass(IView.Create.class);
+        Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
         if (Objects.nonNull(createEntityClass)) {
             Object createEntity = Json.toObject(requestBody, createEntityClass);
             WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
@@ -156,8 +156,8 @@ public class DomainResourceController {
             if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
-            List<IEntity<Long>> entities = domainResourceService.preInsertFunction().map(createEntity, user);
-            return domainResourceService.create(entities, user);
+            List<IEntity<Long>> entities = domainService.preInsertFunction().map(createEntity, user);
+            return domainService.create(entities, user);
         } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
@@ -166,7 +166,7 @@ public class DomainResourceController {
             if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
-            domainResourceService.create(Collections.singletonList(entity), user);
+            domainService.create(Collections.singletonList(entity), user);
             return entity.getId();
         } else if (requestBody.startsWith("[")) {
             List<IEntity<Long>> entities = Json.toList(requestBody, entityClass);
@@ -176,7 +176,7 @@ public class DomainResourceController {
             if (binder.getBindingResult().hasErrors()) {
                 throw new BindException(binder.getBindingResult());
             }
-            return domainResourceService.create(entities, user);
+            return domainService.create(entities, user);
         }
 
         throw new BadRequestException("unsupported requestBody format of " + requestBody);
@@ -196,8 +196,8 @@ public class DomainResourceController {
 
     private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<IEntity<Long>> entityClass = domainService.entityClass();
         IEntity<Long> entity = Json.toObject(body, entityClass);
         if (Objects.nonNull(id)) {
             entity.setId(id);
@@ -209,7 +209,7 @@ public class DomainResourceController {
         if (binder.getBindingResult().hasErrors()) {
             throw new BindException(binder.getBindingResult());
         }
-        return domainResourceService.update(entity, entity.getId(), true, user);
+        return domainService.update(entity, entity.getId(), true, user);
     }
 
     @PatchMapping("/{id}/status")
@@ -225,8 +225,8 @@ public class DomainResourceController {
 
     @SuppressWarnings("unchecked")
     private Integer doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         if (!IStatus.class.isAssignableFrom(entityClass)) {
             throw new BadRequestException("resource is not supports status");
@@ -242,29 +242,29 @@ public class DomainResourceController {
             throw new BadRequestException("not status of " + status);
         }
 
-        return domainResourceService.status(id, statusValue, user);
+        return domainService.status(id, statusValue, user);
 
     }
 
     // lock
     @PatchMapping("/{id}/lock")
     public Integer lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        return domainResourceService.lock(id, true, user);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        return domainService.lock(id, true, user);
     }
 
     @PatchMapping("/{id}/unlock")
     public Integer unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        return domainResourceService.lock(id, false, user);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        return domainService.lock(id, false, user);
     }
 
 
     @PutMapping("/{id}/yn")
     public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        return domainResourceService.yn(id, yn, user);
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        return domainService.yn(id, yn, user);
     }
 
     @PutMapping("/{id}/disable")
@@ -286,11 +286,11 @@ public class DomainResourceController {
     @GetMapping("/count")
     public Long count(@PathVariable String resource, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> GET /api/{}", resource);
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainResourceService.domainQueryClass(IView.Count.class);
-        Class<IEntity<Long>> entityClass = domainResourceService.entityClass();
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Count.class);
+        Class<IEntity<Long>> entityClass = domainService.entityClass();
         IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
-        return domainResourceService.count(query, user);
+        return domainService.count(query, user);
     }
 
     @SuppressWarnings("unchecked")
@@ -312,13 +312,13 @@ public class DomainResourceController {
         return query;
     }
 
-    private DomainResourceService<Long, IEntity<Long>> getDomainService(String resource) {
-        DomainResourceService<Long, IEntity<Long>> domainResourceService = domainResourceServiceRegistry.getDomainResourceService(resource);
+    private DomainService<Long, IEntity<Long>> getDomainService(String resource) {
+        DomainService<Long, IEntity<Long>> domainService = domainServiceRegistry.getDomainService(resource);
 
-        if (Objects.isNull(domainResourceService)) {
+        if (Objects.isNull(domainService)) {
             throw new NotFoundException("not found resource for " + resource);
         }
-        return domainResourceService;
+        return domainService;
     }
 
 
