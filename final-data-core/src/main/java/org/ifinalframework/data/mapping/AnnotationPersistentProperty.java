@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.data.mapping.Association;
 import org.springframework.data.mapping.PersistentEntity;
@@ -40,7 +41,6 @@ import org.ifinalframework.core.lang.Final;
 import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.annotation.Column;
 import org.ifinalframework.data.annotation.Keyword;
-import org.ifinalframework.data.annotation.Order;
 import org.ifinalframework.data.annotation.ReadOnly;
 import org.ifinalframework.data.annotation.Reference;
 import org.ifinalframework.data.annotation.SqlKeyWords;
@@ -76,9 +76,6 @@ public class AnnotationPersistentProperty extends AnnotationBasedPersistentPrope
      */
     private final Lazy<String> reader;
 
-    /**
-     * @see Order
-     */
     private final Lazy<Integer> order;
 
     private final Lazy<Boolean> isTransient = Lazy.of(super.isTransient() || isAnnotationPresent(Transient.class));
