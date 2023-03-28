@@ -93,7 +93,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PostQueryConsumer
      * @see org.ifinalframework.data.spi.Consumer
      */
-    T detail(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
+    Object detail(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
 
     /**
      * @param id   the id of entity.
@@ -103,7 +103,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.Consumer
      */
-    T detail(@NonNull ID id, @NonNull IUser<?> user);
+    Object detail(@NonNull ID id, @NonNull IUser<?> user);
 
     /**
      * @param query the query of count.
@@ -160,11 +160,11 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.UpdateConsumer
      * @see org.ifinalframework.data.spi.AfterReturnUpdateYnConsumer
      */
-    int yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);
+    Object yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);
 
-    int status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user);
+    Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user);
 
-    int lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user);
+    Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user);
 
 
 }

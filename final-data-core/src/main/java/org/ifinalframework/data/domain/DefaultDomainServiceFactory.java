@@ -37,6 +37,13 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.core.AutoNameHelper;
+import org.ifinalframework.data.domain.action.AbsUpdateDomainAction;
+import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
+import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
+import org.ifinalframework.data.domain.action.ListQueryDomainAction;
+import org.ifinalframework.data.domain.action.UpdateLockedByIdDomainAction;
+import org.ifinalframework.data.domain.action.UpdateStatusByIdDomainAction;
+import org.ifinalframework.data.domain.action.UpdateYnByIdDomainAction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
@@ -132,24 +139,37 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // list
         final Class<?> listQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.List.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.List.class, (Class<? extends IQuery>) listQueryClass);
-        builder.preQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE, PreQueryConsumer.class, listQueryClass, userClass));
-        builder.postQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, listQueryClass, userClass));
-        builder.afterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
-        builder.afterReturningQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
+
+        final ListQueryDomainAction<ID, T, IQuery, IUser<?>> listQueryDomainAction = new ListQueryDomainAction<>(repository);
+        listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE, PreQueryConsumer.class, listQueryClass, userClass));
+        listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
         applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostQueryFunction.class,
                 ResolvableType.forClassWithGenerics(List.class, entityClass),
                 ResolvableType.forClass(listQueryClass),
                 ResolvableType.forClass(userClass)
-        )).ifAvailable(postQueryFunction -> builder.postQueryFunction((PostQueryFunction<List<T>, IQuery, IUser<?>>) postQueryFunction));
+        )).ifAvailable(postQueryFunction -> listQueryDomainAction.setPostQueryFunction((PostQueryFunction<List<T>, IQuery, IUser<?>>) postQueryFunction));
+        builder.listQueryDomainAction(listQueryDomainAction);
 
 
         // detail
         final Class<?> detailQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Detail.class, defaultQueryName), defaultqueryClass);
         queryClassMap.put(IView.Detail.class, (Class<? extends IQuery>) detailQueryClass);
-        builder.preDetailQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, detailQueryClass, userClass));
-        builder.postDetailQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, detailQueryClass, userClass));
-        builder.postDetailConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+
+        final DetailQueryDomainAction<ID, T, IQuery, IUser<?>> detailQueryDomainAction = new DetailQueryDomainAction<>(repository);
+        detailQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, detailQueryClass, userClass));
+        detailQueryDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+        detailQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, detailQueryClass, userClass));
+        builder.detailQueryDomainAction(detailQueryDomainAction);
+
+
+        final DetailByIdDomainAction<ID, T, IUser<?>> detailByIdDomainAction = new DetailByIdDomainAction<>(repository);
+        detailByIdDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, Long.class, userClass));
+        detailByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+        detailByIdDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, Long.class, userClass));
+        builder.detailByIdDomainAction(detailByIdDomainAction);
 
         // count
         final Class<?> countQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Count.class, defaultQueryName), defaultqueryClass);
@@ -157,23 +177,33 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         builder.preCountQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE, PreQueryConsumer.class, countQueryClass, userClass));
 
         // update yn
-        builder.preUpdateYnValidator(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.PRE, PreUpdateValidator.class, entityClass, YN.class, userClass));
-        builder.postUpdateYnConsumer(getSpiComposite(SpiAction.UPDATE_YN, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, YN.class, userClass));
+        final UpdateYnByIdDomainAction<ID, T, IUser<?>> updateYnByIdDomainAction = new UpdateYnByIdDomainAction<>(repository);
+        acceptUpdateDomainAction(updateYnByIdDomainAction, SpiAction.UPDATE_YN, entityClass, YN.class, userClass);
+        builder.updateYnByIdDomainAction(updateYnByIdDomainAction);
+
 
         // update status
         if (IStatus.class.isAssignableFrom(entityClass)) {
             final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
-            builder.preUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, statusClass, userClass));
-            builder.postUpdateStatusConsumer(getSpiComposite(SpiAction.UPDATE_STATUS, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, statusClass, userClass));
+            final UpdateStatusByIdDomainAction<ID, T, IUser<?>> updateStatusByIdDomainAction = new UpdateStatusByIdDomainAction<>(repository);
+            acceptUpdateDomainAction(updateStatusByIdDomainAction, SpiAction.UPDATE_STATUS, entityClass, statusClass, userClass);
+            builder.updateStatusByIdDomainAction(updateStatusByIdDomainAction);
         }
         // update locked
         if (ILock.class.isAssignableFrom(entityClass)) {
-            builder.preUpdateLockedConsumer(getSpiComposite(SpiAction.UPDATE_LOCKED, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, Boolean.class, userClass));
-            builder.postUpdateLockedConsumer(getSpiComposite(SpiAction.UPDATE_LOCKED, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, Boolean.class, userClass));
+            final UpdateLockedByIdDomainAction<ID, T, IUser<?>> updateLockedByIdDomainAction = new UpdateLockedByIdDomainAction<>(repository);
+            acceptUpdateDomainAction(updateLockedByIdDomainAction, SpiAction.UPDATE_LOCKED, entityClass, Boolean.class, userClass);
+            builder.updateLockedByIdDomainAction(updateLockedByIdDomainAction);
         }
 
 
         return builder.build();
+    }
+
+    private <ID extends Serializable, T extends IEntity<ID>, Q, V, R> void acceptUpdateDomainAction(AbsUpdateDomainAction<ID, T, Q, V, R, IUser<?>> action, SpiAction spiAction, Class<?> entityClass, Class<?> valueClass, Class<?> userClass) {
+        action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, PreUpdateValidator.class, entityClass, valueClass, userClass));
+        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, valueClass, userClass));
+        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, valueClass, userClass));
     }
 
     private static String buildClassName(String packageName, Class<?> prefix, String className) {

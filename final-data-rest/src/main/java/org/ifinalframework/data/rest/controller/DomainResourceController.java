@@ -103,7 +103,7 @@ public class DomainResourceController {
     }
 
     @GetMapping("/detail")
-    public IEntity<Long> detail(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
+    public Object detail(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
         logger.info("==> GET /api/{}/detail", resource);
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Detail.class);
@@ -113,7 +113,7 @@ public class DomainResourceController {
     }
 
     @GetMapping("/{id}")
-    public IEntity<Long> query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+    public Object query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         return domainService.detail(id, user);
@@ -212,18 +212,18 @@ public class DomainResourceController {
     }
 
     @PatchMapping("/{id}/status")
-    public Integer status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user) {
+    public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user) {
         return doUpdateStatus(resource, id, status, user);
     }
 
     @PatchMapping("/status")
-    public Integer status2(@PathVariable String resource, @RequestParam Long id, @RequestParam String status, IUser<?> user) {
+    public Object status2(@PathVariable String resource, @RequestParam Long id, @RequestParam String status, IUser<?> user) {
         return doUpdateStatus(resource, id, status, user);
     }
 
 
     @SuppressWarnings("unchecked")
-    private Integer doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
+    private Object doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
@@ -247,37 +247,37 @@ public class DomainResourceController {
 
     // lock
     @PatchMapping("/{id}/lock")
-    public Integer lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+    public Object lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         return domainService.lock(id, true, user);
     }
 
     @PatchMapping("/{id}/unlock")
-    public Integer unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+    public Object unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         return domainService.lock(id, false, user);
     }
 
 
     @PutMapping("/{id}/yn")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
+    public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
         return domainService.yn(id, yn, user);
     }
 
     @PutMapping("/{id}/disable")
-    public Integer disable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+    public Object disable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         return this.update(resource, id, YN.NO, user);
     }
 
     @PutMapping("/{id}/enable")
-    public Integer enable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+    public Object enable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         return this.update(resource, id, YN.YES, user);
     }
 
     @PutMapping("/yn")
-    public Integer yn(@PathVariable String resource, @RequestParam Long id, @RequestParam YN yn, IUser<?> user) {
+    public Object yn(@PathVariable String resource, @RequestParam Long id, @RequestParam YN yn, IUser<?> user) {
         return this.update(resource, id, yn, user);
     }
 

@@ -31,23 +31,22 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
-import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
+import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
+import org.ifinalframework.data.domain.action.ListQueryDomainAction;
+import org.ifinalframework.data.domain.action.UpdateLockedByIdDomainAction;
+import org.ifinalframework.data.domain.action.UpdateStatusByIdDomainAction;
+import org.ifinalframework.data.domain.action.UpdateYnByIdDomainAction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostQueryFunction;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.PreUpdateValidator;
 import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.data.spi.UpdateConsumer;
-import org.ifinalframework.query.Update;
 
 import lombok.Builder;
 
@@ -80,19 +79,10 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
 
     // list
-    private final PreQueryConsumer<IQuery, IUser<?>> preQueryConsumer;
-    private final PostQueryConsumer<T, IQuery, IUser<?>> postQueryConsumer;
-
-    private final PostQueryFunction<List<T>, IQuery, IUser<?>> postQueryFunction;
-
-    private final AfterThrowingQueryConsumer<T, IQuery, IUser<?>> afterThrowingQueryConsumer;
-    private final AfterReturningQueryConsumer<T, IQuery, IUser<?>> afterReturningQueryConsumer;
-
+    private final ListQueryDomainAction<ID, T, IQuery, IUser<?>> listQueryDomainAction;
     // detail
-    private final PreQueryConsumer<IQuery, IUser<?>> preDetailQueryConsumer;
-    private final PostQueryConsumer<T, IQuery, IUser<?>> postDetailQueryConsumer;
-    private final Consumer<T, IUser<?>> postDetailConsumer;
-
+    private final DetailQueryDomainAction<ID, T, IQuery, IUser<?>> detailQueryDomainAction;
+    private final DetailByIdDomainAction<ID, T, IUser<?>> detailByIdDomainAction;
 
     // count
     private final PreQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;
@@ -102,20 +92,14 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final Consumer<T, IUser<?>> postUpdateConsumer;
 
     // update yn
-    private final PreUpdateValidator<T, YN, IUser<?>> preUpdateYnValidator;
-
-    private final UpdateConsumer<T, YN, IUser<?>> postUpdateYnConsumer;
+    private final UpdateYnByIdDomainAction<ID, T, IUser<?>> updateYnByIdDomainAction;
 
     // update status
-    private final UpdateConsumer<T, IEnum<?>, IUser<?>> preUpdateStatusConsumer;
-    private final UpdateConsumer<T, IEnum<?>, IUser<?>> postUpdateStatusConsumer;
+    private final UpdateStatusByIdDomainAction<ID, T, IUser<?>> updateStatusByIdDomainAction;
 
     // update locked
-    private final UpdateConsumer<T, Boolean, IUser<?>> preUpdateLockedConsumer;
-    private final UpdateConsumer<T, Boolean, IUser<?>> postUpdateLockedConsumer;
-
+    private final UpdateLockedByIdDomainAction<ID, T, IUser<?>> updateLockedByIdDomainAction;
     // delete
-
     private final PreQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
     private final PostQueryConsumer<T, IQuery, IUser<?>> postDeleteQueryConsumer;
     private final Consumer<T, IUser<?>> preDeleteConsumer;
@@ -170,61 +154,18 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Object list(@NonNull IQuery query, @NonNull IUser<?> user) {
-        List<T> list = null;
-        Throwable throwable = null;
-        try {
-            preQueryConsumer.accept(SpiAction.LIST, query, user);
-            list = repository.select(query);
-            if (CollectionUtils.isEmpty(list)) {
-                return list;
-            }
-            postQueryConsumer.accept(SpiAction.LIST, list, query, user);
-
-            if (Objects.nonNull(postQueryFunction)) {
-                return postQueryFunction.map(list, query, user);
-            }
-
-
-            return list;
-        } catch (Exception e) {
-            throwable = e;
-            afterThrowingQueryConsumer.accept(SpiAction.LIST, list, query, user, e);
-            throw e;
-        } finally {
-            afterReturningQueryConsumer.accept(SpiAction.LIST, list, query, user, throwable);
-        }
+        return listQueryDomainAction.doAction(query, null, user);
     }
 
     @Override
-    public T detail(@NonNull IQuery query, @NonNull IUser<?> user) {
+    public Object detail(@NonNull IQuery query, @NonNull IUser<?> user) {
+        return detailQueryDomainAction.doAction(query, null, user);
 
-        T entity = null;
-        Throwable throwable = null;
-        try {
-
-            preDetailQueryConsumer.accept(SpiAction.DETAIL, query, user);
-            entity = repository.selectOne(IView.Detail.class, query);
-            if (Objects.nonNull(entity)) {
-                postDetailQueryConsumer.accept(SpiAction.DETAIL, Collections.singletonList(entity), query, user);
-                postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, Collections.singletonList(entity), user);
-            }
-            return entity;
-        } catch (Throwable e) {
-            throwable = e;
-            afterThrowingQueryConsumer.accept(SpiAction.DETAIL, Collections.singletonList(entity), query, user, e);
-            throw e;
-        } finally {
-            afterReturningQueryConsumer.accept(SpiAction.DETAIL, Collections.singletonList(entity), query, user, throwable);
-        }
     }
 
     @Override
-    public T detail(@NonNull ID id, @NonNull IUser<?> user) {
-        T entity = repository.selectOne(id);
-        if (Objects.nonNull(entity)) {
-            postDetailConsumer.accept(SpiAction.DETAIL, SpiAction.Advice.POST, Collections.singletonList(entity), user);
-        }
-        return entity;
+    public Object detail(@NonNull ID id, @NonNull IUser<?> user) {
+        return detailByIdDomainAction.doAction(id, null, user);
     }
 
     @Override
@@ -274,43 +215,17 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user) {
-        T entity = repository.selectOne(id);
-        if (Objects.isNull(entity)) {
-            throw new NotFoundException("not found entity by id= " + id);
-        }
-
-        preUpdateYnValidator.validate(Collections.singletonList(entity), yn, user);
-        Update update = Update.update().set("yn", yn);
-        int rows = repository.update(update, id);
-        postUpdateYnConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.POST, Collections.singletonList(entity), yn, user);
-        return rows;
+    public Object yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user) {
+        return updateYnByIdDomainAction.doAction(id, yn, user);
     }
 
     @Override
-    public int status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user) {
-        T entity = repository.selectOne(id);
-        if (Objects.isNull(entity)) {
-            throw new NotFoundException("not found entity by id= " + id);
-        }
-
-        preUpdateStatusConsumer.accept(SpiAction.UPDATE_STATUS, SpiAction.Advice.PRE, Collections.singletonList(entity), status, user);
-        Update update = Update.update().set("status", status);
-        final int rows = repository.update(update, id);
-        postUpdateStatusConsumer.accept(SpiAction.UPDATE_STATUS, SpiAction.Advice.POST, Collections.singletonList(entity), status, user);
-        return rows;
+    public Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user) {
+        return updateStatusByIdDomainAction.doAction(id, status, user);
     }
 
     @Override
-    public int lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user) {
-        T entity = repository.selectOne(id);
-        if (Objects.isNull(entity)) {
-            throw new NotFoundException("not found entity by id= " + id);
-        }
-        preUpdateLockedConsumer.accept(SpiAction.UPDATE_LOCKED, SpiAction.Advice.PRE, Collections.singletonList(entity), locked, user);
-        Update update = Update.update().set("locked", locked);
-        final int rows = repository.update(update, id);
-        postUpdateLockedConsumer.accept(SpiAction.UPDATE_LOCKED, SpiAction.Advice.POST, Collections.singletonList(entity), locked, user);
-        return 0;
+    public Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user) {
+        return updateLockedByIdDomainAction.doAction(id, locked, user);
     }
 }
