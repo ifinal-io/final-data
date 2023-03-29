@@ -16,16 +16,12 @@
 package org.ifinalframework.data.rest.controller;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletRequest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -43,9 +39,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.bind.support.WebRequestDataBinder;
 import org.springframework.web.context.request.NativeWebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.NotFoundException;
@@ -58,10 +52,9 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.DomainServiceRegistry;
-import org.ifinalframework.data.spi.QueryConsumer;
-import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.validation.GlobalValidationGroupsProvider;
+import org.ifinalframework.web.annotation.bind.RequestQuery;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,31 +77,18 @@ public class DomainResourceController {
     @Resource
     private DomainServiceRegistry domainServiceRegistry;
 
-    private final QueryConsumerComposite queryConsumerComposite;
-
-    public DomainResourceController(ObjectProvider<QueryConsumer<?, ?>> queryConsumerProvider) {
-        List consumers = queryConsumerProvider.orderedStream().collect(Collectors.toList());
-        this.queryConsumerComposite = new QueryConsumerComposite(consumers);
-    }
-
 
     @GetMapping
-    public Object query(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
+    public Object query(@PathVariable String resource, @RequestQuery(view = IView.List.class) IQuery query, IUser<?> user) {
         logger.info("==> GET /api/{}", resource);
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.List.class);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
-        IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
         return domainService.list(query, user);
     }
 
     @GetMapping("/detail")
-    public Object detail(@PathVariable String resource, NativeWebRequest request, WebDataBinderFactory binderFactory, IUser<?> user) throws Exception {
+    public Object detail(@PathVariable String resource, @RequestQuery(view = IView.Detail.class) IQuery query, IUser<?> user) {
         logger.info("==> GET /api/{}/detail", resource);
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Detail.class);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
-        IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
         return domainService.detail(query, user);
     }
 
@@ -122,10 +102,8 @@ public class DomainResourceController {
     // delete
 
     @DeleteMapping
-    public Integer delete(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user) {
+    public Integer delete(@PathVariable String resource, @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user) {
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Delete.class);
-        IQuery query = Json.toObject(requestBody, queryClass);
         return domainService.delete(query, user);
     }
 
@@ -283,33 +261,10 @@ public class DomainResourceController {
 
 
     @GetMapping("/count")
-    public Long count(@PathVariable String resource, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+    public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query, IUser<?> user) {
         logger.info("==> GET /api/{}", resource);
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Count.class);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
-        IQuery query = bindQuery(request, binderFactory, entityClass, queryClass);
         return domainService.count(query, user);
-    }
-
-    @SuppressWarnings("unchecked")
-    private IQuery bindQuery(NativeWebRequest request, WebDataBinderFactory binderFactory, Class<IEntity<Long>> entityClass, Class<? extends IQuery> queryClass) throws Exception {
-        IQuery query = BeanUtils.instantiateClass(queryClass);
-        WebDataBinder binder = binderFactory.createBinder(request, query, "query");
-        if (binder instanceof WebRequestDataBinder) {
-            ((WebRequestDataBinder) binder).bind(request);
-        } else if (binder instanceof ExtendedServletRequestDataBinder && request.getNativeRequest() instanceof ServletRequest) {
-            ((ExtendedServletRequestDataBinder) binder).bind((ServletRequest) request.getNativeRequest());
-        }
-        final Object target = binder.getTarget();
-        List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups());
-        binder.validate(ClassUtils.toClassArray(validationGroups));
-        if (binder.getBindingResult().hasErrors()) {
-            throw new BindException(binder.getBindingResult());
-        }
-        queryConsumerComposite.accept(query, entityClass);
-        logger.info("query={}", Json.toJson(query));
-        return query;
     }
 
     private DomainService<Long, IEntity<Long>> getDomainService(String resource) {
