@@ -100,6 +100,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         final String defaultQueryName = AutoNameHelper.queryName(entityClass);
         final String defaultQueryClassName = String.join(".", queryPackage, defaultQueryName);
         final Class<?> defaultqueryClass = ClassUtils.resolveClassName(defaultQueryClassName, classLoader);
+        queryClassMap.put(IView.class, (Class<? extends IQuery>) defaultqueryClass);
 
         // create
 
