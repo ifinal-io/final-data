@@ -18,8 +18,11 @@ package org.ifinalframework.data.mybatis.interceptor;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
@@ -83,10 +86,10 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             )
     );
 
-    private final TenantSupplier<?> tenantSupplier;
+    private final List<TenantSupplier<?>> tenantSuppliers;
 
     public ParameterInjectionInterceptor(ObjectProvider<TenantSupplier<?>> tenantSupplierObjectProvider) {
-        this.tenantSupplier = tenantSupplierObjectProvider.getIfAvailable();
+        this.tenantSuppliers = tenantSupplierObjectProvider.orderedStream().collect(Collectors.toList());
     }
 
     @Override
@@ -116,8 +119,9 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
             parameters.putIfAbsent("USER", UserContextHolder.getUser());
 
-            if (Objects.nonNull(tenantSupplier) && TenantUtils.isTenant(entityClass)) {
-                parameters.put("tenant", tenantSupplier.get());
+            final Object tenant = tenantSuppliers.stream().map(Supplier::get).filter(Objects::nonNull).findFirst().orElse(null);
+            if (TenantUtils.isTenant(entityClass)) {
+                parameters.put("tenant", tenant);
             } else {
                 parameters.put("tenant", null);
             }
