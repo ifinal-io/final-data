@@ -46,6 +46,8 @@ import org.springframework.util.MultiValueMap;
 
 import org.ifinalframework.auto.service.annotation.AutoProcessor;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IView;
+import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.auto.annotation.AutoMapper;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
@@ -81,6 +83,9 @@ public class AutoEntityGeneratorProcessor extends AbstractProcessor {
         generatorMap.add(AutoMapper.class, new MapperJavaFileGenerator());
 
         generatorMap.add(AutoService.class, new QueryJavaFileGenerator());
+        generatorMap.add(AutoService.class, new QueryJavaFileGenerator(IView.Detail.class, PageQuery.class, true));
+        generatorMap.add(AutoService.class, new QueryJavaFileGenerator(IView.Delete.class, PageQuery.class, true));
+        generatorMap.add(AutoService.class, new QueryJavaFileGenerator(IView.Update.class, PageQuery.class, true));
         generatorMap.add(AutoService.class, new ServiceJavaFileGenerator());
         generatorMap.add(AutoService.class, new ServiceImplJavaFileGenerator());
 

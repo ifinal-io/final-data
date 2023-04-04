@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -116,7 +118,11 @@ public class DomainResourceController {
     public Integer delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
         DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
-        return domainService.delete(id, user);
+        final Class<? extends IQuery> queryClass = domainService.domainQueryClass(IView.Delete.class);
+        final IQuery query = BeanUtils.instantiateClass(queryClass);
+        final BeanWrapperImpl beanWrapper = new BeanWrapperImpl(query);
+        beanWrapper.setPropertyValue("id", id);
+        return domainService.delete(query, user);
     }
 
 

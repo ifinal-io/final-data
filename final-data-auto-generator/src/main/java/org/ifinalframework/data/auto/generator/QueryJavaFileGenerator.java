@@ -19,13 +19,22 @@ import javax.lang.model.element.Modifier;
 
 import org.springframework.lang.NonNull;
 
+import org.ifinalframework.core.IDQuery;
 import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.javapoets.JavaPoets;
+import org.ifinalframework.query.annotation.Equal;
 
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -40,10 +49,18 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.4.1
  */
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
 public class QueryJavaFileGenerator implements JavaFileGenerator<AutoService> {
+
+    private Class<?> action;
+    private Class<?> supperQuery = PageQuery.class;
+    private boolean idQuery = false;
+
+
     @Override
     public String getName(@NonNull AutoService ann, @NonNull Class<?> clazz) {
-        return String.join(".", DomainNameHelper.domainQueryPackage(clazz), DomainNameHelper.domainQueryName(clazz));
+        return String.join(".", DomainNameHelper.domainQueryPackage(clazz), DomainNameHelper.domainQueryName(clazz, action));
     }
 
     @NonNull
@@ -51,25 +68,44 @@ public class QueryJavaFileGenerator implements JavaFileGenerator<AutoService> {
     public JavaFile generate(@NonNull AutoService ann, @NonNull Class<?> clazz) {
 
         String queryPackage = DomainNameHelper.domainQueryPackage(clazz);
-        String queryName = DomainNameHelper.domainQueryName(clazz);
+        String queryName = DomainNameHelper.domainQueryName(clazz, action);
 
         logger.info("start generate query for entity of {}.{}", queryPackage, queryName);
 
         try {
 
-            // public class EntityQuery extends PageQuery
-            TypeSpec service = TypeSpec.classBuilder(queryName)
-                    .addModifiers(Modifier.PUBLIC)
-                    .superclass(PageQuery.class)
-                    .addAnnotation(JavaPoets.generated(getClass()))
-                    .addJavadoc(JavaPoets.Javadoc.author())
-                    .addJavadoc(JavaPoets.Javadoc.version())
+            final FieldSpec id = FieldSpec.builder(Long.class, "id", Modifier.PRIVATE)
+                    .addAnnotation(Equal.class)
                     .build();
 
-            return JavaFile.builder(queryPackage, service)
-                    .skipJavaLangImports(true)
-                    .indent("    ")
-                    .build();
+
+            // IDQuery<Long>
+            ParameterizedTypeName parameterizedTypeName = ParameterizedTypeName.get(
+                    ClassName.get(IDQuery.class),
+                    ClassName.get(Long.class)
+            );
+
+
+            // public class EntityQuery extends PageQuery implements IDQuery<Long>
+            final TypeSpec.Builder builder = TypeSpec.classBuilder(queryName);
+            builder
+                    .addModifiers(Modifier.PUBLIC)
+                    .superclass(supperQuery)
+                    .addAnnotation(Setter.class)
+                    .addAnnotation(Getter.class)
+                    .addAnnotation(JavaPoets.generated(getClass()))
+                    .addJavadoc(JavaPoets.Javadoc.author())
+                    .addJavadoc(JavaPoets.Javadoc.version());
+
+            if (idQuery) {
+                builder.addSuperinterface(parameterizedTypeName)
+                        .addField(id);
+            }
+
+            final TypeSpec service = builder.build();
+
+
+            return JavaFile.builder(queryPackage, service).skipJavaLangImports(true).indent("    ").build();
         } finally {
             logger.info("generated query: {}.{}", queryPackage, queryName);
         }

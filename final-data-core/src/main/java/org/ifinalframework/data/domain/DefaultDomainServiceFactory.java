@@ -122,7 +122,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         builder.afterReturningInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_RETURNING, AfterReturningConsumer.class, entityClass, Integer.class, userClass));
 
         // delete
-        final Class<?> deleteQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Delete.class, defaultQueryName), defaultqueryClass);
+        final Class<?> deleteQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Delete.class), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
         // PreDelete
         builder.preDeleteQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
@@ -137,7 +137,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
 
         // list
-        final Class<?> listQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.List.class, defaultQueryName), defaultqueryClass);
+        final Class<?> listQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.List.class), defaultqueryClass);
         queryClassMap.put(IView.List.class, (Class<? extends IQuery>) listQueryClass);
 
         final ListQueryDomainAction<ID, T, IQuery, IUser<?>> listQueryDomainAction = new ListQueryDomainAction<>(repository);
@@ -155,7 +155,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
 
         // detail
-        final Class<?> detailQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Detail.class, defaultQueryName), defaultqueryClass);
+        final Class<?> detailQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Detail.class), defaultqueryClass);
         queryClassMap.put(IView.Detail.class, (Class<? extends IQuery>) detailQueryClass);
 
         final DetailQueryDomainAction<ID, T, IQuery, IUser<?>> detailQueryDomainAction = new DetailQueryDomainAction<>(repository);
@@ -166,13 +166,11 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
 
         final DetailByIdDomainAction<ID, T, IUser<?>> detailByIdDomainAction = new DetailByIdDomainAction<>(repository);
-        detailByIdDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, Long.class, userClass));
         detailByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        detailByIdDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, Long.class, userClass));
         builder.detailByIdDomainAction(detailByIdDomainAction);
 
         // count
-        final Class<?> countQueryClass = resolveClass(classLoader, buildClassName(queryPackage, IView.Count.class, defaultQueryName), defaultqueryClass);
+        final Class<?> countQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Count.class), defaultqueryClass);
         queryClassMap.put(IView.Count.class, (Class<? extends IQuery>) countQueryClass);
         builder.preCountQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE, PreQueryConsumer.class, countQueryClass, userClass));
 

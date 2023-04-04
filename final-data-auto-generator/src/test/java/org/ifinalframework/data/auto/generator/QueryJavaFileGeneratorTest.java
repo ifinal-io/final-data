@@ -15,14 +15,17 @@
 
 package org.ifinalframework.data.auto.generator;
 
+import org.ifinalframework.core.IView;
 import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.annotation.AbsEntity;
+import org.ifinalframework.data.auto.annotation.AutoQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;
 
 import com.squareup.javapoet.JavaFile;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -34,6 +37,7 @@ import org.mockito.Mockito;
  * @version 1.4.2
  * @since 1.4.2
  */
+@Slf4j
 class QueryJavaFileGeneratorTest {
 
     @Test
@@ -45,6 +49,23 @@ class QueryJavaFileGeneratorTest {
         Compiler compiler = new Compiler(getClass().getClassLoader());
         String name = generator.getName(autoService, AbsEntity.class);
         compiler.addSource(name, javaFile.toString());
+        DynamicClassLoader compile = compiler.compile();
+        Class<?> query = compile.getClasses().get(name);
+        Assertions.assertTrue(PageQuery.class.isAssignableFrom(query));
+    }
+
+    @Test
+    @SneakyThrows
+    void generateListQuery() {
+        QueryJavaFileGenerator generator = new QueryJavaFileGenerator(IView.List.class, PageQuery.class,false);
+        AutoService autoService = Mockito.mock(AutoService.class);
+        JavaFile javaFile = generator.generate(autoService, AbsEntity.class);
+        Compiler compiler = new Compiler(getClass().getClassLoader());
+        String name = generator.getName(autoService, AbsEntity.class);
+        Assertions.assertTrue(name.contains("AbsEntityListQuery"));
+        final String javaSource = javaFile.toString();
+        logger.info(javaSource);
+        compiler.addSource(name, javaSource);
         DynamicClassLoader compile = compiler.compile();
         Class<?> query = compile.getClasses().get(name);
         Assertions.assertTrue(PageQuery.class.isAssignableFrom(query));
