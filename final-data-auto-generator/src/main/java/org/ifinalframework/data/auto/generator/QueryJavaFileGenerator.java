@@ -21,7 +21,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
-import org.ifinalframework.data.core.AutoNameHelper;
+import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.javapoets.JavaPoets;
 
 import com.squareup.javapoet.JavaFile;
@@ -43,15 +43,15 @@ import lombok.extern.slf4j.Slf4j;
 public class QueryJavaFileGenerator implements JavaFileGenerator<AutoService> {
     @Override
     public String getName(@NonNull AutoService ann, @NonNull Class<?> clazz) {
-        return String.join(".", AutoNameHelper.queryPackage(clazz), AutoNameHelper.queryName(clazz));
+        return String.join(".", DomainNameHelper.domainQueryPackage(clazz), DomainNameHelper.domainQueryName(clazz));
     }
 
     @NonNull
     @Override
     public JavaFile generate(@NonNull AutoService ann, @NonNull Class<?> clazz) {
 
-        String queryPackage = AutoNameHelper.queryPackage(clazz);
-        String queryName = AutoNameHelper.queryName(clazz);
+        String queryPackage = DomainNameHelper.domainQueryPackage(clazz);
+        String queryName = DomainNameHelper.domainQueryName(clazz);
 
         logger.info("start generate query for entity of {}.{}", queryPackage, queryName);
 

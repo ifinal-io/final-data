@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.core;
+package org.ifinalframework.data.domain;
 
 import lombok.experimental.UtilityClass;
 
@@ -35,7 +35,7 @@ import lombok.experimental.UtilityClass;
  * @since 1.4.1
  */
 @UtilityClass
-public class AutoNameHelper {
+public class DomainNameHelper {
     public static String mapperPackage(Class<?> entity) {
         return entity.getPackage().getName().replace(".entity", ".repository") + ".mapper";
     }
@@ -52,12 +52,16 @@ public class AutoNameHelper {
         return "Q" + entity.getSimpleName();
     }
 
-    public static String queryPackage(Class<?> entity) {
+    public static String domainQueryPackage(Class<?> entity) {
         return entity.getPackage().getName().replace(".entity", ".domain") + ".query";
     }
 
-    public static String queryName(Class<?> entity) {
-        return entity.getSimpleName() + "Query";
+    public static String domainQueryName(Class<?> entity) {
+        return domainQueryName(entity, null);
+    }
+
+    public static String domainQueryName(Class<?> entity, Class<?> action) {
+        return action == null ? entity.getSimpleName() + "Query" : entity.getSimpleName() + action.getSimpleName() + "Query";
     }
 
     public static String servicePackage(Class<?> entity) {
@@ -74,13 +78,6 @@ public class AutoNameHelper {
         return String.join(".", dtoPackageName, dtoName);
     }
 
-    public static String controllerPackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".web.controller");
-    }
-
-    public static String controllerName(Class<?> entity) {
-        return entity.getSimpleName() + "RestController";
-    }
 }
 
 

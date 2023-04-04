@@ -25,7 +25,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoMapper;
-import org.ifinalframework.data.core.AutoNameHelper;
+import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.javapoets.JavaPoets;
 
@@ -52,15 +52,15 @@ public class MapperJavaFileGenerator implements JavaFileGenerator<AutoMapper> {
 
     @Override
     public String getName(@NonNull AutoMapper ann, @NonNull Class<?> clazz) {
-        return String.join(".", AutoNameHelper.mapperPackage(clazz), AutoNameHelper.mapperName(clazz));
+        return String.join(".", DomainNameHelper.mapperPackage(clazz), DomainNameHelper.mapperName(clazz));
     }
 
     @NonNull
     @Override
     public JavaFile generate(@NonNull AutoMapper ann, @NonNull Class<?> clazz) {
 
-        final String mapperPackage = AutoNameHelper.mapperPackage(clazz);
-        final String mapperName = AutoNameHelper.mapperName(clazz);
+        final String mapperPackage = DomainNameHelper.mapperPackage(clazz);
+        final String mapperName = DomainNameHelper.mapperName(clazz);
         try {
             logger.info("start generate mapper for clazz of {}", clazz);
 

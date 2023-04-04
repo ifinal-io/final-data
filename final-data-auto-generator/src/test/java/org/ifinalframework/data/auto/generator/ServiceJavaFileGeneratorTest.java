@@ -17,7 +17,7 @@ package org.ifinalframework.data.auto.generator;
 
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.auto.annotation.AutoService;
-import org.ifinalframework.data.core.AutoNameHelper;
+import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;
@@ -49,7 +49,7 @@ class ServiceJavaFileGeneratorTest {
     void getName() {
         Class<AbsEntity> clazz = AbsEntity.class;
         String name = serviceJavaFileGenerator.getName(autoService, clazz);
-        String expected = String.join(".", AutoNameHelper.servicePackage(clazz), AutoNameHelper.serviceName(clazz));
+        String expected = String.join(".", DomainNameHelper.servicePackage(clazz), DomainNameHelper.serviceName(clazz));
         Assertions.assertEquals(expected, name);
     }
 

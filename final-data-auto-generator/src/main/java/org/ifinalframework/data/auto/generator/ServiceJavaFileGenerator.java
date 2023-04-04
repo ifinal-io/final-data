@@ -23,7 +23,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoService;
-import org.ifinalframework.data.core.AutoNameHelper;
+import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.javapoets.JavaPoets;
 
@@ -49,15 +49,15 @@ import lombok.extern.slf4j.Slf4j;
 public class ServiceJavaFileGenerator implements JavaFileGenerator<AutoService> {
     @Override
     public String getName(AutoService ann, Class<?> clazz) {
-        return String.join(".", AutoNameHelper.servicePackage(clazz), AutoNameHelper.serviceName(clazz));
+        return String.join(".", DomainNameHelper.servicePackage(clazz), DomainNameHelper.serviceName(clazz));
     }
 
     @NonNull
     @Override
     public JavaFile generate(@NonNull AutoService ann, @NonNull Class<?> clazz) {
 
-        String servicePackage = AutoNameHelper.servicePackage(clazz);
-        String serviceName = AutoNameHelper.serviceName(clazz);
+        String servicePackage = DomainNameHelper.servicePackage(clazz);
+        String serviceName = DomainNameHelper.serviceName(clazz);
 
         logger.info("start generate service for entity of {}.{}", servicePackage, serviceName);
 

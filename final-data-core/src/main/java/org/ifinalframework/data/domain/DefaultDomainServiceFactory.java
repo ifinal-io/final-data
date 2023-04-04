@@ -36,7 +36,6 @@ import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.core.AutoNameHelper;
 import org.ifinalframework.data.domain.action.AbsUpdateDomainAction;
 import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
 import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
@@ -96,15 +95,15 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // query
         final Map<Class<?>, Class<? extends IQuery>> queryClassMap = new LinkedHashMap<>();
         builder.queryClassMap(queryClassMap);
-        final String queryPackage = AutoNameHelper.queryPackage(entityClass);
-        final String defaultQueryName = AutoNameHelper.queryName(entityClass);
+        final String queryPackage = DomainNameHelper.domainQueryPackage(entityClass);
+        final String defaultQueryName = DomainNameHelper.domainQueryName(entityClass);
         final String defaultQueryClassName = String.join(".", queryPackage, defaultQueryName);
         final Class<?> defaultqueryClass = ClassUtils.resolveClassName(defaultQueryClassName, classLoader);
         queryClassMap.put(IView.class, (Class<? extends IQuery>) defaultqueryClass);
 
         // create
 
-        String dtoClassName = AutoNameHelper.modelClassName(entityClass, IView.Create.class.getSimpleName());
+        String dtoClassName = DomainNameHelper.modelClassName(entityClass, IView.Create.class.getSimpleName());
 
         if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
             Class<?> dtoClass = ClassUtils.resolveClassName(dtoClassName, entityClass.getClassLoader());

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoService;
-import org.ifinalframework.data.core.AutoNameHelper;
+import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.service.AbsServiceImpl;
 import org.ifinalframework.javapoets.JavaPoets;
 
@@ -48,15 +48,15 @@ import lombok.extern.slf4j.Slf4j;
 public class ServiceImplJavaFileGenerator implements JavaFileGenerator<AutoService> {
     @Override
     public String getName(@NonNull AutoService ann, @NonNull Class<?> clazz) {
-        return String.join(".", AutoNameHelper.servicePackage(clazz) + ".impl", AutoNameHelper.serviceName(clazz) + "Impl");
+        return String.join(".", DomainNameHelper.servicePackage(clazz) + ".impl", DomainNameHelper.serviceName(clazz) + "Impl");
     }
 
     @NonNull
     @Override
     public JavaFile generate(@NonNull AutoService ann, @NonNull Class<?> clazz) {
 
-        String servicePackage = AutoNameHelper.servicePackage(clazz);
-        String serviceName = AutoNameHelper.serviceName(clazz);
+        String servicePackage = DomainNameHelper.servicePackage(clazz);
+        String serviceName = DomainNameHelper.serviceName(clazz);
 
         final String serviceImplPackage = servicePackage + ".impl";
         final String serviceImplName = serviceName + "Impl";

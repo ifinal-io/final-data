@@ -25,7 +25,7 @@ import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
-import org.ifinalframework.data.core.AutoNameHelper;
+import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.query.AbsQEntity;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.javapoets.JavaPoets;
@@ -58,15 +58,15 @@ public class QueryEntityJavaFileGenerator implements JavaFileGenerator<AutoQuery
 
     @Override
     public String getName(AutoQuery ann, Class<?> clazz) {
-        return String.join(".", AutoNameHelper.queryEntityPackage(clazz), AutoNameHelper.queryEntityName(clazz));
+        return String.join(".", DomainNameHelper.queryEntityPackage(clazz), DomainNameHelper.queryEntityName(clazz));
     }
 
     @NonNull
     @Override
     public JavaFile generate(@NonNull AutoQuery ann, @NonNull Class<?> clazz) {
 
-        final String packageName = AutoNameHelper.queryEntityPackage(clazz);
-        final String entityName = AutoNameHelper.queryEntityName(clazz);
+        final String packageName = DomainNameHelper.queryEntityPackage(clazz);
+        final String entityName = DomainNameHelper.queryEntityName(clazz);
 
         final Class<?> id = ResolvableType.forClass(clazz).as(IEntity.class).getGeneric().resolve();
 
