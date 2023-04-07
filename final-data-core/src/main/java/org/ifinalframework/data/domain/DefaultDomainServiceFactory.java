@@ -37,6 +37,8 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.action.AbsUpdateDomainAction;
+import org.ifinalframework.data.domain.action.DeleteByIdDomainAction;
+import org.ifinalframework.data.domain.action.DeleteDomainAction;
 import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
 import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
 import org.ifinalframework.data.domain.action.ListQueryDomainAction;
@@ -124,12 +126,18 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // delete
         final Class<?> deleteQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Delete.class), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
-        // PreDelete
-        builder.preDeleteQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
-        builder.preDeleteConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
-        // PostDelete
-        builder.postDeleteQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, deleteQueryClass, userClass));
-        builder.postDeleteConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+
+        final DeleteDomainAction<ID,T,IUser<?>> deleteDomainAction = new DeleteDomainAction<>(repository);
+        deleteDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
+        deleteDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
+        deleteDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+        deleteDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, PostQueryConsumer.class, entityClass, deleteQueryClass, userClass));
+        builder.deleteDomainAction(deleteDomainAction);
+
+        final DeleteByIdDomainAction<ID, T, IUser<?>> deleteByIdDomainAction = new DeleteByIdDomainAction<>(repository);
+        deleteByIdDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
+        deleteByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+        builder.deleteByIdDomainAction(deleteByIdDomainAction);
 
         // update
         builder.preUpdateConsumer(getSpiComposite(SpiAction.UPDATE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));

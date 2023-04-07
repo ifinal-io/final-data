@@ -32,6 +32,8 @@ import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.domain.action.DeleteByIdDomainAction;
+import org.ifinalframework.data.domain.action.DeleteDomainAction;
 import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
 import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
 import org.ifinalframework.data.domain.action.ListQueryDomainAction;
@@ -43,7 +45,6 @@ import org.ifinalframework.data.spi.AfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
-import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
@@ -100,10 +101,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     // update locked
     private final UpdateLockedByIdDomainAction<ID, T, IUser<?>> updateLockedByIdDomainAction;
     // delete
-    private final PreQueryConsumer<IQuery, IUser<?>> preDeleteQueryConsumer;
-    private final PostQueryConsumer<T, IQuery, IUser<?>> postDeleteQueryConsumer;
-    private final Consumer<T, IUser<?>> preDeleteConsumer;
-    private final Consumer<T, IUser<?>> postDeleteConsumer;
+    private final DeleteDomainAction<ID, T, IUser<?>> deleteDomainAction;
+    private final DeleteByIdDomainAction<ID, T, IUser<?>> deleteByIdDomainAction;
 
     @NonNull
     @Override
@@ -175,31 +174,14 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int delete(@NonNull IQuery query, @NonNull IUser<?> user) {
-        preDeleteQueryConsumer.accept(SpiAction.DELETE, query, user);
-        List<T> entities = repository.select(query);
-        if (CollectionUtils.isEmpty(entities)) {
-            return 0;
-        }
-        preDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.PRE, entities, user);
-        int delete = repository.delete(entities.stream().map(T::getId).collect(Collectors.toList()));
-        postDeleteQueryConsumer.accept(SpiAction.DELETE, entities, query, user);
-        postDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.POST, entities, user);
-        return delete;
+    public Object delete(@NonNull IQuery query, @NonNull IUser<?> user) {
+        return deleteDomainAction.doAction(query, null, user);
+
     }
 
     @Override
-    public int delete(@NonNull ID id, @NonNull IUser<?> user) {
-        T entity = repository.selectOne(id);
-
-        if (Objects.isNull(entity)) {
-            throw new NotFoundException("not found delete target. id=" + id);
-        }
-
-        preDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.PRE, Collections.singletonList(entity), user);
-        int delete = repository.delete(id);
-        postDeleteConsumer.accept(SpiAction.DELETE, SpiAction.Advice.POST, Collections.singletonList(entity), user);
-        return delete;
+    public Object delete(@NonNull ID id, @NonNull IUser<?> user) {
+        return deleteByIdDomainAction.doAction(id, null, user);
     }
 
     @Override

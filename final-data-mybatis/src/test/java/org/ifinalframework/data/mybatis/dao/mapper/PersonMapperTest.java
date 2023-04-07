@@ -16,9 +16,7 @@
 package org.ifinalframework.data.mybatis.dao.mapper;
 
 import javax.annotation.Resource;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -35,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * PersonMapperTest.
@@ -56,11 +54,11 @@ class PersonMapperTest {
 
 
         Logger logger = LoggerFactory.getLogger(PersonMapper.class);
-        ((ch.qos.logback.classic.Logger)logger).setLevel(Level.DEBUG);
+        ((ch.qos.logback.classic.Logger) logger).setLevel(Level.DEBUG);
         User user = new User();
         user.setId(1L);
         user.setName("123");
-        UserContextHolder.setUser(user,true);
+        UserContextHolder.setUser(user);
 
         personMapper.truncate();
 
@@ -70,29 +68,29 @@ class PersonMapperTest {
         person.setAge(13);
 
         Map<String, Object> parameters = new LinkedHashMap<>();
-        parameters.put("list",Arrays.asList(person));
+        parameters.put("list", Arrays.asList(person));
 //        parameters.put("table","person");
-        PersonMapperTest.logger.info(SqlHelper.xml(PersonMapper.class,"insert", parameters));
-        PersonMapperTest.logger.info(SqlHelper.sql(PersonMapper.class,"insert", parameters));
+        PersonMapperTest.logger.info(SqlHelper.xml(PersonMapper.class, "insert", parameters));
+        PersonMapperTest.logger.info(SqlHelper.sql(PersonMapper.class, "insert", parameters));
 
         personMapper.insert(person);
 
         person = personMapper.selectOne(person.getId());
-        assertEquals("123",person.getCreator().getName());
+        assertEquals("123", person.getCreator().getName());
 
         user.setName("234");
         UserContextHolder.setUser(user);
 
         person.setAge(16);
-        parameters.put("entity",person);
-        PersonMapperTest.logger.info(SqlHelper.xml(PersonMapper.class,"update", parameters));
-        PersonMapperTest.logger.info(SqlHelper.sql(PersonMapper.class,"update", parameters));
+        parameters.put("entity", person);
+        PersonMapperTest.logger.info(SqlHelper.xml(PersonMapper.class, "update", parameters));
+        PersonMapperTest.logger.info(SqlHelper.sql(PersonMapper.class, "update", parameters));
         person.setLastModifier(null);
         person.setCreator(null);
         personMapper.update(person);
         person = personMapper.selectOne(person.getId());
-        assertEquals("234",person.getLastModifier().getName());
-        assertEquals(16,person.getAge());
+        assertEquals("234", person.getLastModifier().getName());
+        assertEquals(16, person.getAge());
 
         UserContextHolder.reset();
 

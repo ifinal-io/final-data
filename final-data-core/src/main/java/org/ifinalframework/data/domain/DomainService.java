@@ -125,7 +125,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
      */
-    int delete(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
+    Object delete(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
 
     /**
      * @param id   the id of deleted.
@@ -136,7 +136,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.Consumer
      */
-    int delete(@NonNull ID id, @NonNull IUser<?> user);
+    Object delete(@NonNull ID id, @NonNull IUser<?> user);
 
     /**
      * @param entity    the entity to update.
