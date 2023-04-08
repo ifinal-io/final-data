@@ -15,14 +15,15 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import java.util.Map;
+
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderSqlSource;
-import org.ifinalframework.util.XmlFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.lang.NonNull;
 
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author ilikly
@@ -35,6 +36,9 @@ public interface ScriptSqlProvider extends SqlProvider {
     @NonNull
     @Override
     default String provide(@NonNull ProviderContext context, @NonNull Map<String, Object> parameters) {
+
+        parameters.put("mapperType", context.getMapperType());
+        parameters.put("mapperMethod", context.getMapperMethod());
 
         final Logger logger = LoggerFactory
                 .getLogger(context.getMapperType().getName() + "." + context.getMapperMethod().getName());

@@ -39,13 +39,12 @@ import org.ifinalframework.core.IRecord;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.Column;
 import org.ifinalframework.data.annotation.Reference;
-import org.ifinalframework.data.annotation.Table;
 import org.ifinalframework.data.annotation.Tenant;
 import org.ifinalframework.data.annotation.View;
 import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.MappingUtils;
 import org.ifinalframework.data.mapping.Property;
-import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
+import org.ifinalframework.data.util.TableUtils;
 import org.ifinalframework.query.QEntity;
 import org.ifinalframework.query.QProperty;
 
@@ -73,12 +72,7 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
     private QProperty<?> tenantProperty;
 
     public AbsQEntity(final Class<T> type) {
-
-        this(type, NameConverterRegistry.getInstance().getTableNameConverter().convert(
-                type.getAnnotation(Table.class) == null || type.getAnnotation(Table.class).value().length == 0
-                        ? type.getSimpleName()
-                        : type.getAnnotation(Table.class).value()[0]
-        ));
+        this(type, TableUtils.getTable(type));
     }
 
     public AbsQEntity(final Class<T> type, final String table) {

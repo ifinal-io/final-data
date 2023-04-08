@@ -121,6 +121,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
         appendVersionProperty(sql, properties);
 
+
         sql.append("</set>");
 
         if (parameters.containsKey(IDS_PARAMETER_NAME) && parameters.get(IDS_PARAMETER_NAME) != null) {
@@ -147,8 +148,10 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                 record.setLastModifier(UserContextHolder.getUser());
             } else if (parameters.containsKey(UPDATE_PARAMETER_NAME) && Objects.nonNull(parameters.get(UPDATE_PARAMETER_NAME))) {
                 final Update update = (Update) parameters.get(UPDATE_PARAMETER_NAME);
-                update.set(properties.getRequiredProperty("lastModifier.id"), user.getId());
-                update.set(properties.getRequiredProperty("lastModifier.name"), user.getName());
+                update.update("${column} = #{USER.id}, ",properties.getRequiredProperty("lastModifier.id").getColumn(),null);
+                update.update("${column} = #{USER.name}, ",properties.getRequiredProperty("lastModifier.name").getColumn(),null);
+//                update.set(properties.getRequiredProperty("lastModifier.id"), user.getId());
+//                update.set(properties.getRequiredProperty("lastModifier.name"), user.getName());
             }
         }
 
@@ -217,6 +220,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         sql.append(value);
         sql.append("</if>");
     }
+
 
 }
 

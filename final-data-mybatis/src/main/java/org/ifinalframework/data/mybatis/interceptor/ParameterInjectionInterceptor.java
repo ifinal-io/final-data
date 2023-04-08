@@ -15,16 +15,10 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
-import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -32,25 +26,19 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
-import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.apache.ibatis.session.defaults.DefaultSqlSession;
 
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.Viewable;
-import org.ifinalframework.data.core.TenantSupplier;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
 import org.ifinalframework.data.spi.core.OrderQueryConsumer;
-import org.ifinalframework.data.util.TenantUtils;
 import org.ifinalframework.query.QEntity;
 
 /**
@@ -75,7 +63,6 @@ import org.ifinalframework.query.QEntity;
 @SuppressWarnings({"unchecked"})
 public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
 
-    private static final String TABLE_PARAMETER_NAME = "table";
     private static final String QUERY_PARAMETER_NAME = "query";
 
     private static final String PROPERTIES_PARAMETER_NAME = "properties";
@@ -86,11 +73,6 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             )
     );
 
-    private final List<TenantSupplier<?>> tenantSuppliers;
-
-    public ParameterInjectionInterceptor(ObjectProvider<TenantSupplier<?>> tenantSupplierObjectProvider) {
-        this.tenantSuppliers = tenantSupplierObjectProvider.orderedStream().collect(Collectors.toList());
-    }
 
     @Override
     protected Object intercept(Invocation invocation, Class<?> mapper, Class<?> entityClass) throws Throwable {
@@ -115,40 +97,14 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
             }
 
             final QEntity<?, ?> entity = DefaultQEntityFactory.INSTANCE.create(entityClass);
-            parameters.computeIfAbsent(TABLE_PARAMETER_NAME, k -> entity.getTable());
             parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
-            parameters.putIfAbsent("USER", UserContextHolder.getUser());
 
-            final Object tenant = tenantSuppliers.stream().map(Supplier::get).filter(Objects::nonNull).findFirst().orElse(null);
-            if (TenantUtils.isTenant(entityClass)) {
-                parameters.put("tenant", tenant);
-            } else {
-                parameters.put("tenant", null);
-            }
-
-            args[1] = buildParamMap(parameters);
 
         }
 
         return invocation.proceed();
 
 
-    }
-
-    /**
-     * {@link org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator} only supports {@link Map} types:
-     * <ul>
-     *     <li>{@link org.apache.ibatis.binding.MapperMethod.ParamMap}</li>
-     *     <li>{@link DefaultSqlSession.StrictMap}</li>
-     * </ul>
-     *
-     * @see org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator#assignKeys(Configuration, ResultSet, ResultSetMetaData, String[], Object)
-     * @since 1.2.2
-     */
-    private MapperMethod.ParamMap<Object> buildParamMap(Map<String, Object> map) {
-        final MapperMethod.ParamMap<Object> paramMap = new MapperMethod.ParamMap<>();
-        paramMap.putAll(map);
-        return paramMap;
     }
 
 

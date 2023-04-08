@@ -109,7 +109,6 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
         final Class<?> entityClazz = getEntityClass(context.getMapperType());
 
-        injectCreator(entityClazz, parameters);
 
         final QEntity<?, ?> entity = DefaultQEntityFactory.INSTANCE.create(entityClazz);
         parameters.put("entity", entity);

@@ -13,32 +13,21 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.util;
+package org.ifinalframework.data.mybatis.interceptor;
 
-import java.util.Objects;
-
-import org.ifinalframework.core.ITenant;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.annotation.Tenant;
+import java.util.Map;
 
 /**
- * TenantUtils.
+ * MapParameterConsumer.
  *
  * @author ilikly
  * @version 1.5.0
  * @since 1.5.0
  */
-public abstract class TenantUtils {
-    public static boolean isTenant(Class<?> entity) {
-
-        if (Objects.isNull(entity)) {
-            return false;
-        }
-
-        if (entity.isAnnotationPresent(Tenant.class)) {
-            return true;
-        }
-
-        return ITenant.class.isAssignableFrom(entity) && !IUser.class.isAssignableFrom(entity);
+public interface MapParameterConsumer extends ParameterConsumer<Map<String, Object>> {
+    @Override
+    default boolean supports(Object parameter) {
+        return parameter instanceof Map;
     }
+
 }
