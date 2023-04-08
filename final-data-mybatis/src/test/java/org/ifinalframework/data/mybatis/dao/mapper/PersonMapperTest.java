@@ -17,8 +17,9 @@ package org.ifinalframework.data.mybatis.dao.mapper;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.apache.ibatis.binding.MapperMethod;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -67,7 +68,12 @@ class PersonMapperTest {
         person.setName("haha");
         person.setAge(13);
 
-        Map<String, Object> parameters = new LinkedHashMap<>();
+        Map<String, Object> parameters = new MapperMethod.ParamMap<>();
+        parameters.put("table","person");
+        parameters.put("view",null);
+        parameters.put("query",null);
+        parameters.put("selective",null);
+        parameters.put("USER",null);
         parameters.put("list", Arrays.asList(person));
 //        parameters.put("table","person");
         PersonMapperTest.logger.info(SqlHelper.xml(PersonMapper.class, "insert", parameters));

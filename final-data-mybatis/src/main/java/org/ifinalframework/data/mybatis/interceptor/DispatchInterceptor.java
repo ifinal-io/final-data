@@ -18,8 +18,10 @@ package org.ifinalframework.data.mybatis.interceptor;
 import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.statement.StatementHandler;
@@ -79,25 +81,23 @@ public class DispatchInterceptor implements Interceptor {
         final Object[] args = invocation.getArgs();
 
 
-        if (methodName.equals("update")) {
+        if (methodName.equals("update") || methodName.equals("query")) {
             final MappedStatement mappedStatement = (MappedStatement) args[0];
-            final Object parameters = args[1];
-
-            final SqlSource sqlSource = mappedStatement.getSqlSource();
+            Object parameters = args[1];
 
             final String id = mappedStatement.getId();
             final String mapperClassName = id.substring(0, id.lastIndexOf("."));
             final String mapperMethodName = id.substring(id.lastIndexOf(".") + 1);
-            applyParameterConsumer(parameters, mapperClassName, mapperMethodName);
-            logger.info("{}#{},parameters={}", mapperClassName, mapperMethodName, parameters);
-            return doUpdate(invocation);
-        } else if (methodName.equals("query")) {
-            final MappedStatement mappedStatement = (MappedStatement) args[0];
-            final Object parameters = args[1];
 
-            final String id = mappedStatement.getId();
-            final String mapperClassName = id.substring(0, id.lastIndexOf("."));
-            final String mapperMethodName = id.substring(id.lastIndexOf(".") + 1);
+            if(parameters instanceof Map && !(parameters instanceof MapperMethod)){
+                MapperMethod.ParamMap<Object> paramMap = new MapperMethod.ParamMap<>();
+                paramMap.putAll((Map<? extends String, ?>) parameters);
+                parameters = paramMap;
+                args[1] = parameters;
+            }
+
+
+
             applyParameterConsumer(parameters, mapperClassName, mapperMethodName);
             logger.info("{}#{},parameters={}", mapperClassName, mapperMethodName, parameters);
             return doQuery(invocation);

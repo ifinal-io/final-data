@@ -15,8 +15,13 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.apache.ibatis.builder.annotation.ProviderContext;
-import org.apache.ibatis.type.TypeHandler;
 
 import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IRecord;
@@ -31,12 +36,6 @@ import org.ifinalframework.query.QEntity;
 import org.ifinalframework.query.QProperty;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
-
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author ilikly
@@ -68,6 +67,7 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
+     *
      * @return sql
      * @see AbsMapper#insert(String, Class, boolean, Collection)
      */
@@ -79,6 +79,7 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
+     *
      * @return sql
      * @see AbsMapper#replace(String, Class, Collection)
      */
@@ -90,6 +91,7 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
+     *
      * @return sql
      * @see AbsMapper#save(String, Class, Collection)
      */
@@ -105,7 +107,7 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         final String insertPrefix = getInsertPrefix(context.getMapperMethod(),
                 parameters.containsKey("ignore") && Boolean.TRUE.equals(parameters.get("ignore")));
 
-        final Class<?> view = (Class<?>) parameters.get("view");
+        final Class<?> view = parameters.containsKey("view") ? (Class<?>) parameters.get("view") : null;
 
         final Class<?> entityClazz = getEntityClass(context.getMapperType());
 

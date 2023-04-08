@@ -45,10 +45,12 @@ public class TableMapParameterConsumer implements MapParameterConsumer {
                     .resolveGeneric(1);
 
             final String table = TableUtils.getTable(entityClass);
-            if (logger.isDebugEnabled()) {
+
+            final boolean replaced = parameter.replace("table", null, table);
+            if (replaced) {
                 logger.debug("inject table: {}", table);
             }
-            parameter.putIfAbsent("table", table);
+
 
         }
     }

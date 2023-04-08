@@ -36,7 +36,6 @@ public interface ScriptSqlProvider extends SqlProvider {
     @NonNull
     @Override
     default String provide(@NonNull ProviderContext context, @NonNull Map<String, Object> parameters) {
-
         parameters.put("mapperType", context.getMapperType());
         parameters.put("mapperMethod", context.getMapperMethod());
 

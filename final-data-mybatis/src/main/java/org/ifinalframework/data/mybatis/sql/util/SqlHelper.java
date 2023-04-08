@@ -209,13 +209,12 @@ public final class SqlHelper {
         Method sqlMethod = ReflectionUtils.findMethod(mapper, method, Map.class);
         return boundSql(mapper, sqlMethod, METHOD_ANNOTATIONS.get(method), parameters);
     }
-
     public static BoundSql boundSql(Class<? extends AbsMapper<?, ?>> mapper, final Method method,
                                     Class<? extends Annotation> provider, final Map<String, Object> parameters) {
         Objects.requireNonNull(method, String.format("not found method of %s in %s", method, mapper));
         final ProviderSqlSource providerSqlSource = new ProviderSqlSource(new Configuration(),
                 method.getAnnotation(provider), mapper, method);
-        return providerSqlSource.getBoundSql(new HashMap<>(parameters));
+        return providerSqlSource.getBoundSql(parameters);
     }
 
     public static BoundSql boundSql(final Class<? extends IEntity<?>> entity, final IQuery query, Map<String, Object> parameters) {
