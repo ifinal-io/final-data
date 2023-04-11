@@ -41,7 +41,7 @@ public class TableMapParameterConsumer implements MapParameterConsumer {
     public void accept(Map<String, Object> parameter, Class<?> mapper, Method method) {
         if (IRepository.class.isAssignableFrom(mapper)) {
             Class<?> entityClass = ResolvableType.forClass(mapper)
-                    .as(AbsMapper.class)
+                    .as(IRepository.class)
                     .resolveGeneric(1);
 
             final String table = TableUtils.getTable(entityClass);
@@ -50,7 +50,6 @@ public class TableMapParameterConsumer implements MapParameterConsumer {
             if (replaced) {
                 logger.debug("inject table: {}", table);
             }
-
 
         }
     }

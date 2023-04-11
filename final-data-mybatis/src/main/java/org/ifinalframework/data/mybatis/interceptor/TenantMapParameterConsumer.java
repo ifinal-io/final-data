@@ -52,7 +52,7 @@ public class TenantMapParameterConsumer implements MapParameterConsumer {
 
         if (IRepository.class.isAssignableFrom(mapper)) {
             Class<?> entityClass = ResolvableType.forClass(mapper)
-                    .as(AbsMapper.class)
+                    .as(IRepository.class)
                     .resolveGeneric(1);
 
             if (TenantUtils.isTenant(entityClass)) {
