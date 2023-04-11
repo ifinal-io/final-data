@@ -109,7 +109,9 @@ class SqlHelperTest {
 
                 )
         );
-        logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", Collections.singletonMap("query", query)));
+        Map<String, Object> parameters =new LinkedHashMap<>();
+        parameters.put("query",query);
+        logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", parameters));
         logger.info("query={}", SqlHelper.query(Person.class, query));
     }
 
