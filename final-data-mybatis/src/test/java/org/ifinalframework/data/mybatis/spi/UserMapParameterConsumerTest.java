@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.interceptor;
+package org.ifinalframework.data.mybatis.spi;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -22,6 +22,7 @@ import java.util.Map;
 import org.ifinalframework.context.user.UserSupplier;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.AbsUser;
+import org.ifinalframework.data.mybatis.spi.UserMapParameterConsumer;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

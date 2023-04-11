@@ -13,44 +13,40 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.interceptor;
+package org.ifinalframework.data.mybatis.spi;
 
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Supplier;
 
-import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
 
-import org.ifinalframework.core.IRepository;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.data.util.TableUtils;
+import org.ifinalframework.context.user.UserSupplier;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.mybatis.spi.MapParameterConsumer;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 
 /**
- * TableMapParameterConsumer.
+ * UserMapParameterConsumer.
  *
  * @author ilikly
  * @version 1.5.0
  * @since 1.5.0
  */
-@Slf4j
 @Component
-public class TableMapParameterConsumer implements MapParameterConsumer {
+@RequiredArgsConstructor
+public class UserMapParameterConsumer implements MapParameterConsumer {
+
+    private final List<UserSupplier> userSuppliers;
+
     @Override
     public void accept(Map<String, Object> parameter, Class<?> mapper, Method method) {
-        if (IRepository.class.isAssignableFrom(mapper)) {
-            Class<?> entityClass = ResolvableType.forClass(mapper)
-                    .as(IRepository.class)
-                    .resolveGeneric(1);
 
-            final String table = TableUtils.getTable(entityClass);
-
-            final boolean replaced = parameter.replace("table", null, table);
-            if (replaced) {
-                logger.debug("inject table: {}", table);
-            }
-
-        }
+        final IUser<?> iUser = userSuppliers.stream().map(Supplier::get).filter(Objects::nonNull).findFirst()
+                .orElse(null);
+        parameter.putIfAbsent("USER", iUser);
     }
 }

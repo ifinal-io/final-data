@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.interceptor;
+package org.ifinalframework.data.mybatis.spi;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 import org.ifinalframework.core.IRepository;
 import org.ifinalframework.data.core.TenantSupplier;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.mybatis.spi.MapParameterConsumer;
 import org.ifinalframework.data.util.TenantUtils;
 
 /**

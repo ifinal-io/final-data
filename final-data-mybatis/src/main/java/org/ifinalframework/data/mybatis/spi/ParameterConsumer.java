@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.interceptor;
+package org.ifinalframework.data.mybatis.spi;
 
 import java.lang.reflect.Method;
 
