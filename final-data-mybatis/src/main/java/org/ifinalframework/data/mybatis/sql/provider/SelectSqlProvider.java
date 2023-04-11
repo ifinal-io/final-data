@@ -17,10 +17,13 @@ package org.ifinalframework.data.mybatis.sql.provider;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
-import org.apache.ibatis.type.TypeHandler;
 
 import org.springframework.lang.NonNull;
 
@@ -59,18 +62,32 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
         return provide(context, parameters);
     }
 
+    public String selectIds(final ProviderContext context, final Map<String, Object> parameters) {
+        return provide(context, parameters);
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     public void doProvide(final StringBuilder sql, final ProviderContext context,
                           final Map<String, Object> parameters) {
 
+
         final Class<?> entity = getEntityClass(context.getMapperType());
         final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);
+        final String mapperMethodName = context.getMapperMethod().getName();
         parameters.put("entity", properties);
         parameters.put("properties", properties);
+        if (!parameters.containsKey("columns") || Objects.isNull(parameters.get("columns"))) {
+            if ("selectIds".equals(mapperMethodName)) {
+                parameters.put("columns", Collections.singletonList(properties.getIdProperty().getColumn()));
+            } else {
+                parameters.put("columns", buildColumns(properties, parameters.containsKey("view") ? (Class<?>) parameters.get("view") : null));
+            }
+        }
 
         sql.append("<trim prefix=\"SELECT\" suffixOverrides=\",\">");
-        appendColumns(sql, properties);
+        sql.append("<foreach item=\"column\" collection=\"columns\" separator=\",\">${column}</foreach>");
+//        appendColumns(sql, properties);
         sql.append("</trim>");
         sql.append("<trim prefix=\"FROM\">")
                 .append("${table}")
@@ -78,19 +95,37 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
 
         Object query = parameters.get(QUERY_PARAMETER_NAME);
 
-        String mapperMethodName = context.getMapperMethod().getName();
         if (SELECT_ONE_METHOD_NAME.equals(mapperMethodName) && parameters.get("id") != null) {
             // <where> id = #{id} </where>
             sql.append(whereIdNotNull());
         } else if (SELECT_METHOD_NAME.equals(mapperMethodName) && parameters.get("ids") != null) {
             sql.append(whereIdsNotNull());
         } else {
+
             appendQuery(sql, entity, query, SELECT_ONE_METHOD_NAME.equals(mapperMethodName));
         }
 
     }
 
+    private List<String> buildColumns(QEntity<?, ?> entity, Class<?> view) {
+        return entity.stream()
+                .filter(QProperty::isReadable)
+                .filter(it -> it.hasView(view))
+                .map(property -> {
+                    final Metadata metadata = new Metadata();
+                    metadata.setProperty(property.getName());
+                    metadata.setColumn(property.getColumn());
+                    metadata.setValue(property.getName());
+                    metadata.setJavaType(property.getType());
+                    metadata.setTypeHandler(property.getTypeHandler());
+                    final String reader = Asserts.isBlank(property.getReader()) ? DEFAULT_READER : property.getReader();
+                    return Velocities.getValue(reader, metadata);
+                }).collect(Collectors.toList());
+    }
+
+
     private void appendColumns(final @NonNull StringBuilder sql, final @NonNull QEntity<?, ?> entity) {
+
 
         entity.stream()
                 .filter(QProperty::isReadable)

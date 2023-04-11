@@ -19,13 +19,10 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
-import org.apache.ibatis.type.TypeHandler;
 
 import org.springframework.lang.NonNull;
 
-import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IRecord;
-import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.mybatis.sql.ScriptMapperHelper;
@@ -73,6 +70,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
+     *
      * @return sql
      */
     public String update(final ProviderContext context, final Map<String, Object> parameters) {
@@ -92,7 +90,6 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);
         parameters.put(PROPERTIES_PARAMETER_NAME, properties);
 
-        injectLastModifier(entity, properties, parameters);
 
         sql.append("<trim prefix=\"UPDATE\">").append("${table}").append("</trim>");
 
@@ -120,7 +117,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         }
 
         appendVersionProperty(sql, properties);
-
+        appendLastModifier(sql, entity, properties, parameters);
 
         sql.append("</set>");
 
@@ -133,23 +130,20 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     }
 
     /**
-     * Inject LastModifier into update sql from {@link UserContextHolder}
-     *
      * @param entity     entity
      * @param properties properties
      * @param parameters parameters
+     *
      * @since 1.2.2
      */
-    private void injectLastModifier(Class<?> entity, final QEntity<?, ?> properties, final Map<String, Object> parameters) {
-        final IUser<?> user = UserContextHolder.getUser();
-        if (IRecord.class.isAssignableFrom(entity) && Objects.nonNull(user)) {
-            if (parameters.containsKey(ENTITY_PARAMETER_NAME) && Objects.nonNull(parameters.get(ENTITY_PARAMETER_NAME))) {
-                final IRecord record = (IRecord) parameters.get(ENTITY_PARAMETER_NAME);
-                record.setLastModifier(UserContextHolder.getUser());
-            } else if (parameters.containsKey(UPDATE_PARAMETER_NAME) && Objects.nonNull(parameters.get(UPDATE_PARAMETER_NAME))) {
-                final Update update = (Update) parameters.get(UPDATE_PARAMETER_NAME);
-                update.update("${column} = #{USER.id}, ",properties.getRequiredProperty("lastModifier.id").getColumn(),null);
-                update.update("${column} = #{USER.name}, ",properties.getRequiredProperty("lastModifier.name").getColumn(),null);
+    private void appendLastModifier(StringBuilder sql, Class<?> entity, final QEntity<?, ?> properties, final Map<String, Object> parameters) {
+        if (IRecord.class.isAssignableFrom(entity)) {
+            if (parameters.containsKey(UPDATE_PARAMETER_NAME) && Objects.nonNull(parameters.get(UPDATE_PARAMETER_NAME))) {
+//                final Update update = (Update) parameters.get(UPDATE_PARAMETER_NAME);
+                sql.append("<if test=\"USER != null\">").append(properties.getRequiredProperty("lastModifier.id").getColumn()).append(" = #{USER.id},</if>");
+                sql.append("<if test=\"USER != null\">").append(properties.getRequiredProperty("lastModifier.name").getColumn()).append(" = #{USER.name},</if>");
+//                update.update("<if test=\"USER != null\">${column} = #{USER.id}, </if>", properties.getRequiredProperty("lastModifier.id").getColumn(), null);
+//                update.update("<if test=\"USER != null\">${column} = #{USER.name}, </if> ", properties.getRequiredProperty("lastModifier.name").getColumn(), null);
 //                update.set(properties.getRequiredProperty("lastModifier.id"), user.getId());
 //                update.set(properties.getRequiredProperty("lastModifier.name"), user.getName());
             }

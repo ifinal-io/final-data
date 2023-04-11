@@ -94,7 +94,7 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     T selectOne(@NonNull Map<String, Object> params);
 
     @Override
-    @SelectProvider(SelectIdsSqlProvider.class)
+    @SelectProvider(SelectSqlProvider.class)
     List<I> selectIds(@NonNull Map<String, Object> params);
 
     @Override
