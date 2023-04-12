@@ -29,6 +29,8 @@ import org.ifinalframework.auto.spring.factory.annotation.SpringFactory;
 import org.ifinalframework.beans.BeanTypeDescriptorFactory;
 import org.ifinalframework.query.BetweenValue;
 
+import lombok.SneakyThrows;
+
 /**
  * BetweenValueBeanTypeDescriptorFactory.
  *
@@ -41,10 +43,13 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
 
     private final Map<Class<?>, Class<? extends BetweenValue<?>>> cache = new LinkedHashMap<>(8);
 
+    @SneakyThrows
     public BetweenValueBeanTypeDescriptorFactory() {
+        cache.put(Integer.class, IntegerBetweenValue.class);
         cache.put(Long.class, LongBetweenValue.class);
         cache.put(LocalDate.class, LocalDateBetweenValue.class);
         cache.put(LocalDateTime.class, LocalDateTimeBetweenValue.class);
+
     }
 
     @Override
@@ -142,6 +147,28 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
 
         @Override
         public Long getMin() {
+            return super.getMin();
+        }
+    }
+
+    private static final class IntegerBetweenValue extends BetweenValue<Integer> {
+        @Override
+        public void setMin(Integer min) {
+            super.setMin(min);
+        }
+
+        @Override
+        public void setMax(Integer max) {
+            super.setMax(max);
+        }
+
+        @Override
+        public Integer getMax() {
+            return super.getMax();
+        }
+
+        @Override
+        public Integer getMin() {
             return super.getMin();
         }
     }
