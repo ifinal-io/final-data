@@ -48,8 +48,8 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
     }
 
     @Override
-    public boolean support(TypeDescriptor typeDescriptor) {
-        return BetweenValue.class.equals(typeDescriptor.getType());
+    public boolean support(Class<?> type, TypeDescriptor typeDescriptor) {
+        return BetweenValue.class.equals(type);
     }
 
     @Override
