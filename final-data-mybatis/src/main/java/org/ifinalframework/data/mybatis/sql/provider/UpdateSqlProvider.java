@@ -116,8 +116,8 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
             appendEntitySet(sql, properties, Boolean.TRUE.equals(parameters.get(SELECTIVE_PARAMETER_NAME)));
         }
 
-        appendVersionProperty(sql, properties);
         appendLastModifier(sql, entity, properties, parameters);
+        appendVersionProperty(sql, properties);
 
         sql.append("</set>");
 
@@ -211,7 +211,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         }
 
         final String value = Velocities.eval(update, metadata);
-        sql.append(value);
+        sql.append(value).append(",");
         sql.append("</if>");
     }
 

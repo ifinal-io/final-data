@@ -158,7 +158,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      *
      * @see org.ifinalframework.data.spi.PreUpdateValidator
      * @see org.ifinalframework.data.spi.UpdateConsumer
-     * @see org.ifinalframework.data.spi.AfterReturnUpdateYnConsumer
      */
     Object yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);
 
