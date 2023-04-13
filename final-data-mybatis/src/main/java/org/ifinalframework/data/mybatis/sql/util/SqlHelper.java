@@ -93,7 +93,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class SqlHelper {
 
-    public static final String PARAMETER_NAME_QUERY = "org/ifinalframework/data/query";
+    public static final String PARAMETER_NAME_QUERY = "query";
 
     private static final String INSERT_METHOD_NAME = "insert";
 

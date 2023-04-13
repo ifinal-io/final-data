@@ -46,7 +46,7 @@ import org.ifinalframework.velocity.Velocities;
  */
 public class SelectSqlProvider implements AbsMapperSqlProvider {
 
-    public static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
+    public static final String QUERY_PARAMETER_NAME = "query";
 
     private static final String SELECT_METHOD_NAME = "select";
 

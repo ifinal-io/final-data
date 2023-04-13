@@ -58,7 +58,7 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         if (query instanceof Query) {
             provider = query((Query) query);
         } else if (query != null) {
-            provider = query("org/ifinalframework/data/query", entity, query.getClass());
+            provider = query("query", entity, query.getClass());
         }
 
         Optional.ofNullable(provider)

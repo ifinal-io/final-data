@@ -65,7 +65,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
     private static final String IDS_PARAMETER_NAME = "ids";
 
-    private static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
+    private static final String QUERY_PARAMETER_NAME = "query";
 
     /**
      * @param context    context

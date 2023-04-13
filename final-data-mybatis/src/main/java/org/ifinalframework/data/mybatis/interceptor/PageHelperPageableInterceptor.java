@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
  */
 @Intercepts(
     {
-        @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
             RowBounds.class, ResultHandler.class}),
-        @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
             RowBounds.class, ResultHandler.class, CacheKey.class,
             BoundSql.class}),
     }

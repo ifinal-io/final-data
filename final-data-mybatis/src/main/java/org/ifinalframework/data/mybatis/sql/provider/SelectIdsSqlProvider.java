@@ -33,7 +33,7 @@ import org.ifinalframework.data.query.QEntity;
  */
 public class SelectIdsSqlProvider implements AbsMapperSqlProvider {
 
-    public static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
+    public static final String QUERY_PARAMETER_NAME = "query";
 
     /**
      * @param context    context
