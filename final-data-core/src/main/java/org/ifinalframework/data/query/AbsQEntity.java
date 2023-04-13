@@ -45,8 +45,6 @@ import org.ifinalframework.data.mapping.Entity;
 import org.ifinalframework.data.mapping.MappingUtils;
 import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.data.util.TableUtils;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QProperty;
 
 /**
  * @author ilikly

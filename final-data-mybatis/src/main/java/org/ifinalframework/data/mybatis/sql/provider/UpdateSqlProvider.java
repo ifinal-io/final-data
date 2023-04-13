@@ -27,11 +27,11 @@ import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.mybatis.sql.ScriptMapperHelper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.Criterion;
-import org.ifinalframework.query.CriterionAttributes;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QProperty;
-import org.ifinalframework.query.Update;
+import org.ifinalframework.data.query.Criterion;
+import org.ifinalframework.data.query.CriterionAttributes;
+import org.ifinalframework.data.query.QEntity;
+import org.ifinalframework.data.query.QProperty;
+import org.ifinalframework.data.query.Update;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
 
@@ -65,7 +65,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
     private static final String IDS_PARAMETER_NAME = "ids";
 
-    private static final String QUERY_PARAMETER_NAME = "query";
+    private static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
 
     /**
      * @param context    context

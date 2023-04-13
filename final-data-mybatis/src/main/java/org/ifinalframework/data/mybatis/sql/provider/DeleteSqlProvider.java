@@ -43,7 +43,7 @@ import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
  */
 public class DeleteSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvider {
 
-    public static final String QUERY_PARAMETER_NAME = "query";
+    public static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
 
     @SuppressWarnings("unused")
     public String delete(final ProviderContext context, final Map<String, Object> parameters) {

@@ -37,7 +37,6 @@ import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.plugin.Intercepts;
 import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -52,9 +51,9 @@ import org.apache.ibatis.session.RowBounds;
 @Component
 @Intercepts(
     {
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+        @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
             RowBounds.class, ResultHandler.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+        @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
             RowBounds.class, ResultHandler.class, CacheKey.class,
             BoundSql.class}),
     }

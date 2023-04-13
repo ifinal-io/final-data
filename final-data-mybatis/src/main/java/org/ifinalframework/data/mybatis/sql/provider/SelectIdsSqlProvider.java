@@ -23,7 +23,7 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.QEntity;
+import org.ifinalframework.data.query.QEntity;
 
 /**
  * @author ilikly
@@ -33,7 +33,7 @@ import org.ifinalframework.query.QEntity;
  */
 public class SelectIdsSqlProvider implements AbsMapperSqlProvider {
 
-    public static final String QUERY_PARAMETER_NAME = "query";
+    public static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
 
     /**
      * @param context    context

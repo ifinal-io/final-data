@@ -33,7 +33,7 @@ import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 
 public class SelectCountSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvider {
 
-    private static final String QUERY = "query";
+    private static final String QUERY = "org/ifinalframework/data/query";
 
     @SuppressWarnings("unused")
     public String selectCount(final ProviderContext context, final Map<String, Object> parameters) {

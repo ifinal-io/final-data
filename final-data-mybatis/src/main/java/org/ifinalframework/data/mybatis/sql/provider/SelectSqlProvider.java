@@ -32,8 +32,8 @@ import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QProperty;
+import org.ifinalframework.data.query.QEntity;
+import org.ifinalframework.data.query.QProperty;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
 
@@ -46,7 +46,7 @@ import org.ifinalframework.velocity.Velocities;
  */
 public class SelectSqlProvider implements AbsMapperSqlProvider {
 
-    public static final String QUERY_PARAMETER_NAME = "query";
+    public static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
 
     private static final String SELECT_METHOD_NAME = "select";
 

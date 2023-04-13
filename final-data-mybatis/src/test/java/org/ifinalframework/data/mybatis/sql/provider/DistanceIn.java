@@ -16,7 +16,7 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import org.ifinalframework.query.annotation.Criterion;
+import org.ifinalframework.data.query.annotation.Criterion;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

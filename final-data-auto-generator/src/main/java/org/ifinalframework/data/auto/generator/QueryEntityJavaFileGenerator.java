@@ -29,9 +29,9 @@ import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.query.AbsQEntity;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.javapoets.JavaPoets;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QEntityFactory;
-import org.ifinalframework.query.QProperty;
+import org.ifinalframework.data.query.QEntity;
+import org.ifinalframework.data.query.QEntityFactory;
+import org.ifinalframework.data.query.QProperty;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;

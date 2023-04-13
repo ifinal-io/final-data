@@ -16,9 +16,6 @@
 
 package org.ifinalframework.data.query;
 
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QEntityFactory;
-
 import java.io.Serializable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

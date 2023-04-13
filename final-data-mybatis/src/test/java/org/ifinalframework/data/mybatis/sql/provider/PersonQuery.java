@@ -18,8 +18,8 @@ package org.ifinalframework.data.mybatis.sql.provider;
 import java.awt.*;
 
 import org.ifinalframework.core.PageQuery;
-import org.ifinalframework.query.annotation.Equal;
-import org.ifinalframework.query.annotation.LessThan;
+import org.ifinalframework.data.query.annotation.Equal;
+import org.ifinalframework.data.query.annotation.LessThan;
 
 import lombok.Data;
 

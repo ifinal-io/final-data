@@ -32,8 +32,8 @@ import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.mybatis.sql.ScriptMapperHelper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QProperty;
+import org.ifinalframework.data.query.QEntity;
+import org.ifinalframework.data.query.QProperty;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
 

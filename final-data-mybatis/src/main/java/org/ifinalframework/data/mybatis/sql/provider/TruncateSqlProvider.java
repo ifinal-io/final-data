@@ -19,7 +19,7 @@ package org.ifinalframework.data.mybatis.sql.provider;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.QEntity;
+import org.ifinalframework.data.query.QEntity;
 
 import java.util.Map;
 

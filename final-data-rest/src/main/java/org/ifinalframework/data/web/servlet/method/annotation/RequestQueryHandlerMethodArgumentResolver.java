@@ -96,10 +96,10 @@ public class RequestQueryHandlerMethodArgumentResolver implements HandlerMethodA
         if (Objects.nonNull(contentType) && contentType.startsWith("application/json")) {
             String body = parseBody(webRequest);
             value = Json.toObject(body, domainQueryClass);
-            binder = binderFactory.createBinder(webRequest, value, "query");
+            binder = binderFactory.createBinder(webRequest, value, "org/ifinalframework/data/query");
         } else {
             value = BeanUtils.instantiateClass(domainQueryClass);
-            binder = binderFactory.createBinder(webRequest, value, "query");
+            binder = binderFactory.createBinder(webRequest, value, "org/ifinalframework/data/query");
             bindQuery(webRequest, binder);
         }
 

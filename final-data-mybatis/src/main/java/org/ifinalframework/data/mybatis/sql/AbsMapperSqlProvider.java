@@ -28,8 +28,8 @@ import org.ifinalframework.data.mybatis.sql.provider.ScriptSqlProvider;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.query.Query;
-import org.ifinalframework.query.QueryProvider;
+import org.ifinalframework.data.query.Query;
+import org.ifinalframework.data.query.QueryProvider;
 
 /**
  * @author ilikly
@@ -58,7 +58,7 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         if (query instanceof Query) {
             provider = query((Query) query);
         } else if (query != null) {
-            provider = query("query", entity, query.getClass());
+            provider = query("org/ifinalframework/data/query", entity, query.getClass());
         }
 
         Optional.ofNullable(provider)

@@ -25,8 +25,7 @@ import org.ifinalframework.data.annotation.AbsUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
-import org.ifinalframework.query.Update;
-import org.junit.jupiter.api.Assertions;
+import org.ifinalframework.data.query.Update;
 import org.junit.jupiter.api.Test;
 
 import java.awt.*;

@@ -16,9 +16,6 @@
 package org.ifinalframework.data.query;
 
 import org.ifinalframework.data.annotation.AbsRecord;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QEntityFactory;
-import org.ifinalframework.query.QProperty;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

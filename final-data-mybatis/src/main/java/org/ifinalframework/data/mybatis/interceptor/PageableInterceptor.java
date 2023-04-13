@@ -26,7 +26,6 @@ import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.core.Pageable;
 
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * 分页拦截器
@@ -43,9 +42,9 @@ import java.util.Properties;
  */
 @Intercepts(
         {
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
                         RowBounds.class, ResultHandler.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
                         RowBounds.class, ResultHandler.class,
                         CacheKey.class,
                         BoundSql.class}),

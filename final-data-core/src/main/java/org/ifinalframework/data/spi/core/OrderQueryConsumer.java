@@ -29,9 +29,9 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.Orderable;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.spi.QueryConsumer;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QEntityFactory;
-import org.ifinalframework.query.QProperty;
+import org.ifinalframework.data.query.QEntity;
+import org.ifinalframework.data.query.QEntityFactory;
+import org.ifinalframework.data.query.QProperty;
 
 /**
  * OrderQueryConsumer.

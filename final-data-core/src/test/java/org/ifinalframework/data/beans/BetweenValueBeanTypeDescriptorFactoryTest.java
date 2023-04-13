@@ -18,13 +18,9 @@ package org.ifinalframework.data.beans;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.convert.TypeDescriptor;
 
-import org.ifinalframework.java.JadDriver;
-import org.ifinalframework.java.JvmDriver;
-import org.ifinalframework.query.BetweenValue;
+import org.ifinalframework.data.query.BetweenValue;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * BetweenValueBeanTypeDescriptorFactoryTest.

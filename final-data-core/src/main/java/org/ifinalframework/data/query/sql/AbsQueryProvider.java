@@ -15,7 +15,7 @@
 
 package org.ifinalframework.data.query.sql;
 
-import org.ifinalframework.query.QueryProvider;
+import org.ifinalframework.data.query.QueryProvider;
 
 /**
  * AbsQueryProvider.

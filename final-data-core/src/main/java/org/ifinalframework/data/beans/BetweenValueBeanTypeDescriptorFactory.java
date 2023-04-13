@@ -28,7 +28,7 @@ import org.springframework.core.convert.TypeDescriptor;
 
 import org.ifinalframework.auto.spring.factory.annotation.SpringFactory;
 import org.ifinalframework.beans.BeanTypeDescriptorFactory;
-import org.ifinalframework.query.BetweenValue;
+import org.ifinalframework.data.query.BetweenValue;
 
 import lombok.SneakyThrows;
 

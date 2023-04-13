@@ -19,8 +19,8 @@ package org.ifinalframework.data.query.criterion;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.lang.NonNull;
 
-import org.ifinalframework.query.CriterionAttributes;
-import org.ifinalframework.query.annotation.CriterionSqlProvider;
+import org.ifinalframework.data.query.CriterionAttributes;
+import org.ifinalframework.data.query.annotation.CriterionSqlProvider;
 import org.ifinalframework.velocity.Velocities;
 
 import java.util.Arrays;

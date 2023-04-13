@@ -54,9 +54,9 @@ import lombok.extern.slf4j.Slf4j;
 @Intercepts(
         {
                 @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
                         RowBounds.class, ResultHandler.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
                         RowBounds.class, ResultHandler.class, CacheKey.class,
                         BoundSql.class}),
                 @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
@@ -81,7 +81,7 @@ public class DispatchInterceptor implements Interceptor {
         final Object[] args = invocation.getArgs();
 
 
-        if (methodName.equals("update") || methodName.equals("query")) {
+        if (methodName.equals("update") || methodName.equals("org/ifinalframework/data/query")) {
             final MappedStatement mappedStatement = (MappedStatement) args[0];
             Object parameters = args[1];
 

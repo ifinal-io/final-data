@@ -17,11 +17,11 @@
 package org.ifinalframework.data.query.sql;
 
 import org.ifinalframework.data.query.criterion.VelocityCriterionValue;
-import org.ifinalframework.query.AndOr;
-import org.ifinalframework.query.Criteria;
-import org.ifinalframework.query.Criterion;
-import org.ifinalframework.query.CriterionAttributes;
-import org.ifinalframework.query.Query;
+import org.ifinalframework.data.query.AndOr;
+import org.ifinalframework.data.query.Criteria;
+import org.ifinalframework.data.query.Criterion;
+import org.ifinalframework.data.query.CriterionAttributes;
+import org.ifinalframework.data.query.Query;
 import org.ifinalframework.velocity.Velocities;
 
 /**

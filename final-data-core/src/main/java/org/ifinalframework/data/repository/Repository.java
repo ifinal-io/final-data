@@ -26,7 +26,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import org.ifinalframework.core.*;
-import org.ifinalframework.query.Update;
+import org.ifinalframework.data.query.Update;
 import org.ifinalframework.util.Asserts;
 
 /**

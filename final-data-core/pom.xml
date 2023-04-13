@@ -62,10 +62,6 @@
             <artifactId>final-annotation-data</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ifinalframework.annotation</groupId>
-            <artifactId>final-annotation-query</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
         </dependency>

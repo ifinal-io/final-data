@@ -16,7 +16,7 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import org.ifinalframework.query.Query;
+import org.ifinalframework.data.query.Query;
 
 /**
  * SqlProviderSupport.

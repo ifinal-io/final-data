@@ -16,27 +16,31 @@
 package org.ifinalframework.data.mybatis.sql.provider;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.query.AndOr;
-import org.ifinalframework.query.BetweenValue;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.Query;
-import org.ifinalframework.query.annotation.*;
+import org.ifinalframework.data.query.AndOr;
+import org.ifinalframework.data.query.BetweenValue;
+import org.ifinalframework.data.query.QEntity;
+import org.ifinalframework.data.query.Query;
 
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.ifinalframework.data.query.annotation.Criteria;
+import org.ifinalframework.data.query.annotation.Equal;
+import org.ifinalframework.data.query.annotation.JsonContains;
+import org.ifinalframework.data.query.annotation.NotBetween;
+import org.ifinalframework.data.query.annotation.NotEqual;
+import org.ifinalframework.data.query.annotation.NotIn;
+import org.ifinalframework.data.query.annotation.Or;
 
 /**
  * @author ilikly

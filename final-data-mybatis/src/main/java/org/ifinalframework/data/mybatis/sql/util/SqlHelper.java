@@ -78,7 +78,7 @@ import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
-import org.ifinalframework.query.QueryProvider;
+import org.ifinalframework.data.query.QueryProvider;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +93,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public final class SqlHelper {
 
-    public static final String PARAMETER_NAME_QUERY = "query";
+    public static final String PARAMETER_NAME_QUERY = "org/ifinalframework/data/query";
 
     private static final String INSERT_METHOD_NAME = "insert";
 

@@ -39,7 +39,7 @@ import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
 import org.ifinalframework.data.spi.core.OrderQueryConsumer;
-import org.ifinalframework.query.QEntity;
+import org.ifinalframework.data.query.QEntity;
 
 /**
  * 参数注入拦截器
@@ -51,9 +51,9 @@ import org.ifinalframework.query.QEntity;
 @Intercepts(
         {
                 @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
                         RowBounds.class, ResultHandler.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                @Signature(type = Executor.class, method = "org/ifinalframework/data/query", args = {MappedStatement.class, Object.class,
                         RowBounds.class, ResultHandler.class, CacheKey.class,
                         BoundSql.class}),
         }
@@ -63,7 +63,7 @@ import org.ifinalframework.query.QEntity;
 @SuppressWarnings({"unchecked"})
 public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
 
-    private static final String QUERY_PARAMETER_NAME = "query";
+    private static final String QUERY_PARAMETER_NAME = "org/ifinalframework/data/query";
 
     private static final String PROPERTIES_PARAMETER_NAME = "properties";
 

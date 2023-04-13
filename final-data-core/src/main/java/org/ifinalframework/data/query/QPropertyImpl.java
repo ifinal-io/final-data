@@ -25,8 +25,6 @@ import org.apache.ibatis.type.TypeHandler;
 import org.springframework.lang.Nullable;
 
 import org.ifinalframework.data.mapping.Property;
-import org.ifinalframework.query.QEntity;
-import org.ifinalframework.query.QProperty;
 import org.ifinalframework.util.Asserts;
 
 /**

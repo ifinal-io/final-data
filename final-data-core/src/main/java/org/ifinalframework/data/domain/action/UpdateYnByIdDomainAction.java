@@ -23,7 +23,7 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.query.Update;
+import org.ifinalframework.data.query.Update;
 
 /**
  * UpdateYnDomainAction.
