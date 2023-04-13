@@ -18,6 +18,7 @@ package org.ifinalframework.data.beans;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -49,6 +50,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
         cache.put(Long.class, LongBetweenValue.class);
         cache.put(LocalDate.class, LocalDateBetweenValue.class);
         cache.put(LocalDateTime.class, LocalDateTimeBetweenValue.class);
+        cache.put(Date.class, DateBetweenValue.class);
 
     }
 
@@ -117,6 +119,28 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
 
         @Override
         public LocalDate getMin() {
+            return super.getMin();
+        }
+    }
+
+    private static final class DateBetweenValue extends BetweenValue<Date> {
+        @Override
+        public void setMax(Date max) {
+            super.setMax(max);
+        }
+
+        @Override
+        public void setMin(Date min) {
+            super.setMin(min);
+        }
+
+        @Override
+        public Date getMax() {
+            return super.getMax();
+        }
+
+        @Override
+        public Date getMin() {
             return super.getMin();
         }
     }
