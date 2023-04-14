@@ -22,7 +22,6 @@ import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
 
 import org.ifinalframework.core.IRepository;
-import org.ifinalframework.data.mybatis.spi.MapParameterConsumer;
 import org.ifinalframework.data.util.TableUtils;
 
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class TableMapParameterConsumer implements MapParameterConsumer {
+public class TableParameterConsumer implements MapParameterConsumer {
     @Override
     public void accept(Map<String, Object> parameter, Class<?> mapper, Method method) {
         if (IRepository.class.isAssignableFrom(mapper)) {
@@ -45,11 +44,12 @@ public class TableMapParameterConsumer implements MapParameterConsumer {
                     .resolveGeneric(1);
 
             final String table = TableUtils.getTable(entityClass);
-
-            final boolean replaced = parameter.replace("table", null, table);
-            if (replaced) {
-                logger.debug("inject table: {}", table);
+            if (parameter.containsKey("table")) {
+                final boolean replaced = parameter.replace("table", null, table);
+            } else {
+                parameter.put("table", table);
             }
+
 
         }
     }
