@@ -49,8 +49,6 @@ public class TableParameterConsumer implements MapParameterConsumer {
             } else {
                 parameter.put("table", table);
             }
-
-
         }
     }
 }
