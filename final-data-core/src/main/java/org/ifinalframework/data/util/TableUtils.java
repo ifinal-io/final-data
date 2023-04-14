@@ -39,13 +39,7 @@ public class TableUtils {
     private static final NameConverter NAME_CONVERTER = new CameHump2UnderlineNameConverter();
 
     public static String getTable(Class<?> clazz) {
-        Table table = AnnotationUtils.findAnnotation(clazz, Table.class);
-        if (Objects.isNull(table) || table.value().length == 0) {
-            return NAME_CONVERTER.convert(clazz.getSimpleName());
-        }
-
-        return NAME_CONVERTER.convert(table.value()[0]);
-
+        return getTables(clazz).get(0);
     }
 
     public static List<String> getTables(Class<?> clazz) {
