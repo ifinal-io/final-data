@@ -26,36 +26,4 @@ import org.ifinalframework.data.query.QueryProvider;
  */
 public abstract class AbsQueryProvider implements QueryProvider {
 
-    private static final String LIMIT = "<trim prefix=\"LIMIT \">"
-        + "     <if test=\"query.offset != null\">"
-        + "         #{query.offset},"
-        + "     </if>"
-        + "     <if test=\"query.limit != null\">"
-        + "         #{query.limit}"
-        + "     </if>"
-        + "</trim>";
-
-    private static final String ORDERS = "<if test=\"query.orders != null\">"
-        + "     <foreach collection=\"query.orders\" item=\"item\" open=\"ORDER BY\" separator=\",\">${item}</foreach>"
-        + "</if>";
-
-    private static final String GROUPS = "<if test=\"query.groups != null\">"
-        + "     <foreach collection=\"query.groups\" item=\"item\" open=\"GROUP BY\" separator=\",\">${item}</foreach>"
-        + "</if>";
-
-    @Override
-    public String groups() {
-        return GROUPS;
-    }
-
-    @Override
-    public String orders() {
-        return ORDERS;
-    }
-
-    @Override
-    public String limit() {
-        return LIMIT;
-    }
-
 }
