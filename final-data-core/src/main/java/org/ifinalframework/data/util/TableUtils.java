@@ -34,7 +34,7 @@ import org.ifinalframework.data.mapping.converter.CameHump2UnderlineNameConverte
  * @version 1.4.3
  * @since 1.4.3
  */
-public class TableUtils {
+public abstract class TableUtils {
 
     private static final NameConverter NAME_CONVERTER = new CameHump2UnderlineNameConverter();
 
