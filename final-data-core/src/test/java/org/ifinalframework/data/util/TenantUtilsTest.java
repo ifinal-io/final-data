@@ -15,6 +15,7 @@
 
 package org.ifinalframework.data.util;
 
+import org.ifinalframework.data.annotation.AbsTenantEntity;
 import org.ifinalframework.data.annotation.AbsTenantUser;
 import org.ifinalframework.data.annotation.Tenant;
 
@@ -43,5 +44,6 @@ class TenantUtilsTest {
         Assertions.assertFalse(TenantUtils.isTenant(null));
         Assertions.assertTrue(TenantUtils.isTenant(TenantEntity.class));
         Assertions.assertFalse(TenantUtils.isTenant(AbsTenantUser.class));
+        Assertions.assertTrue(TenantUtils.isTenant(AbsTenantEntity.class));
     }
 }
