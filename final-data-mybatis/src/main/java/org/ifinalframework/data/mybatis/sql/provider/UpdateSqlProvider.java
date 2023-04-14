@@ -140,8 +140,8 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         if (IRecord.class.isAssignableFrom(entity)) {
             if (parameters.containsKey(UPDATE_PARAMETER_NAME) && Objects.nonNull(parameters.get(UPDATE_PARAMETER_NAME))) {
 //                final Update update = (Update) parameters.get(UPDATE_PARAMETER_NAME);
-                sql.append("<if test=\"USER != null\">").append(properties.getRequiredProperty("lastModifier.id").getColumn()).append(" = #{USER.id},</if>");
-                sql.append("<if test=\"USER != null\">").append(properties.getRequiredProperty("lastModifier.name").getColumn()).append(" = #{USER.name},</if>");
+                sql.append("<if test=\"USER != null and USER.id != null\">").append(properties.getRequiredProperty("lastModifier.id").getColumn()).append(" = #{USER.id},</if>");
+                sql.append("<if test=\"USER != null and USER.name != null\">").append(properties.getRequiredProperty("lastModifier.name").getColumn()).append(" = #{USER.name},</if>");
 //                update.update("<if test=\"USER != null\">${column} = #{USER.id}, </if>", properties.getRequiredProperty("lastModifier.id").getColumn(), null);
 //                update.update("<if test=\"USER != null\">${column} = #{USER.name}, </if> ", properties.getRequiredProperty("lastModifier.name").getColumn(), null);
 //                update.set(properties.getRequiredProperty("lastModifier.id"), user.getId());
