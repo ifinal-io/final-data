@@ -16,43 +16,39 @@
 package org.ifinalframework.data.mybatis.spi;
 
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Supplier;
 
+import org.springframework.core.Ordered;
+import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
 
-import org.ifinalframework.data.core.TenantSupplier;
-import org.ifinalframework.data.util.TenantUtils;
+import org.ifinalframework.core.IRepository;
 
 /**
- * TenantMapParameterConsumer.
+ * EntityClassParameterConsumer.
  *
  * @author ilikly
  * @version 1.5.0
  * @since 1.5.0
  */
 @Component
-public class TenantMapParameterConsumer implements MapParameterConsumer {
+public class EntityClassParameterConsumer implements MapParameterConsumer, Ordered {
 
-    private final List<TenantSupplier<?>> tenantSuppliers;
-
-    public TenantMapParameterConsumer(List<TenantSupplier<?>> tenantSuppliers) {
-        this.tenantSuppliers = tenantSuppliers;
-    }
+    public static final String ENTITY_CLASS_PARAM_NAME = "entityClass";
 
     @Override
     public void accept(Map<String, Object> parameter, Class<?> mapper, Method method) {
+        if (IRepository.class.isAssignableFrom(mapper)) {
+            Class<?> entityClass = ResolvableType.forClass(mapper)
+                    .as(IRepository.class)
+                    .resolveGeneric(1);
 
-        final Object tenant = tenantSuppliers.stream().map(Supplier::get).filter(Objects::nonNull).findFirst().orElse(null);
-        final Class<?> entityClass = (Class<?>) parameter.get(EntityClassParameterConsumer.ENTITY_CLASS_PARAM_NAME);
-        if (TenantUtils.isTenant(entityClass)) {
-            parameter.put("tenant", tenant);
-        } else {
-            parameter.put("tenant", null);
+            parameter.put(ENTITY_CLASS_PARAM_NAME, entityClass);
         }
-
     }
 
+    @Override
+    public int getOrder() {
+        return Ordered.HIGHEST_PRECEDENCE;
+    }
 }

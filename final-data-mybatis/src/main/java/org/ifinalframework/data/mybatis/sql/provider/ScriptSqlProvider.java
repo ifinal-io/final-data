@@ -22,9 +22,6 @@ import org.apache.ibatis.builder.annotation.ProviderSqlSource;
 
 import org.springframework.lang.NonNull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * @author ilikly
  * @version 1.0.0
@@ -38,9 +35,11 @@ public interface ScriptSqlProvider extends SqlProvider {
     default String provide(@NonNull ProviderContext context, @NonNull Map<String, Object> parameters) {
         parameters.put("mapperType", context.getMapperType());
         parameters.put("mapperMethod", context.getMapperMethod());
+        parameters.putIfAbsent("orders", null);
+        parameters.putIfAbsent("groups", null);
+        parameters.putIfAbsent("limit", null);
 
-        final Logger logger = LoggerFactory
-                .getLogger(context.getMapperType().getName() + "." + context.getMapperMethod().getName());
+
         StringBuilder sql = new StringBuilder();
         sql.append("<script>");
         doProvide(sql, context, parameters);

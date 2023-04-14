@@ -193,15 +193,6 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
         return this.where;
     }
 
-    @Override
-    public String groups() {
-
-        if (Groupable.class.isAssignableFrom(query)) {
-            return super.groups();
-        }
-
-        return null;
-    }
 
 
 }

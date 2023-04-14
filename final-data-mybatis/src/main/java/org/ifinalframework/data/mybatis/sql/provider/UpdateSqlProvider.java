@@ -26,9 +26,9 @@ import org.ifinalframework.core.IRecord;
 import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.mybatis.sql.ScriptMapperHelper;
-import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.Criterion;
 import org.ifinalframework.data.query.CriterionAttributes;
+import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.QEntity;
 import org.ifinalframework.data.query.QProperty;
 import org.ifinalframework.data.query.Update;
@@ -125,6 +125,9 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
             sql.append(whereIdsNotNull());
         } else {
             appendQuery(sql, entity, query, false);
+            appendOrders(sql);
+            appendGroups(sql);
+            appendLimit(sql);
         }
 
     }

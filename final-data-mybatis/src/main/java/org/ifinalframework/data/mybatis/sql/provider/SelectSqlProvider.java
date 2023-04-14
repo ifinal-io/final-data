@@ -103,6 +103,14 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
         } else {
 
             appendQuery(sql, entity, query, SELECT_ONE_METHOD_NAME.equals(mapperMethodName));
+
+            appendOrders(sql);
+            appendGroups(sql);
+            if (SELECT_ONE_METHOD_NAME.equals(mapperMethodName)) {
+                sql.append(" LIMIT 1");
+            } else {
+                appendLimit(sql);
+            }
         }
 
     }

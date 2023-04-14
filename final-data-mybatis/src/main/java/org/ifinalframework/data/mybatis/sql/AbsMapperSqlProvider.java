@@ -19,17 +19,15 @@ import java.util.Optional;
 
 import org.springframework.core.ResolvableType;
 
-import org.ifinalframework.core.Groupable;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.Limitable;
-import org.ifinalframework.core.Orderable;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.provider.ScriptSqlProvider;
+import org.ifinalframework.data.query.Query;
+import org.ifinalframework.data.query.QueryProvider;
 import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.query.Query;
-import org.ifinalframework.data.query.QueryProvider;
 
 /**
  * @author ilikly
@@ -51,6 +49,29 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         return new DefaultQueryProvider(query);
     }
 
+    default void appendOrders(StringBuilder sql) {
+        sql.append("<if test=\"orders != null\">")
+                .append("     <foreach collection=\"orders\" item=\"item\" open=\"ORDER BY\" separator=\",\">${item}</foreach>")
+                .append("</if>");
+    }
+
+    default void appendGroups(StringBuilder sql) {
+        sql.append("<if test=\"groups != null\">")
+                .append("     <foreach collection=\"groups\" item=\"item\" open=\"GROUP BY\" separator=\",\">${item}</foreach>")
+                .append("</if>");
+    }
+
+    default void appendLimit(StringBuilder sql) {
+        sql.append("<trim prefix=\"LIMIT \">")
+                .append("     <if test=\"limit != null and limit.offset != null\">")
+                .append("         #{limit.offset},")
+                .append("     </if>")
+                .append("     <if test=\"limit != null and limit.limit != null\">")
+                .append("         #{limit.limit}")
+                .append("     </if>")
+                .append("</trim>");
+    }
+
     default void appendQuery(StringBuilder sql, Class<?> entity, Object query, boolean selectOne) {
 
         QueryProvider provider = null;
@@ -61,43 +82,17 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
             provider = query("query", entity, query.getClass());
         }
 
-        Optional.ofNullable(provider)
-                .ifPresent(it -> {
-                    Optional.ofNullable(it.where()).ifPresent(sql::append);
-                    if (query instanceof Groupable) {
-                        Optional.ofNullable(it.groups()).ifPresent(sql::append);
-                    }
-
-                    if (query instanceof Orderable) {
-                        Optional.ofNullable(it.orders()).ifPresent(sql::append);
-                    }
-
-                    if (selectOne) {
-                        sql.append(" LIMIT 1");
-                    } else if (query instanceof Limitable) {
-                        Optional.ofNullable(it.limit()).ifPresent(sql::append);
-                    }
-
-
-                });
+        Optional.ofNullable(provider).ifPresent(it -> {
+            Optional.ofNullable(it.where()).ifPresent(sql::append);
+        });
     }
 
     default String whereIdNotNull() {
-        return "<where>"
-                + "<if test=\"properties.hasTenantProperty() and tenant != null\">"
-                + "     ${properties.tenantProperty.column} = #{tenant} AND "
-                + "</if>"
-                + "${properties.idProperty.column} = #{id}</where>";
+        return "<where>" + "<if test=\"properties.hasTenantProperty() and tenant != null\">" + "     ${properties.tenantProperty.column} = #{tenant} AND " + "</if>" + "${properties.idProperty.column} = #{id}</where>";
     }
 
     default String whereIdsNotNull() {
-        return "<where>"
-                + "<if test=\"properties.hasTenantProperty() and tenant != null\">"
-                + "     ${properties.tenantProperty.column} = #{tenant} AND "
-                + "</if>"
-                + "${properties.idProperty.column}"
-                + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>"
-                + "</where>";
+        return "<where>" + "<if test=\"properties.hasTenantProperty() and tenant != null\">" + "     ${properties.tenantProperty.column} = #{tenant} AND " + "</if>" + "${properties.idProperty.column}" + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>" + "</where>";
     }
 
 }

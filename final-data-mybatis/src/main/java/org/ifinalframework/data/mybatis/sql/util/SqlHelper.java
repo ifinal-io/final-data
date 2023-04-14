@@ -77,8 +77,8 @@ import org.ifinalframework.data.mybatis.sql.provider.SqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.data.query.QueryProvider;
+import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -209,6 +209,7 @@ public final class SqlHelper {
         Method sqlMethod = ReflectionUtils.findMethod(mapper, method, Map.class);
         return boundSql(mapper, sqlMethod, METHOD_ANNOTATIONS.get(method), parameters);
     }
+
     public static BoundSql boundSql(Class<? extends AbsMapper<?, ?>> mapper, final Method method,
                                     Class<? extends Annotation> provider, final Map<String, Object> parameters) {
         Objects.requireNonNull(method, String.format("not found method of %s in %s", method, mapper));
@@ -226,14 +227,6 @@ public final class SqlHelper {
 
         if (Objects.nonNull(provider.where())) {
             sql.append(provider.where());
-        }
-
-        if (Objects.nonNull(provider.orders())) {
-            sql.append(provider.orders());
-        }
-
-        if (Objects.nonNull(provider.limit())) {
-            sql.append(provider.limit());
         }
 
         sql.append("</script>");

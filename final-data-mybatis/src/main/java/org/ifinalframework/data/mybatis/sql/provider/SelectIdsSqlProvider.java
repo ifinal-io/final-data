@@ -38,6 +38,7 @@ public class SelectIdsSqlProvider implements AbsMapperSqlProvider {
     /**
      * @param context    context
      * @param parameters parameters
+     *
      * @return sql
      * @see AbsMapper#selectIds(String, IQuery)
      */
@@ -72,6 +73,10 @@ public class SelectIdsSqlProvider implements AbsMapperSqlProvider {
         Object query = parameters.get(QUERY_PARAMETER_NAME);
 
         appendQuery(sql, entity, query, false);
+
+        appendOrders(sql);
+        appendGroups(sql);
+        appendLimit(sql);
     }
 
 }

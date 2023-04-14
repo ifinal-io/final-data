@@ -56,6 +56,9 @@ public class SelectCountSqlProvider implements AbsMapperSqlProvider, ScriptSqlPr
             sql.append(whereIdsNotNull());
         } else {
             appendQuery(sql, entity, query, false);
+            appendOrders(sql);
+            appendGroups(sql);
+            appendLimit(sql);
         }
 
     }

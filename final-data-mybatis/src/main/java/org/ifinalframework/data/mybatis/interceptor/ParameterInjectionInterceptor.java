@@ -15,9 +15,7 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Objects;
 
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -32,13 +30,8 @@ import org.apache.ibatis.session.RowBounds;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.Viewable;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.data.spi.composite.QueryConsumerComposite;
-import org.ifinalframework.data.spi.core.OrderQueryConsumer;
 import org.ifinalframework.data.query.QEntity;
 
 /**
@@ -63,16 +56,7 @@ import org.ifinalframework.data.query.QEntity;
 @SuppressWarnings({"unchecked"})
 public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
 
-    private static final String QUERY_PARAMETER_NAME = "query";
-
     private static final String PROPERTIES_PARAMETER_NAME = "properties";
-
-    private QueryConsumerComposite queryConsumerComposite = new QueryConsumerComposite(
-            Arrays.asList(
-                    new OrderQueryConsumer()
-            )
-    );
-
 
     @Override
     protected Object intercept(Invocation invocation, Class<?> mapper, Class<?> entityClass) throws Throwable {
@@ -84,17 +68,6 @@ public class ParameterInjectionInterceptor extends AbsMapperInterceptor {
         if (parameter instanceof Map && AbsMapper.class.isAssignableFrom(mapper)) {
             Map<String, Object> parameters = (Map<String, Object>) parameter;
 
-            if (parameters.containsKey(QUERY_PARAMETER_NAME)) {
-                IQuery query = (IQuery) parameters.get(QUERY_PARAMETER_NAME);
-
-                if (Objects.nonNull(query)) {
-                    queryConsumerComposite.accept(query, (Class<IEntity<Long>>) entityClass);
-                }
-
-                if (Objects.nonNull(query) && parameters.containsKey("view") && query instanceof Viewable && Objects.isNull(parameters.get("view"))) {
-                    parameters.put("view", ((Viewable) query).getView());
-                }
-            }
 
             final QEntity<?, ?> entity = DefaultQEntityFactory.INSTANCE.create(entityClass);
             parameters.putIfAbsent(PROPERTIES_PARAMETER_NAME, entity);
