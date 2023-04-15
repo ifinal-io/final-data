@@ -31,7 +31,6 @@ public abstract class BaseTypeReferenceTypeHandler<T> extends BaseTypeHandler<T>
     private final Type type;
 
     protected BaseTypeReferenceTypeHandler(final Type type) {
-
         this.type = type;
     }
 

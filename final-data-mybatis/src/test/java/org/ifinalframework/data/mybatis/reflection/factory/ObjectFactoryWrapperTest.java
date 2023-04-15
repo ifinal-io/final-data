@@ -15,6 +15,8 @@
 
 package org.ifinalframework.data.mybatis.reflection.factory;
 
+import java.util.Properties;
+
 import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 
@@ -23,6 +25,7 @@ import org.ifinalframework.data.annotation.AbsUser;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,10 +38,20 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @Slf4j
 class ObjectFactoryWrapperTest {
-    private final ObjectFactory objectFactory = new ObjectFactoryWrapper(new DefaultObjectFactory());
     @Test
     void iUser(){
+     final ObjectFactory objectFactory = new ObjectFactoryWrapper(new DefaultObjectFactory());
         IUser user = objectFactory.create(IUser.class);
         assertInstanceOf(AbsUser.class,user);
     }
+
+    @Test
+    void setProperties(){
+        final ObjectFactory factory = Mockito.mock(ObjectFactory.class);
+        final ObjectFactory objectFactory = new ObjectFactoryWrapper(factory);
+        final Properties properties = new Properties();
+        objectFactory.setProperties(properties);
+        Mockito.verify(factory,Mockito.only()).setProperties(properties);
+    }
+
 }
