@@ -64,22 +64,13 @@ public class JsonTypeReferenceTypeHandler<T> extends BaseTypeReferenceTypeHandle
      * @param i
      * @param parameter
      * @param jdbcType
+     *
      * @throws SQLException
      */
     @Override
     public void setNonNullParameter(final PreparedStatement ps, final int i, final T parameter, final JdbcType jdbcType)
             throws SQLException {
-
-        if (H2_IS_PRESENT) {
-            try {
-                Object value = FROM_JSON_METHOD.invoke(VALUE_JSON_CLASS, Json.toJson(parameter));
-                ps.setObject(i, value);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        } else {
-            ps.setString(i, Json.toJson(parameter));
-        }
+        ps.setString(i, Json.toJson(parameter));
 
     }
 
