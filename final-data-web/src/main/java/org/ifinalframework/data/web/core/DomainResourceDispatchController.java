@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain;
+package org.ifinalframework.data.web.core;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -52,6 +52,8 @@ import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.domain.DomainService;
+import org.ifinalframework.data.domain.DomainServiceRegistry;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.validation.GlobalValidationGroupsProvider;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
@@ -71,8 +73,8 @@ import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/api/{resource}")
 @ConditionalOnWebApplication
-public class DomainResourceController {
-    private static final Logger logger = LoggerFactory.getLogger(DomainResourceController.class);
+public class DomainResourceDispatchController {
+    private static final Logger logger = LoggerFactory.getLogger(DomainResourceDispatchController.class);
 
     @Resource
     private GlobalValidationGroupsProvider globalValidationGroupsProvider;

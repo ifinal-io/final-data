@@ -29,13 +29,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StreamUtils;
 import org.springframework.validation.BindException;
@@ -67,7 +68,8 @@ import lombok.Setter;
  * @version 1.5.0
  * @since 1.5.0
  */
-@Component
+@Configuration
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class RequestQueryHandlerMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Setter
