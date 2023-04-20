@@ -62,6 +62,10 @@
             <artifactId>final-annotation-data</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.ifinalframework</groupId>
+            <artifactId>final-validation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-commons</artifactId>
         </dependency>
@@ -88,6 +92,24 @@
             <optional>true</optional>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.ifinalframework.auto</groupId>
             <artifactId>auto-spring</artifactId>
             <optional>true</optional>
@@ -107,6 +129,10 @@
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
             <version>3.29.2-GA</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ifinalframework.annotation</groupId>
+            <artifactId>final-annotation-web</artifactId>
         </dependency>
     </dependencies>
 

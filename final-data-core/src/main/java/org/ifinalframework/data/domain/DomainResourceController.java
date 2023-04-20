@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 the original author or authors.
+ * Copyright 2020-2023 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.rest.controller;
+package org.ifinalframework.data.domain;
 
 import javax.annotation.Resource;
 import java.util.Arrays;
@@ -22,6 +22,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
@@ -50,8 +52,6 @@ import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.DomainService;
-import org.ifinalframework.data.domain.DomainServiceRegistry;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.validation.GlobalValidationGroupsProvider;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
@@ -66,9 +66,11 @@ import org.slf4j.LoggerFactory;
  * @version 1.4.2
  * @since 1.4.2
  */
+@Configuration
 @Transactional
 @RestController
 @RequestMapping("/api/{resource}")
+@ConditionalOnWebApplication
 public class DomainResourceController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceController.class);
 
