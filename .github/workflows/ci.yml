@@ -26,7 +26,6 @@ jobs:
             [
               {
                 "id": "ci",
-                "name": "ci",
                 "properties": {
                   "altSnapshotDeploymentRepository": "${{ secrets.ALT_SNAPSHOT_DEPLOYMENT_REPOSITORY }}",
                   "altReleaseDeploymentRepository": "${{ secrets.ALT_RELEASE_DEPLOYMENT_REPOSITORY }}"
