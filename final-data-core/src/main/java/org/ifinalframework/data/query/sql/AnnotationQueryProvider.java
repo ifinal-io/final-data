@@ -17,7 +17,6 @@ package org.ifinalframework.data.query.sql;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -34,12 +33,9 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.Limitable;
 import org.ifinalframework.core.Orderable;
 import org.ifinalframework.data.mapping.Entity;
-import org.ifinalframework.data.mapping.Property;
-import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.data.query.criterion.CriterionHandlerRegistry;
-import org.ifinalframework.data.util.TenantUtils;
 import org.ifinalframework.data.query.AndOr;
 import org.ifinalframework.data.query.CriterionAttributes;
+import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.QEntity;
 import org.ifinalframework.data.query.QEntityFactory;
 import org.ifinalframework.data.query.annotation.Criteria;
@@ -47,6 +43,8 @@ import org.ifinalframework.data.query.annotation.Criterion;
 import org.ifinalframework.data.query.annotation.CriterionSqlProvider;
 import org.ifinalframework.data.query.annotation.Or;
 import org.ifinalframework.data.query.annotation.function.Function;
+import org.ifinalframework.data.query.criterion.CriterionHandlerRegistry;
+import org.ifinalframework.data.util.TenantUtils;
 import org.ifinalframework.util.Asserts;
 
 import lombok.extern.slf4j.Slf4j;
@@ -94,9 +92,6 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
         appendCriteria(whereBuilder, expression, properties, query,
                 AnnotatedElementUtils.isAnnotated(query, Or.class) ? AndOr.OR : AndOr.AND);
 
-        final Map<Integer, String> orderFragments = new LinkedHashMap<>();
-        CriterionSqlProvider criterionSqlProvider = CriterionHandlerRegistry.getInstance()
-                .get(CriterionSqlProvider.class);
         whereBuilder.append("</where>");
 
         this.where = whereBuilder.toString();
@@ -110,47 +105,68 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
         Entity.from(query)
                 .forEach(property -> {
                     if (property.isAnnotationPresent(Criterion.class)) {
-                        Class<? extends Annotation> annotation = property.getRequiredAnnotation(Criterion.class).value();
+                        final Criterion criterion = property.getRequiredAnnotation(Criterion.class);
+                        Class<? extends Annotation> annotation = criterion.annotation();
                         Field field = property.getField();
                         Objects.requireNonNull(field, "property filed can not be null:" + property.getName());
 
-                        AnnotationAttributes criterionAttributes = AnnotatedElementUtils
-                                .getMergedAnnotationAttributes(field, annotation);
 
-                        Objects.requireNonNull(criterionAttributes,
-                                "not found annotation of @" + annotation.getSimpleName() + " at " + query.getSimpleName() + "."
-                                        + property.getName());
+                        CriterionSqlProvider criterionSqlProvider = CriterionHandlerRegistry.getInstance()
+                                .get(CriterionSqlProvider.class);
+                        AnnotationAttributes criterionAttributes = null;
+                        if (Criterion.class == annotation) {
+                            criterionAttributes = new AnnotationAttributes();
+                        } else {
+                            criterionAttributes = AnnotatedElementUtils
+                                    .getMergedAnnotationAttributes(field, annotation);
+
+                            Objects.requireNonNull(criterionAttributes,
+                                    "not found annotation of @" + annotation.getSimpleName() + " at " + query.getSimpleName() + "."
+                                            + property.getName());
+                        }
+
 
                         final CriterionAttributes metadata = new CriterionAttributes();
 
-                        final String path = criterionAttributes.containsKey(CriterionAttributes.ATTRIBUTE_NAME_PROPERTY)
-                                && Asserts.nonBlank(criterionAttributes.getString(CriterionAttributes.ATTRIBUTE_NAME_PROPERTY))
-                                ? criterionAttributes.getString(CriterionAttributes.ATTRIBUTE_NAME_PROPERTY)
+                        final String path = Asserts.nonBlank(criterion.property())
+                                ? criterion.property()
                                 : property.getName();
 
                         metadata.put(CriterionAttributes.ATTRIBUTE_NAME_AND_OR, andOr);
                         metadata.put(CriterionAttributes.ATTRIBUTE_NAME_QUERY, expression);
-                        metadata
-                                .put(CriterionAttributes.ATTRIBUTE_NAME_PROPERTY,
-                                        String.format(FORMAT, expression, property.getName()));
-                        metadata
-                                .put(CriterionAttributes.ATTRIBUTE_NAME_COLUMN, entity.getRequiredProperty(path).getColumn());
-                        metadata.put(CriterionAttributes.ATTRIBUTE_NAME_VALUE,
+                        metadata.put(CriterionAttributes.ATTRIBUTE_NAME_PROPERTY,
                                 String.format(FORMAT, expression, property.getName()));
+                        metadata.put(CriterionAttributes.ATTRIBUTE_NAME_COLUMN, entity.getRequiredProperty(path).getColumn());
 
-                        CriterionSqlProvider criterionSqlProvider = CriterionHandlerRegistry.getInstance()
-                                .get(CriterionSqlProvider.class);
 
                         // process @Function annotation
                         if (property.isAnnotationPresent(Function.class)) {
-                            AnnotationAttributes functionAttributes = findFunctionAnnotationAttributes(property);
-                            Objects.requireNonNull(functionAttributes);
-                            appendAnnotationAttributesToMetadata(functionAttributes, metadata);
+                            final Function function = property.findAnnotation(Function.class);
+                            final Class<? extends Annotation> functionAnnotation = function.annotation();
+
+                            AnnotationAttributes functionAttributes;
+                            if (Function.class != functionAnnotation) {
+                                functionAttributes = AnnotatedElementUtils.getMergedAnnotationAttributes(property.getField(), function.annotation());
+                                Objects.requireNonNull(functionAttributes);
+
+                                for (Map.Entry<String, Object> entry : functionAttributes.entrySet()) {
+                                    metadata.put(entry.getKey(), entry.getValue());
+                                }
+
+                                appendAnnotationAttributesToMetadata(functionAttributes, metadata);
+                            } else {
+                                functionAttributes = new AnnotationAttributes();
+                            }
+                            functionAttributes.put("expression", function.value());
                             criterionSqlProvider.function(functionAttributes, metadata);
+
+
                         }
 
-                        appendAnnotationAttributesToMetadata(criterionAttributes, metadata);
+                        metadata.put(CriterionAttributes.ATTRIBUTE_NAME_VALUE, String.format(FORMAT, expression, property.getName()));
 
+                        appendAnnotationAttributesToMetadata(criterionAttributes, metadata);
+                        criterionAttributes.put("expression", criterion.value());
                         // process @Criterion annotation
                         final String value = criterionSqlProvider.provide(criterionAttributes, metadata);
                         sql.append(value);
@@ -167,11 +183,6 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
                 });
     }
 
-    private AnnotationAttributes findFunctionAnnotationAttributes(final Property property) {
-        final Function function = property.getRequiredAnnotation(Function.class);
-        return AnnotatedElementUtils.getMergedAnnotationAttributes(property.getField(), function.value());
-
-    }
 
     private void appendAnnotationAttributesToMetadata(final AnnotationAttributes annotationAttributes,
                                                       final CriterionAttributes metadata) {
@@ -192,7 +203,6 @@ public final class AnnotationQueryProvider extends AbsQueryProvider {
     public String where() {
         return this.where;
     }
-
 
 
 }

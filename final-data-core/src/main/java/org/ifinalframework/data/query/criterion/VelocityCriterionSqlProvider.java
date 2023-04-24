@@ -16,15 +16,15 @@
 
 package org.ifinalframework.data.query.criterion;
 
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.data.query.CriterionAttributes;
 import org.ifinalframework.data.query.annotation.CriterionSqlProvider;
 import org.ifinalframework.velocity.Velocities;
-
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @author ilikly
@@ -33,17 +33,17 @@ import java.util.stream.Collectors;
  */
 public class VelocityCriterionSqlProvider implements CriterionSqlProvider {
 
-    private static final String ATTRIBUTE_VALUE_KEY = "value";
+    private static final String ATTRIBUTE_EXPRESSION_KEY = "expression";
 
     private static final String DEFAULT_DELIMITER = " ";
 
     @Override
     public void function(@NonNull final AnnotationAttributes function,
-        @NonNull final CriterionAttributes metadata) {
+                         @NonNull final CriterionAttributes metadata) {
 
-        String value = Arrays.stream(function.getStringArray(ATTRIBUTE_VALUE_KEY))
-            .map(String::trim)
-            .collect(Collectors.joining(DEFAULT_DELIMITER));
+        String value = Arrays.stream(function.getStringArray(ATTRIBUTE_EXPRESSION_KEY))
+                .map(String::trim)
+                .collect(Collectors.joining(DEFAULT_DELIMITER));
 
         final String column = Velocities.getValue(value, metadata);
 
@@ -53,18 +53,18 @@ public class VelocityCriterionSqlProvider implements CriterionSqlProvider {
 
     @Override
     public String order(@NonNull final AnnotationAttributes annotation, @NonNull final CriterionAttributes metadata) {
-        String value = Arrays.stream(annotation.getStringArray(ATTRIBUTE_VALUE_KEY))
-            .map(String::trim)
-            .collect(Collectors.joining(DEFAULT_DELIMITER));
+        String value = Arrays.stream(annotation.getStringArray(ATTRIBUTE_EXPRESSION_KEY))
+                .map(String::trim)
+                .collect(Collectors.joining(DEFAULT_DELIMITER));
         final String order = Velocities.getValue(value, metadata);
         return order;
     }
 
     @Override
     public String provide(@NonNull final AnnotationAttributes criterion, @NonNull final CriterionAttributes metadata) {
-        final String value = Arrays.stream(criterion.getStringArray(ATTRIBUTE_VALUE_KEY))
-            .map(String::trim)
-            .collect(Collectors.joining(DEFAULT_DELIMITER));
+        final String value = Arrays.stream(criterion.getStringArray(ATTRIBUTE_EXPRESSION_KEY))
+                .map(String::trim)
+                .collect(Collectors.joining(DEFAULT_DELIMITER));
         return Velocities.getValue(value, metadata);
     }
 
