@@ -34,13 +34,13 @@ import org.ifinalframework.data.query.Query;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
-import org.ifinalframework.data.query.annotation.Criteria;
-import org.ifinalframework.data.query.annotation.Equal;
-import org.ifinalframework.data.query.annotation.JsonContains;
-import org.ifinalframework.data.query.annotation.NotBetween;
-import org.ifinalframework.data.query.annotation.NotEqual;
-import org.ifinalframework.data.query.annotation.NotIn;
-import org.ifinalframework.data.query.annotation.Or;
+import org.ifinalframework.data.annotation.criterion.Criteria;
+import org.ifinalframework.data.annotation.criterion.Equal;
+import org.ifinalframework.data.annotation.criterion.JsonContains;
+import org.ifinalframework.data.annotation.criterion.NotBetween;
+import org.ifinalframework.data.annotation.criterion.NotEqual;
+import org.ifinalframework.data.annotation.criterion.NotIn;
+import org.ifinalframework.data.annotation.criterion.Or;
 
 /**
  * @author ilikly

@@ -16,7 +16,7 @@
 
 package org.ifinalframework.data.query.criterion;
 
-import org.ifinalframework.data.query.annotation.CriterionSqlProvider;
+import org.ifinalframework.data.annotation.criterion.CriterionSqlProvider;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

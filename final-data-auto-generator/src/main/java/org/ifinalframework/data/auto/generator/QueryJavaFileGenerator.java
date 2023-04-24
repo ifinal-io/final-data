@@ -24,7 +24,7 @@ import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.javapoets.JavaPoets;
-import org.ifinalframework.data.query.annotation.Equal;
+import org.ifinalframework.data.annotation.criterion.Equal;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;

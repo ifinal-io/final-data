@@ -17,7 +17,13 @@ package org.ifinalframework.data.mybatis.sql.provider;
 
 import org.ifinalframework.core.IView;
 import org.ifinalframework.core.lang.Transient;
-import org.ifinalframework.data.annotation.*;
+import org.ifinalframework.data.annotation.AbsTenantEntity;
+import org.ifinalframework.data.annotation.AbsUser;
+import org.ifinalframework.data.annotation.Column;
+import org.ifinalframework.data.annotation.Creator;
+import org.ifinalframework.data.annotation.Reference;
+import org.ifinalframework.data.annotation.Tenant;
+import org.ifinalframework.data.annotation.View;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,12 +50,11 @@ public class Person extends AbsTenantEntity {
 
     private Integer age;
 
-    @Function(reader = "MAX(age) as ${column}")
     private Integer maxAge;
 
 
     @Creator
-    @Reference(properties = {"id","name"})
+    @Reference(properties = {"id", "name"})
     private AbsUser creator;
 
 }
