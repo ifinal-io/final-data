@@ -28,18 +28,18 @@ import java.lang.annotation.Target;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Criterion(DistanceIn.class)
+@Criterion({
+        "<if test=\"${value} != null and ${value}.location != null and ${value}.distance != null\">",
+        "   <![CDATA[ST_Distance(${column},ST_GeomFromText(#{${value}.location})) &lt; #{${value}.distance}]]>",
+        "</if>"
+})
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface DistanceIn {
 
     String property() default "";
 
-    String[] value() default {
-        "<if test=\"${value} != null and ${value}.location != null and ${value}.distance != null\">",
-        "   <![CDATA[ST_Distance(${column},ST_GeomFromText(#{${value}.location})) &lt; #{${value}.distance}]]>",
-        "</if>"
-    };
+    String value() default "";
 
     Class<?> javaType() default Object.class;
 
