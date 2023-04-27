@@ -34,11 +34,11 @@ import org.ifinalframework.data.util.TenantUtils;
  * @since 1.5.0
  */
 @Component
-public class TenantMapParameterConsumer implements MapParameterConsumer {
+public class TenantParameterConsumer implements MapParameterConsumer {
 
     private final List<TenantSupplier<?>> tenantSuppliers;
 
-    public TenantMapParameterConsumer(List<TenantSupplier<?>> tenantSuppliers) {
+    public TenantParameterConsumer(List<TenantSupplier<?>> tenantSuppliers) {
         this.tenantSuppliers = tenantSuppliers;
     }
 
