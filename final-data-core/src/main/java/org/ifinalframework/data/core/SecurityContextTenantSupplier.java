@@ -45,7 +45,11 @@ public class SecurityContextTenantSupplier implements TenantSupplier<Object>, Or
         final Object principal = authentication.getPrincipal();
 
         if (principal instanceof ITenant) {
-            return ((ITenant) principal).getTenant();
+            final Long tenant = ((ITenant) principal).getTenant();
+            if (tenant < 0) {
+                return null;
+            }
+            return tenant;
         }
 
         return null;

@@ -52,6 +52,9 @@ class SecurityContextTenantSupplierTest {
         securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(tenantUser,""));
         Assertions.assertEquals(1L,supplier.get());
 
+        tenantUser.setTenant(-1L);
+        Assertions.assertNull(supplier.get());
+
     }
 
     @Test
