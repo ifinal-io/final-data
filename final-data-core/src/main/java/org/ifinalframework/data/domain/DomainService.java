@@ -66,7 +66,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
-    Integer create(@NonNull @Valid List<T> entities, @NonNull IUser<?> user);
+    Object create(@NonNull @Valid List<T> entities, @NonNull IUser<?> user);
 
     /**
      * @param query the query of list.

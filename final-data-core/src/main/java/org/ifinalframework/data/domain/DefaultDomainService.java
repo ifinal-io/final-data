@@ -20,11 +20,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
-import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
@@ -36,15 +34,13 @@ import org.ifinalframework.data.domain.action.DeleteByIdDomainAction;
 import org.ifinalframework.data.domain.action.DeleteDomainAction;
 import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
 import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
+import org.ifinalframework.data.domain.action.InsertDomainAction;
 import org.ifinalframework.data.domain.action.ListQueryDomainAction;
 import org.ifinalframework.data.domain.action.UpdateLockedByIdDomainAction;
 import org.ifinalframework.data.domain.action.UpdateStatusByIdDomainAction;
 import org.ifinalframework.data.domain.action.UpdateYnByIdDomainAction;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.AfterReturningConsumer;
-import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.Consumer;
-import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
@@ -66,18 +62,15 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     private final Class<T> entityClass;
 
+
     private final Map<Class<?>, Class<? extends IQuery>> queryClassMap;
     private final Map<Class<?>, Class<?>> domainClassMap;
+
 
     private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
 
     // create
-    private final Filter<T, IUser<?>> preInsertFilter;
-    private final Consumer<T, IUser<?>> preInsertConsumer;
-    private final Consumer<T, IUser<?>> postInsertConsumer;
-    private final AfterThrowingConsumer<T, IUser<?>> afterThrowingInsertConsumer;
-    private final AfterReturningConsumer<T, Integer, IUser<?>> afterReturningInsertConsumer;
-
+    private final InsertDomainAction<ID, T, IUser<?>> insertDomainAction;
 
     // list
     private final ListQueryDomainAction<ID, T, IQuery, IUser<?>> listQueryDomainAction;
@@ -128,27 +121,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Integer create(@NonNull List<T> entities, @NonNull IUser<?> user) {
-        Integer result = null;
-        Throwable exception = null;
-        try {
-            entities = entities.stream().filter(item -> preInsertFilter.test(SpiAction.CREATE, item, user)).collect(Collectors.toList());
-
-            if (CollectionUtils.isEmpty(entities)) {
-                return result = 0;
-            }
-
-            preInsertConsumer.accept(SpiAction.CREATE, SpiAction.Advice.PRE, entities, user);
-            result = repository.insert(entities);
-            postInsertConsumer.accept(SpiAction.CREATE, SpiAction.Advice.POST, entities, user);
-            return result;
-        } catch (Throwable e) {
-            exception = e;
-            afterThrowingInsertConsumer.accept(SpiAction.CREATE, entities, user, exception);
-            throw e;
-        } finally {
-            afterReturningInsertConsumer.accept(SpiAction.CREATE, entities, result, user, exception);
-        }
+    public Object create(@NonNull List<T> entities, @NonNull IUser<?> user) {
+        return insertDomainAction.doAction(null, entities, user);
     }
 
     @Override

@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -35,12 +36,14 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
+import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.action.AbsUpdateDomainAction;
 import org.ifinalframework.data.domain.action.DeleteByIdDomainAction;
 import org.ifinalframework.data.domain.action.DeleteDomainAction;
 import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
 import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
+import org.ifinalframework.data.domain.action.InsertDomainAction;
 import org.ifinalframework.data.domain.action.ListQueryDomainAction;
 import org.ifinalframework.data.domain.action.UpdateLockedByIdDomainAction;
 import org.ifinalframework.data.domain.action.UpdateStatusByIdDomainAction;
@@ -90,6 +93,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         builder.entityClass((Class<T>) entityClass);
         ClassLoader classLoader = entityClass.getClassLoader();
 
+        final DomainResource domainResource = AnnotationUtils.findAnnotation(entityClass, DomainResource.class);
         // entity
         final Map<Class<?>, Class<?>> domainEntityClassMap = new LinkedHashMap<>();
         builder.domainClassMap(domainEntityClassMap);
@@ -112,22 +116,25 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             domainEntityClassMap.put(IView.Create.class, dtoClass);
             PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass)).getObject();
             builder.preInsertFunction(preInsertFunction);
-
         }
 
+        InsertDomainAction<ID,T,IUser<?>> insertDomainAction = new InsertDomainAction<>(repository,domainResource.insertIgnore());
         // PreInsert
-        builder.preInsertFilter(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Filter.class, entityClass, userClass));
-        builder.preInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
+        insertDomainAction.setPreInsertFilter(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Filter.class, entityClass, userClass));
+        insertDomainAction.setPreInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         // PostInsert
-        builder.postInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        builder.afterThrowingInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_THROWING, AfterThrowingConsumer.class, entityClass, userClass));
-        builder.afterReturningInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_RETURNING, AfterReturningConsumer.class, entityClass, Integer.class, userClass));
+        insertDomainAction.setPostInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+        insertDomainAction.setAfterThrowingInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_THROWING, AfterThrowingConsumer.class, entityClass, userClass));
+        insertDomainAction.setAfterReturningInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_RETURNING, AfterReturningConsumer.class, entityClass, Integer.class, userClass));
+
+        builder.insertDomainAction(insertDomainAction);
+
 
         // delete
         final Class<?> deleteQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Delete.class), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
 
-        final DeleteDomainAction<ID,T,IUser<?>> deleteDomainAction = new DeleteDomainAction<>(repository);
+        final DeleteDomainAction<ID, T, IUser<?>> deleteDomainAction = new DeleteDomainAction<>(repository);
         deleteDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
         deleteDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
