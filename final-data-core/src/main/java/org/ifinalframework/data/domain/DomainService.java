@@ -77,7 +77,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.PostQueryConsumer
      * @see AfterReturningQueryConsumer
-     * @see org.ifinalframework.data.spi.PostQueryFunction
+     * @see org.ifinalframework.data.spi.Function
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */

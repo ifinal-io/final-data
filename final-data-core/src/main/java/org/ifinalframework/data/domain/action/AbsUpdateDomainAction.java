@@ -28,8 +28,8 @@ import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
+import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostQueryFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateValidator;
 import org.ifinalframework.data.spi.SpiAction;
@@ -63,7 +63,7 @@ public abstract class AbsUpdateDomainAction<ID extends Serializable, T extends I
     private Consumer<T, U> postConsumer;
 
     private PostQueryConsumer<T, Q, U> postQueryConsumer;
-    private PostQueryFunction<R, Q, U> postQueryFunction;
+    private Function<R, Q, U> postQueryFunction;
     private AfterThrowingQueryConsumer<T, Q, U> afterThrowingQueryConsumer;
     private AfterReturningQueryConsumer<T, Q, U> afterReturningQueryConsumer;
 

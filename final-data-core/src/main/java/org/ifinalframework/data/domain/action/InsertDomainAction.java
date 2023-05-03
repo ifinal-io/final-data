@@ -29,6 +29,7 @@ import org.ifinalframework.data.spi.AfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
+import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.SpiAction;
 
 import lombok.RequiredArgsConstructor;
@@ -51,6 +52,7 @@ public class InsertDomainAction<ID extends Serializable, T extends IEntity<ID>, 
     private Filter<T, U> preInsertFilter;
     private Consumer<T, U> preInsertConsumer;
     private Consumer<T, U> postInsertConsumer;
+    private Function<Integer, List<T>, U> postInsertFunction;
     private AfterThrowingConsumer<T, U> afterThrowingInsertConsumer;
     private AfterReturningConsumer<T, Integer, U> afterReturningInsertConsumer;
 
@@ -77,6 +79,11 @@ public class InsertDomainAction<ID extends Serializable, T extends IEntity<ID>, 
             if (Objects.nonNull(postInsertConsumer)) {
                 postInsertConsumer.accept(SpiAction.CREATE, SpiAction.Advice.POST, entities, user);
             }
+
+            if (Objects.nonNull(postInsertFunction)) {
+                return postInsertFunction.map(result, entities, user);
+            }
+
             return result;
         } catch (Throwable e) {
             exception = e;

@@ -55,8 +55,8 @@ import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
+import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PostQueryConsumer;
-import org.ifinalframework.data.spi.PostQueryFunction;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateValidator;
@@ -118,7 +118,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             builder.preInsertFunction(preInsertFunction);
         }
 
-        InsertDomainAction<ID,T,IUser<?>> insertDomainAction = new InsertDomainAction<>(repository,domainResource.insertIgnore());
+        InsertDomainAction<ID, T, IUser<?>> insertDomainAction = new InsertDomainAction<>(repository, domainResource.insertIgnore());
         // PreInsert
         insertDomainAction.setPreInsertFilter(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Filter.class, entityClass, userClass));
         insertDomainAction.setPreInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
@@ -161,11 +161,11 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
         listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
-        applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PostQueryFunction.class,
+        applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
                 ResolvableType.forClassWithGenerics(List.class, entityClass),
                 ResolvableType.forClass(listQueryClass),
                 ResolvableType.forClass(userClass)
-        )).ifAvailable(postQueryFunction -> listQueryDomainAction.setPostQueryFunction((PostQueryFunction<List<T>, IQuery, IUser<?>>) postQueryFunction));
+        )).ifAvailable(postQueryFunction -> listQueryDomainAction.setPostQueryFunction((Function<List<T>, IQuery, IUser<?>>) postQueryFunction));
         builder.listQueryDomainAction(listQueryDomainAction);
 
 
