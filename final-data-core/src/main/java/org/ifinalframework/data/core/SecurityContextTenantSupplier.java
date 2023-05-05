@@ -46,7 +46,7 @@ public class SecurityContextTenantSupplier implements TenantSupplier<Object>, Or
 
         if (principal instanceof ITenant) {
             final Long tenant = ((ITenant) principal).getTenant();
-            if (tenant < 0) {
+            if (Objects.isNull(tenant) || tenant < 0) {
                 return null;
             }
             return tenant;
