@@ -36,7 +36,7 @@ public class DomainServiceInterfaceFactory {
     public DomainServiceInterfaceFactory() throws NotFoundException {
     }
 
-    Class<? extends DomainService> create(Class<?> idClass,Class<?> entityClass) throws CannotCompileException {
+    public Class<? extends DomainService> create(Class<?> idClass,Class<?> entityClass) throws CannotCompileException {
 
         SignatureAttribute.ClassSignature ac = new SignatureAttribute.ClassSignature(null, null,
                 // Set interface and its generic params
