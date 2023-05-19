@@ -157,7 +157,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param user the current user.
      *
      * @see org.ifinalframework.data.spi.PreUpdateValidator
-     * @see org.ifinalframework.data.spi.UpdateConsumer
+     * @see org.ifinalframework.data.spi.BiConsumer
      */
     Object yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);
 

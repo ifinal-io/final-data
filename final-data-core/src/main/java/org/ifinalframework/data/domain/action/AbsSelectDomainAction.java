@@ -50,7 +50,6 @@ public abstract class AbsSelectDomainAction<ID extends Serializable, T extends I
     protected final Repository<ID, T> repository;
 
     private PreQueryConsumer<Q, U> preQueryConsumer;
-
     private Consumer<T, U> postConsumer;
     private PostQueryConsumer<T, Q, U> postQueryConsumer;
     private Function<R, Q, U> postQueryFunction;

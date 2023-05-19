@@ -27,13 +27,13 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateValidator;
 import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.json.Json;
 
 import lombok.RequiredArgsConstructor;
@@ -58,8 +58,8 @@ public abstract class AbsUpdateDomainAction<ID extends Serializable, T extends I
 
     private PreUpdateValidator<T, V, U> preUpdateValidator;
     private Consumer<T, U> preConsumer;
-    private UpdateConsumer<T, V, U> preUpdateConsumer;
-    private UpdateConsumer<T, V, U> postUpdateConsumer;
+    private BiConsumer<T, V, U> preUpdateConsumer;
+    private BiConsumer<T, V, U> postUpdateConsumer;
     private Consumer<T, U> postConsumer;
 
     private PostQueryConsumer<T, Q, U> postQueryConsumer;

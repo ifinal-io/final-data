@@ -53,6 +53,7 @@ import org.ifinalframework.data.spi.AfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.Function;
@@ -61,7 +62,6 @@ import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.PreUpdateValidator;
 import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.util.CompositeProxies;
 
 import lombok.RequiredArgsConstructor;
@@ -215,8 +215,8 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
     private <ID extends Serializable, T extends IEntity<ID>, Q, V, R> void acceptUpdateDomainAction(AbsUpdateDomainAction<ID, T, Q, V, R, IUser<?>> action, SpiAction spiAction, Class<?> entityClass, Class<?> valueClass, Class<?> userClass) {
         action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, PreUpdateValidator.class, entityClass, valueClass, userClass));
-        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, valueClass, userClass));
-        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, valueClass, userClass));
+        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiConsumer.class, entityClass, valueClass, userClass));
+        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, BiConsumer.class, entityClass, valueClass, userClass));
     }
 
     private static String buildClassName(String packageName, Class<?> prefix, String className) {
