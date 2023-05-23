@@ -53,8 +53,8 @@ public abstract class AbsSelectDomainAction<ID extends Serializable, T extends I
     private Consumer<T, U> postConsumer;
     private PostQueryConsumer<T, Q, U> postQueryConsumer;
     private Function<R, Q, U> postQueryFunction;
-    private AfterThrowingQueryConsumer<T, Q, IUser<?>> afterThrowingQueryConsumer;
-    private AfterReturningQueryConsumer<T, Q, IUser<?>> afterReturningQueryConsumer;
+    private AfterThrowingQueryConsumer<T, Q, U> afterThrowingQueryConsumer;
+    private AfterReturningQueryConsumer<T, Q, U> afterReturningQueryConsumer;
 
     @Override
     public Object doAction(Q query, Void value, U user) {
