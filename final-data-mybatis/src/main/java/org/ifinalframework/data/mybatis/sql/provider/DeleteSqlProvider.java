@@ -66,7 +66,7 @@ public class DeleteSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         if (ids != null) {
             sql.append(whereIdsNotNull());
         } else {
-            appendQuery(sql, entity, query, false);
+            appendQuery(sql, entity, query);
         }
 
     }

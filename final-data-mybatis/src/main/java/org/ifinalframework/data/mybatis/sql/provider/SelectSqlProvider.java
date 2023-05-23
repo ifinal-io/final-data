@@ -25,8 +25,6 @@ import java.util.stream.Collectors;
 
 import org.apache.ibatis.builder.annotation.ProviderContext;
 
-import org.springframework.lang.NonNull;
-
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
@@ -102,7 +100,7 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
             sql.append(whereIdsNotNull());
         } else {
 
-            appendQuery(sql, entity, query, SELECT_ONE_METHOD_NAME.equals(mapperMethodName));
+            appendQuery(sql, entity, query);
 
             appendOrders(sql);
             appendGroups(sql);
@@ -131,31 +129,6 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
                 }).collect(Collectors.toList());
     }
 
-
-    private void appendColumns(final @NonNull StringBuilder sql, final @NonNull QEntity<?, ?> entity) {
-
-
-        entity.stream()
-                .filter(QProperty::isReadable)
-                .forEach(property -> {
-                    sql.append("<if test=\"entity.getRequiredProperty('")
-                            .append(property.getPath())
-                            .append("').hasView(view)\">");
-
-                    final Metadata metadata = new Metadata();
-
-                    metadata.setProperty(property.getName());
-                    metadata.setColumn(property.getColumn());
-                    metadata.setValue(property.getName());
-                    metadata.setJavaType(property.getType());
-                    metadata.setTypeHandler(property.getTypeHandler());
-
-                    final String reader = Asserts.isBlank(property.getReader()) ? DEFAULT_READER : property.getReader();
-
-                    sql.append(Velocities.getValue(reader, metadata));
-                    sql.append(",</if>");
-                });
-    }
 
 }
 

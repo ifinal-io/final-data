@@ -72,7 +72,7 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
                 .append("</trim>");
     }
 
-    default void appendQuery(StringBuilder sql, Class<?> entity, Object query, boolean selectOne) {
+    default void appendQuery(StringBuilder sql, Class<?> entity, Object query) {
 
         QueryProvider provider = null;
 

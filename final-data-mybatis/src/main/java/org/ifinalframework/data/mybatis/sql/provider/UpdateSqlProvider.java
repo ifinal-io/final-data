@@ -124,7 +124,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         if (parameters.containsKey(IDS_PARAMETER_NAME) && parameters.get(IDS_PARAMETER_NAME) != null) {
             sql.append(whereIdsNotNull());
         } else {
-            appendQuery(sql, entity, query, false);
+            appendQuery(sql, entity, query);
             appendOrders(sql);
             appendGroups(sql);
             appendLimit(sql);
