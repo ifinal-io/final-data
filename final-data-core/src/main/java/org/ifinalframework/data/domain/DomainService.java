@@ -75,7 +75,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @return entity list of matches query.
      * @see org.ifinalframework.core.IView.List
      * @see org.ifinalframework.data.spi.PreQueryConsumer
-     * @see org.ifinalframework.data.spi.PostQueryConsumer
+     * @see org.ifinalframework.data.spi.BiConsumer
      * @see AfterReturningQueryConsumer
      * @see org.ifinalframework.data.spi.Function
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
@@ -90,7 +90,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @return the detail entity of matches detail query.
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.PreQueryConsumer
-     * @see org.ifinalframework.data.spi.PostQueryConsumer
+     * @see org.ifinalframework.data.spi.BiConsumer
      * @see org.ifinalframework.data.spi.Consumer
      */
     Object detail(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
@@ -123,7 +123,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      * @see org.ifinalframework.data.spi.Consumer
-     * @see org.ifinalframework.data.spi.PostQueryConsumer
+     * @see org.ifinalframework.data.spi.BiConsumer
      */
     Object delete(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
 

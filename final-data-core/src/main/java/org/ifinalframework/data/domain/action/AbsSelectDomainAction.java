@@ -26,9 +26,9 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.PostQueryConsumer;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
 
@@ -51,7 +51,7 @@ public abstract class AbsSelectDomainAction<ID extends Serializable, T extends I
 
     private PreQueryConsumer<Q, U> preQueryConsumer;
     private Consumer<T, U> postConsumer;
-    private PostQueryConsumer<T, Q, U> postQueryConsumer;
+    private BiConsumer<T, Q, U> postQueryConsumer;
     private Function<R, Q, U> postQueryFunction;
     private AfterThrowingQueryConsumer<T, Q, U> afterThrowingQueryConsumer;
     private AfterReturningQueryConsumer<T, Q, U> afterReturningQueryConsumer;
@@ -71,7 +71,7 @@ public abstract class AbsSelectDomainAction<ID extends Serializable, T extends I
                 postConsumer.accept(spiAction, SpiAction.Advice.POST, list, user);
             }
             if (Objects.nonNull(postQueryConsumer)) {
-                postQueryConsumer.accept(spiAction, list, query, user);
+                postQueryConsumer.accept(spiAction, SpiAction.Advice.POST, list, query, user);
             }
             if (Objects.nonNull(postQueryFunction)) {
                 return postQueryFunction.map(result, query, user);
