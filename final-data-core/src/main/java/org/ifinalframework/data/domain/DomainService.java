@@ -29,6 +29,7 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
+import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PreInsertFunction;
 
@@ -156,7 +157,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param yn   the entity yn to update.
      * @param user the current user.
      *
-     * @see org.ifinalframework.data.spi.PreUpdateValidator
+     * @see BiValidator
      * @see org.ifinalframework.data.spi.BiConsumer
      */
     Object yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);

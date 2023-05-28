@@ -31,7 +31,7 @@ import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.PreUpdateValidator;
+import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.json.Json;
 
@@ -55,7 +55,7 @@ public abstract class AbsUpdateDomainAction<ID extends Serializable, T extends I
 
     private PreQueryConsumer<Q, U> preQueryConsumer;
 
-    private PreUpdateValidator<T, V, U> preUpdateValidator;
+    private BiValidator<T, V, U> preUpdateValidator;
     private Consumer<T, U> preConsumer;
     private BiConsumer<T, V, U> preUpdateConsumer;
     private BiConsumer<T, V, U> postUpdateConsumer;

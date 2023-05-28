@@ -59,7 +59,7 @@ import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.PreUpdateValidator;
+import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.util.CompositeProxies;
 
@@ -213,7 +213,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
     }
 
     private <ID extends Serializable, T extends IEntity<ID>, Q, V, R> void acceptUpdateDomainAction(AbsUpdateDomainAction<ID, T, Q, V, R, IUser<?>> action, SpiAction spiAction, Class<?> entityClass, Class<?> valueClass, Class<?> userClass) {
-        action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, PreUpdateValidator.class, entityClass, valueClass, userClass));
+        action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiValidator.class, entityClass, valueClass, userClass));
         action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiConsumer.class, entityClass, valueClass, userClass));
         action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, BiConsumer.class, entityClass, valueClass, userClass));
     }
