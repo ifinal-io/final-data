@@ -15,23 +15,23 @@
 
 package org.ifinalframework.data.domain;
 
-import javax.validation.Valid;
-import java.io.Serializable;
-import java.util.List;
-
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
-
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.PreInsertFunction;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.validation.annotation.Validated;
+
+import javax.validation.Valid;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * DomainService.
@@ -59,7 +59,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     /**
      * @param entities the entities to create.
      * @param user     the current user.
-     *
      * @return created rows.
      * @see org.ifinalframework.core.IView.Create
      * @see Filter
@@ -72,7 +71,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     /**
      * @param query the query of list.
      * @param user  the current user.
-     *
      * @return entity list of matches query.
      * @see org.ifinalframework.core.IView.List
      * @see org.ifinalframework.data.spi.PreQueryConsumer
@@ -87,7 +85,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     /**
      * @param query the query of detail.
      * @param user  the current user.
-     *
      * @return the detail entity of matches detail query.
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.PreQueryConsumer
@@ -99,7 +96,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     /**
      * @param id   the id of entity.
      * @param user the current user.
-     *
      * @return the detail entity of {@code id}.
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.Consumer
@@ -109,7 +105,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     /**
      * @param query the query of count.
      * @param user  the current user.
-     *
      * @return the count of query.
      * @see org.ifinalframework.core.IView.Count
      * @see org.ifinalframework.data.spi.PreQueryConsumer
@@ -119,7 +114,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     /**
      * @param query the query of deleted.
      * @param user  the current user.
-     *
      * @return deleted rows.
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.PreQueryConsumer
@@ -131,7 +125,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     /**
      * @param id   the id of deleted.
      * @param user the current user.
-     *
      * @return deleted rows.
      * @throws org.ifinalframework.context.exception.NotFoundException throw this exception when can not find entity by the {@code id}.
      * @see org.ifinalframework.core.IView.Delete
@@ -144,7 +137,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param id        the entity id to update.
      * @param selective update selective.
      * @param user      the current user.
-     *
      * @return update rows.
      * @see org.ifinalframework.core.IView.Update
      * @see org.ifinalframework.data.spi.Consumer
@@ -156,7 +148,6 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @param id   the entity id to update.
      * @param yn   the entity yn to update.
      * @param user the current user.
-     *
      * @see BiValidator
      * @see org.ifinalframework.data.spi.BiConsumer
      */
@@ -165,6 +156,8 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user);
 
     Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user);
+
+    Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull IUser<?> user);
 
 
 }

@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.ifinalframework.core.*;
+import org.ifinalframework.data.domain.action.*;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
@@ -30,24 +32,8 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.ILock;
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IStatus;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.action.AbsUpdateDomainAction;
-import org.ifinalframework.data.domain.action.DeleteByIdDomainAction;
-import org.ifinalframework.data.domain.action.DeleteDomainAction;
-import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
-import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
-import org.ifinalframework.data.domain.action.InsertDomainAction;
-import org.ifinalframework.data.domain.action.ListQueryDomainAction;
-import org.ifinalframework.data.domain.action.UpdateLockedByIdDomainAction;
-import org.ifinalframework.data.domain.action.UpdateStatusByIdDomainAction;
-import org.ifinalframework.data.domain.action.UpdateYnByIdDomainAction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
@@ -206,6 +192,12 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             final UpdateLockedByIdDomainAction<ID, T, IUser<?>> updateLockedByIdDomainAction = new UpdateLockedByIdDomainAction<>(repository);
             acceptUpdateDomainAction(updateLockedByIdDomainAction, SpiAction.UPDATE_LOCKED, entityClass, Boolean.class, userClass);
             builder.updateLockedByIdDomainAction(updateLockedByIdDomainAction);
+        }
+
+        if(IAudit.class.isAssignableFrom(entityClass)){
+            final UpdateAuditStatusByIdDomainAction<ID, T, IUser<?>> updateAuditStatusByIdDomainAction = new UpdateAuditStatusByIdDomainAction<>(repository);
+            acceptUpdateDomainAction(updateAuditStatusByIdDomainAction, SpiAction.UPDATE_AUDIT_STATUS, entityClass, Boolean.class, userClass);
+            builder.updateAuditStatusByIdDomainAction(updateAuditStatusByIdDomainAction);
         }
 
 

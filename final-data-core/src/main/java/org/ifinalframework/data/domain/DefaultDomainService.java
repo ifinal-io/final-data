@@ -15,37 +15,28 @@
 
 package org.ifinalframework.data.domain;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
+import lombok.Builder;
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.action.DeleteByIdDomainAction;
-import org.ifinalframework.data.domain.action.DeleteDomainAction;
-import org.ifinalframework.data.domain.action.DetailByIdDomainAction;
-import org.ifinalframework.data.domain.action.DetailQueryDomainAction;
-import org.ifinalframework.data.domain.action.InsertDomainAction;
-import org.ifinalframework.data.domain.action.ListQueryDomainAction;
-import org.ifinalframework.data.domain.action.UpdateLockedByIdDomainAction;
-import org.ifinalframework.data.domain.action.UpdateStatusByIdDomainAction;
-import org.ifinalframework.data.domain.action.UpdateYnByIdDomainAction;
+import org.ifinalframework.data.domain.action.*;
+import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
-import lombok.Builder;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * DefaultDomainService.
@@ -93,6 +84,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     // update locked
     private final UpdateLockedByIdDomainAction<ID, T, IUser<?>> updateLockedByIdDomainAction;
+    private final UpdateAuditStatusByIdDomainAction<ID, T, IUser<?>> updateAuditStatusByIdDomainAction;
     // delete
     private final DeleteDomainAction<ID, T, IUser<?>> deleteDomainAction;
     private final DeleteByIdDomainAction<ID, T, IUser<?>> deleteByIdDomainAction;
@@ -183,5 +175,10 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     @Override
     public Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user) {
         return updateLockedByIdDomainAction.doAction(id, locked, user);
+    }
+
+    @Override
+    public Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull IUser<?> user) {
+        return updateAuditStatusByIdDomainAction.doAction(id, auditValue, user);
     }
 }

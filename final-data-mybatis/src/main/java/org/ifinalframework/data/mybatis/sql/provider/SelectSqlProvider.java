@@ -40,6 +40,7 @@ import org.ifinalframework.velocity.Velocities;
  * @version 1.0.0
  * @see AbsMapper#select(String, Class, Collection, IQuery)
  * @see AbsMapper#selectOne(String, Class, Serializable, IQuery)
+ * @see AbsMapper#selectIds(Map) 
  * @since 1.0.0
  */
 public class SelectSqlProvider implements AbsMapperSqlProvider {

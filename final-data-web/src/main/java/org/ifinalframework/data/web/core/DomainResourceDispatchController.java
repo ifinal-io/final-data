@@ -15,13 +15,18 @@
 
 package org.ifinalframework.data.web.core;
 
-import javax.annotation.Resource;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-
+import org.ifinalframework.context.exception.BadRequestException;
+import org.ifinalframework.context.exception.NotFoundException;
+import org.ifinalframework.core.*;
+import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.domain.DomainService;
+import org.ifinalframework.data.domain.DomainServiceRegistry;
+import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.json.Json;
+import org.ifinalframework.validation.GlobalValidationGroupsProvider;
+import org.ifinalframework.web.annotation.bind.RequestQuery;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
@@ -30,37 +35,13 @@ import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import org.ifinalframework.context.exception.BadRequestException;
-import org.ifinalframework.context.exception.NotFoundException;
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IEnum;
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IStatus;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.core.IView;
-import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.DomainService;
-import org.ifinalframework.data.domain.DomainServiceRegistry;
-import org.ifinalframework.json.Json;
-import org.ifinalframework.validation.GlobalValidationGroupsProvider;
-import org.ifinalframework.web.annotation.bind.RequestQuery;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.util.*;
 
 /**
  * ResourceDomainController.
@@ -227,6 +208,13 @@ public class DomainResourceDispatchController {
         return domainService.status(id, statusValue, user);
 
     }
+
+    @PatchMapping("/{id}/audit")
+    public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue, IUser<?> user) {
+        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        return domainService.audit(id, auditValue, user);
+    }
+
 
     // lock
     @PatchMapping("/{id}/lock")
