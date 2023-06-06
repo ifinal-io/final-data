@@ -15,29 +15,35 @@
 
 package org.ifinalframework.data.domain.action;
 
-import java.io.Serializable;
-import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateFunction;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
- * ListQueryDomainAction.
+ * DefaultUpdateAuditStatusAction.
  *
  * @author ilikly
- * @version 1.5.0
- * @since 1.5.0
+ * @version 1.5.1
+ * @since 1.5.1
  */
-public class ListQueryDomainAction<ID extends Serializable, T extends IEntity<ID>, Q extends IQuery, U extends IUser<?>> extends AbsSelectDomainAction<ID, T, Q, List<T>, U> {
-    public ListQueryDomainAction(Repository<ID, T> repository) {
-        super(SpiAction.LIST, repository);
-    }
+@RequiredArgsConstructor
+public class DefaultDeleteFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, Void, U> {
+    private final Repository<ID, T> repository;
 
     @Override
-    protected List<T> doActionInternal(Q query, U user) {
-        return repository.select(query);
+    public Integer update(List<T> entities, P param, Void value, U user) {
+
+        if (param instanceof IQuery) {
+            return repository.delete((IQuery) param);
+        } else {
+            return repository.delete((ID) param);
+        }
+
     }
 }

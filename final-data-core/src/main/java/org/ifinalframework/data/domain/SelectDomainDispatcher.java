@@ -13,27 +13,19 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.spi.*;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
-import org.ifinalframework.data.spi.BiConsumer;
-import org.ifinalframework.data.spi.Consumer;
-import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.SpiAction;
-
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 /**
  * ListDomainAction.
@@ -44,20 +36,20 @@ import lombok.Setter;
  */
 @Setter
 @RequiredArgsConstructor
-public abstract class AbsSelectDomainAction<ID extends Serializable, T extends IEntity<ID>, Q, R, U extends IUser<?>> implements DomainAction<Q, Void, U> {
+public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>, R> implements DomainActionDispatcher<P, Void, U> {
 
     private final SpiAction spiAction;
-    protected final Repository<ID, T> repository;
+    private final SelectFunction<P, U, R> selectFunction;
 
-    private PreQueryConsumer<Q, U> preQueryConsumer;
+    private PreQueryConsumer<P, U> preQueryConsumer;
     private Consumer<T, U> postConsumer;
-    private BiConsumer<T, Q, U> postQueryConsumer;
-    private Function<R, Q, U> postQueryFunction;
-    private AfterThrowingQueryConsumer<T, Q, U> afterThrowingQueryConsumer;
-    private AfterReturningQueryConsumer<T, Q, U> afterReturningQueryConsumer;
+    private BiConsumer<T, P, U> postQueryConsumer;
+    private Function<R, P, U> postQueryFunction;
+    private AfterThrowingQueryConsumer<T, P, U> afterThrowingQueryConsumer;
+    private AfterReturningQueryConsumer<T, P, U> afterReturningQueryConsumer;
 
     @Override
-    public Object doAction(Q query, Void value, U user) {
+    public Object doAction(P query, Void value, U user) {
         R result = null;
         List<T> list = null;
         Throwable throwable = null;
@@ -65,7 +57,7 @@ public abstract class AbsSelectDomainAction<ID extends Serializable, T extends I
             if (Objects.nonNull(preQueryConsumer)) {
                 preQueryConsumer.accept(spiAction, query, user);
             }
-            result = doActionInternal(query, user);
+            result = selectFunction.select(query, user);
             list = map(result);
             if (Objects.nonNull(postConsumer)) {
                 postConsumer.accept(spiAction, SpiAction.Advice.POST, list, user);
@@ -91,7 +83,6 @@ public abstract class AbsSelectDomainAction<ID extends Serializable, T extends I
         }
     }
 
-    protected abstract R doActionInternal(Q query, U user);
 
     @SuppressWarnings("unchecked")
     protected List<T> map(R result) {

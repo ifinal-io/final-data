@@ -21,7 +21,6 @@ import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.domain.action.DomainAction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.*;
 import org.ifinalframework.json.Json;
@@ -41,16 +40,16 @@ import java.util.Objects;
 @Setter
 @RequiredArgsConstructor
 public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, Q, V, U extends IUser<?>>
-        implements DomainAction<Q, V, U> {
+        implements DomainActionDispatcher<Q, V, U> {
     private final SpiAction spiAction;
     private final Repository<ID, T> repository;
+    private final UpdateFunction<T, Q, V, U> updateAction;
 
     private PreQueryConsumer<Q, U> preQueryConsumer;
 
     private BiValidator<T, V, U> preUpdateValidator;
     private Consumer<T, U> preConsumer;
     private BiConsumer<T, V, U> preUpdateConsumer;
-    private UpdateAction<T, Q, V, U> updateAction;
     private BiConsumer<T, V, U> postUpdateConsumer;
     private Consumer<T, U> postConsumer;
 

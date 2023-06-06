@@ -22,7 +22,6 @@ import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.action.*;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.Consumer;
@@ -64,10 +63,11 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final InsertDomainAction<ID, T, IUser<?>> insertDomainAction;
 
     // list
-    private final ListQueryDomainAction<ID, T, IQuery, IUser<?>> listQueryDomainAction;
+    private final SelectDomainDispatcher<ID, T, IQuery, IUser<?>, List<T>> listQueryDomainAction;
+
     // detail
-    private final DetailQueryDomainAction<ID, T, IQuery, IUser<?>> detailQueryDomainAction;
-    private final DetailByIdDomainAction<ID, T, IUser<?>> detailByIdDomainAction;
+    private final SelectDomainDispatcher<ID, T, IQuery, IUser<?>, T> detailQueryDomainAction;
+    private final SelectDomainDispatcher<ID, T, ID, IUser<?>, T> detailByIdDomainAction;
 
     // count
     private final PreQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;

@@ -18,41 +18,32 @@ package org.ifinalframework.data.domain.action;
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.domain.model.AuditValue;
-import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.UpdateAction;
+import org.ifinalframework.data.spi.SelectFunction;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 /**
- * DefaultUpdateAuditStatusAction.
+ * DefaultSelectFunction.
  *
  * @author ilikly
  * @version 1.5.1
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateAuditStatusAction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateAction<T, P, AuditValue, U> {
+public class DefaultSelectFunction<ID extends Serializable, T extends IEntity<ID>, P, U> implements SelectFunction<P, U, List<T>> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, AuditValue value, U user) {
-        Update update = Update.update()
-                .set("audit_status", value.getStatus())
-                .set("audit_content", value.getContent())
-                .set("audit_date_time", LocalDateTime.now())
-                .set("auditor_id", user.getId())
-                .set("auditor_name", user.getName());
-
+    public List<T> select(P param, U user) {
         if (param instanceof IQuery) {
-            return repository.update(update, (IQuery) param);
+            return repository.select((IQuery) param);
+        } else if (param instanceof Collection) {
+            return repository.select((Collection<ID>) param);
         } else {
-            return repository.update(update, (ID) param);
+            return repository.select((ID) param);
         }
-
     }
 }

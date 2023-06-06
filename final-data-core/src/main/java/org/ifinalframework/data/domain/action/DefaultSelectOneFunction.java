@@ -18,32 +18,28 @@ package org.ifinalframework.data.domain.action;
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.UpdateAction;
+import org.ifinalframework.data.spi.SelectFunction;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
- * DefaultUpdateLockedAction.
+ * DefaultSelectFunction.
  *
  * @author ilikly
  * @version 1.5.1
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateStatusAction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateAction<T, P, Boolean, U> {
+public class DefaultSelectOneFunction<ID extends Serializable, T extends IEntity<ID>, P, U> implements SelectFunction<P, U, T> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, Boolean value, U user) {
-        Update update = Update.update().set("status", value);
+    public T select(P param, U user) {
         if (param instanceof IQuery) {
-            return repository.update(update, (IQuery) param);
+            return repository.selectOne((IQuery) param);
         } else {
-            return repository.update(update, (ID) param);
+            return repository.selectOne((ID) param);
         }
     }
 }

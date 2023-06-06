@@ -15,28 +15,35 @@
 
 package org.ifinalframework.data.domain.action;
 
-import java.io.Serializable;
-
+import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateFunction;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
- * ListQueryDomainAction.
+ * DefaultUpdateLockedAction.
  *
  * @author ilikly
- * @version 1.5.0
- * @since 1.5.0
+ * @version 1.5.1
+ * @since 1.5.1
  */
-public class DetailQueryDomainAction<ID extends Serializable, T extends IEntity<ID>, Q extends IQuery, U extends IUser<?>> extends AbsSelectDomainAction<ID, T, Q, T, U> {
-    public DetailQueryDomainAction(Repository<ID, T> repository) {
-        super(SpiAction.DETAIL, repository);
-    }
+@RequiredArgsConstructor
+public class DefaultUpdateLockedFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, Boolean, U> {
+    private final Repository<ID, T> repository;
 
     @Override
-    protected T doActionInternal(Q query, U user) {
-        return repository.selectOne(query);
+    public Integer update(List<T> entities, P param, Boolean value, U user) {
+        Update update = Update.update().set("locked", value);
+        if (param instanceof IQuery) {
+            return repository.update(update, (IQuery) param);
+        } else {
+            return repository.update(update, (ID) param);
+        }
     }
 }

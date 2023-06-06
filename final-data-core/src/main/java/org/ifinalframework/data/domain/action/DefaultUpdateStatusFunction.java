@@ -21,7 +21,7 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.UpdateAction;
+import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
 import java.util.List;
@@ -34,12 +34,12 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateLockedAction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateAction<T, P, Boolean, U> {
+public class DefaultUpdateStatusFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, Boolean, U> {
     private final Repository<ID, T> repository;
 
     @Override
     public Integer update(List<T> entities, P param, Boolean value, U user) {
-        Update update = Update.update().set("locked", value);
+        Update update = Update.update().set("status", value);
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);
         } else {

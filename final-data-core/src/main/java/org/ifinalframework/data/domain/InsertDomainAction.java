@@ -13,13 +13,14 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.ifinalframework.data.domain.DomainActionDispatcher;
 import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IEntity;
@@ -44,7 +45,7 @@ import lombok.Setter;
  */
 @Setter
 @RequiredArgsConstructor
-public class InsertDomainAction<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> implements DomainAction<Void, List<T>, U> {
+public class InsertDomainAction<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> implements DomainActionDispatcher<Void, List<T>, U> {
     private final Repository<ID, T> repository;
     private final boolean insertIgnore;
 

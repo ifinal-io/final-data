@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain;
 
 /**
  * DomainAction.
@@ -22,7 +22,7 @@ package org.ifinalframework.data.domain.action;
  * @version 1.5.0
  * @since 1.5.0
  */
-public interface DomainAction<Q, V, U> {
+public interface DomainActionDispatcher<Q, V, U> {
 
     Object doAction(Q query, V value, U user);
 
