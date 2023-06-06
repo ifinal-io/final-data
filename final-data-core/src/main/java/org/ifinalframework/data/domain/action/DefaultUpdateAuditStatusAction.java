@@ -15,43 +15,44 @@
 
 package org.ifinalframework.data.domain.action;
 
+import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateAction;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * UpdateStatusByIdDomainAction.
+ * DefaultUpdateAuditStatusAction.
  *
  * @author ilikly
  * @version 1.5.1
  * @since 1.5.1
  */
-public class UpdateAuditStatusByIdDomainAction<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>>
-        extends AbsUpdateDomainAction<ID, T, ID, AuditValue, Integer, U> {
-    public UpdateAuditStatusByIdDomainAction(Repository<ID, T> repository) {
-        super(SpiAction.UPDATE_STATUS, repository);
-    }
+@RequiredArgsConstructor
+public class DefaultUpdateAuditStatusAction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateAction<T, P, AuditValue, U> {
+    private final Repository<ID, T> repository;
 
     @Override
-    protected List<T> doActionPrepare(ID query, AuditValue value, U user) {
-        return repository.select(query);
-    }
-
-    @Override
-    protected Integer doActionInternal(List<T> list, ID query, AuditValue value, U user) {
+    public Integer update(List<T> entities, P param, AuditValue value, U user) {
         Update update = Update.update()
                 .set("audit_status", value.getStatus())
                 .set("audit_content", value.getContent())
                 .set("audit_date_time", LocalDateTime.now())
                 .set("auditor_id", user.getId())
                 .set("auditor_name", user.getName());
-        return repository.update(update, query);
+
+        if (param instanceof IQuery) {
+            return repository.update(update, (IQuery) param);
+        } else {
+            return repository.update(update, (ID) param);
+        }
+
     }
 }

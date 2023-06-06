@@ -15,16 +15,16 @@
 
 package org.ifinalframework.data.domain;
 
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.ifinalframework.core.*;
+import org.ifinalframework.data.annotation.DomainResource;
+import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.action.*;
+import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.repository.Repository;
+import org.ifinalframework.data.spi.*;
+import org.ifinalframework.util.CompositeProxies;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
@@ -32,25 +32,9 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
-import org.ifinalframework.data.annotation.DomainResource;
-import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.AfterReturningConsumer;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
-import org.ifinalframework.data.spi.AfterThrowingConsumer;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
-import org.ifinalframework.data.spi.BiConsumer;
-import org.ifinalframework.data.spi.Consumer;
-import org.ifinalframework.data.spi.Filter;
-import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.PreInsertFunction;
-import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.BiValidator;
-import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.util.CompositeProxies;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * DefaultDomainServiceFactory.
@@ -119,14 +103,14 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         final Class<?> deleteQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Delete.class), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
 
-        final DeleteDomainAction<ID, T, IUser<?>> deleteDomainAction = new DeleteDomainAction<>(repository);
+        final UpdateDomainActionDispatcher<ID, T, IQuery, Void, IUser<?>> deleteDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository);
         deleteDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
         deleteDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         deleteDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, BiConsumer.class, entityClass, deleteQueryClass, userClass));
         builder.deleteDomainAction(deleteDomainAction);
 
-        final DeleteByIdDomainAction<ID, T, IUser<?>> deleteByIdDomainAction = new DeleteByIdDomainAction<>(repository);
+        final UpdateDomainActionDispatcher<ID, T, ID, Void, IUser<?>> deleteByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository);
         deleteByIdDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         builder.deleteByIdDomainAction(deleteByIdDomainAction);
@@ -175,7 +159,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         builder.preCountQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE, PreQueryConsumer.class, countQueryClass, userClass));
 
         // update yn
-        final UpdateYnByIdDomainAction<ID, T, IUser<?>> updateYnByIdDomainAction = new UpdateYnByIdDomainAction<>(repository);
+        final UpdateDomainActionDispatcher<ID, T, ID, YN, IUser<?>> updateYnByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository);
         acceptUpdateDomainAction(updateYnByIdDomainAction, SpiAction.UPDATE_YN, entityClass, YN.class, userClass);
         builder.updateYnByIdDomainAction(updateYnByIdDomainAction);
 
@@ -183,19 +167,19 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // update status
         if (IStatus.class.isAssignableFrom(entityClass)) {
             final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
-            final UpdateStatusByIdDomainAction<ID, T, IUser<?>> updateStatusByIdDomainAction = new UpdateStatusByIdDomainAction<>(repository);
+            final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, IUser<?>> updateStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_STATUS, repository);
             acceptUpdateDomainAction(updateStatusByIdDomainAction, SpiAction.UPDATE_STATUS, entityClass, statusClass, userClass);
             builder.updateStatusByIdDomainAction(updateStatusByIdDomainAction);
         }
         // update locked
         if (ILock.class.isAssignableFrom(entityClass)) {
-            final UpdateLockedByIdDomainAction<ID, T, IUser<?>> updateLockedByIdDomainAction = new UpdateLockedByIdDomainAction<>(repository);
+            final UpdateDomainActionDispatcher<ID, T, ID, Boolean, IUser<?>> updateLockedByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository);
             acceptUpdateDomainAction(updateLockedByIdDomainAction, SpiAction.UPDATE_LOCKED, entityClass, Boolean.class, userClass);
             builder.updateLockedByIdDomainAction(updateLockedByIdDomainAction);
         }
 
-        if(IAudit.class.isAssignableFrom(entityClass)){
-            final UpdateAuditStatusByIdDomainAction<ID, T, IUser<?>> updateAuditStatusByIdDomainAction = new UpdateAuditStatusByIdDomainAction<>(repository);
+        if (IAudit.class.isAssignableFrom(entityClass)) {
+            final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, IUser<?>> updateAuditStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository);
             acceptUpdateDomainAction(updateAuditStatusByIdDomainAction, SpiAction.UPDATE_AUDIT_STATUS, entityClass, Boolean.class, userClass);
             builder.updateAuditStatusByIdDomainAction(updateAuditStatusByIdDomainAction);
         }
@@ -204,7 +188,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         return builder.build();
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>, Q, V, R> void acceptUpdateDomainAction(AbsUpdateDomainAction<ID, T, Q, V, R, IUser<?>> action, SpiAction spiAction, Class<?> entityClass, Class<?> valueClass, Class<?> userClass) {
+    private <ID extends Serializable, T extends IEntity<ID>, Q, V, R> void acceptUpdateDomainAction(UpdateDomainActionDispatcher<ID, T, Q, V, R, IUser<?>> action, SpiAction spiAction, Class<?> entityClass, Class<?> valueClass, Class<?> userClass) {
         action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiValidator.class, entityClass, valueClass, userClass));
         action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiConsumer.class, entityClass, valueClass, userClass));
         action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, BiConsumer.class, entityClass, valueClass, userClass));

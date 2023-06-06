@@ -15,34 +15,35 @@
 
 package org.ifinalframework.data.domain.action;
 
+import lombok.RequiredArgsConstructor;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.query.Update;
+import org.ifinalframework.data.repository.Repository;
+import org.ifinalframework.data.spi.UpdateAction;
+
 import java.io.Serializable;
 import java.util.List;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.SpiAction;
-
 /**
- * UpdateStatusByIdDomainAction.
+ * DefaultUpdateLockedAction.
  *
  * @author ilikly
- * @version 1.5.0
- * @since 1.5.0
+ * @version 1.5.1
+ * @since 1.5.1
  */
-public class DeleteByIdDomainAction<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>>
-        extends AbsUpdateDomainAction<ID, T, ID, Boolean, Integer, U> {
-    public DeleteByIdDomainAction(Repository<ID, T> repository) {
-        super(SpiAction.DELETE, repository);
-    }
+@RequiredArgsConstructor
+public class DefaultUpdateStatusAction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateAction<T, P, Boolean, U> {
+    private final Repository<ID, T> repository;
 
     @Override
-    protected List<T> doActionPrepare(ID query, Boolean value, U user) {
-        return repository.select(query);
-    }
-
-    @Override
-    protected Integer doActionInternal(List<T> list, ID query, Boolean value, U user) {
-        return repository.delete(query);
+    public Integer update(List<T> entities, P param, Boolean value, U user) {
+        Update update = Update.update().set("status", value);
+        if (param instanceof IQuery) {
+            return repository.update(update, (IQuery) param);
+        } else {
+            return repository.update(update, (ID) param);
+        }
     }
 }

@@ -13,30 +13,23 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.ifinalframework.context.exception.NotFoundException;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.domain.action.DomainAction;
+import org.ifinalframework.data.repository.Repository;
+import org.ifinalframework.data.spi.*;
+import org.ifinalframework.json.Json;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-
-import org.springframework.util.CollectionUtils;
-
-import org.ifinalframework.context.exception.NotFoundException;
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
-import org.ifinalframework.data.spi.BiConsumer;
-import org.ifinalframework.data.spi.Consumer;
-import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.PreQueryConsumer;
-import org.ifinalframework.data.spi.BiValidator;
-import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.json.Json;
-
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 /**
  * AbsUpdateDomainAction.
@@ -47,29 +40,29 @@ import lombok.Setter;
  */
 @Setter
 @RequiredArgsConstructor
-public abstract class AbsUpdateDomainAction<ID extends Serializable, T extends IEntity<ID>, Q, V, R, U extends IUser<?>>
+public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, Q, V, U extends IUser<?>>
         implements DomainAction<Q, V, U> {
     private final SpiAction spiAction;
-    protected final Repository<ID, T> repository;
-
+    private final Repository<ID, T> repository;
 
     private PreQueryConsumer<Q, U> preQueryConsumer;
 
     private BiValidator<T, V, U> preUpdateValidator;
     private Consumer<T, U> preConsumer;
     private BiConsumer<T, V, U> preUpdateConsumer;
+    private UpdateAction<T, Q, V, U> updateAction;
     private BiConsumer<T, V, U> postUpdateConsumer;
     private Consumer<T, U> postConsumer;
 
     private BiConsumer<T, Q, U> postQueryConsumer;
-    private Function<R, Q, U> postQueryFunction;
+    private Function<Integer, Q, U> postQueryFunction;
     private AfterThrowingQueryConsumer<T, Q, U> afterThrowingQueryConsumer;
     private AfterReturningQueryConsumer<T, Q, U> afterReturningQueryConsumer;
 
     @Override
     public Object doAction(Q query, V value, U user) {
 
-        R result = null;
+        Integer result = null;
         List<T> list = null;
         Throwable throwable = null;
         try {
@@ -96,7 +89,7 @@ public abstract class AbsUpdateDomainAction<ID extends Serializable, T extends I
                 preUpdateConsumer.accept(spiAction, SpiAction.Advice.PRE, list, value, user);
             }
 
-            result = doActionInternal(list, query, value, user);
+            result = updateAction.update(list, query, value, user);
 
 
             if (Objects.nonNull(postUpdateConsumer)) {
@@ -132,7 +125,12 @@ public abstract class AbsUpdateDomainAction<ID extends Serializable, T extends I
 
     }
 
-    protected abstract List<T> doActionPrepare(Q query, V value, U user);
+    protected List<T> doActionPrepare(Q query, V value, U user) {
+        if (query instanceof IQuery) {
+            return repository.select((IQuery) query);
+        } else {
+            return repository.select((ID) query);
+        }
+    }
 
-    protected abstract R doActionInternal(List<T> list, Q query, V value, U user);
 }

@@ -77,17 +77,18 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final Consumer<T, IUser<?>> postUpdateConsumer;
 
     // update yn
-    private final UpdateYnByIdDomainAction<ID, T, IUser<?>> updateYnByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, YN, IUser<?>> updateYnByIdDomainAction;
 
     // update status
-    private final UpdateStatusByIdDomainAction<ID, T, IUser<?>> updateStatusByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, IUser<?>> updateStatusByIdDomainAction;
 
     // update locked
-    private final UpdateLockedByIdDomainAction<ID, T, IUser<?>> updateLockedByIdDomainAction;
-    private final UpdateAuditStatusByIdDomainAction<ID, T, IUser<?>> updateAuditStatusByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, Boolean, IUser<?>> updateLockedByIdDomainAction;
+    // update audit-status
+    private final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, IUser<?>> updateAuditStatusByIdDomainAction;
     // delete
-    private final DeleteDomainAction<ID, T, IUser<?>> deleteDomainAction;
-    private final DeleteByIdDomainAction<ID, T, IUser<?>> deleteByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, Void, IUser<?>> deleteByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, IQuery, Void, IUser<?>> deleteDomainAction;
 
     @NonNull
     @Override

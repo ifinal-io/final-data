@@ -15,36 +15,35 @@
 
 package org.ifinalframework.data.domain.action;
 
+import lombok.RequiredArgsConstructor;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.query.Update;
+import org.ifinalframework.data.repository.Repository;
+import org.ifinalframework.data.spi.UpdateAction;
+
 import java.io.Serializable;
 import java.util.List;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.data.query.Update;
-
 /**
- * UpdateStatusByIdDomainAction.
+ * DefaultUpdateLockedAction.
  *
  * @author ilikly
- * @version 1.5.0
- * @since 1.5.0
+ * @version 1.5.1
+ * @since 1.5.1
  */
-public class UpdateLockedByIdDomainAction<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>>
-        extends AbsUpdateDomainAction<ID, T, ID, Boolean, Integer, U> {
-    public UpdateLockedByIdDomainAction(Repository<ID, T> repository) {
-        super(SpiAction.UPDATE_STATUS, repository);
-    }
+@RequiredArgsConstructor
+public class DefaultUpdateLockedAction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateAction<T, P, Boolean, U> {
+    private final Repository<ID, T> repository;
 
     @Override
-    protected List<T> doActionPrepare(ID query, Boolean value, U user) {
-        return repository.select(query);
-    }
-
-    @Override
-    protected Integer doActionInternal(List<T> list, ID query, Boolean value, U user) {
+    public Integer update(List<T> entities, P param, Boolean value, U user) {
         Update update = Update.update().set("locked", value);
-        return repository.update(update, query);
+        if (param instanceof IQuery) {
+            return repository.update(update, (IQuery) param);
+        } else {
+            return repository.update(update, (ID) param);
+        }
     }
 }
