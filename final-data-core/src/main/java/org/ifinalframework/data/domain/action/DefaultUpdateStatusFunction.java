@@ -17,6 +17,7 @@ package org.ifinalframework.data.domain.action;
 
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.query.Update;
@@ -24,6 +25,7 @@ import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,14 +36,17 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateStatusFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, Boolean, U> {
+public class DefaultUpdateStatusFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, IEnum<?>, U> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, Boolean value, U user) {
+    @SuppressWarnings("unchecked")
+    public Integer update(List<T> entities, P param, IEnum<?> value, U user) {
         Update update = Update.update().set("status", value);
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);
+        } else if (param instanceof Collection) {
+            return repository.update(update, (Collection<ID>) param);
         } else {
             return repository.update(update, (ID) param);
         }
