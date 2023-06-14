@@ -16,11 +16,9 @@
 package org.ifinalframework.data.web.core;
 
 import org.ifinalframework.context.exception.BadRequestException;
-import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.*;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
-import org.ifinalframework.data.domain.DomainServiceRegistry;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.validation.GlobalValidationGroupsProvider;
@@ -60,56 +58,49 @@ public class DomainResourceDispatchController {
 
     @Resource
     private GlobalValidationGroupsProvider globalValidationGroupsProvider;
-    @Resource
-    private DomainServiceRegistry domainServiceRegistry;
 
 
     @GetMapping
-    public Object query(@PathVariable String resource, @RequestQuery(view = IView.List.class) IQuery query, IUser<?> user) {
+    public Object query(@PathVariable String resource, @RequestQuery(view = IView.List.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}", resource);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.list(query, user);
     }
 
     @GetMapping("/detail")
-    public Object detail(@PathVariable String resource, @RequestQuery(view = IView.Detail.class) IQuery query, IUser<?> user) {
+    public Object detail(@PathVariable String resource, @RequestQuery(view = IView.Detail.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}/detail", resource);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.detail(query, user);
     }
 
     @GetMapping("/{id}")
-    public Object query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+    public Object query(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.detail(id, user);
     }
 
     // delete
 
     @DeleteMapping
-    public Object delete(@PathVariable String resource, @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user) {
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
+    public Object delete(@PathVariable String resource, @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return domainService.delete(query, user);
     }
 
     @DeleteMapping("/delete")
-    public Object deleteFromParam(@PathVariable String resource, @RequestParam Long id, IUser<?> user) {
-        return this.delete(resource, id, user);
+    public Object deleteFromParam(@PathVariable String resource, @RequestParam Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return this.delete(resource, id, user, domainService);
     }
 
     @DeleteMapping("/{id}")
-    public Object delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
+    public Object delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.delete(id, user);
     }
 
 
     @PostMapping
-    public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+    public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+                         NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups());
@@ -148,18 +139,20 @@ public class DomainResourceDispatchController {
     }
 
     @PutMapping
-    public Integer update(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
-        return doUpdate(resource, null, requestBody, user, request, binderFactory);
+    public Integer update(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+                          NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+        return doUpdate(resource, null, requestBody, user, domainService, request, binderFactory);
     }
 
     @PutMapping("/{id}")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
-        return doUpdate(resource, id, requestBody, user, request, binderFactory);
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+                          NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+        return doUpdate(resource, id, requestBody, user, domainService, request, binderFactory);
     }
 
-    private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
+    private Integer doUpdate(String resource, Long id, String body, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+                             NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
         IEntity<Long> entity = Json.toObject(body, entityClass);
         if (Objects.nonNull(id)) {
@@ -176,19 +169,18 @@ public class DomainResourceDispatchController {
     }
 
     @PatchMapping("/{id}/status")
-    public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user) {
-        return doUpdateStatus(resource, id, status, user);
+    public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return doUpdateStatus(resource, id, status, user, domainService);
     }
 
     @PatchMapping("/status")
-    public Object status2(@PathVariable String resource, @RequestParam Long id, @RequestParam String status, IUser<?> user) {
-        return doUpdateStatus(resource, id, status, user);
+    public Object status2(@PathVariable String resource, @RequestParam Long id, @RequestParam String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return doUpdateStatus(resource, id, status, user, domainService);
     }
 
 
     @SuppressWarnings("unchecked")
-    private Object doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
+    private Object doUpdateStatus(String resource, Long id, String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         if (!IStatus.class.isAssignableFrom(entityClass)) {
@@ -210,65 +202,50 @@ public class DomainResourceDispatchController {
     }
 
     @PatchMapping("/{id}/audit")
-    public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue, IUser<?> user) {
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
+    public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return domainService.audit(id, auditValue, user);
     }
 
 
     // lock
     @PatchMapping("/{id}/lock")
-    public Object lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
+    public Object lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return domainService.lock(id, true, user);
     }
 
     @PatchMapping("/{id}/unlock")
-    public Object unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
+    public Object unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return domainService.lock(id, false, user);
     }
 
 
     @RequestMapping(value = "/{id}/yn", method = {RequestMethod.PATCH, RequestMethod.PUT})
-    public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
+    public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.yn(id, yn, user);
     }
 
     @PutMapping("/{id}/disable")
-    public Object disable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        return this.update(resource, id, YN.NO, user);
+    public Object disable(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return this.update(resource, id, YN.NO, user, domainService);
     }
 
     @PutMapping("/{id}/enable")
-    public Object enable(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        return this.update(resource, id, YN.YES, user);
+    public Object enable(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return this.update(resource, id, YN.YES, user, domainService);
     }
 
     @PutMapping("/yn")
-    public Object yn(@PathVariable String resource, @RequestParam Long id, @RequestParam YN yn, IUser<?> user) {
-        return this.update(resource, id, yn, user);
+    public Object yn(@PathVariable String resource, @RequestParam Long id, @RequestParam YN yn, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return this.update(resource, id, yn, user, domainService);
     }
 
 
     @GetMapping("/count")
-    public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query, IUser<?> user) {
+    public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}", resource);
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.count(query, user);
     }
-
-    private DomainService<Long, IEntity<Long>, IUser<?>> getDomainService(String resource) {
-        DomainService<Long, IEntity<Long>, IUser<?>> domainService = domainServiceRegistry.getDomainService(resource);
-
-        if (Objects.isNull(domainService)) {
-            throw new NotFoundException("not found resource for " + resource);
-        }
-        return domainService;
-    }
-
 
 }
 
