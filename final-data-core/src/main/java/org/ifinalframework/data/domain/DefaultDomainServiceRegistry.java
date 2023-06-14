@@ -45,19 +45,18 @@ import lombok.Setter;
  */
 @Component
 public class DefaultDomainServiceRegistry implements DomainServiceRegistry, ApplicationContextAware, SmartInitializingSingleton {
-    private final Map<String, DomainService<Long, IEntity<Long>>> domainServiceMap = new LinkedHashMap<>();
+    private final Map<String, DomainService<Long, IEntity<Long>,IUser<?>>> domainServiceMap = new LinkedHashMap<>();
 
     @Setter
     private ApplicationContext applicationContext;
 
     @Override
-    public <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> getDomainService(String resource) {
-        return (DomainService<ID, T>) domainServiceMap.get(resource);
+    public <ID extends Serializable, T extends IEntity<ID>,U extends IUser<?>> DomainService<ID, T,U> getDomainService(String resource) {
+        return (DomainService<ID, T,U>) domainServiceMap.get(resource);
     }
 
     @Override
     public void afterSingletonsInstantiated() {
-
 
         String userClassName = applicationContext.getEnvironment().getRequiredProperty("final.security.user-class");
 

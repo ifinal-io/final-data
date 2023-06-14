@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 @Builder
 @SuppressWarnings("unchecked")
-public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>> implements DomainService<ID, T> {
+public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> implements DomainService<ID, T, U> {
 
     private final Repository<ID, T> repository;
 
@@ -57,38 +57,38 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final Map<Class<?>, Class<?>> domainClassMap;
 
 
-    private final PreInsertFunction<Object, IUser<?>, T> preInsertFunction;
+    private final PreInsertFunction<Object, U, T> preInsertFunction;
 
     // create
-    private final InsertDomainAction<ID, T, IUser<?>> insertDomainAction;
+    private final InsertDomainAction<ID, T, U> insertDomainAction;
 
     // list
-    private final SelectDomainDispatcher<ID, T, IQuery, IUser<?>, List<T>> listQueryDomainAction;
+    private final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction;
 
     // detail
-    private final SelectDomainDispatcher<ID, T, IQuery, IUser<?>, T> detailQueryDomainAction;
-    private final SelectDomainDispatcher<ID, T, ID, IUser<?>, T> detailByIdDomainAction;
+    private final SelectDomainDispatcher<ID, T, IQuery, U, T> detailQueryDomainAction;
+    private final SelectDomainDispatcher<ID, T, ID, U, T> detailByIdDomainAction;
 
     // count
-    private final PreQueryConsumer<IQuery, IUser<?>> preCountQueryConsumer;
+    private final PreQueryConsumer<IQuery, U> preCountQueryConsumer;
 
     // update
-    private final Consumer<T, IUser<?>> preUpdateConsumer;
-    private final Consumer<T, IUser<?>> postUpdateConsumer;
+    private final Consumer<T, U> preUpdateConsumer;
+    private final Consumer<T, U> postUpdateConsumer;
 
     // update yn
-    private final UpdateDomainActionDispatcher<ID, T, ID, YN, IUser<?>> updateYnByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, YN, U> updateYnByIdDomainAction;
 
     // update status
-    private final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, IUser<?>> updateStatusByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusByIdDomainAction;
 
     // update locked
-    private final UpdateDomainActionDispatcher<ID, T, ID, Boolean, IUser<?>> updateLockedByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, Boolean, U> updateLockedByIdDomainAction;
     // update audit-status
-    private final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, IUser<?>> updateAuditStatusByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusByIdDomainAction;
     // delete
-    private final UpdateDomainActionDispatcher<ID, T, ID, Void, IUser<?>> deleteByIdDomainAction;
-    private final UpdateDomainActionDispatcher<ID, T, IQuery, Void, IUser<?>> deleteDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, ID, Void, U> deleteByIdDomainAction;
+    private final UpdateDomainActionDispatcher<ID, T, IQuery, Void, U> deleteDomainAction;
 
     @NonNull
     @Override
@@ -109,50 +109,50 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public PreInsertFunction<Object, IUser<?>, T> preInsertFunction() {
+    public PreInsertFunction<Object, U, T> preInsertFunction() {
         return preInsertFunction;
     }
 
     @Override
-    public Object create(@NonNull List<T> entities, @NonNull IUser<?> user) {
+    public Object create(@NonNull List<T> entities, @NonNull U user) {
         return insertDomainAction.doAction(null, entities, user);
     }
 
     @Override
-    public Object list(@NonNull IQuery query, @NonNull IUser<?> user) {
+    public Object list(@NonNull IQuery query, @NonNull U user) {
         return listQueryDomainAction.doAction(query, null, user);
     }
 
     @Override
-    public Object detail(@NonNull IQuery query, @NonNull IUser<?> user) {
+    public Object detail(@NonNull IQuery query, @NonNull U user) {
         return detailQueryDomainAction.doAction(query, null, user);
 
     }
 
     @Override
-    public Object detail(@NonNull ID id, @NonNull IUser<?> user) {
+    public Object detail(@NonNull ID id, @NonNull U user) {
         return detailByIdDomainAction.doAction(id, null, user);
     }
 
     @Override
-    public Long count(@NonNull IQuery query, @NonNull IUser<?> user) {
+    public Long count(@NonNull IQuery query, @NonNull U user) {
         preCountQueryConsumer.accept(SpiAction.COUNT, query, user);
         return repository.selectCount(query);
     }
 
     @Override
-    public Object delete(@NonNull IQuery query, @NonNull IUser<?> user) {
+    public Object delete(@NonNull IQuery query, @NonNull U user) {
         return deleteDomainAction.doAction(query, null, user);
 
     }
 
     @Override
-    public Object delete(@NonNull ID id, @NonNull IUser<?> user) {
+    public Object delete(@NonNull ID id, @NonNull U user) {
         return deleteByIdDomainAction.doAction(id, null, user);
     }
 
     @Override
-    public int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull IUser<?> user) {
+    public int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user) {
         T dbEntity = repository.selectOne(id);
         if (Objects.isNull(dbEntity)) {
             throw new NotFoundException("not found entity by id= " + id);
@@ -164,22 +164,22 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Object yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user) {
+    public Object yn(@NonNull ID id, @NonNull YN yn, @NonNull U user) {
         return updateYnByIdDomainAction.doAction(id, yn, user);
     }
 
     @Override
-    public Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user) {
+    public Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user) {
         return updateStatusByIdDomainAction.doAction(id, status, user);
     }
 
     @Override
-    public Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user) {
+    public Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull U user) {
         return updateLockedByIdDomainAction.doAction(id, locked, user);
     }
 
     @Override
-    public Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull IUser<?> user) {
+    public Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user) {
         return updateAuditStatusByIdDomainAction.doAction(id, auditValue, user);
     }
 }

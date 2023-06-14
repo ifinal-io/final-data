@@ -41,7 +41,7 @@ import java.util.List;
  * @since 1.4.3
  */
 @Validated
-public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
+public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> {
 
     @NonNull
     Class<T> entityClass();
@@ -53,7 +53,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
     Class<? extends IQuery> domainQueryClass(Class<?> prefix);
 
     @Nullable
-    PreInsertFunction<Object, IUser<?>, T> preInsertFunction();
+    PreInsertFunction<Object, U, T> preInsertFunction();
 
 
     /**
@@ -66,7 +66,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
-    Object create(@NonNull @Valid List<T> entities, @NonNull IUser<?> user);
+    Object create(@NonNull @Valid List<T> entities, @NonNull U user);
 
     /**
      * @param query the query of list.
@@ -80,7 +80,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
-    Object list(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
+    Object list(@NonNull @Valid IQuery query, @NonNull U user);
 
     /**
      * @param query the query of detail.
@@ -91,7 +91,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.BiConsumer
      * @see org.ifinalframework.data.spi.Consumer
      */
-    Object detail(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
+    Object detail(@NonNull @Valid IQuery query, @NonNull U user);
 
     /**
      * @param id   the id of entity.
@@ -100,7 +100,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.Consumer
      */
-    Object detail(@NonNull ID id, @NonNull IUser<?> user);
+    Object detail(@NonNull ID id, @NonNull U user);
 
     /**
      * @param query the query of count.
@@ -109,7 +109,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Count
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      */
-    Long count(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
+    Long count(@NonNull @Valid IQuery query, @NonNull U user);
 
     /**
      * @param query the query of deleted.
@@ -120,7 +120,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.BiConsumer
      */
-    Object delete(@NonNull @Valid IQuery query, @NonNull IUser<?> user);
+    Object delete(@NonNull @Valid IQuery query, @NonNull U user);
 
     /**
      * @param id   the id of deleted.
@@ -130,7 +130,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.Consumer
      */
-    Object delete(@NonNull ID id, @NonNull IUser<?> user);
+    Object delete(@NonNull ID id, @NonNull U user);
 
     /**
      * @param entity    the entity to update.
@@ -142,7 +142,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.AfterReturnUpdateConsumer
      */
-    int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull IUser<?> user);
+    int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user);
 
     /**
      * @param id   the entity id to update.
@@ -151,13 +151,13 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>> {
      * @see BiValidator
      * @see org.ifinalframework.data.spi.BiConsumer
      */
-    Object yn(@NonNull ID id, @NonNull YN yn, @NonNull IUser<?> user);
+    Object yn(@NonNull ID id, @NonNull YN yn, @NonNull U user);
 
-    Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull IUser<?> user);
+    Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user);
 
-    Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull IUser<?> user);
+    Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull U user);
 
-    Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull IUser<?> user);
+    Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user);
 
 
 }

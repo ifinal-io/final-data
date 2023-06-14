@@ -15,9 +15,10 @@
 
 package org.ifinalframework.data.domain;
 
-import java.io.Serializable;
-
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IUser;
+
+import java.io.Serializable;
 
 /**
  * DomainResourceManager.
@@ -28,6 +29,6 @@ import org.ifinalframework.core.IEntity;
  */
 @FunctionalInterface
 public interface DomainServiceRegistry {
-    <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> getDomainService(String resource);
+    <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> getDomainService(String resource);
 
 }

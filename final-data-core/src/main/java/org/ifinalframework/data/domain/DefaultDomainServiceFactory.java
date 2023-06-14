@@ -45,17 +45,17 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultDomainServiceFactory implements DomainServiceFactory {
+public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainServiceFactory {
 
-    private final Class<? extends IUser<?>> userClass;
+    private final Class<U> userClass;
     private final ApplicationContext applicationContext;
 
     private final DomainSpiMatcher domainSpiMatcher = new SimpleNameDomainSpiMatcher();
 
     @Override
     @SuppressWarnings("unchecked,rawtypes")
-    public <ID extends Serializable, T extends IEntity<ID>> DomainService<ID, T> create(Repository<ID, T> repository) {
-        DefaultDomainService.DefaultDomainServiceBuilder<ID, T> builder = DefaultDomainService.builder();
+    public <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> create(Repository<ID, T> repository) {
+        DefaultDomainService.DefaultDomainServiceBuilder<ID, T, U> builder = DefaultDomainService.builder();
         builder.repository(repository);
         ResolvableType repositoryResolvableType = ResolvableType.forClass(AopUtils.getTargetClass(repository)).as(Repository.class);
         Class<?> idClass = Objects.requireNonNull(repositoryResolvableType.resolveGeneric());
@@ -87,7 +87,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             builder.preInsertFunction(preInsertFunction);
         }
 
-        InsertDomainAction<ID, T, IUser<?>> insertDomainAction = new InsertDomainAction<>(repository, domainResource.insertIgnore());
+        InsertDomainAction<ID, T, U> insertDomainAction = new InsertDomainAction<>(repository, domainResource.insertIgnore());
         // PreInsert
         insertDomainAction.setPreInsertFilter(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Filter.class, entityClass, userClass));
         insertDomainAction.setPreInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
@@ -104,7 +104,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
 
         //UpdateFunction<Entity,DeleteQuery,Void,User>
-        final UpdateFunction<T, IQuery, Void, IUser<?>> deleteUpdateFunction = (UpdateFunction<T, IQuery, Void, IUser<?>>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, IQuery, Void, U> deleteUpdateFunction = (UpdateFunction<T, IQuery, Void, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -114,7 +114,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                         ))
                 .getIfAvailable(() -> new DefaultDeleteFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<ID, T, IQuery, Void, IUser<?>> deleteDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunction);
+        final UpdateDomainActionDispatcher<ID, T, IQuery, Void, U> deleteDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunction);
         deleteDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
         deleteDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
@@ -123,7 +123,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
 
         //UpdateFunction<Entity,DeleteQuery,Void,User>
-        final UpdateFunction<T, ID, Void, IUser<?>> deleteUpdateFunctionById = (UpdateFunction<T, ID, Void, IUser<?>>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, ID, Void, U> deleteUpdateFunctionById = (UpdateFunction<T, ID, Void, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -133,7 +133,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                         ))
                 .getIfAvailable(() -> new DefaultDeleteFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<ID, T, ID, Void, IUser<?>> deleteByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunctionById);
+        final UpdateDomainActionDispatcher<ID, T, ID, Void, U> deleteByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunctionById);
         deleteByIdDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         builder.deleteByIdDomainAction(deleteByIdDomainAction);
@@ -149,10 +149,10 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
 
         // SelectFunction<Query,User,List<Entity>>
-        final SelectFunction<IQuery, IUser<?>, List<T>> listSelectFunction = (SelectFunction<IQuery, IUser<?>, List<T>>) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(SelectFunction.class, ResolvableType.forClass(listQueryClass), ResolvableType.forClass(userClass), ResolvableType.forClassWithGenerics(List.class, entityClass)))
+        final SelectFunction<IQuery, U, List<T>> listSelectFunction = (SelectFunction<IQuery, U, List<T>>) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(SelectFunction.class, ResolvableType.forClass(listQueryClass), ResolvableType.forClass(userClass), ResolvableType.forClassWithGenerics(List.class, entityClass)))
                 .getIfAvailable(() -> new DefaultSelectFunction<>(repository));
 
-        final SelectDomainDispatcher<ID, T, IQuery, IUser<?>, List<T>> listQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.LIST, listSelectFunction);
+        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.LIST, listSelectFunction);
         listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE, PreQueryConsumer.class, listQueryClass, userClass));
         listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST, BiConsumer.class, entityClass, listQueryClass, userClass));
         listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
@@ -162,7 +162,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                 ResolvableType.forClassWithGenerics(List.class, entityClass),
                 ResolvableType.forClass(listQueryClass),
                 ResolvableType.forClass(userClass)
-        )).ifAvailable(postQueryFunction -> listQueryDomainAction.setPostQueryFunction((Function<List<T>, IQuery, IUser<?>>) postQueryFunction));
+        )).ifAvailable(postQueryFunction -> listQueryDomainAction.setPostQueryFunction((Function<List<T>, IQuery, U>) postQueryFunction));
         builder.listQueryDomainAction(listQueryDomainAction);
 
 
@@ -171,7 +171,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         queryClassMap.put(IView.Detail.class, (Class<? extends IQuery>) detailQueryClass);
 
         // SelectFunction<Query,User,Entity>
-        final SelectFunction<IQuery, IUser<?>, T> selectOneFunctionByQuery = (SelectFunction<IQuery, IUser<?>, T>) applicationContext.getBeanProvider(
+        final SelectFunction<IQuery, U, T> selectOneFunctionByQuery = (SelectFunction<IQuery, U, T>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 SelectFunction.class,
                                 ResolvableType.forClass(detailQueryClass),
@@ -179,7 +179,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                                 ResolvableType.forClass(entityClass)
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
-        final SelectDomainDispatcher<ID, T, IQuery, IUser<?>, T> detailQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionByQuery);
+        final SelectDomainDispatcher<ID, T, IQuery, U, T> detailQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionByQuery);
         detailQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, detailQueryClass, userClass));
         detailQueryDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         detailQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, BiConsumer.class, entityClass, detailQueryClass, userClass));
@@ -187,7 +187,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
 
 
         // SelectFunction<Long,User,Entity>
-        final SelectFunction<ID, IUser<?>, T> selectOneFunctionById = (SelectFunction<ID, IUser<?>, T>) applicationContext.getBeanProvider(
+        final SelectFunction<ID, U, T> selectOneFunctionById = (SelectFunction<ID, U, T>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 SelectFunction.class,
                                 ResolvableType.forClass(idClass),
@@ -195,7 +195,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                                 ResolvableType.forClass(entityClass)
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
-        final SelectDomainDispatcher<ID, T, ID, IUser<?>, T> detailByIdDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionById);
+        final SelectDomainDispatcher<ID, T, ID, U, T> detailByIdDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionById);
         detailByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         builder.detailByIdDomainAction(detailByIdDomainAction);
 
@@ -207,7 +207,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         // update yn
 
         //UpdateFunction<Entity,ID,YN,User>
-        final UpdateFunction<T, ID, YN, IUser<?>> updateYnByIdFunction = (UpdateFunction<T, ID, YN, IUser<?>>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, ID, YN, U> updateYnByIdFunction = (UpdateFunction<T, ID, YN, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -217,7 +217,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                         ))
                 .getIfAvailable(() -> new DefaultUpdateYNFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<ID, T, ID, YN, IUser<?>> updateYnByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
+        final UpdateDomainActionDispatcher<ID, T, ID, YN, U> updateYnByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
         acceptUpdateDomainAction(updateYnByIdDomainAction, SpiAction.UPDATE_YN, entityClass, YN.class, userClass);
         builder.updateYnByIdDomainAction(updateYnByIdDomainAction);
 
@@ -227,7 +227,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
             final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
 
             //UpdateFunction<Entity,ID,Status,User>
-            final UpdateFunction<T, ID, IEnum<?>, IUser<?>> updateStatusByIdFunction = (UpdateFunction<T, ID, IEnum<?>, IUser<?>>) applicationContext.getBeanProvider(
+            final UpdateFunction<T, ID, IEnum<?>, U> updateStatusByIdFunction = (UpdateFunction<T, ID, IEnum<?>, U>) applicationContext.getBeanProvider(
                             ResolvableType.forClassWithGenerics(
                                     UpdateFunction.class,
                                     ResolvableType.forClass(entityClass),
@@ -237,7 +237,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                             ))
                     .getIfAvailable(() -> new DefaultUpdateStatusFunction<>(repository));
 
-            final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, IUser<?>> updateStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_STATUS, repository, updateStatusByIdFunction);
+            final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_STATUS, repository, updateStatusByIdFunction);
             acceptUpdateDomainAction(updateStatusByIdDomainAction, SpiAction.UPDATE_STATUS, entityClass, statusClass, userClass);
             builder.updateStatusByIdDomainAction(updateStatusByIdDomainAction);
         }
@@ -245,7 +245,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         if (ILock.class.isAssignableFrom(entityClass)) {
 
             //UpdateFunction<Entity,ID,Boolean,User>
-            final UpdateFunction<T, ID, Boolean, IUser<?>> updateLockedByIdFunction = (UpdateFunction<T, ID, Boolean, IUser<?>>) applicationContext.getBeanProvider(
+            final UpdateFunction<T, ID, Boolean, U> updateLockedByIdFunction = (UpdateFunction<T, ID, Boolean, U>) applicationContext.getBeanProvider(
                             ResolvableType.forClassWithGenerics(
                                     UpdateFunction.class,
                                     ResolvableType.forClass(entityClass),
@@ -254,14 +254,14 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                                     ResolvableType.forClass(userClass)
                             ))
                     .getIfAvailable(() -> new DefaultUpdateLockedFunction<>(repository));
-            final UpdateDomainActionDispatcher<ID, T, ID, Boolean, IUser<?>> updateLockedByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
+            final UpdateDomainActionDispatcher<ID, T, ID, Boolean, U> updateLockedByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
             acceptUpdateDomainAction(updateLockedByIdDomainAction, SpiAction.UPDATE_LOCKED, entityClass, Boolean.class, userClass);
             builder.updateLockedByIdDomainAction(updateLockedByIdDomainAction);
         }
 
         if (IAudit.class.isAssignableFrom(entityClass)) {
             //UpdateFunction<Entity,ID,AuditValue,User>
-            final UpdateFunction<T, ID, AuditValue, IUser<?>> updateLockedByIdFunction = (UpdateFunction<T, ID, AuditValue, IUser<?>>) applicationContext.getBeanProvider(
+            final UpdateFunction<T, ID, AuditValue, U> updateLockedByIdFunction = (UpdateFunction<T, ID, AuditValue, U>) applicationContext.getBeanProvider(
                             ResolvableType.forClassWithGenerics(
                                     UpdateFunction.class,
                                     ResolvableType.forClass(entityClass),
@@ -270,7 +270,7 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
                                     ResolvableType.forClass(userClass)
                             ))
                     .getIfAvailable(() -> new DefaultUpdateAuditStatusFunction<>(repository));
-            final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, IUser<?>> updateAuditStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateLockedByIdFunction);
+            final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateLockedByIdFunction);
             acceptUpdateDomainAction(updateAuditStatusByIdDomainAction, SpiAction.UPDATE_AUDIT_STATUS, entityClass, Boolean.class, userClass);
             builder.updateAuditStatusByIdDomainAction(updateAuditStatusByIdDomainAction);
         }
@@ -279,15 +279,12 @@ public class DefaultDomainServiceFactory implements DomainServiceFactory {
         return builder.build();
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>, Q, V, R> void acceptUpdateDomainAction(UpdateDomainActionDispatcher<ID, T, Q, V, IUser<?>> action, SpiAction spiAction, Class<?> entityClass, Class<?> valueClass, Class<?> userClass) {
+    private void acceptUpdateDomainAction(UpdateDomainActionDispatcher action, SpiAction spiAction, Class<?> entityClass, Class<?> valueClass, Class<U> userClass) {
         action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiValidator.class, entityClass, valueClass, userClass));
         action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiConsumer.class, entityClass, valueClass, userClass));
         action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, BiConsumer.class, entityClass, valueClass, userClass));
     }
 
-    private static String buildClassName(String packageName, Class<?> prefix, String className) {
-        return packageName + "." + prefix.getSimpleName() + className;
-    }
 
     private static Class<?> resolveClass(ClassLoader classLoader, String className, Class<?> defaultClass) {
         if (ClassUtils.isPresent(className, classLoader)) {
