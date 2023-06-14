@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.ifinalframework.core.IUser;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
@@ -90,7 +91,7 @@ public class RequestQueryHandlerMethodArgumentResolver implements HandlerMethodA
     public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
         final RequestQuery requestQuery = parameter.getParameterAnnotation(RequestQuery.class);
         final String resource = resolveName(requestQuery.resource(), parameter, webRequest);
-        final DomainService<Serializable, IEntity<Serializable>> domainService = domainServiceRegistry.getDomainService(resource);
+        final DomainService<Serializable, IEntity<Serializable>, IUser<?>> domainService = domainServiceRegistry.getDomainService(resource);
         final Class<? extends IQuery> domainQueryClass = domainService.domainQueryClass(requestQuery.view());
         final String contentType = webRequest.getHeader(HttpHeaders.CONTENT_TYPE);
         IQuery value = null;
