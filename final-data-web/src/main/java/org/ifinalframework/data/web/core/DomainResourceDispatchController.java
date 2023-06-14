@@ -67,21 +67,21 @@ public class DomainResourceDispatchController {
     @GetMapping
     public Object query(@PathVariable String resource, @RequestQuery(view = IView.List.class) IQuery query, IUser<?> user) {
         logger.info("==> GET /api/{}", resource);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.list(query, user);
     }
 
     @GetMapping("/detail")
     public Object detail(@PathVariable String resource, @RequestQuery(view = IView.Detail.class) IQuery query, IUser<?> user) {
         logger.info("==> GET /api/{}/detail", resource);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.detail(query, user);
     }
 
     @GetMapping("/{id}")
     public Object query(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.detail(id, user);
     }
 
@@ -89,7 +89,7 @@ public class DomainResourceDispatchController {
 
     @DeleteMapping
     public Object delete(@PathVariable String resource, @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user) {
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.delete(query, user);
     }
 
@@ -101,7 +101,7 @@ public class DomainResourceDispatchController {
     @DeleteMapping("/{id}")
     public Object delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
         logger.info("==> GET /api/{}/{}", resource, id);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.delete(id, user);
     }
 
@@ -109,7 +109,7 @@ public class DomainResourceDispatchController {
     @PostMapping
     public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups());
@@ -159,7 +159,7 @@ public class DomainResourceDispatchController {
 
     private Integer doUpdate(String resource, Long id, String body, IUser<?> user, NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
         IEntity<Long> entity = Json.toObject(body, entityClass);
         if (Objects.nonNull(id)) {
@@ -188,7 +188,7 @@ public class DomainResourceDispatchController {
 
     @SuppressWarnings("unchecked")
     private Object doUpdateStatus(String resource, Long id, String status, IUser<?> user) {
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         if (!IStatus.class.isAssignableFrom(entityClass)) {
@@ -211,7 +211,7 @@ public class DomainResourceDispatchController {
 
     @PatchMapping("/{id}/audit")
     public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue, IUser<?> user) {
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.audit(id, auditValue, user);
     }
 
@@ -219,13 +219,13 @@ public class DomainResourceDispatchController {
     // lock
     @PatchMapping("/{id}/lock")
     public Object lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.lock(id, true, user);
     }
 
     @PatchMapping("/{id}/unlock")
     public Object unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user) {
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.lock(id, false, user);
     }
 
@@ -233,7 +233,7 @@ public class DomainResourceDispatchController {
     @RequestMapping(value = "/{id}/yn", method = {RequestMethod.PATCH, RequestMethod.PUT})
     public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.yn(id, yn, user);
     }
 
@@ -256,12 +256,12 @@ public class DomainResourceDispatchController {
     @GetMapping("/count")
     public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query, IUser<?> user) {
         logger.info("==> GET /api/{}", resource);
-        DomainService<Long, IEntity<Long>> domainService = getDomainService(resource);
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = getDomainService(resource);
         return domainService.count(query, user);
     }
 
-    private DomainService<Long, IEntity<Long>> getDomainService(String resource) {
-        DomainService<Long, IEntity<Long>> domainService = domainServiceRegistry.getDomainService(resource);
+    private DomainService<Long, IEntity<Long>, IUser<?>> getDomainService(String resource) {
+        DomainService<Long, IEntity<Long>, IUser<?>> domainService = domainServiceRegistry.getDomainService(resource);
 
         if (Objects.isNull(domainService)) {
             throw new NotFoundException("not found resource for " + resource);
