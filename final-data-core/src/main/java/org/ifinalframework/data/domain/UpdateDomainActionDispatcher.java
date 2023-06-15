@@ -57,6 +57,7 @@ public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEn
     private Function<Integer, Q, U> postQueryFunction;
     private AfterThrowingQueryConsumer<T, Q, U> afterThrowingQueryConsumer;
     private AfterReturningQueryConsumer<T, Q, U> afterReturningQueryConsumer;
+    private AfterConsumer<T, Q, V, Integer, U> afterConsumer;
 
     @Override
     public Object doAction(Q query, V value, U user) {
@@ -118,6 +119,9 @@ public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEn
         } finally {
             if (Objects.nonNull(afterReturningQueryConsumer)) {
                 afterReturningQueryConsumer.accept(spiAction, list, query, user, throwable);
+            }
+            if (Objects.nonNull(afterConsumer)) {
+                afterConsumer.accept(spiAction, list, query, value, result, user, throwable);
             }
         }
 

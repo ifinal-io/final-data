@@ -15,11 +15,13 @@
 
 package org.ifinalframework.data.domain;
 
-import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-
+import lombok.Setter;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.annotation.DomainResource;
+import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
+import org.ifinalframework.data.service.AbsService;
+import org.ifinalframework.util.CompositeProxies;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
@@ -29,12 +31,12 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.annotation.DomainResource;
-import org.ifinalframework.data.service.AbsService;
-
-import lombok.Setter;
+import javax.annotation.Resource;
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * DefaultDomainResourceServiceRegistry.
@@ -45,14 +47,16 @@ import lombok.Setter;
  */
 @Component
 public class DefaultDomainServiceRegistry implements DomainServiceRegistry, ApplicationContextAware, SmartInitializingSingleton {
-    private final Map<String, DomainService<Long, IEntity<Long>,IUser<?>>> domainServiceMap = new LinkedHashMap<>();
+    private final Map<String, DomainService<Long, IEntity<Long>, IUser<?>>> domainServiceMap = new LinkedHashMap<>();
 
     @Setter
     private ApplicationContext applicationContext;
+    @Resource
+    private List<LoggerAfterConsumer> loggerAfterConsumers;
 
     @Override
-    public <ID extends Serializable, T extends IEntity<ID>,U extends IUser<?>> DomainService<ID, T,U> getDomainService(String resource) {
-        return (DomainService<ID, T,U>) domainServiceMap.get(resource);
+    public <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> getDomainService(String resource) {
+        return (DomainService<ID, T, U>) domainServiceMap.get(resource);
     }
 
     @Override
@@ -62,7 +66,7 @@ public class DefaultDomainServiceRegistry implements DomainServiceRegistry, Appl
 
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
-        final DomainServiceFactory domainServiceFactory = new DefaultDomainServiceFactory((Class<? extends IUser<?>>) userClass, applicationContext);
+        final DomainServiceFactory domainServiceFactory = new DefaultDomainServiceFactory(userClass, applicationContext, CompositeProxies.composite(LoggerAfterConsumer.class,loggerAfterConsumers));
 
         applicationContext.getBeanProvider(AbsService.class).stream()
                 .forEach(service -> {

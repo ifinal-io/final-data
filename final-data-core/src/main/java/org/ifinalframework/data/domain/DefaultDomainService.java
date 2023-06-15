@@ -60,7 +60,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PreInsertFunction<Object, U, T> preInsertFunction;
 
     // create
-    private final InsertDomainAction<ID, T, U> insertDomainAction;
+    private final InsertDomainActionDispatcher<ID, T, U> insertDomainActionDispatcher;
 
     // list
     private final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction;
@@ -115,7 +115,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Object create(@NonNull List<T> entities, @NonNull U user) {
-        return insertDomainAction.doAction(null, entities, user);
+        return insertDomainActionDispatcher.doAction(null, entities, user);
     }
 
     @Override

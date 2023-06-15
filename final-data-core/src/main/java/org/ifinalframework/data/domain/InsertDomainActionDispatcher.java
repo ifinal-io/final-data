@@ -15,26 +15,18 @@
 
 package org.ifinalframework.data.domain;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.repository.Repository;
+import org.ifinalframework.data.spi.*;
+import org.springframework.util.CollectionUtils;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.ifinalframework.data.domain.DomainActionDispatcher;
-import org.springframework.util.CollectionUtils;
-
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.AfterReturningConsumer;
-import org.ifinalframework.data.spi.AfterThrowingConsumer;
-import org.ifinalframework.data.spi.Consumer;
-import org.ifinalframework.data.spi.Filter;
-import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.SpiAction;
-
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 /**
  * InsertDomainAction.
@@ -45,7 +37,7 @@ import lombok.Setter;
  */
 @Setter
 @RequiredArgsConstructor
-public class InsertDomainAction<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> implements DomainActionDispatcher<Void, List<T>, U> {
+public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> implements DomainActionDispatcher<Void, List<T>, U> {
     private final Repository<ID, T> repository;
     private final boolean insertIgnore;
 
@@ -56,6 +48,7 @@ public class InsertDomainAction<ID extends Serializable, T extends IEntity<ID>, 
     private Function<Integer, List<T>, U> postInsertFunction;
     private AfterThrowingConsumer<T, U> afterThrowingInsertConsumer;
     private AfterReturningConsumer<T, Integer, U> afterReturningInsertConsumer;
+    private AfterConsumer<T, Void, Void, Integer, U> afterConsumer;
 
     @Override
     public Object doAction(Void query, List<T> entities, U user) {
@@ -95,6 +88,9 @@ public class InsertDomainAction<ID extends Serializable, T extends IEntity<ID>, 
         } finally {
             if (Objects.nonNull(afterReturningInsertConsumer)) {
                 afterReturningInsertConsumer.accept(SpiAction.CREATE, entities, result, user, exception);
+            }
+            if (Objects.nonNull(afterConsumer)) {
+                afterConsumer.accept(SpiAction.CREATE, entities, null, null, result, user, exception);
             }
         }
     }
