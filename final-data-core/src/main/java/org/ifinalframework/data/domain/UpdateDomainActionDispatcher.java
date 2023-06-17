@@ -60,7 +60,7 @@ public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEn
     private AfterConsumer<T, Q, V, Integer, U> afterConsumer;
 
     @Override
-    public Object doAction(Q query, V value, U user) {
+    public Object doAction(Q param, V value, U user) {
 
         Integer result = null;
         List<T> list = null;
@@ -68,13 +68,13 @@ public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEn
         try {
 
             if (Objects.nonNull(preQueryConsumer)) {
-                preQueryConsumer.accept(spiAction, query, user);
+                preQueryConsumer.accept(spiAction, param, user);
             }
 
-            list = doActionPrepare(query, value, user);
+            list = doActionPrepare(param, value, user);
 
             if (CollectionUtils.isEmpty(list)) {
-                throw new NotFoundException("not found target entities: {}", Json.toJson(query));
+                throw new NotFoundException("not found target entities: {}", Json.toJson(param));
             }
 
             if (Objects.nonNull(preUpdateValidator)) {
@@ -89,7 +89,7 @@ public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEn
                 preUpdateConsumer.accept(spiAction, SpiAction.Advice.PRE, list, value, user);
             }
 
-            result = updateAction.update(list, query, value, user);
+            result = updateAction.update(list, param, value, user);
 
 
             if (Objects.nonNull(postUpdateConsumer)) {
@@ -102,26 +102,26 @@ public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEn
 
 
             if (Objects.nonNull(postQueryConsumer)) {
-                postQueryConsumer.accept(spiAction, SpiAction.Advice.POST, list, query, user);
+                postQueryConsumer.accept(spiAction, SpiAction.Advice.POST, list, param, user);
             }
 
             if (Objects.nonNull(postQueryFunction)) {
-                return postQueryFunction.map(result, query, user);
+                return postQueryFunction.map(result, param, user);
             }
 
             return result;
         } catch (Exception e) {
             throwable = e;
             if (Objects.nonNull(afterThrowingQueryConsumer)) {
-                afterThrowingQueryConsumer.accept(spiAction, list, query, user, e);
+                afterThrowingQueryConsumer.accept(spiAction, list, param, user, e);
             }
             throw e;
         } finally {
             if (Objects.nonNull(afterReturningQueryConsumer)) {
-                afterReturningQueryConsumer.accept(spiAction, list, query, user, throwable);
+                afterReturningQueryConsumer.accept(spiAction, list, param, user, throwable);
             }
             if (Objects.nonNull(afterConsumer)) {
-                afterConsumer.accept(spiAction, list, query, value, result, user, throwable);
+                afterConsumer.accept(spiAction, list, param, value, result, user, throwable);
             }
         }
 

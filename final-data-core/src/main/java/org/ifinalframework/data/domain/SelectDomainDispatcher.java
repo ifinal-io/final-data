@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.core.Viewable;
 import org.ifinalframework.data.spi.*;
 
 import java.io.Serializable;
@@ -39,6 +40,7 @@ import java.util.Objects;
 public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>, R> implements DomainActionDispatcher<P, Void, U> {
 
     private final SpiAction spiAction;
+    private final Class<?> defaultView;
     private final SelectFunction<P, U, R> selectFunction;
 
     private PreQueryConsumer<P, U> preQueryConsumer;
@@ -49,36 +51,44 @@ public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<I
     private AfterReturningQueryConsumer<T, P, U> afterReturningQueryConsumer;
 
     @Override
-    public Object doAction(P query, Void value, U user) {
+    public Object doAction(P param, Void value, U user) {
         R result = null;
         List<T> list = null;
         Throwable throwable = null;
+
+        if (param instanceof Viewable) {
+            final Viewable viewable = (Viewable) param;
+            if (Objects.isNull(viewable.getView())) {
+                viewable.setView(defaultView);
+            }
+        }
+
         try {
             if (Objects.nonNull(preQueryConsumer)) {
-                preQueryConsumer.accept(spiAction, query, user);
+                preQueryConsumer.accept(spiAction, param, user);
             }
-            result = selectFunction.select(query, user);
+            result = selectFunction.select(param, user);
             list = map(result);
             if (Objects.nonNull(postConsumer)) {
                 postConsumer.accept(spiAction, SpiAction.Advice.POST, list, user);
             }
             if (Objects.nonNull(postQueryConsumer)) {
-                postQueryConsumer.accept(spiAction, SpiAction.Advice.POST, list, query, user);
+                postQueryConsumer.accept(spiAction, SpiAction.Advice.POST, list, param, user);
             }
             if (Objects.nonNull(postQueryFunction)) {
-                return postQueryFunction.map(result, query, user);
+                return postQueryFunction.map(result, param, user);
             }
 
             return result;
         } catch (Exception e) {
             throwable = e;
             if (Objects.nonNull(afterThrowingQueryConsumer)) {
-                afterThrowingQueryConsumer.accept(spiAction, list, query, user, e);
+                afterThrowingQueryConsumer.accept(spiAction, list, param, user, e);
             }
             throw e;
         } finally {
             if (Objects.nonNull(afterReturningQueryConsumer)) {
-                afterReturningQueryConsumer.accept(spiAction, list, query, user, throwable);
+                afterReturningQueryConsumer.accept(spiAction, list, param, user, throwable);
             }
         }
     }

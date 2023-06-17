@@ -22,8 +22,9 @@ package org.ifinalframework.data.domain;
  * @version 1.5.0
  * @since 1.5.0
  */
-public interface DomainActionDispatcher<Q, V, U> {
+@FunctionalInterface
+public interface DomainActionDispatcher<P, V, U> {
 
-    Object doAction(Q query, V value, U user);
+    Object doAction(P param, V value, U user);
 
 }

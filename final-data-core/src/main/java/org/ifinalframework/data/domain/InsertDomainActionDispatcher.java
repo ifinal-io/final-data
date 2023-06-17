@@ -21,6 +21,8 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.*;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
@@ -51,7 +53,7 @@ public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEn
     private AfterConsumer<T, Void, Void, Integer, U> afterConsumer;
 
     @Override
-    public Object doAction(Void query, List<T> entities, U user) {
+    public Object doAction( Void param, List<T> entities, U user) {
         Integer result = null;
         Throwable exception = null;
 

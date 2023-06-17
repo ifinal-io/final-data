@@ -98,7 +98,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         insertDomainActionDispatcher.setPostInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         insertDomainActionDispatcher.setAfterThrowingInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_THROWING, AfterThrowingConsumer.class, entityClass, userClass));
         insertDomainActionDispatcher.setAfterReturningInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_RETURNING, AfterReturningConsumer.class, entityClass, Integer.class, userClass));
-        insertDomainActionDispatcher.setAfterConsumer(getSpiComposite(SpiAction.CREATE,SpiAction.Advice.AFTER,AfterConsumer.class,entityClass,Void.class,Void.class,Integer.class,userClass));
+        insertDomainActionDispatcher.setAfterConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, Void.class, Void.class, Integer.class, userClass));
         builder.insertDomainActionDispatcher(insertDomainActionDispatcher);
 
 
@@ -122,7 +122,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         deleteDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         deleteDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, BiConsumer.class, entityClass, deleteQueryClass, userClass));
-        deleteDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE,SpiAction.Advice.AFTER,AfterConsumer.class,entityClass,deleteQueryClass,Void.class,Integer.class,userClass));
+        deleteDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, deleteQueryClass, Void.class, Integer.class, userClass));
         builder.deleteDomainAction(deleteDomainAction);
 
 
@@ -140,7 +140,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         final UpdateDomainActionDispatcher<ID, T, ID, Void, U> deleteByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunctionById);
         deleteByIdDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        deleteByIdDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE,SpiAction.Advice.AFTER,AfterConsumer.class,entityClass,idClass,Void.class,Integer.class,userClass));
+        deleteByIdDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, idClass, Void.class, Integer.class, userClass));
         builder.deleteByIdDomainAction(deleteByIdDomainAction);
 
         // update
@@ -157,7 +157,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         final SelectFunction<IQuery, U, List<T>> listSelectFunction = (SelectFunction<IQuery, U, List<T>>) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(SelectFunction.class, ResolvableType.forClass(listQueryClass), ResolvableType.forClass(userClass), ResolvableType.forClassWithGenerics(List.class, entityClass)))
                 .getIfAvailable(() -> new DefaultSelectFunction<>(repository));
 
-        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.LIST, listSelectFunction);
+        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
         listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE, PreQueryConsumer.class, listQueryClass, userClass));
         listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST, BiConsumer.class, entityClass, listQueryClass, userClass));
         listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
@@ -184,7 +184,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                                 ResolvableType.forClass(entityClass)
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
-        final SelectDomainDispatcher<ID, T, IQuery, U, T> detailQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionByQuery);
+        final SelectDomainDispatcher<ID, T, IQuery, U, T> detailQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionByQuery);
         detailQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, detailQueryClass, userClass));
         detailQueryDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         detailQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, BiConsumer.class, entityClass, detailQueryClass, userClass));
@@ -200,7 +200,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                                 ResolvableType.forClass(entityClass)
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
-        final SelectDomainDispatcher<ID, T, ID, U, T> detailByIdDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionById);
+        final SelectDomainDispatcher<ID, T, ID, U, T> detailByIdDomainAction = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionById);
         detailByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         builder.detailByIdDomainAction(detailByIdDomainAction);
 
@@ -223,7 +223,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                 .getIfAvailable(() -> new DefaultUpdateYNFunction<>(repository));
 
         final UpdateDomainActionDispatcher<ID, T, ID, YN, U> updateYnByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
-        acceptUpdateDomainAction(updateYnByIdDomainAction, SpiAction.UPDATE_YN, entityClass,idClass, YN.class, userClass);
+        acceptUpdateDomainAction(updateYnByIdDomainAction, SpiAction.UPDATE_YN, entityClass, idClass, YN.class, userClass);
         builder.updateYnByIdDomainAction(updateYnByIdDomainAction);
 
 
@@ -243,7 +243,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                     .getIfAvailable(() -> new DefaultUpdateStatusFunction<>(repository));
 
             final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_STATUS, repository, updateStatusByIdFunction);
-            acceptUpdateDomainAction(updateStatusByIdDomainAction, SpiAction.UPDATE_STATUS, entityClass,idClass, statusClass, userClass);
+            acceptUpdateDomainAction(updateStatusByIdDomainAction, SpiAction.UPDATE_STATUS, entityClass, idClass, statusClass, userClass);
             builder.updateStatusByIdDomainAction(updateStatusByIdDomainAction);
         }
         // update locked
@@ -260,7 +260,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                             ))
                     .getIfAvailable(() -> new DefaultUpdateLockedFunction<>(repository));
             final UpdateDomainActionDispatcher<ID, T, ID, Boolean, U> updateLockedByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
-            acceptUpdateDomainAction(updateLockedByIdDomainAction, SpiAction.UPDATE_LOCKED, entityClass, idClass,Boolean.class, userClass);
+            acceptUpdateDomainAction(updateLockedByIdDomainAction, SpiAction.UPDATE_LOCKED, entityClass, idClass, Boolean.class, userClass);
             builder.updateLockedByIdDomainAction(updateLockedByIdDomainAction);
         }
 
@@ -276,7 +276,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                             ))
                     .getIfAvailable(() -> new DefaultUpdateAuditStatusFunction<>(repository));
             final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateLockedByIdFunction);
-            acceptUpdateDomainAction(updateAuditStatusByIdDomainAction, SpiAction.UPDATE_AUDIT_STATUS, entityClass,idClass, Boolean.class, userClass);
+            acceptUpdateDomainAction(updateAuditStatusByIdDomainAction, SpiAction.UPDATE_AUDIT_STATUS, entityClass, idClass, Boolean.class, userClass);
             builder.updateAuditStatusByIdDomainAction(updateAuditStatusByIdDomainAction);
         }
 
@@ -284,11 +284,11 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         return builder.build();
     }
 
-    private void acceptUpdateDomainAction(UpdateDomainActionDispatcher action, SpiAction spiAction, Class<?> entityClass,Class<?> paramClass, Class<?> valueClass, Class<U> userClass) {
+    private void acceptUpdateDomainAction(UpdateDomainActionDispatcher action, SpiAction spiAction, Class<?> entityClass, Class<?> paramClass, Class<?> valueClass, Class<U> userClass) {
         action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiValidator.class, entityClass, valueClass, userClass));
         action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiConsumer.class, entityClass, valueClass, userClass));
         action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, BiConsumer.class, entityClass, valueClass, userClass));
-        action.setAfterConsumer(getSpiComposite(spiAction,SpiAction.Advice.AFTER,AfterConsumer.class,entityClass,paramClass,Void.class,Integer.class,userClass));
+        action.setAfterConsumer(getSpiComposite(spiAction, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, paramClass, Void.class, Integer.class, userClass));
 
     }
 
@@ -307,7 +307,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
             beans = Collections.singletonList((Filter) (action1, entity, user) -> true);
         }
 
-        if(type == AfterConsumer.class){
+        if (type == AfterConsumer.class) {
             beans.add(loggerAfterConsumer);
         }
 
