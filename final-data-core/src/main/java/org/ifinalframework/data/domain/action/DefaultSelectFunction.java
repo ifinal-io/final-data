@@ -20,6 +20,8 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.SelectFunction;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -30,14 +32,17 @@ import java.util.List;
  *
  * @author ilikly
  * @version 1.5.1
+ * @see DefaultSelectOneFunction
  * @since 1.5.1
  */
 @RequiredArgsConstructor
 public class DefaultSelectFunction<ID extends Serializable, T extends IEntity<ID>, P, U> implements SelectFunction<P, U, List<T>> {
     private final Repository<ID, T> repository;
 
+    @Nullable
     @Override
-    public List<T> select(P param, U user) {
+    @SuppressWarnings("unchecked")
+    public List<T> select(@NonNull P param, @NonNull U user) {
         if (param instanceof IQuery) {
             return repository.select((IQuery) param);
         } else if (param instanceof Collection) {
