@@ -35,13 +35,13 @@ import java.util.Objects;
 @Component
 public class DefaultLoggerAfterConsumer implements LoggerAfterConsumer {
     @Override
-    public void accept(SpiAction action, IEntity<?> entity, Object query, Object value, Object result, IUser<?> user, Throwable e) {
+    public void accept(SpiAction action, IEntity<?> entity, Object param, Object value, Object result, IUser<?> user, Throwable e) {
         if (Objects.isNull(e)) {
-            logger.info("action={},entity={},param={},value={},result={}", action, entity, query, value, result);
+            logger.info("action={},entity={},param={},value={},result={}", action, entity, param, value, result);
         } else if (e instanceof IException) {
-            logger.warn("action={},entity={},param={},value={},result={},code={},message={}", action, entity, query, value, result, ((IException) e).getCode(), e.getMessage());
+            logger.warn("action={},entity={},param={},value={},result={},code={},message={}", action, entity, param, value, result, ((IException) e).getCode(), e.getMessage());
         } else {
-            logger.error("action={},entity={},param={},value={},result={}", action, entity, query, value, result, e);
+            logger.error("action={},entity={},param={},value={},result={}", action, entity, param, value, result, e);
         }
     }
 }
