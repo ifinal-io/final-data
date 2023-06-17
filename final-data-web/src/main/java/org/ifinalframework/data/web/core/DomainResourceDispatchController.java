@@ -168,6 +168,8 @@ public class DomainResourceDispatchController {
         return domainService.update(entity, entity.getId(), true, user);
     }
 
+    // status
+
     @PatchMapping("/{id}/status")
     public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return doUpdateStatus(resource, id, status, user, domainService);
@@ -201,6 +203,8 @@ public class DomainResourceDispatchController {
 
     }
 
+    // audit
+
     @PatchMapping("/{id}/audit")
     public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return domainService.audit(id, auditValue, user);
@@ -219,6 +223,7 @@ public class DomainResourceDispatchController {
     }
 
 
+    // yn
     @RequestMapping(value = "/{id}/yn", method = {RequestMethod.PATCH, RequestMethod.PUT})
     public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
@@ -240,7 +245,7 @@ public class DomainResourceDispatchController {
         return this.update(resource, id, yn, user, domainService);
     }
 
-
+    // count
     @GetMapping("/count")
     public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}", resource);
