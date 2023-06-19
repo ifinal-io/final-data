@@ -106,13 +106,12 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         final Class<?> deleteQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Delete.class), defaultqueryClass);
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
 
-        //UpdateFunction<Entity,DeleteQuery,Void,User>
+        //DeleteFunction<Entity,DeleteQuery,User>
         final DeleteFunction<T, IQuery, U> deleteUpdateFunction = (DeleteFunction<T, IQuery, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 DeleteFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(deleteQueryClass),
-                                ResolvableType.forClass(Void.class),
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultDeleteFunction<>(repository));
@@ -126,18 +125,17 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         builder.deleteDomainAction(deleteDomainAction);
 
 
-        //UpdateFunction<Entity,DeleteQuery,Void,User>
-        final UpdateFunction<T, ID, Void, U> deleteUpdateFunctionById = (UpdateFunction<T, ID, Void, U>) applicationContext.getBeanProvider(
+        //DeleteFunction<Entity,DeleteQuery,User>
+        final DeleteFunction<T, ID, U> deleteUpdateFunctionById = (DeleteFunction<T, ID, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
-                                UpdateFunction.class,
+                                DeleteFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(idClass),
-                                ResolvableType.forClass(Void.class),
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultDeleteFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<ID, T, ID, Void, U> deleteByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunctionById);
+        final DeleteDomainActionDispatcher<ID, T, ID, U> deleteByIdDomainAction = new DeleteDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunctionById);
         deleteByIdDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         deleteByIdDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, idClass, Void.class, Integer.class, userClass));
