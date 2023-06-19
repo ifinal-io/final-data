@@ -13,37 +13,40 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain.function;
 
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.UpdateFunction;
+import org.ifinalframework.data.spi.DeleteFunction;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
- * DefaultUpdateLockedAction.
+ * DefaultDeleteFunction.
  *
  * @author ilikly
  * @version 1.5.1
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateLockedFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, Boolean, U> {
+public class DefaultDeleteFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements DeleteFunction<T, P, U> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, Boolean value, U user) {
-        Update update = Update.update().set("locked", value);
+    public Integer delete(List<T> entities, P param, U user) {
+
         if (param instanceof IQuery) {
-            return repository.update(update, (IQuery) param);
+            return repository.delete((IQuery) param);
+        } else if (param instanceof Collection) {
+            return repository.delete((Collection<ID>) param);
         } else {
-            return repository.update(update, (ID) param);
+            return repository.delete((ID) param);
         }
+
     }
 }

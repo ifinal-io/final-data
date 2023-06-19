@@ -20,7 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.ifinalframework.core.*;
 import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.action.*;
+import org.ifinalframework.data.domain.function.*;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
 import org.ifinalframework.data.repository.Repository;

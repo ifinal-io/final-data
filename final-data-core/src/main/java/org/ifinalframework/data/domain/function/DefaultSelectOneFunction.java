@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain.function;
 
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;

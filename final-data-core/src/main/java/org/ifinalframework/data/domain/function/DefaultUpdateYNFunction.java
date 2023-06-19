@@ -13,46 +13,38 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain.function;
 
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * DefaultUpdateAuditStatusAction.
+ * DefaultUpdateLockedAction.
  *
  * @author ilikly
  * @version 1.5.1
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateAuditStatusFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, AuditValue, U> {
+public class DefaultUpdateYNFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, YN, U> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, AuditValue value, U user) {
-        Update update = Update.update()
-                .set("audit_status", value.getStatus())
-                .set("audit_content", value.getContent())
-                .set("audit_date_time", LocalDateTime.now())
-                .set("auditor_id", user.getId())
-                .set("auditor_name", user.getName());
-
+    public Integer update(List<T> entities, P param, YN value, U user) {
+        Update update = Update.update().set("yn", value);
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);
         } else {
             return repository.update(update, (ID) param);
         }
-
     }
 }

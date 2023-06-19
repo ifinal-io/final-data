@@ -13,39 +13,45 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain.function;
 
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.DeleteFunction;
+import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * DefaultDeleteFunction.
+ * DefaultUpdateAuditStatusAction.
  *
  * @author ilikly
  * @version 1.5.1
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultDeleteFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements DeleteFunction<T, P, U> {
+public class DefaultUpdateAuditStatusFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, AuditValue, U> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer delete(List<T> entities, P param, U user) {
+    public Integer update(List<T> entities, P param, AuditValue value, U user) {
+        Update update = Update.update()
+                .set("audit_status", value.getStatus())
+                .set("audit_content", value.getContent())
+                .set("audit_date_time", LocalDateTime.now())
+                .set("auditor_id", user.getId())
+                .set("auditor_name", user.getName());
 
         if (param instanceof IQuery) {
-            return repository.delete((IQuery) param);
-        } else if (param instanceof Collection) {
-            return repository.delete((Collection<ID>) param);
+            return repository.update(update, (IQuery) param);
         } else {
-            return repository.delete((ID) param);
+            return repository.update(update, (ID) param);
         }
 
     }

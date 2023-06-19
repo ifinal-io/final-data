@@ -13,13 +13,12 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain.function;
 
 import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.UpdateFunction;
@@ -35,12 +34,12 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateYNFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, YN, U> {
+public class DefaultUpdateLockedFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, Boolean, U> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, YN value, U user) {
-        Update update = Update.update().set("yn", value);
+    public Integer update(List<T> entities, P param, Boolean value, U user) {
+        Update update = Update.update().set("locked", value);
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);
         } else {
