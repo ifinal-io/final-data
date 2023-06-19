@@ -117,7 +117,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                         ))
                 .getIfAvailable(() -> new DefaultDeleteFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<ID, T, IQuery, Void, U> deleteDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunction);
+        final DeleteDomainActionDispatcher<ID, T, IQuery, U> deleteDomainAction = new DeleteDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteUpdateFunction);
         deleteDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
         deleteDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
         deleteDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));

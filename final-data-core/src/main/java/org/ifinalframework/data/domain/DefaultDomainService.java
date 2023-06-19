@@ -88,7 +88,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusByIdDomainAction;
     // delete
     private final UpdateDomainActionDispatcher<ID, T, ID, Void, U> deleteByIdDomainAction;
-    private final UpdateDomainActionDispatcher<ID, T, IQuery, Void, U> deleteDomainAction;
+    private final DeleteDomainActionDispatcher<ID, T, IQuery, U> deleteDomainAction;
 
     @NonNull
     @Override
