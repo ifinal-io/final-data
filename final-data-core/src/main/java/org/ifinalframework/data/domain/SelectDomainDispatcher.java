@@ -51,7 +51,7 @@ public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<I
     private AfterReturningQueryConsumer<T, P, U> afterReturningQueryConsumer;
 
     @Override
-    public Object doAction(P param, Void value, U user) {
+    public Object dispatch(P param, Void value, U user) {
         R result = null;
         List<T> list = null;
         Throwable throwable = null;

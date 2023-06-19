@@ -107,7 +107,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         queryClassMap.put(IView.Delete.class, (Class<? extends IQuery>) deleteQueryClass);
 
         //UpdateFunction<Entity,DeleteQuery,Void,User>
-        final UpdateFunction<T, IQuery, Void, U> deleteUpdateFunction = (UpdateFunction<T, IQuery, Void, U>) applicationContext.getBeanProvider(
+        final DeleteFunction<T, IQuery, U> deleteUpdateFunction = (DeleteFunction<T, IQuery, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),

@@ -53,7 +53,7 @@ public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEn
     private AfterConsumer<T, Void, Void, Integer, U> afterConsumer;
 
     @Override
-    public Object doAction( Void param, List<T> entities, U user) {
+    public Object dispatch(Void param, List<T> entities, U user) {
         Integer result = null;
         Throwable exception = null;
 

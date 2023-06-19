@@ -115,23 +115,23 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Object create(@NonNull List<T> entities, @NonNull U user) {
-        return insertDomainActionDispatcher.doAction(null, entities, user);
+        return insertDomainActionDispatcher.dispatch(null, entities, user);
     }
 
     @Override
     public Object list(@NonNull IQuery query, @NonNull U user) {
-        return listQueryDomainAction.doAction(query, null, user);
+        return listQueryDomainAction.dispatch(query, null, user);
     }
 
     @Override
     public Object detail(@NonNull IQuery query, @NonNull U user) {
-        return detailQueryDomainAction.doAction(query, null, user);
+        return detailQueryDomainAction.dispatch(query, null, user);
 
     }
 
     @Override
     public Object detail(@NonNull ID id, @NonNull U user) {
-        return detailByIdDomainAction.doAction(id, null, user);
+        return detailByIdDomainAction.dispatch(id, null, user);
     }
 
     @Override
@@ -142,13 +142,13 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Object delete(@NonNull IQuery query, @NonNull U user) {
-        return deleteDomainAction.doAction(query, null, user);
+        return deleteDomainAction.dispatch(query, null, user);
 
     }
 
     @Override
     public Object delete(@NonNull ID id, @NonNull U user) {
-        return deleteByIdDomainAction.doAction(id, null, user);
+        return deleteByIdDomainAction.dispatch(id, null, user);
     }
 
     @Override
@@ -165,21 +165,21 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Object yn(@NonNull ID id, @NonNull YN yn, @NonNull U user) {
-        return updateYnByIdDomainAction.doAction(id, yn, user);
+        return updateYnByIdDomainAction.dispatch(id, yn, user);
     }
 
     @Override
     public Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user) {
-        return updateStatusByIdDomainAction.doAction(id, status, user);
+        return updateStatusByIdDomainAction.dispatch(id, status, user);
     }
 
     @Override
     public Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull U user) {
-        return updateLockedByIdDomainAction.doAction(id, locked, user);
+        return updateLockedByIdDomainAction.dispatch(id, locked, user);
     }
 
     @Override
     public Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user) {
-        return updateAuditStatusByIdDomainAction.doAction(id, auditValue, user);
+        return updateAuditStatusByIdDomainAction.dispatch(id, auditValue, user);
     }
 }

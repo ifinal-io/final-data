@@ -16,7 +16,7 @@
 package org.ifinalframework.data.domain;
 
 /**
- * DomainAction.
+ * DomainActionDispatcher.
  *
  * @author ilikly
  * @version 1.5.0
@@ -25,6 +25,12 @@ package org.ifinalframework.data.domain;
 @FunctionalInterface
 public interface DomainActionDispatcher<P, V, U> {
 
-    Object doAction(P param, V value, U user);
+    /**
+     * @param param action param.
+     * @param value action value.
+     * @param user  action user.
+     * @return
+     */
+    Object dispatch(P param, V value, U user);
 
 }
