@@ -109,7 +109,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         //UpdateFunction<Entity,DeleteQuery,Void,User>
         final DeleteFunction<T, IQuery, U> deleteUpdateFunction = (DeleteFunction<T, IQuery, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
-                                UpdateFunction.class,
+                                DeleteFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(deleteQueryClass),
                                 ResolvableType.forClass(Void.class),
