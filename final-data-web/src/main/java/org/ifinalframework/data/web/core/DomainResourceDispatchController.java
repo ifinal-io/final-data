@@ -113,11 +113,7 @@ public class DomainResourceDispatchController {
                 throw new BindException(binder.getBindingResult());
             }
             List<IEntity<Long>> entities = domainService.preInsertFunction().map(createEntity, user);
-            final Object result = domainService.create(entities, user);
-            if(entities.size() == 1 && result instanceof Number){
-                return entities.get(0).getId();
-            }
-            return result;
+            return domainService.create(entities, user);
         } else if (requestBody.startsWith("{")) {
             IEntity<Long> entity = Json.toObject(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");

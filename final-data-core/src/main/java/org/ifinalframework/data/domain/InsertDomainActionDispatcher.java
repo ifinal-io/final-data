@@ -80,6 +80,11 @@ public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEn
                 return postInsertFunction.map(result, entities, user);
             }
 
+
+            if(entities.size() == 1){
+                return entities.get(0).getId();
+            }
+
             return result;
         } catch (Throwable e) {
             exception = e;
