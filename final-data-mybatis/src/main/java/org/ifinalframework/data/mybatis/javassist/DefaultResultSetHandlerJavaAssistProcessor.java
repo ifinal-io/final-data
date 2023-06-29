@@ -40,20 +40,16 @@ import org.ifinalframework.javassist.JavaAssistProcessor;
 @AutoService(JavaAssistProcessor.class)
 public class DefaultResultSetHandlerJavaAssistProcessor implements JavaAssistProcessor {
 
-    private boolean processed = false;
 
     @Override
     public void process(ClassPool classPool) throws Throwable {
         logger.debug("start modify class: DefaultResultSetHandler");
         final CtClass ctClass = classPool.get("org.apache.ibatis.executor.resultset.DefaultResultSetHandler");
         if (ctClass.isFrozen()) {
-            if (processed) {
-                return;
-            }
+            ctClass.defrost();
         }
         modifyMethodApplyPropertyMappings(ctClass);
         final Class<?> aClass = ctClass.toClass(ResultSetHandler.class);
-        processed = true;
         logger.debug("finish modify class: DefaultResultSetHandler");
     }
 

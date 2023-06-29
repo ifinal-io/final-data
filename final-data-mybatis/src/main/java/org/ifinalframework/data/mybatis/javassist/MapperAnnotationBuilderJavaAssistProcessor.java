@@ -34,7 +34,6 @@ import org.ifinalframework.javassist.JavaAssistProcessor;
 @Slf4j
 @AutoService(JavaAssistProcessor.class)
 public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistProcessor {
-    private boolean processed = false;
 
     @Override
     public void process(ClassPool classPool) throws Throwable {
@@ -42,9 +41,7 @@ public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistPro
         logger.debug("start modify class: MapperAnnotationBuilder");
         final CtClass ctClass = classPool.get("org.apache.ibatis.builder.annotation.MapperAnnotationBuilder");
         if (ctClass.isFrozen()) {
-            if (processed) {
-                return;
-            }
+            ctClass.defrost();
         }
         final CtConstructor constructor = ctClass.getDeclaredConstructors()[0];
         /**
@@ -61,7 +58,6 @@ public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistPro
                 + "this.type = $2;\n}"
         );
         final Class<?> newClass = ctClass.toClass(ProviderMethodResolver.class);
-        processed = true;
         logger.debug("finish modify class: MapperAnnotationBuilder");
     }
 }
