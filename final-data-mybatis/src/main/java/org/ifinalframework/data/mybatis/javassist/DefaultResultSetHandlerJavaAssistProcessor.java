@@ -46,7 +46,7 @@ public class DefaultResultSetHandlerJavaAssistProcessor implements JavaAssistPro
         logger.debug("start modify class: DefaultResultSetHandler");
         final CtClass ctClass = classPool.get("org.apache.ibatis.executor.resultset.DefaultResultSetHandler");
         if (ctClass.isFrozen()) {
-            ctClass.defrost();
+            return;
         }
         modifyMethodApplyPropertyMappings(ctClass);
         final Class<?> aClass = ctClass.toClass(ResultSetHandler.class);

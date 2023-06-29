@@ -41,7 +41,7 @@ public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistPro
         logger.debug("start modify class: MapperAnnotationBuilder");
         final CtClass ctClass = classPool.get("org.apache.ibatis.builder.annotation.MapperAnnotationBuilder");
         if (ctClass.isFrozen()) {
-            ctClass.defrost();
+            return;
         }
         final CtConstructor constructor = ctClass.getDeclaredConstructors()[0];
         /**
