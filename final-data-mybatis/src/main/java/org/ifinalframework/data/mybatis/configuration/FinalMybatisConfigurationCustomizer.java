@@ -70,7 +70,7 @@ public class FinalMybatisConfigurationCustomizer implements ConfigurationCustomi
     public void customize(final Configuration configuration) {
 
         // add AbsMapper
-        configuration.addMapper(AbsMapper.class);
+//        configuration.addMapper(AbsMapper.class);
 
 //        PropertyTokenizerRedefiner.redefine();
 

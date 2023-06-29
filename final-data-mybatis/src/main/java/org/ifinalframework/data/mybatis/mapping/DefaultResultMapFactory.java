@@ -36,6 +36,7 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.LongTypeHandler;
 import org.apache.ibatis.type.TypeHandler;
 
+import org.apache.ibatis.type.UnknownTypeHandler;
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IUser;
@@ -86,7 +87,7 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                                     .map(referenceProperty -> {
 
                                         final String name = referenceProperty.getName();
-                                        String column = formatColumn(entity, property, referenceProperty);
+                                        String column = property.getReferenceColumn(referenceProperty);
                                         TypeHandler<?> typeHandler;
                                         if (IUser.class.equals(type) && "id".equals(name)) {
                                             typeHandler = new LongTypeHandler();
@@ -107,12 +108,14 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                             final String name = property.getName();
 
                             return new ResultMapping.Builder(configuration, name)
-                                    .column(formatColumn(entity, null, property))
+//                                    .column(composites.get(0).getColumn())
+                                    .columnPrefix(formatColumn(entity,null,property) + "_")
                                     .javaType(type)
                                     .flags(property.isIdProperty() ? Collections.singletonList(ResultFlag.ID)
                                             : Collections.emptyList())
                                     .composites(composites)
-                                    .nestedResultMapId(id + "[" + name + "]")
+                                    .typeHandler(new UnknownTypeHandler(configuration))
+//                                    .nestedResultMapId(id + "[" + name + "]")
                                     .build();
 
                         } else {

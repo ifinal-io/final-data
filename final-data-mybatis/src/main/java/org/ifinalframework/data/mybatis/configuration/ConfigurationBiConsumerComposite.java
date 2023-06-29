@@ -34,7 +34,7 @@ public class ConfigurationBiConsumerComposite implements ConfigurationBiConsumer
     private final List<ConfigurationBiConsumer> consumers = new LinkedList<>();
 
     public ConfigurationBiConsumerComposite() {
-        consumers.add(new ResultMapConfigurationBiConsumer());
+//        consumers.add(new ResultMapConfigurationBiConsumer());
 //        consumers.add(new MapperConfigurationBiConsumer());
     }
 

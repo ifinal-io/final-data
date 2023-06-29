@@ -48,7 +48,7 @@ import org.apache.ibatis.session.RowBounds;
  */
 @Slf4j
 @Order(0)
-@Component
+//@Component
 @Intercepts(
     {
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
