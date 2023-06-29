@@ -35,8 +35,12 @@ import org.ifinalframework.javassist.JavaAssistProcessor;
 public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistProcessor {
     @Override
     public void process(ClassPool classPool) throws Throwable {
+
         logger.debug("start modify class: MapperAnnotationBuilder");
         final CtClass ctClass = classPool.get("org.apache.ibatis.builder.annotation.MapperAnnotationBuilder");
+        if(ctClass.isFrozen()){
+            return;
+        }
         final CtConstructor constructor = ctClass.getDeclaredConstructors()[0];
         /**
          *   public MapperAnnotationBuilder(Configuration configuration, Class<?> type) {
