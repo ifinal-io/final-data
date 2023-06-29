@@ -26,10 +26,7 @@ import org.apache.ibatis.executor.resultset.ResultSetWrapper;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.reflection.MetaObject;
 import org.ifinalframework.auto.service.annotation.AutoService;
-import org.ifinalframework.java.JvmDriver;
 import org.ifinalframework.javassist.JavaAssistProcessor;
-
-import java.util.Objects;
 
 /**
  * DefaultResultSetHandlerJavaAssistProcessor.
@@ -43,22 +40,27 @@ import java.util.Objects;
 @AutoService(JavaAssistProcessor.class)
 public class DefaultResultSetHandlerJavaAssistProcessor implements JavaAssistProcessor {
 
+    private boolean processed = false;
+
     @Override
     public void process(ClassPool classPool) throws Throwable {
         logger.debug("start modify class: DefaultResultSetHandler");
         final CtClass ctClass = classPool.get("org.apache.ibatis.executor.resultset.DefaultResultSetHandler");
-        if(ctClass.isFrozen()){
-            return;
+        if (ctClass.isFrozen()) {
+            if (processed) {
+                return;
+            }
         }
         modifyMethodApplyPropertyMappings(ctClass);
         final Class<?> aClass = ctClass.toClass(ResultSetHandler.class);
+        processed = true;
         logger.debug("finish modify class: DefaultResultSetHandler");
     }
 
     /**
      * @param ctClass
      * @throws Throwable
-     * @see DefaultResultSetHandler#applyPropertyMappings(ResultSetWrapper, ResultMap, MetaObject, ResultLoaderMap, String) 
+     * @see DefaultResultSetHandler#applyPropertyMappings(ResultSetWrapper, ResultMap, MetaObject, ResultLoaderMap, String)
      */
     private void modifyMethodApplyPropertyMappings(CtClass ctClass) throws Throwable {
         final CtMethod method = ctClass.getDeclaredMethod("applyPropertyMappings");
