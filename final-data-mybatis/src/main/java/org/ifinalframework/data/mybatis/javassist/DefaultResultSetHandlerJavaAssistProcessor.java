@@ -21,6 +21,7 @@ import javassist.CtMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.loader.ResultLoaderMap;
 import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
+import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetWrapper;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.reflection.MetaObject;
@@ -50,7 +51,7 @@ public class DefaultResultSetHandlerJavaAssistProcessor implements JavaAssistPro
             return;
         }
         modifyMethodApplyPropertyMappings(ctClass);
-        final Class<?> aClass = ctClass.toClass();
+        final Class<?> aClass = ctClass.toClass(ResultSetHandler.class);
         logger.debug("finish modify class: DefaultResultSetHandler");
     }
 

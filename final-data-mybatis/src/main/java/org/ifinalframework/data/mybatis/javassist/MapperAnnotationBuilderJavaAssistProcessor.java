@@ -19,6 +19,7 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 import org.ifinalframework.auto.service.annotation.AutoService;
 import org.ifinalframework.javassist.JavaAssistProcessor;
 
@@ -38,7 +39,7 @@ public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistPro
 
         logger.debug("start modify class: MapperAnnotationBuilder");
         final CtClass ctClass = classPool.get("org.apache.ibatis.builder.annotation.MapperAnnotationBuilder");
-        if(ctClass.isFrozen()){
+        if (ctClass.isFrozen()) {
             return;
         }
         final CtConstructor constructor = ctClass.getDeclaredConstructors()[0];
@@ -55,7 +56,7 @@ public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistPro
                 + "this.configuration = $1;\n"
                 + "this.type = $2;\n}"
         );
-        final Class<?> newClass = ctClass.toClass();
+        final Class<?> newClass = ctClass.toClass(ProviderMethodResolver.class);
         logger.debug("finish modify class: MapperAnnotationBuilder");
     }
 }
