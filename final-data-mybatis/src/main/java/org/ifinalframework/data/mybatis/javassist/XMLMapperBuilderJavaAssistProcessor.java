@@ -35,6 +35,7 @@ import java.util.Map;
  * @author ilikly
  * @version 1.5.1
  * @see org.apache.ibatis.builder.xml.XMLMapperBuilder
+ * @see org.ifinalframework.data.mybatis.builder.MapperBuilderAssistantExt
  * @since 1.5.1
  */
 @Slf4j
