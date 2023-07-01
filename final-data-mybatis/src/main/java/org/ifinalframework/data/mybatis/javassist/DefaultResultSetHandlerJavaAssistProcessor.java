@@ -18,6 +18,7 @@ package org.ifinalframework.data.mybatis.javassist;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.bytecode.ClassFile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.executor.loader.ResultLoaderMap;
 import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
@@ -49,7 +50,11 @@ public class DefaultResultSetHandlerJavaAssistProcessor implements JavaAssistPro
             return;
         }
         modifyMethodApplyPropertyMappings(ctClass);
-        final Class<?> aClass = ctClass.toClass(ResultSetHandler.class);
+        if (ClassFile.MAJOR_VERSION > ClassFile.JAVA_8) {
+            final Class<?> newClass = ctClass.toClass(ResultSetHandler.class);
+        } else {
+            final Class<?> newClass = ctClass.toClass();
+        }
         logger.debug("finish modify class: DefaultResultSetHandler");
     }
 

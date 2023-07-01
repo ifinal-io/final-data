@@ -18,6 +18,7 @@ package org.ifinalframework.data.mybatis.javassist;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
+import javassist.bytecode.ClassFile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 import org.ifinalframework.auto.service.annotation.AutoService;
@@ -57,7 +58,11 @@ public class MapperAnnotationBuilderJavaAssistProcessor implements JavaAssistPro
                 + "this.configuration = $1;\n"
                 + "this.type = $2;\n}"
         );
-        final Class<?> newClass = ctClass.toClass(ProviderMethodResolver.class);
+        if (ClassFile.MAJOR_VERSION > ClassFile.JAVA_8) {
+            final Class<?> newClass = ctClass.toClass(ProviderMethodResolver.class);
+        } else {
+            final Class<?> newClass = ctClass.toClass();
+        }
         logger.debug("finish modify class: MapperAnnotationBuilder");
     }
 }
