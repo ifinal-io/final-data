@@ -15,18 +15,6 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.cache.CacheKey;
@@ -40,6 +28,15 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.springframework.core.annotation.Order;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author ilikly
@@ -50,14 +47,15 @@ import org.apache.ibatis.session.RowBounds;
 @Order(0)
 //@Component
 @Intercepts(
-    {
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class, CacheKey.class,
-            BoundSql.class}),
-    }
+        {
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                        RowBounds.class, ResultHandler.class}),
+                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                        RowBounds.class, ResultHandler.class, CacheKey.class,
+                        BoundSql.class}),
+        }
 )
+@Deprecated
 public class InlineSelectInterceptor implements Interceptor {
 
     /**
@@ -80,7 +78,7 @@ public class InlineSelectInterceptor implements Interceptor {
         final List<ResultMap> resultMaps = ms.getResultMaps();
 
         if (resultMaps.size() == 1 && PATTERN.matcher(id).find()
-            && IEntity.class.isAssignableFrom(resultMaps.get(0).getType())) {
+                && IEntity.class.isAssignableFrom(resultMaps.get(0).getType())) {
             final MappedStatement mappedStatement = newFinalMappedStatement(ms, id + "-final");
             return executor.query(mappedStatement, param, rowBounds, resultHandler);
         }
@@ -92,7 +90,7 @@ public class InlineSelectInterceptor implements Interceptor {
     public MappedStatement newFinalMappedStatement(final MappedStatement ms, final String newMsId) {
 
         MappedStatement.Builder builder = new MappedStatement.Builder(ms.getConfiguration(), newMsId, ms.getSqlSource(),
-            ms.getSqlCommandType());
+                ms.getSqlCommandType());
         builder.resource(ms.getResource());
         builder.fetchSize(ms.getFetchSize());
         builder.statementType(ms.getStatementType());

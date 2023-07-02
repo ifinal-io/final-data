@@ -15,30 +15,30 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
-import java.lang.reflect.Field;
-import java.util.Objects;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
-
-import org.springframework.util.ReflectionUtils;
-
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
 import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
+import org.springframework.util.ReflectionUtils;
 
-import lombok.extern.slf4j.Slf4j;
+import java.lang.reflect.Field;
+import java.util.Objects;
 
 /**
  * ResultConfigurationBiConsumer.
  *
  * @author ilikly
  * @version 1.4.0
+ * @see org.ifinalframework.data.mybatis.builder.MapperBuilderAssistantExt
  * @since 1.4.0
+ * @deprecated replaced by {@link org.ifinalframework.data.mybatis.builder.MapperBuilderAssistantExt} since 1.5.2
  */
 @Slf4j
-public class ResultMapConfigurationBiConsumer implements ConfigurationBiConsumer{
+@Deprecated
+public class ResultMapConfigurationBiConsumer implements ConfigurationBiConsumer {
 
     private static final Field composites = Objects
             .requireNonNull(ReflectionUtils.findField(ResultMapping.class, "composites"));
