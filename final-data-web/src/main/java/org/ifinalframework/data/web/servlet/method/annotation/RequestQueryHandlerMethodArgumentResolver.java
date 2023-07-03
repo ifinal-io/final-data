@@ -16,8 +16,8 @@
 package org.ifinalframework.data.web.servlet.method.annotation;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.Charset;
