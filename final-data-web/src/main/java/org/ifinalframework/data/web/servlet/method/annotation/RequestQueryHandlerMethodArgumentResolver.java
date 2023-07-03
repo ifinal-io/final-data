@@ -15,7 +15,7 @@
 
 package org.ifinalframework.data.web.servlet.method.annotation;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;

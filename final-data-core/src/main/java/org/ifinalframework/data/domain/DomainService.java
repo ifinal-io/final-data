@@ -15,6 +15,7 @@
 
 package org.ifinalframework.data.domain;
 
+import jakarta.validation.Valid;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
@@ -29,7 +30,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 

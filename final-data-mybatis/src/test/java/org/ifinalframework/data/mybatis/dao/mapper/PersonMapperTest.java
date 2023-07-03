@@ -15,7 +15,7 @@
 
 package org.ifinalframework.data.mybatis.dao.mapper;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.util.Arrays;
 import java.util.Map;
 

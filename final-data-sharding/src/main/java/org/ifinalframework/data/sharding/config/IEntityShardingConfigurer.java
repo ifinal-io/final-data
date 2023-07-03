@@ -34,7 +34,7 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.*;

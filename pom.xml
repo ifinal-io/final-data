@@ -46,7 +46,7 @@
     </modules>
 
     <properties>
-        <java.version>1.8</java.version>
+        <java.version>17</java.version>
         <final.version>1.5.2-SNAPSHOT</final.version>
         <sonar.projectKey>final-projects_final-data</sonar.projectKey>
         <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>

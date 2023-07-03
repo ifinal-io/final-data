@@ -31,7 +31,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;

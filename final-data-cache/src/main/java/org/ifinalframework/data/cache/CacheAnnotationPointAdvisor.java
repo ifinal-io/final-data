@@ -31,7 +31,7 @@ import org.ifinalframework.cache.annotation.CachePut;
 import org.ifinalframework.cache.annotation.CacheValue;
 import org.ifinalframework.cache.annotation.Cacheable;
 
-import javax.annotation.Resource;
+import jakarta.annotation.Resource;
 
 /**
  * @author ilikly

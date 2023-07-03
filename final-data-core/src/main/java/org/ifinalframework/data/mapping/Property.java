@@ -16,7 +16,7 @@
 
 package org.ifinalframework.data.mapping;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.Set;
