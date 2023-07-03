@@ -37,6 +37,7 @@ import org.apache.ibatis.type.LongTypeHandler;
 import org.apache.ibatis.type.TypeHandler;
 
 import org.apache.ibatis.type.UnknownTypeHandler;
+import org.ifinalframework.util.Primaries;
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IUser;
@@ -73,8 +74,19 @@ public class DefaultResultMapFactory implements ResultMapFactory {
             Entity<?> entity = Entity.from(clazz);
 
             final List<ResultMapping> resultMappings = entity.stream()
-                    .filter(it -> !it.isTransient() && !it.isVirtual() && !it.isWriteOnly())
+                    .filter(it -> {
+
+                        if(it.isTransient()){
+                            // only support primary
+                           return Primaries.isPrimary(it.getType());
+                        }
+
+
+                        return !it.isVirtual() && !it.isWriteOnly();
+                    })
                     .map(property -> {
+
+
                         Class<?> type = property.getType();
                         if (property.isAssociation()) {
                             final Reference reference = property.getRequiredAnnotation(Reference.class);
