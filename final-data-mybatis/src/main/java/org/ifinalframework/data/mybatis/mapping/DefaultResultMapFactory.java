@@ -76,13 +76,13 @@ public class DefaultResultMapFactory implements ResultMapFactory {
             final List<ResultMapping> resultMappings = entity.stream()
                     .filter(it -> {
 
-                        if(it.isTransient()){
+//                        if(it.isTransient()){
                             // only support primary
-                           return Primaries.isPrimary(it.getType());
-                        }
+//                           return Primaries.isPrimary(it.getType());
+//                        }
 
 
-                        return !it.isVirtual() && !it.isWriteOnly();
+                        return !it.isTransient() && !it.isVirtual() && !it.isWriteOnly();
                     })
                     .map(property -> {
 
@@ -147,8 +147,7 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            return new ResultMap.Builder(configuration, id, entity.getType(), resultMappings)
-                    .build();
+            return new ResultMap.Builder(configuration, id, entity.getType(), resultMappings,true).build();
         });
 
     }
