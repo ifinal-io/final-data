@@ -22,6 +22,7 @@ import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
 import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
+import org.ifinalframework.util.Primaries;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -59,13 +60,13 @@ public class MapperBuilderAssistantExt extends MapperBuilderAssistant {
                                               boolean resultOrdered, KeyGenerator keyGenerator, String keyProperty, String keyColumn, String databaseId,
                                               LanguageDriver lang, String resultSets, boolean dirtySelect) {
 
-        if (resultMap == null && resultType != null) {
+        if (resultMap == null && resultType != null && resultType != void.class && !Primaries.isPrimary(resultType)) {
 
             final String statementId = applyCurrentNamespace(id, false);
             resultMap = statementId + "-Inline";
 
             ResultMap inlineResultMap = new ResultMap.Builder(configuration, resultMap, resultType,
-                    resultMapFactory.create(getConfiguration(), resultType).getResultMappings(), null).build();
+                    resultMapFactory.create(getConfiguration(), resultType).getResultMappings(), true).build();
 
             configuration.addResultMap(inlineResultMap);
 

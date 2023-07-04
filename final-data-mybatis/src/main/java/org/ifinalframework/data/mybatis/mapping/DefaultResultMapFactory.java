@@ -76,10 +76,10 @@ public class DefaultResultMapFactory implements ResultMapFactory {
             final List<ResultMapping> resultMappings = entity.stream()
                     .filter(it -> {
 
-//                        if(it.isTransient()){
-                            // only support primary
-//                           return Primaries.isPrimary(it.getType());
-//                        }
+                        if(it.isTransient()){
+//                             only support primary
+                           return Primaries.isPrimary(it.getType());
+                        }
 
 
                         return !it.isTransient() && !it.isVirtual() && !it.isWriteOnly();
