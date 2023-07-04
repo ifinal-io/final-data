@@ -16,7 +16,12 @@
 package org.ifinalframework.data.web.core;
 
 import org.ifinalframework.context.exception.BadRequestException;
-import org.ifinalframework.core.*;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IEnum;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IStatus;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.model.AuditValue;
@@ -31,15 +36,34 @@ import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindException;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.SmartValidator;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import java.util.*;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * ResourceDomainController.
@@ -126,10 +150,24 @@ public class DomainResourceDispatchController {
         } else if (requestBody.startsWith("[")) {
             List<IEntity<Long>> entities = Json.toList(requestBody, entityClass);
             WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
-            binder.validate(ClassUtils.toClassArray(validationGroups));
-            if (binder.getBindingResult().hasErrors()) {
-                throw new BindException(binder.getBindingResult());
+            final List<Validator> validators = binder.getValidators();
+            final BindingResult bindingResult = binder.getBindingResult();
+            final Class<?>[] validationHints = ClassUtils.toClassArray(validationGroups);
+            for (IEntity<Long> entity : entities) {
+                for (Validator validator : validators) {
+                    if (!ObjectUtils.isEmpty(validationGroups) && validator instanceof SmartValidator smartValidator) {
+                        smartValidator.validate(entity, bindingResult, validationHints);
+                    } else if (validator != null) {
+                        validator.validate(entity, bindingResult);
+                    }
+
+                    if (bindingResult.hasErrors()) {
+                        throw new BindException(binder.getBindingResult());
+                    }
+                }
             }
+
+
             return domainService.create(entities, user);
         }
 
