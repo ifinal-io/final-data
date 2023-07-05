@@ -17,7 +17,14 @@ package org.ifinalframework.data.mybatis.builder;
 
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
-import org.apache.ibatis.mapping.*;
+import org.apache.ibatis.mapping.Discriminator;
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.mapping.ResultSetType;
+import org.apache.ibatis.mapping.SqlCommandType;
+import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
 import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
@@ -25,8 +32,8 @@ import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
 import org.ifinalframework.util.Primaries;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * MapperBuilderAssistantExt.
@@ -48,6 +55,10 @@ public class MapperBuilderAssistantExt extends MapperBuilderAssistant {
         if (CollectionUtils.isEmpty(resultMappings)) {
             final ResultMap resultMap = resultMapFactory.create(getConfiguration(), type);
             resultMappings = resultMap.getResultMappings();
+        }
+
+        if (Objects.isNull(autoMapping)) {
+            autoMapping = true;
         }
 
         return super.addResultMap(id, type, extend, discriminator, resultMappings, autoMapping);
