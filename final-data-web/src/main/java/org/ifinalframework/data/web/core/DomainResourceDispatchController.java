@@ -25,8 +25,8 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.json.Json;
-import org.ifinalframework.validation.GlobalValidationGroupsProvider;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +34,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindException;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.SmartValidator;
-import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,12 +50,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 
-import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -73,23 +67,20 @@ import java.util.Objects;
 @Configuration
 @Transactional
 @RestController
+@Validated
 @RequestMapping("/api/{resource}")
 @ConditionalOnWebApplication
 public class DomainResourceDispatchController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceDispatchController.class);
 
-    @Resource
-    private GlobalValidationGroupsProvider globalValidationGroupsProvider;
-
-
     @GetMapping
-    public Object query(@PathVariable String resource, @RequestQuery(view = IView.List.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object query(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}", resource);
         return domainService.list(query, user);
     }
 
     @GetMapping("/detail")
-    public Object detail(@PathVariable String resource, @RequestQuery(view = IView.Detail.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object detail(@PathVariable String resource, @Valid @RequestQuery(view = IView.Detail.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> GET /api/{}/detail", resource);
         return domainService.detail(query, user);
     }
@@ -102,7 +93,7 @@ public class DomainResourceDispatchController {
 
     // delete
     @DeleteMapping
-    public Object delete(@PathVariable String resource, @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object delete(@PathVariable String resource, @Valid @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return domainService.delete(query, user);
     }
 
@@ -114,63 +105,28 @@ public class DomainResourceDispatchController {
 
 
     @PostMapping
-    public Object create(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+    public Object create(@PathVariable String resource, @Valid @RequestEntity(view = IView.Create.class) Object requestEntity, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
                          NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> POST /api/{}", resource);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
-
-        List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups());
         Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
         if (Objects.nonNull(createEntityClass)) {
-            Object createEntity = Json.toObject(requestBody, createEntityClass);
-            WebDataBinder binder = binderFactory.createBinder(request, createEntity, "entity");
-            binder.validate(ClassUtils.toClassArray(validationGroups));
-            if (binder.getBindingResult().hasErrors()) {
-                throw new BindException(binder.getBindingResult());
-            }
-            List<IEntity<Long>> entities = domainService.preInsertFunction().map(createEntity, user);
+            List<IEntity<Long>> entities = domainService.preInsertFunction().map(requestEntity, user);
             return domainService.create(entities, user);
-        } else if (requestBody.startsWith("{")) {
-            IEntity<Long> entity = Json.toObject(requestBody, entityClass);
-            WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
-            binder.validate(ClassUtils.toClassArray(validationGroups));
-            if (binder.getBindingResult().hasErrors()) {
-                throw new BindException(binder.getBindingResult());
+        } else if (requestEntity instanceof List<?>) {
+            return domainService.create((List<IEntity<Long>>) requestEntity, user);
+        } else if (requestEntity instanceof IEntity<?> entity) {
+            final Object result = domainService.create(Collections.singletonList((IEntity<Long>) entity), user);
+            if(result instanceof Number){
+                return entity.getId();
             }
-            domainService.create(Collections.singletonList(entity), user);
-            return entity.getId();
-        } else if (requestBody.startsWith("[")) {
-            List<IEntity<Long>> entities = Json.toList(requestBody, entityClass);
-            WebDataBinder binder = binderFactory.createBinder(request, entities, "entities");
-            final List<Validator> validators = binder.getValidators();
-            final BindingResult bindingResult = binder.getBindingResult();
-            final Class<?>[] validationHints = ClassUtils.toClassArray(validationGroups);
-            for (IEntity<Long> entity : entities) {
-                for (Validator validator : validators) {
-                    if (!ObjectUtils.isEmpty(validationGroups) && validator instanceof SmartValidator smartValidator) {
-                        smartValidator.validate(entity, bindingResult, validationHints);
-                    } else if (validator != null) {
-                        validator.validate(entity, bindingResult);
-                    }
-
-                    if (bindingResult.hasErrors()) {
-                        throw new BindException(binder.getBindingResult());
-                    }
-                }
-            }
-
-
-            return domainService.create(entities, user);
+            return result;
         }
 
-        throw new BadRequestException("unsupported requestBody format of " + requestBody);
-
-
+        throw new BadRequestException("unsupported requestBody format of " + requestEntity);
     }
 
-
     @PutMapping("/{id}")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
                           NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
