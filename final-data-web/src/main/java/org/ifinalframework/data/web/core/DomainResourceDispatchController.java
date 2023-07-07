@@ -34,7 +34,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.BindException;
@@ -50,7 +49,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -103,15 +101,9 @@ public class DomainResourceDispatchController {
     }
 
     // delete
-
     @DeleteMapping
     public Object delete(@PathVariable String resource, @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return domainService.delete(query, user);
-    }
-
-    @DeleteMapping("/delete")
-    public Object deleteFromParam(@PathVariable String resource, @RequestParam Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return this.delete(resource, id, user, domainService);
     }
 
     @DeleteMapping("/{id}")
@@ -176,51 +168,24 @@ public class DomainResourceDispatchController {
 
     }
 
-    @PutMapping
-    public Integer update(@PathVariable String resource, @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
-                          NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
-        return doUpdate(resource, null, requestBody, user, domainService, request, binderFactory);
-    }
 
     @PutMapping("/{id}")
     public Integer update(@PathVariable String resource, @PathVariable Long id, @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
                           NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
-        return doUpdate(resource, id, requestBody, user, domainService, request, binderFactory);
-    }
-
-    private Integer doUpdate(String resource, Long id, String body, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
-                             NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
         logger.info("==> PUT /api/{}", resource);
         Class<IEntity<Long>> entityClass = domainService.entityClass();
-        IEntity<Long> entity = Json.toObject(body, entityClass);
-        if (Objects.nonNull(id)) {
-            entity.setId(id);
-        } else {
-            Assert.notNull(entity.getId(), "update id is null");
-        }
+        IEntity<Long> entity = Json.toObject(requestBody, entityClass);
         WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
         binder.validate(entity);
         if (binder.getBindingResult().hasErrors()) {
             throw new BindException(binder.getBindingResult());
         }
-        return domainService.update(entity, entity.getId(), true, user);
+        return domainService.update(entity, id, true, user);
     }
 
     // status
-
     @PatchMapping("/{id}/status")
     public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return doUpdateStatus(resource, id, status, user, domainService);
-    }
-
-    @PatchMapping("/status")
-    public Object status2(@PathVariable String resource, @RequestParam Long id, @RequestParam String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return doUpdateStatus(resource, id, status, user, domainService);
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private Object doUpdateStatus(String resource, Long id, String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         if (!IStatus.class.isAssignableFrom(entityClass)) {
@@ -262,7 +227,7 @@ public class DomainResourceDispatchController {
 
 
     // yn
-    @RequestMapping(value = "/{id}/yn", method = {RequestMethod.PATCH, RequestMethod.PUT})
+    @PatchMapping("/{id}/yn")
     public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         logger.info("==> PUT /api/{}/{}/yn", resource, id);
         return domainService.yn(id, yn, user);
