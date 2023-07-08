@@ -16,6 +16,7 @@
 package org.ifinalframework.data.domain;
 
 import lombok.Setter;
+import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.DomainResource;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
 import jakarta.annotation.Resource;
+
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,7 +58,11 @@ public class DefaultDomainServiceRegistry implements DomainServiceRegistry, Appl
 
     @Override
     public <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> getDomainService(String resource) {
-        return (DomainService<ID, T, U>) domainServiceMap.get(resource);
+        final DomainService<Long, IEntity<Long>, IUser<?>> domainService = domainServiceMap.get(resource);
+        if (Objects.isNull(domainService)) {
+            throw new NotFoundException("not found domainService for resource of " + resource);
+        }
+        return (DomainService<ID, T, U>) domainService;
     }
 
     @Override
@@ -66,7 +72,7 @@ public class DefaultDomainServiceRegistry implements DomainServiceRegistry, Appl
 
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
-        final DomainServiceFactory domainServiceFactory = new DefaultDomainServiceFactory(userClass, applicationContext, CompositeProxies.composite(LoggerAfterConsumer.class,loggerAfterConsumers));
+        final DomainServiceFactory domainServiceFactory = new DefaultDomainServiceFactory(userClass, applicationContext, CompositeProxies.composite(LoggerAfterConsumer.class, loggerAfterConsumers));
 
         applicationContext.getBeanProvider(AbsService.class).stream()
                 .forEach(service -> {

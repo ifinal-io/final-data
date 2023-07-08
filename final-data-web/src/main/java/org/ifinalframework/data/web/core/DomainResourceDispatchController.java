@@ -25,8 +25,8 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.model.AuditValue;
-import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.json.Json;
+import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +34,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.BindException;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,8 +45,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.support.WebDataBinderFactory;
-import org.springframework.web.context.request.NativeWebRequest;
 
 import jakarta.validation.Valid;
 
@@ -74,74 +70,94 @@ public class DomainResourceDispatchController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceDispatchController.class);
 
     @GetMapping
-    public Object query(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        logger.info("==> GET /api/{}", resource);
-        return domainService.list(query, user);
+    public Object query(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query,
+                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> query={}", Json.toJson(query));
+        }
+        return processResult(domainService.list(query, user));
     }
 
     @GetMapping("/detail")
-    public Object detail(@PathVariable String resource, @Valid @RequestQuery(view = IView.Detail.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        logger.info("==> GET /api/{}/detail", resource);
-        return domainService.detail(query, user);
+    public Object detail(@PathVariable String resource, @Valid @RequestQuery(view = IView.Detail.class) IQuery query,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> query={}", Json.toJson(query));
+        }
+        final Object result = domainService.detail(query, user);
+        return processResult(result);
     }
 
     @GetMapping("/{id}")
-    public Object query(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        logger.info("==> GET /api/{}/{}", resource, id);
-        return domainService.detail(id, user);
+    public Object query(@PathVariable String resource, @PathVariable Long id,
+                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return processResult(domainService.detail(id, user));
     }
 
     // delete
     @DeleteMapping
-    public Object delete(@PathVariable String resource, @Valid @RequestQuery(view = IView.Delete.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return domainService.delete(query, user);
+    public Object delete(@PathVariable String resource, @Valid @RequestQuery(view = IView.Delete.class) IQuery query,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> query={}", Json.toJson(query));
+        }
+        return processResult(domainService.delete(query, user));
     }
 
     @DeleteMapping("/{id}")
-    public Object delete(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        logger.info("==> GET /api/{}/{}", resource, id);
-        return domainService.delete(id, user);
+    public Object delete(@PathVariable String resource, @PathVariable Long id,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return processResult(domainService.delete(id, user));
     }
 
 
     @PostMapping
-    public Object create(@PathVariable String resource, @Valid @RequestEntity(view = IView.Create.class) Object requestEntity, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
-                         NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
-        logger.info("==> POST /api/{}", resource);
+    public Object create(@PathVariable String resource, @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> entity={}", Json.toJson(requestEntity));
+        }
         Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
         if (Objects.nonNull(createEntityClass)) {
             List<IEntity<Long>> entities = domainService.preInsertFunction().map(requestEntity, user);
-            return domainService.create(entities, user);
+            return processResult(domainService.create(entities, user));
         } else if (requestEntity instanceof List<?>) {
-            return domainService.create((List<IEntity<Long>>) requestEntity, user);
+            return processResult(domainService.create((List<IEntity<Long>>) requestEntity, user));
         } else if (requestEntity instanceof IEntity<?> entity) {
             final Object result = domainService.create(Collections.singletonList((IEntity<Long>) entity), user);
-            if(result instanceof Number){
-                return entity.getId();
+            if (result instanceof Number) {
+                return processResult(entity.getId());
             }
-            return result;
+            return processResult(result);
         }
 
         throw new BadRequestException("unsupported requestBody format of " + requestEntity);
     }
 
     @PutMapping("/{id}")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody String requestBody, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
-                          NativeWebRequest request, WebDataBinderFactory binderFactory) throws Exception {
-        logger.info("==> PUT /api/{}", resource);
-        Class<IEntity<Long>> entityClass = domainService.entityClass();
-        IEntity<Long> entity = Json.toObject(requestBody, entityClass);
-        WebDataBinder binder = binderFactory.createBinder(request, entity, "entity");
-        binder.validate(entity);
-        if (binder.getBindingResult().hasErrors()) {
-            throw new BindException(binder.getBindingResult());
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
-        return domainService.update(entity, id, true, user);
+
+        if (requestEntity instanceof IEntity<?> entity) {
+            return processResult(domainService.update((IEntity<Long>) entity, id, true, user));
+        }
+
+        throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
+
     }
 
     // status
     @PatchMapping("/{id}/status")
-    public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> status={}", status);
+        }
+
         Class<IEntity<Long>> entityClass = domainService.entityClass();
 
         if (!IStatus.class.isAssignableFrom(entityClass)) {
@@ -158,57 +174,73 @@ public class DomainResourceDispatchController {
             throw new BadRequestException("not status of " + status);
         }
 
-        return domainService.status(id, statusValue, user);
+        return processResult(domainService.status(id, statusValue, user));
 
     }
 
     // audit
 
     @PatchMapping("/{id}/audit")
-    public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return domainService.audit(id, auditValue, user);
+    public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue,
+                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> auditValue={}", Json.toJson(auditValue));
+        }
+        return processResult(domainService.audit(id, auditValue, user));
     }
 
 
     // lock
     @PatchMapping("/{id}/lock")
-    public Object lock(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return domainService.lock(id, true, user);
+    public Object lock(@PathVariable String resource, @PathVariable Long id,
+                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return processResult(domainService.lock(id, true, user));
     }
 
     @PatchMapping("/{id}/unlock")
-    public Object unlock(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return domainService.lock(id, false, user);
+    public Object unlock(@PathVariable String resource, @PathVariable Long id,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        return processResult(domainService.lock(id, false, user));
     }
 
 
     // yn
     @PatchMapping("/{id}/yn")
-    public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        logger.info("==> PUT /api/{}/{}/yn", resource, id);
-        return domainService.yn(id, yn, user);
+    public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> yn={}", yn);
+        }
+        return processResult(domainService.yn(id, yn, user));
     }
 
     @PutMapping("/{id}/disable")
-    public Object disable(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object disable(@PathVariable String resource, @PathVariable Long id,
+                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return this.update(resource, id, YN.NO, user, domainService);
     }
 
     @PutMapping("/{id}/enable")
-    public Object enable(@PathVariable String resource, @PathVariable Long id, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object enable(@PathVariable String resource, @PathVariable Long id,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         return this.update(resource, id, YN.YES, user, domainService);
-    }
-
-    @PutMapping("/yn")
-    public Object yn(@PathVariable String resource, @RequestParam Long id, @RequestParam YN yn, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return this.update(resource, id, yn, user, domainService);
     }
 
     // count
     @GetMapping("/count")
-    public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query, IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        logger.info("==> GET /api/{}", resource);
-        return domainService.count(query, user);
+    public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query,
+                      IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> query={}", Json.toJson(query));
+        }
+        return processResult(domainService.count(query, user));
+    }
+
+    private <R> R processResult(R result) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("<== {}", Json.toJson(result));
+        }
+        return result;
     }
 
 }
