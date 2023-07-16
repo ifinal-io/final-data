@@ -17,6 +17,7 @@ package org.ifinalframework.data.spi;
 
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IAudit;
+import org.ifinalframework.core.IRecord;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.domain.model.AuditValue;
 
@@ -34,6 +35,13 @@ public class DefaultUpdateAuditStatusPreValidator<U extends IUser<?>> implements
         final IAudit.AuditStatus auditStatus = entity.getAuditStatus();
         if (Objects.isNull(auditStatus)) {
             return;
+        }
+
+        if (value.getStatus() == IAudit.AuditStatus.CANCELED && entity instanceof IRecord<?, ?> record) {
+            final IUser<?> creator = record.getCreator();
+            if (!Objects.equals(creator.getId(), user.getId())) {
+                throw new BadRequestException("仅申请人可以撤销");
+            }
         }
 
         switch (entity.getAuditStatus()) {

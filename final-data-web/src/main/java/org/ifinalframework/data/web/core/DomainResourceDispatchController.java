@@ -16,6 +16,7 @@
 package org.ifinalframework.data.web.core;
 
 import org.ifinalframework.context.exception.BadRequestException;
+import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
@@ -179,13 +180,24 @@ public class DomainResourceDispatchController {
     }
 
     // audit
-
     @PatchMapping("/{id}/audit")
     public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue,
                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> auditValue={}", Json.toJson(auditValue));
         }
+        return processResult(domainService.audit(id, auditValue, user));
+    }
+
+    @PatchMapping("/{id}/cancel")
+    public Object cancel(@PathVariable String resource, @PathVariable Long id, @RequestParam String content,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> content={}", content);
+        }
+        final AuditValue auditValue = new AuditValue();
+        auditValue.setStatus(IAudit.AuditStatus.CANCELED);
+        auditValue.setContent(content);
         return processResult(domainService.audit(id, auditValue, user));
     }
 
