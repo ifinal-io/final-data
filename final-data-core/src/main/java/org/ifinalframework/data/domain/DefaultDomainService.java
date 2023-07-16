@@ -157,6 +157,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         if (Objects.isNull(dbEntity)) {
             throw new NotFoundException("not found entity by id= " + id);
         }
+        entity.setId(id);
         preUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.PRE, Collections.singletonList(entity), user);
         int update = repository.update(entity, selective, id);
         postUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.POST, Collections.singletonList(entity), user);
