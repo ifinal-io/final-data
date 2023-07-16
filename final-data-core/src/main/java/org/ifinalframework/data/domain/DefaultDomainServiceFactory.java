@@ -264,7 +264,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
 
         if (IAudit.class.isAssignableFrom(entityClass)) {
             //UpdateFunction<Entity,ID,AuditValue,User>
-            final UpdateFunction<T, ID, AuditValue, U> updateLockedByIdFunction = (UpdateFunction<T, ID, AuditValue, U>) applicationContext.getBeanProvider(
+            final UpdateFunction<T, ID, AuditValue, U> updateAuditStatusByIdFunction = (UpdateFunction<T, ID, AuditValue, U>) applicationContext.getBeanProvider(
                             ResolvableType.forClassWithGenerics(
                                     UpdateFunction.class,
                                     ResolvableType.forClass(entityClass),
@@ -273,8 +273,8 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                                     ResolvableType.forClass(userClass)
                             ))
                     .getIfAvailable(() -> new DefaultUpdateAuditStatusFunction<>(repository));
-            final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateLockedByIdFunction);
-            acceptUpdateDomainAction(updateAuditStatusByIdDomainAction, SpiAction.UPDATE_AUDIT_STATUS, entityClass, idClass, Boolean.class, userClass);
+            final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateAuditStatusByIdFunction);
+            acceptUpdateDomainAction(updateAuditStatusByIdDomainAction, SpiAction.UPDATE_AUDIT_STATUS, entityClass, idClass, AuditValue.class, userClass);
             builder.updateAuditStatusByIdDomainAction(updateAuditStatusByIdDomainAction);
         }
 
@@ -304,6 +304,11 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         if (CollectionUtils.isEmpty(beans) && type == Filter.class) {
             beans = Collections.singletonList((Filter) (action1, entity, user) -> true);
         }
+
+        if(type == BiValidator.class && generics[1] == AuditValue.class){
+            beans.add(new DefaultUpdateAuditStatusPreValidator<>());
+        }
+
 
         if (type == AfterConsumer.class) {
             beans.add(loggerAfterConsumer);
