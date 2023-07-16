@@ -15,12 +15,14 @@
 
 package org.ifinalframework.data.web.core;
 
+import org.ifinalframework.context.FinalContext;
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IStatus;
+import org.ifinalframework.core.ITenant;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
@@ -76,7 +78,14 @@ public class DomainResourceDispatchController {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
-        return processResult(domainService.list(query, user));
+
+        try {
+            setFinalContext(query);
+            return processResult(domainService.list(query, user));
+        } finally {
+            clearFinalContext(query);
+        }
+
     }
 
     @GetMapping("/detail")
@@ -102,7 +111,12 @@ public class DomainResourceDispatchController {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
-        return processResult(domainService.delete(query, user));
+        try {
+            setFinalContext(query);
+            return processResult(domainService.delete(query, user));
+        } finally {
+            clearFinalContext(query);
+        }
     }
 
     @DeleteMapping("/{id}")
@@ -113,55 +127,76 @@ public class DomainResourceDispatchController {
 
 
     @PostMapping
+    @Validated({IView.Create.class})
     public Object create(@PathVariable String resource, @Validated({IView.Create.class}) @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
-        Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
-        if (Objects.nonNull(createEntityClass)) {
-            List<IEntity<Long>> entities = domainService.preInsertFunction().map(requestEntity, user);
-            return processResult(domainService.create(entities, user));
-        } else if (requestEntity instanceof List<?>) {
-            return processResult(domainService.create((List<IEntity<Long>>) requestEntity, user));
-        } else if (requestEntity instanceof IEntity<?> entity) {
-            final Object result = domainService.create(Collections.singletonList((IEntity<Long>) entity), user);
-            if (result instanceof Number) {
-                return processResult(entity.getId());
-            }
-            return processResult(result);
-        }
 
-        throw new BadRequestException("unsupported requestBody format of " + requestEntity);
+        try {
+            setFinalContext(requestEntity);
+            Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
+            if (Objects.nonNull(createEntityClass)) {
+                List<IEntity<Long>> entities = domainService.preInsertFunction().map(requestEntity, user);
+                return processResult(domainService.create(entities, user));
+            } else if (requestEntity instanceof List<?>) {
+                return processResult(domainService.create((List<IEntity<Long>>) requestEntity, user));
+            } else if (requestEntity instanceof IEntity<?> entity) {
+                final Object result = domainService.create(Collections.singletonList((IEntity<Long>) entity), user);
+                if (result instanceof Number) {
+                    return processResult(entity.getId());
+                }
+                return processResult(result);
+            }
+
+
+            throw new BadRequestException("unsupported requestBody format of " + requestEntity);
+        } finally {
+            clearFinalContext(requestEntity);
+        }
     }
 
     @PutMapping("/{id}")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @Validated(IView.Update.class) @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+    @Validated(IView.Update.class)
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
                           IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
 
-        if (requestEntity instanceof IEntity<?> entity) {
-            return processResult(domainService.update((IEntity<Long>) entity, id, false, user));
-        }
+        try {
+            setFinalContext(requestEntity);
 
-        throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
+            if (requestEntity instanceof IEntity<?> entity) {
+                return processResult(domainService.update((IEntity<Long>) entity, id, false, user));
+            }
+
+            throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
+        } finally {
+            clearFinalContext(requestEntity);
+        }
 
     }
 
     @PatchMapping("/{id}")
-    public Integer patch(@PathVariable String resource, @PathVariable Long id, @Validated(IView.Patch.class) @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+    @Validated(IView.Patch.class)
+    public Integer patch(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
+        try {
+            setFinalContext(requestEntity);
 
-        if (requestEntity instanceof IEntity<?> entity) {
-            return processResult(domainService.update((IEntity<Long>) entity, id, true, user));
+            if (requestEntity instanceof IEntity<?> entity) {
+                return processResult(domainService.update((IEntity<Long>) entity, id, true, user));
+            }
+
+            throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
+        } finally {
+            clearFinalContext(requestEntity);
         }
-
-        throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
     }
 
     // status
@@ -262,7 +297,12 @@ public class DomainResourceDispatchController {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
-        return processResult(domainService.count(query, user));
+        try {
+            setFinalContext(query);
+            return processResult(domainService.count(query, user));
+        } finally {
+            clearFinalContext(query);
+        }
     }
 
     private <R> R processResult(R result) {
@@ -271,6 +311,21 @@ public class DomainResourceDispatchController {
         }
         return result;
     }
+
+    private void setFinalContext(Object value) {
+        if (value instanceof ITenant tenant) {
+            if (Objects.nonNull(tenant.getTenant())) {
+                FinalContext.TENANT.set(tenant.getTenant());
+            }
+        }
+    }
+
+    private void clearFinalContext(Object value) {
+        if (value instanceof ITenant) {
+            FinalContext.TENANT.remove();
+        }
+    }
+
 
 }
 
