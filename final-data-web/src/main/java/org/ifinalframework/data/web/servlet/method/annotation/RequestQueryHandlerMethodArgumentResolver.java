@@ -106,7 +106,7 @@ public class RequestQueryHandlerMethodArgumentResolver implements HandlerMethodA
             bindQuery(webRequest, binder);
         }
 
-        List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups());
+        List<Class<?>> validationGroups = new LinkedList<>(globalValidationGroupsProvider.getValidationGroups(requestQuery.view()));
         binder.validate(ClassUtils.toClassArray(validationGroups));
         if (binder.getBindingResult().hasErrors()) {
             throw new BindException(binder.getBindingResult());

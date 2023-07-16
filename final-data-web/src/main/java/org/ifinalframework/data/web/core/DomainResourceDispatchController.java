@@ -113,7 +113,7 @@ public class DomainResourceDispatchController {
 
 
     @PostMapping
-    public Object create(@PathVariable String resource, @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
+    public Object create(@PathVariable String resource,@Validated({IView.Create.class}) @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
@@ -136,8 +136,23 @@ public class DomainResourceDispatchController {
     }
 
     @PutMapping("/{id}")
-    public Integer update(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+    public Integer update(@PathVariable String resource, @PathVariable Long id, @Validated(IView.Update.class) @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
                           IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> entity={}", Json.toJson(requestEntity));
+        }
+
+        if (requestEntity instanceof IEntity<?> entity) {
+            return processResult(domainService.update((IEntity<Long>) entity, id, false, user));
+        }
+
+        throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
+
+    }
+
+    @PatchMapping("/{id}")
+    public Integer patch(@PathVariable String resource, @PathVariable Long id, @Validated(IView.Update.class) @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService){
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
@@ -147,7 +162,6 @@ public class DomainResourceDispatchController {
         }
 
         throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
-
     }
 
     // status
