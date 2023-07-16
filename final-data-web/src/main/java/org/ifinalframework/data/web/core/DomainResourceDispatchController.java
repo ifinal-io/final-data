@@ -186,6 +186,9 @@ public class DomainResourceDispatchController {
         if (logger.isDebugEnabled()) {
             logger.debug("==> auditValue={}", Json.toJson(auditValue));
         }
+        if (Objects.equals(auditValue.getStatus(), IAudit.AuditStatus.CANCELED)) {
+            throw new BadRequestException("审核不能撤销");
+        }
         return processResult(domainService.audit(id, auditValue, user));
     }
 
