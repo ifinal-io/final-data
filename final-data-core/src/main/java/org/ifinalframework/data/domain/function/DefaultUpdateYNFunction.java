@@ -16,15 +16,18 @@
 package org.ifinalframework.data.domain.function;
 
 import lombok.RequiredArgsConstructor;
+import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.query.CriterionTarget;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.UpdateFunction;
+import org.ifinalframework.data.spi.BiUpdateFunction;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,16 +38,35 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateYNFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, YN, U> {
+public class DefaultUpdateYNFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements BiUpdateFunction<T, P, YN, YN, U> {
     private final Repository<ID, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, YN value, U user) {
+    public Integer update(List<T> entities, P param, YN current, YN value, U user) {
         Update update = Update.update().set("yn", value);
-        if (param instanceof IQuery) {
-            return repository.update(update, (IQuery) param);
+
+
+        if (param instanceof PageQuery pageQuery) {
+            pageQuery.where(CriterionTarget.from("yn").eq(current));
+            return repository.update(update, pageQuery);
+        } else if (param instanceof Collection<?> ids) {
+            final PageQuery pageQuery = new PageQuery();
+            pageQuery.where(CriterionTarget.from("yn").eq(current),
+                    CriterionTarget.from("id").in(ids));
+            return repository.update(update, pageQuery);
         } else {
-            return repository.update(update, (ID) param);
+            final PageQuery pageQuery = new PageQuery();
+            pageQuery.where(CriterionTarget.from("yn").eq(current),
+                    CriterionTarget.from("id").eq(param));
+
+            final int updated = repository.update(update, pageQuery);
+            if (updated != 1) {
+                throw new BadRequestException("记录已发生变化，请重试");
+            }
+
+            return updated;
+
         }
+
     }
 }

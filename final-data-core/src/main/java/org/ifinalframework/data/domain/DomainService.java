@@ -151,7 +151,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see BiValidator
      * @see org.ifinalframework.data.spi.BiConsumer
      */
-    Object yn(@NonNull ID id, @NonNull YN yn, @NonNull U user);
+    Object yn(@NonNull ID id,@Nullable YN current, @NonNull YN yn, @NonNull U user);
 
     Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user);
 

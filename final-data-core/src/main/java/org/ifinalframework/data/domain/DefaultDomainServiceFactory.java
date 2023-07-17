@@ -259,17 +259,18 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         // update yn
 
         //UpdateFunction<Entity,ID,YN,User>
-        final UpdateFunction<T, ID, YN, U> updateYnByIdFunction = (UpdateFunction<T, ID, YN, U>) applicationContext.getBeanProvider(
+        final BiUpdateFunction<T, ID,YN, YN, U> updateYnByIdFunction = (BiUpdateFunction<T, ID,YN, YN, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
-                                UpdateFunction.class,
+                                BiUpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(idClass),
+                                ResolvableType.forClass(YN.class),
                                 ResolvableType.forClass(YN.class),
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultUpdateYNFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<ID, T, ID, YN, U> updateYnByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
+        final BiUpdateDomainActionDispatcher<ID, T, ID,YN, YN, U> updateYnByIdDomainAction = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
         acceptUpdateDomainAction(updateYnByIdDomainAction, SpiAction.UPDATE_YN, entityClass, idClass, YN.class, userClass);
         builder.updateYnByIdDomainAction(updateYnByIdDomainAction);
 

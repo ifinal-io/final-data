@@ -74,7 +74,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, T, U> updateByIdDomainAction;
 
     // update yn
-    private final UpdateDomainActionDispatcher<ID, T, ID, YN, U> updateYnByIdDomainAction;
+    private final BiUpdateDomainActionDispatcher<ID, T, ID, YN, YN, U> updateYnByIdDomainAction;
 
     // update status
     private final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusByIdDomainAction;
@@ -159,8 +159,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Object yn(@NonNull ID id, @NonNull YN yn, @NonNull U user) {
-        return updateYnByIdDomainAction.dispatch(id, yn, user);
+    public Object yn(@NonNull ID id, @Nullable YN current, @NonNull YN yn, @NonNull U user) {
+        return updateYnByIdDomainAction.dispatch(id, current, yn, user);
     }
 
     @Override

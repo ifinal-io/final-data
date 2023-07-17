@@ -160,7 +160,7 @@ public class DomainResourceDispatchController {
     @PutMapping("/{id}")
     @Validated(IView.Update.class)
     public Object update(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
-                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
@@ -182,7 +182,7 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}")
     @Validated(IView.Patch.class)
     public Object patch(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
@@ -275,19 +275,27 @@ public class DomainResourceDispatchController {
         if (logger.isDebugEnabled()) {
             logger.debug("==> yn={}", yn);
         }
-        return processResult(domainService.yn(id, yn, user));
+
+        YN current = null;
+        switch (yn){
+            case YES -> current = YN.NO;
+            case NO -> current = YN.YES;
+        }
+
+
+        return processResult(domainService.yn(id, current, yn, user));
     }
 
     @PutMapping("/{id}/disable")
     public Object disable(@PathVariable String resource, @PathVariable Long id,
                           IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return this.update(resource, id, YN.NO, user, domainService);
+        return processResult(domainService.yn(id, YN.YES, YN.NO, user));
     }
 
     @PutMapping("/{id}/enable")
     public Object enable(@PathVariable String resource, @PathVariable Long id,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return this.update(resource, id, YN.YES, user, domainService);
+        return processResult(domainService.yn(id, YN.NO, YN.YES, user));
     }
 
     // count
