@@ -89,7 +89,7 @@ public final class DefaultQueryProvider extends AbsQueryProvider {
         }
 
         if (query instanceof PageQuery pageQuery) {
-//            appendCriteria(whereBuilder, pageQuery.getCriteria(), AndOr.AND, "query.criteria");
+            appendCriteria(whereBuilder, pageQuery.getCriteria(), AndOr.AND, "query.criteria");
         }
 
         final Class<?> queryClass = query.getClass();
