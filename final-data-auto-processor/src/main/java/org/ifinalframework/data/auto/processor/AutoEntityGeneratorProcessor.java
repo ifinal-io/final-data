@@ -47,7 +47,7 @@ import org.springframework.util.MultiValueMap;
 import org.ifinalframework.auto.service.annotation.AutoProcessor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IView;
-import org.ifinalframework.core.PageQuery;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.auto.annotation.AutoMapper;
 import org.ifinalframework.data.auto.annotation.AutoQuery;

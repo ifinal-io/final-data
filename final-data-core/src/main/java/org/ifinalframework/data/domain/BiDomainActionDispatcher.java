@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2023 the original author or authors.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,27 +13,26 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.mybatis.dao.query;
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.ifinalframework.data.query.PageQuery;
+package org.ifinalframework.data.domain;
 
 /**
- * UserNameQuery.
+ * BiDomainActionDispatcher.
  *
- * @author ilikly
- * @version 1.2.2
- * @since 1.2.2
+ * @author mik
+ * @version 1.5.2
+ * @see DomainActionDispatcher
+ * @since 1.5.2
  */
+@FunctionalInterface
+public interface BiDomainActionDispatcher<P1, P2, V, U> {
 
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserQuery extends PageQuery {
-    private String name;
-    private String password;
+    /**
+     * @param param1 action param.
+     * @param param2 action param.
+     * @param value  action value.
+     * @param user   action user.
+     * @return
+     */
+    Object dispatch(P1 param1, P2 param2, V value, U user);
+
 }

@@ -22,11 +22,20 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.*;
+import org.ifinalframework.data.spi.AfterConsumer;
+import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
+import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiConsumer;
+import org.ifinalframework.data.spi.BiValidator;
+import org.ifinalframework.data.spi.Consumer;
+import org.ifinalframework.data.spi.Function;
+import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.json.Json;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,12 +48,12 @@ import java.util.Objects;
  */
 @Setter
 @RequiredArgsConstructor
-public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, Q, V, U extends IUser<?>>
-        implements DomainActionDispatcher<Q, V, U> {
+public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P1, P2, V, U extends IUser<?>>
+        implements DomainActionDispatcher<P1, V, U>, BiDomainActionDispatcher<P1, P2, V, U> {
     private final SpiAction spiAction;
     private final Repository<ID, T> repository;
 
-    private PreQueryConsumer<Q, U> preQueryConsumer;
+    private PreQueryConsumer<P1, U> preQueryConsumer;
 
     private BiValidator<T, V, U> preUpdateValidator;
     private Consumer<T, U> preConsumer;
@@ -52,14 +61,19 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializa
     private BiConsumer<T, V, U> postUpdateConsumer;
     private Consumer<T, U> postConsumer;
 
-    private BiConsumer<T, Q, U> postQueryConsumer;
-    private Function<Integer, Q, U> postQueryFunction;
-    private AfterThrowingQueryConsumer<T, Q, U> afterThrowingQueryConsumer;
-    private AfterReturningQueryConsumer<T, Q, U> afterReturningQueryConsumer;
-    private AfterConsumer<T, Q, V, Integer, U> afterConsumer;
+    private BiConsumer<T, P1, U> postQueryConsumer;
+    private Function<Integer, P1, U> postQueryFunction;
+    private AfterThrowingQueryConsumer<T, P1, U> afterThrowingQueryConsumer;
+    private AfterReturningQueryConsumer<T, P1, U> afterReturningQueryConsumer;
+    private AfterConsumer<T, P1, V, Integer, U> afterConsumer;
 
     @Override
-    public Object dispatch(Q param, V value, U user) {
+    public Object dispatch(P1 param, V value, U user) {
+        return dispatch(param, null, value, user);
+    }
+
+    @Override
+    public Object dispatch(P1 param1, P2 param2, V value, U user) {
 
         Integer result = null;
         List<T> list = null;
@@ -67,13 +81,13 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializa
         try {
 
             if (Objects.nonNull(preQueryConsumer)) {
-                preQueryConsumer.accept(spiAction, param, user);
+                preQueryConsumer.accept(spiAction, param1, user);
             }
 
-            list = doActionPrepare(param, value, user);
+            list = doActionPrepare(param1, param2, value, user);
 
             if (CollectionUtils.isEmpty(list)) {
-                throw new NotFoundException("not found target entities: {}", Json.toJson(param));
+                throw new NotFoundException("not found target entities: {}", Json.toJson(param1));
             }
 
             if (Objects.nonNull(preUpdateValidator)) {
@@ -88,7 +102,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializa
                 preUpdateConsumer.accept(spiAction, SpiAction.Advice.PRE, list, value, user);
             }
 
-            result = doInterAction(list, param, value, user);
+            result = doInterAction(list, param1, param2, value, user);
 
             if (Objects.nonNull(postUpdateConsumer)) {
                 postUpdateConsumer.accept(spiAction, SpiAction.Advice.POST, list, value, user);
@@ -100,37 +114,37 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializa
 
 
             if (Objects.nonNull(postQueryConsumer)) {
-                postQueryConsumer.accept(spiAction, SpiAction.Advice.POST, list, param, user);
+                postQueryConsumer.accept(spiAction, SpiAction.Advice.POST, list, param1, user);
             }
 
             if (Objects.nonNull(postQueryFunction)) {
-                return postQueryFunction.map(result, param, user);
+                return postQueryFunction.map(result, param1, user);
             }
 
             return result;
         } catch (Exception e) {
             throwable = e;
             if (Objects.nonNull(afterThrowingQueryConsumer)) {
-                afterThrowingQueryConsumer.accept(spiAction, list, param, user, e);
+                afterThrowingQueryConsumer.accept(spiAction, list, param1, user, e);
             }
             throw e;
         } finally {
             if (Objects.nonNull(afterReturningQueryConsumer)) {
-                afterReturningQueryConsumer.accept(spiAction, list, param, user, throwable);
+                afterReturningQueryConsumer.accept(spiAction, list, param1, user, throwable);
             }
             if (Objects.nonNull(afterConsumer)) {
-                afterConsumer.accept(spiAction, list, param, value, result, user, throwable);
+                afterConsumer.accept(spiAction, list, param1, value, result, user, throwable);
             }
         }
-
-
     }
 
-    protected abstract Integer doInterAction(List<T> entities, Q query, V value, U user);
+    protected abstract Integer doInterAction(List<T> entities, P1 query, P2 p2, V value, U user);
 
-    protected List<T> doActionPrepare(Q query, V value, U user) {
+    protected List<T> doActionPrepare(P1 query, P2 param2, V value, U user) {
         if (query instanceof IQuery) {
             return repository.select((IQuery) query);
+        } else if (query instanceof Collection<?> ids) {
+            return repository.select((Collection<ID>) ids);
         } else {
             return repository.select((ID) query);
         }

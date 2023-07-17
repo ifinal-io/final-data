@@ -15,19 +15,16 @@
 
 package org.ifinalframework.data.mybatis.sql;
 
-import java.util.Optional;
-
-import org.springframework.core.ResolvableType;
-
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.Limitable;
+import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.sql.provider.ScriptSqlProvider;
-import org.ifinalframework.data.query.Query;
 import org.ifinalframework.data.query.QueryProvider;
-import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
 import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 import org.ifinalframework.data.repository.Repository;
+import org.springframework.core.ResolvableType;
+
+import java.util.Optional;
 
 /**
  * @author ilikly
@@ -41,12 +38,8 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
         return ResolvableType.forClass(mapper).as(Repository.class).resolveGeneric(1);
     }
 
-    default QueryProvider query(String expression, Class<?> entity, Class<?> query) {
-        return new AnnotationQueryProvider(expression, (Class<? extends IEntity>) entity, query);
-    }
-
-    default QueryProvider query(Query query) {
-        return new DefaultQueryProvider(query);
+    default QueryProvider query(String expression, Class<?> entity, Object query) {
+        return new DefaultQueryProvider(expression, (Class<? extends IEntity>) entity, query);
     }
 
     default void appendOrders(StringBuilder sql) {
@@ -76,10 +69,8 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
 
         QueryProvider provider = null;
 
-        if (query instanceof Query) {
-            provider = query((Query) query);
-        } else if (query != null) {
-            provider = query("query", entity, query.getClass());
+        if (query instanceof IQuery) {
+            provider = query("query", entity, query);
         }
 
         Optional.ofNullable(provider).ifPresent(it -> {

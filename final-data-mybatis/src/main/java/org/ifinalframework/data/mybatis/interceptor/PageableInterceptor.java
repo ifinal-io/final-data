@@ -22,7 +22,7 @@ import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.plugin.*;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.ifinalframework.core.PageQuery;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.core.Pageable;
 
 import java.util.Map;

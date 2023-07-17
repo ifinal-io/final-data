@@ -24,7 +24,6 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
@@ -32,7 +31,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -73,8 +71,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final PreQueryConsumer<IQuery, U> preCountQueryConsumer;
 
     // update
-    private final Consumer<T, U> preUpdateConsumer;
-    private final Consumer<T, U> postUpdateConsumer;
+    private final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, T, U> updateByIdDomainAction;
 
     // update yn
     private final UpdateDomainActionDispatcher<ID, T, ID, YN, U> updateYnByIdDomainAction;
@@ -152,16 +149,13 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user) {
+    public Object update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user) {
         T dbEntity = repository.selectOne(id);
         if (Objects.isNull(dbEntity)) {
             throw new NotFoundException("not found entity by id= " + id);
         }
         entity.setId(id);
-        preUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.PRE, Collections.singletonList(entity), user);
-        int update = repository.update(entity, selective, id);
-        postUpdateConsumer.accept(SpiAction.UPDATE, SpiAction.Advice.POST, Collections.singletonList(entity), user);
-        return update;
+        return updateByIdDomainAction.dispatch(id, selective, entity, user);
     }
 
     @Override

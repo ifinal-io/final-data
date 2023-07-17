@@ -142,7 +142,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.AfterReturnUpdateConsumer
      */
-    int update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user);
+    Object update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user);
 
     /**
      * @param id   the entity id to update.

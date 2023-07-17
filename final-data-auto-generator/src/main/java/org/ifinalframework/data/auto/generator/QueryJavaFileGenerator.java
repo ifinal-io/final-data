@@ -20,7 +20,7 @@ import javax.lang.model.element.Modifier;
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IDQuery;
-import org.ifinalframework.core.PageQuery;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.javapoets.JavaPoets;

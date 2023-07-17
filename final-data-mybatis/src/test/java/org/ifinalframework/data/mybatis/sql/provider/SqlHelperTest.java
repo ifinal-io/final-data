@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.PageQuery;
+import org.ifinalframework.data.query.CriterionTarget;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
@@ -48,7 +49,7 @@ import org.ifinalframework.data.annotation.criterion.Or;
  * @since 1.0.0
  */
 @Slf4j
-class SqlHelperTest {
+public class SqlHelperTest {
 
 
     @Test
@@ -56,6 +57,7 @@ class SqlHelperTest {
         AndQuery query = new AndQuery();
         query.setColumnA("a");
         query.setColumnA2("aa");
+//        query.where(CriterionTarget.from("columnA").eq(123));
         logger.info(SqlHelper.query(Bean.class, query));
     }
 
@@ -120,7 +122,7 @@ class SqlHelperTest {
     }
 
     @Data
-    static class Bean implements IEntity<Long> {
+    public static class Bean implements IEntity<Long> {
 
         @AutoInc
         @PrimaryKey

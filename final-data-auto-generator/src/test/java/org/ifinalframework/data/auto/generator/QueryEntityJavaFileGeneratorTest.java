@@ -15,10 +15,8 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import org.ifinalframework.core.PageQuery;
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
-import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.data.query.AbsQEntity;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;
@@ -28,8 +26,6 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * QueryEntityJavaFileGeneratorTest.

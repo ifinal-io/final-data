@@ -16,13 +16,12 @@
 
 package org.ifinalframework.data.mapping;
 
+import org.springframework.data.mapping.model.BasicPersistentEntity;
+import org.springframework.data.util.TypeInformation;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-
-import org.springframework.data.mapping.model.BasicPersistentEntity;
-import org.springframework.data.util.ClassTypeInformation;
-import org.springframework.data.util.TypeInformation;
 
 /**
  * @author ilikly
@@ -38,7 +37,7 @@ public class AnnotationPersistentEntity<T> extends BasicPersistentEntity<T, Prop
     }
 
     public AnnotationPersistentEntity(final Class<T> entityClass) {
-        this(ClassTypeInformation.from(entityClass));
+        this(TypeInformation.of(entityClass));
     }
 
     @Override

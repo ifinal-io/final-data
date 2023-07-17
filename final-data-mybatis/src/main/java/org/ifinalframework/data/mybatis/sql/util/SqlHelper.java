@@ -78,7 +78,7 @@ import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.QueryProvider;
-import org.ifinalframework.data.query.sql.AnnotationQueryProvider;
+import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -223,7 +223,7 @@ public final class SqlHelper {
 
         sql.append("<script>");
 
-        final QueryProvider provider = new AnnotationQueryProvider(PARAMETER_NAME_QUERY, entity, query.getClass());
+        final QueryProvider provider = new DefaultQueryProvider(PARAMETER_NAME_QUERY, entity, query);
 
         if (Objects.nonNull(provider.where())) {
             sql.append(provider.where());

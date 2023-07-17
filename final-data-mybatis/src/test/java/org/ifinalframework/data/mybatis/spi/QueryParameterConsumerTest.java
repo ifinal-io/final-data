@@ -20,15 +20,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.ifinalframework.core.PageQuery;
-import org.ifinalframework.data.annotation.AbsEntity;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.annotation.AbsRecord;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * QueryParameterConsumerTest.

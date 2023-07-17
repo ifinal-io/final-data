@@ -16,9 +16,8 @@
 package org.ifinalframework.data.auto.generator;
 
 import org.ifinalframework.core.IView;
-import org.ifinalframework.core.PageQuery;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.annotation.AbsEntity;
-import org.ifinalframework.data.auto.annotation.AutoQuery;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;

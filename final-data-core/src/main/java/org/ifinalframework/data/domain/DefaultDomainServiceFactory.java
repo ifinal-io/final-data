@@ -17,14 +17,45 @@ package org.ifinalframework.data.domain;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.ifinalframework.core.*;
+import org.ifinalframework.core.IAudit;
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IEnum;
+import org.ifinalframework.core.ILock;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IStatus;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
-import org.ifinalframework.data.domain.function.*;
+import org.ifinalframework.data.domain.function.DefaultDeleteFunction;
+import org.ifinalframework.data.domain.function.DefaultSelectFunction;
+import org.ifinalframework.data.domain.function.DefaultSelectOneFunction;
+import org.ifinalframework.data.domain.function.DefaultUpdateAuditStatusFunction;
+import org.ifinalframework.data.domain.function.DefaultUpdateFunction;
+import org.ifinalframework.data.domain.function.DefaultUpdateLockedFunction;
+import org.ifinalframework.data.domain.function.DefaultUpdateStatusFunction;
+import org.ifinalframework.data.domain.function.DefaultUpdateYNFunction;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.*;
+import org.ifinalframework.data.spi.AfterConsumer;
+import org.ifinalframework.data.spi.AfterReturningConsumer;
+import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
+import org.ifinalframework.data.spi.AfterThrowingConsumer;
+import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiConsumer;
+import org.ifinalframework.data.spi.BiUpdateFunction;
+import org.ifinalframework.data.spi.BiValidator;
+import org.ifinalframework.data.spi.Consumer;
+import org.ifinalframework.data.spi.DefaultUpdateAuditStatusPreValidator;
+import org.ifinalframework.data.spi.DeleteFunction;
+import org.ifinalframework.data.spi.Filter;
+import org.ifinalframework.data.spi.Function;
+import org.ifinalframework.data.spi.PreInsertFunction;
+import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.SelectFunction;
+import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateFunction;
 import org.ifinalframework.util.CompositeProxies;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.context.ApplicationContext;
@@ -34,7 +65,11 @@ import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -141,10 +176,6 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         deleteByIdDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, idClass, Void.class, Integer.class, userClass));
         builder.deleteByIdDomainAction(deleteByIdDomainAction);
 
-        // update
-        builder.preUpdateConsumer(getSpiComposite(SpiAction.UPDATE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
-        builder.postUpdateConsumer(getSpiComposite(SpiAction.UPDATE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-
 
         // list
         final Class<?> listQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.List.class), defaultqueryClass);
@@ -206,6 +237,24 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         final Class<?> countQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Count.class), defaultqueryClass);
         queryClassMap.put(IView.Count.class, (Class<? extends IQuery>) countQueryClass);
         builder.preCountQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE, PreQueryConsumer.class, countQueryClass, userClass));
+
+        // update
+        // BiUpdateFunction<Entity,ID,Boolean,Entity,User>
+        final BiUpdateFunction<T, ID, Boolean, T, U> updateByIdFunction = (BiUpdateFunction<T, ID, Boolean, T, U>) applicationContext.getBeanProvider(
+                ResolvableType.forClassWithGenerics(
+                        BiUpdateFunction.class,
+                        ResolvableType.forClass(entityClass),
+                        ResolvableType.forClass(idClass),
+                        ResolvableType.forClass(Boolean.class),
+                        ResolvableType.forClass(entityClass),
+                        ResolvableType.forClass(userClass)
+                )
+        ).getIfAvailable(() -> new DefaultUpdateFunction<>(repository));
+
+        final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, T, U> updateByIdDomainAction = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE, repository, updateByIdFunction);
+        acceptUpdateDomainAction(updateByIdDomainAction, SpiAction.UPDATE, entityClass, idClass, entityClass, userClass);
+        builder.updateByIdDomainAction(updateByIdDomainAction);
+
 
         // update yn
 
@@ -282,12 +331,11 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         return builder.build();
     }
 
-    private void acceptUpdateDomainAction(UpdateDomainActionDispatcher action, SpiAction spiAction, Class<?> entityClass, Class<?> paramClass, Class<?> valueClass, Class<U> userClass) {
+    private void acceptUpdateDomainAction(AbsUpdateDeleteDomainActionDispatcher action, SpiAction spiAction, Class<?> entityClass, Class<?> paramClass, Class<?> valueClass, Class<U> userClass) {
         action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiValidator.class, entityClass, valueClass, userClass));
         action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiConsumer.class, entityClass, valueClass, userClass));
         action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, BiConsumer.class, entityClass, valueClass, userClass));
         action.setAfterConsumer(getSpiComposite(spiAction, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, paramClass, Void.class, Integer.class, userClass));
-
     }
 
 
@@ -305,7 +353,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
             beans = Collections.singletonList((Filter) (action1, entity, user) -> true);
         }
 
-        if(type == BiValidator.class && generics[1] == AuditValue.class){
+        if (type == BiValidator.class && generics[1] == AuditValue.class) {
             beans.add(new DefaultUpdateAuditStatusPreValidator<>());
         }
 

@@ -15,10 +15,11 @@
 
 package org.ifinalframework.data.domain;
 
+import lombok.Setter;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.DeleteFunction;
+import org.ifinalframework.data.spi.BiUpdateFunction;
 import org.ifinalframework.data.spi.SpiAction;
 
 import java.io.Serializable;
@@ -31,17 +32,18 @@ import java.util.List;
  * @version 1.5.0
  * @since 1.5.0
  */
-public class DeleteDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>>
-        extends AbsUpdateDeleteDomainActionDispatcher<ID, T, P, Void, Void, U> {
-    private final DeleteFunction<T, P, U> updateAction;
+@Setter
+public class BiUpdateDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P, P2, V, U extends IUser<?>>
+        extends AbsUpdateDeleteDomainActionDispatcher<ID, T, P, P2, V, U> {
+    private final BiUpdateFunction<T, P, P2, V, U> updateAction;
 
-    public DeleteDomainActionDispatcher(SpiAction spiAction, Repository<ID, T> repository, DeleteFunction<T, P, U> updateAction) {
+    public BiUpdateDomainActionDispatcher(SpiAction spiAction, Repository<ID, T> repository, BiUpdateFunction<T, P, P2, V, U> updateAction) {
         super(spiAction, repository);
         this.updateAction = updateAction;
     }
 
     @Override
-    protected Integer doInterAction(List<T> entities, P query, Void p2, Void value, U user) {
-        return updateAction.delete(entities, query, user);
+    protected Integer doInterAction(List<T> entities, P param, P2 p2, V value, U user) {
+        return updateAction.update(entities, param, p2, value, user);
     }
 }
