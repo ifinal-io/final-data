@@ -258,13 +258,13 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/lock")
     public Object lock(@PathVariable String resource, @PathVariable Long id,
                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.lock(id, true, user));
+        return processResult(domainService.lock(id, false, true, user));
     }
 
     @PatchMapping("/{id}/unlock")
     public Object unlock(@PathVariable String resource, @PathVariable Long id,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.lock(id, false, user));
+        return processResult(domainService.lock(id, true, false, user));
     }
 
 
@@ -277,7 +277,7 @@ public class DomainResourceDispatchController {
         }
 
         YN current = null;
-        switch (yn){
+        switch (yn) {
             case YES -> current = YN.NO;
             case NO -> current = YN.YES;
         }

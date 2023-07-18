@@ -155,7 +155,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
 
     Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user);
 
-    Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull U user);
+    Object lock(@NonNull ID id,@Nullable Boolean current, @NonNull Boolean locked, @NonNull U user);
 
     Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user);
 

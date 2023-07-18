@@ -259,7 +259,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         // update yn
 
         //UpdateFunction<Entity,ID,YN,User>
-        final BiUpdateFunction<T, ID,YN, YN, U> updateYnByIdFunction = (BiUpdateFunction<T, ID,YN, YN, U>) applicationContext.getBeanProvider(
+        final BiUpdateFunction<T, ID, YN, YN, U> updateYnByIdFunction = (BiUpdateFunction<T, ID, YN, YN, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 BiUpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -270,7 +270,7 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
                         ))
                 .getIfAvailable(() -> new DefaultUpdateYNFunction<>(repository));
 
-        final BiUpdateDomainActionDispatcher<ID, T, ID,YN, YN, U> updateYnByIdDomainAction = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
+        final BiUpdateDomainActionDispatcher<ID, T, ID, YN, YN, U> updateYnByIdDomainAction = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
         acceptUpdateDomainAction(updateYnByIdDomainAction, SpiAction.UPDATE_YN, entityClass, idClass, YN.class, userClass);
         builder.updateYnByIdDomainAction(updateYnByIdDomainAction);
 
@@ -297,17 +297,18 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         // update locked
         if (ILock.class.isAssignableFrom(entityClass)) {
 
-            //UpdateFunction<Entity,ID,Boolean,User>
-            final UpdateFunction<T, ID, Boolean, U> updateLockedByIdFunction = (UpdateFunction<T, ID, Boolean, U>) applicationContext.getBeanProvider(
+            //BiUpdateFunction<Entity,ID,Boolean,Boolean,User>
+            final BiUpdateFunction<T, ID, Boolean, Boolean, U> updateLockedByIdFunction = (BiUpdateFunction<T, ID, Boolean, Boolean, U>) applicationContext.getBeanProvider(
                             ResolvableType.forClassWithGenerics(
                                     UpdateFunction.class,
                                     ResolvableType.forClass(entityClass),
                                     ResolvableType.forClass(idClass),
                                     ResolvableType.forClass(Boolean.class),
+                                    ResolvableType.forClass(Boolean.class),
                                     ResolvableType.forClass(userClass)
                             ))
                     .getIfAvailable(() -> new DefaultUpdateLockedFunction<>(repository));
-            final UpdateDomainActionDispatcher<ID, T, ID, Boolean, U> updateLockedByIdDomainAction = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
+            final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean,Boolean, U> updateLockedByIdDomainAction = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
             acceptUpdateDomainAction(updateLockedByIdDomainAction, SpiAction.UPDATE_LOCKED, entityClass, idClass, Boolean.class, userClass);
             builder.updateLockedByIdDomainAction(updateLockedByIdDomainAction);
         }

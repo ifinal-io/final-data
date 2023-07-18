@@ -80,7 +80,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     private final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusByIdDomainAction;
 
     // update locked
-    private final UpdateDomainActionDispatcher<ID, T, ID, Boolean, U> updateLockedByIdDomainAction;
+    private final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, Boolean, U> updateLockedByIdDomainAction;
     // update audit-status
     private final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusByIdDomainAction;
     // delete
@@ -169,8 +169,8 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Object lock(@NonNull ID id, @NonNull Boolean locked, @NonNull U user) {
-        return updateLockedByIdDomainAction.dispatch(id, locked, user);
+    public Object lock(@NonNull ID id,@Nullable Boolean current, @NonNull Boolean locked, @NonNull U user) {
+        return updateLockedByIdDomainAction.dispatch(id,current, locked, user);
     }
 
     @Override
