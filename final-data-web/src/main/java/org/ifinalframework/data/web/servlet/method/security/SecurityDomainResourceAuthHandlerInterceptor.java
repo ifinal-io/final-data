@@ -41,7 +41,7 @@ import java.util.Objects;
  * @since 1.5.2
  **/
 @Slf4j
-//@Interceptor
+@Interceptor
 public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInterceptor {
     private final SpelExpressionParser spelExpressionParser = new SpelExpressionParser();
     private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
