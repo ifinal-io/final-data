@@ -31,6 +31,7 @@ import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.json.Json;
 import org.springframework.util.CollectionUtils;
 
@@ -57,8 +58,8 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializa
 
     private BiValidator<T, V, U> preUpdateValidator;
     private Consumer<T, U> preConsumer;
-    private BiConsumer<T, V, U> preUpdateConsumer;
-    private BiConsumer<T, V, U> postUpdateConsumer;
+    private UpdateConsumer<T, V, U> preUpdateConsumer;
+    private UpdateConsumer<T, V, U> postUpdateConsumer;
     private Consumer<T, U> postConsumer;
 
     private BiConsumer<T, P1, U> postQueryConsumer;

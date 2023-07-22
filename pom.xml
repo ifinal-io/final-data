@@ -114,6 +114,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.ifinalframework.security</groupId>
+                <artifactId>final-security</artifactId>
+                <version>${final.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!--final data modules-->
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>

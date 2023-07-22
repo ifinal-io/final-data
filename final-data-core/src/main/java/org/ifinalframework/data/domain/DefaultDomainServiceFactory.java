@@ -55,6 +55,7 @@ import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SelectFunction;
 import org.ifinalframework.data.spi.SpiAction;
+import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.data.spi.UpdateFunction;
 import org.ifinalframework.util.CompositeProxies;
 import org.springframework.aop.support.AopUtils;
@@ -217,6 +218,12 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
         detailQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, detailQueryClass, userClass));
         detailQueryDomainAction.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
         detailQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, BiConsumer.class, entityClass, detailQueryClass, userClass));
+        // PostQueryFunction<T,IQuery,IUser>
+        applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
+                ResolvableType.forClass(entityClass),
+                ResolvableType.forClass(detailQueryClass),
+                ResolvableType.forClass(userClass)
+        )).ifAvailable(postQueryFunction -> detailQueryDomainAction.setPostQueryFunction((Function<T, IQuery, U>) postQueryFunction));
         builder.detailQueryDomainAction(detailQueryDomainAction);
 
 
@@ -335,8 +342,8 @@ public class DefaultDomainServiceFactory<U extends IUser<?>> implements DomainSe
 
     private void acceptUpdateDomainAction(AbsUpdateDeleteDomainActionDispatcher action, SpiAction spiAction, Class<?> entityClass, Class<?> paramClass, Class<?> valueClass, Class<U> userClass) {
         action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiValidator.class, entityClass, valueClass, userClass));
-        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiConsumer.class, entityClass, valueClass, userClass));
-        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, BiConsumer.class, entityClass, valueClass, userClass));
+        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, valueClass, userClass));
+        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, valueClass, userClass));
         action.setAfterConsumer(getSpiComposite(spiAction, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, paramClass, Void.class, Integer.class, userClass));
     }
 

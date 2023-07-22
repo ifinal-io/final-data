@@ -15,6 +15,7 @@
 
 package org.ifinalframework.data.auto.generator;
 
+import lombok.extern.slf4j.Slf4j;
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
 import org.ifinalframework.data.query.AbsQEntity;
@@ -34,6 +35,7 @@ import org.mockito.Mockito;
  * @version 1.4.2
  * @since 1.4.2
  */
+@Slf4j
 class QueryEntityJavaFileGeneratorTest {
 
     @Test
@@ -44,6 +46,7 @@ class QueryEntityJavaFileGeneratorTest {
         JavaFile javaFile = generator.generate(autoService, AbsEntity.class);
         Compiler compiler = new Compiler(getClass().getClassLoader());
         String name = generator.getName(autoService, AbsEntity.class);
+        logger.info(javaFile.toString());
         compiler.addSource(name, javaFile.toString());
         DynamicClassLoader compile = compiler.compile();
         Class<?> query = compile.getClasses().get(name);
