@@ -65,7 +65,10 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
             final boolean hasAuthority = root.hasAuthority(authority);
 
             if (!hasAuthority) {
-                throw new ForbiddenException("您没有权限：" + request.getMethod() + " " + request.getRequestURI());
+
+                logger.warn("您没有权限访问：{} {} {}",request.getMethod(),request.getRequestURI(),authority);
+
+//                throw new ForbiddenException("您没有权限：" + request.getMethod() + " " + request.getRequestURI());
             }
 
         }
