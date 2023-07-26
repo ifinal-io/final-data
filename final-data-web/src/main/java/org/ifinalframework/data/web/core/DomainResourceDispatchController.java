@@ -17,6 +17,7 @@ package org.ifinalframework.data.web.core;
 
 import org.ifinalframework.context.FinalContext;
 import org.ifinalframework.context.exception.BadRequestException;
+import org.ifinalframework.context.exception.InternalServerException;
 import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
@@ -27,10 +28,15 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
+import org.ifinalframework.data.domain.excel.ClassPathDomainResourceExcelExportProvider;
+import org.ifinalframework.data.domain.excel.DomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.security.DomainResourceAuth;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.json.Json;
+import org.ifinalframework.poi.Excel;
+import org.ifinalframework.poi.Excels;
 import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
 import org.slf4j.Logger;
@@ -51,9 +57,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -74,6 +85,8 @@ import java.util.Objects;
 public class DomainResourceDispatchController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceDispatchController.class);
 
+    private DomainResourceExcelExportProvider domainResourceExcelExportProvider = new ClassPathDomainResourceExcelExportProvider();
+
     @GetMapping
     @DomainResourceAuth(action = SpiAction.LIST)
     public Object query(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query,
@@ -90,6 +103,50 @@ public class DomainResourceDispatchController {
         }
 
     }
+
+    @GetMapping("/export")
+    @DomainResourceAuth(action = SpiAction.EXPORT)
+    public void export(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query,
+                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService, HttpServletResponse response) throws Exception{
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> query={}", Json.toJson(query));
+        }
+
+        try {
+            setFinalContext(query);
+
+            if(query instanceof PageQuery pageQuery){
+                pageQuery.setCount(false);
+                pageQuery.setPage(null);
+                pageQuery.setSize(null);
+            }
+
+            final Object result = processResult(domainService.list(query, user));
+
+            if(result instanceof List<?> list){
+
+                response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+                response.setHeader("Content-Disposition", "attachment;filename=\""+ URLEncoder.encode( domainService.entityClass().getSimpleName() + ".xlsx")+"\"");
+                response.addHeader("Pargam", "no-cache");
+                response.addHeader("Cache-Control", "no-cache");
+
+                final Excel excel = domainResourceExcelExportProvider.getResourceExcel(resource, domainService.entityClass());
+
+                Excels.newWriter(excel)
+                        .append(list)
+                        .write(response.getOutputStream());
+            }
+
+            throw new InternalServerException("导出的结果必须是Collection");
+
+
+
+
+        } finally {
+            clearFinalContext(query);
+        }
+    }
+
 
     @GetMapping("/detail")
     @DomainResourceAuth(action = SpiAction.DETAIL)

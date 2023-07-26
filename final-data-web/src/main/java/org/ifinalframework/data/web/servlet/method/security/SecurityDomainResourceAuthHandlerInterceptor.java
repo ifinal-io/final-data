@@ -68,7 +68,7 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
 
                 logger.warn("您没有权限访问：{} {} {}",request.getMethod(),request.getRequestURI(),authority);
 
-//                throw new ForbiddenException("您没有权限：" + request.getMethod() + " " + request.getRequestURI());
+                throw new ForbiddenException("您没有权限：" + request.getMethod() + " " + request.getRequestURI());
             }
 
         }
