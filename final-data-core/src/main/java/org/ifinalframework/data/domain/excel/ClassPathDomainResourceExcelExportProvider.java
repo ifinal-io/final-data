@@ -15,6 +15,7 @@
 
 package org.ifinalframework.data.domain.excel;
 
+import org.ifinalframework.context.exception.InternalServerException;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.poi.Excel;
 import org.springframework.util.ResourceUtils;
@@ -46,14 +47,14 @@ public class ClassPathDomainResourceExcelExportProvider implements DomainResourc
         return cache.computeIfAbsent(resource, key -> {
 
             try {
-                final String excelJson = String.format(EXCEL_RESOURCE_PATH,resource);
+                final String excelJson = String.format(EXCEL_RESOURCE_PATH, resource);
                 final File file = ResourceUtils.getFile(excelJson);
                 final String json = Files.readString(Path.of(file.toURI()));
                 return Json.toObject(json, Excel.class);
             } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
+                throw new InternalServerException("导出配置文件不存在：" + e.getMessage());
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new InternalServerException("导出配置文件解析异常:" + e.getMessage());
             }
 
         });
