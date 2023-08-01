@@ -311,7 +311,7 @@ public class DomainResourceDispatchController {
     }
 
     @PatchMapping("/{id}/cancel")
-    @DomainResourceAuth(action = SpiAction.UPDATE)
+    @DomainResourceAuth(action = SpiAction.UPDATE_AUDIT_STATUS)
     public Object cancel(@PathVariable String resource, @PathVariable Long id, @RequestParam String content,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
