@@ -62,8 +62,6 @@ public class DomainActionAndServiceRegistrySmartInitializing implements Applicat
 
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
-        final DomainServiceFactory domainServiceFactory = new DefaultDomainServiceFactory(userClass, applicationContext, CompositeProxies.composite(LoggerAfterConsumer.class, loggerAfterConsumers));
-
         final DomainActionsFactory domainActionsFactory = new DefaultDomainActionsFactory(userClass, applicationContext, CompositeProxies.composite(LoggerAfterConsumer.class, loggerAfterConsumers));
 
         applicationContext.getBeanProvider(AbsService.class).stream()
@@ -77,8 +75,8 @@ public class DomainActionAndServiceRegistrySmartInitializing implements Applicat
                         final DomainActions domainActions = domainActionsFactory.create(service);
                         DomainService domainService = new DefaultDomainService(domainActions);
                         for (final String resource : domainResource.value()) {
-                            domainActionRegistry.registry(resource, domainActionMap);
-                            domainServiceMap.put(resource, domainService);
+                            domainActionRegistry.registry(resource, domainActions);
+                            domainServiceRegistry.registry(resource, domainService);
                         }
                     }
 
