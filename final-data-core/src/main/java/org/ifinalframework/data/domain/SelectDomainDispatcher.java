@@ -20,7 +20,15 @@ import lombok.Setter;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.Viewable;
-import org.ifinalframework.data.spi.*;
+import org.ifinalframework.data.domain.action.SelectAction;
+import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
+import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiConsumer;
+import org.ifinalframework.data.spi.Consumer;
+import org.ifinalframework.data.spi.Function;
+import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.SelectFunction;
+import org.ifinalframework.data.spi.SpiAction;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -37,7 +45,8 @@ import java.util.Objects;
  */
 @Setter
 @RequiredArgsConstructor
-public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>, R> implements DomainActionDispatcher<P, Void, U> {
+public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>, R> extends AbsDomainAction
+        implements DomainActionDispatcher<P, Void, U>, SelectAction<P, U, Object> {
 
     private final SpiAction spiAction;
     private final Class<?> defaultView;
@@ -49,6 +58,11 @@ public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<I
     private Function<R, P, U> postQueryFunction;
     private AfterThrowingQueryConsumer<T, P, U> afterThrowingQueryConsumer;
     private AfterReturningQueryConsumer<T, P, U> afterReturningQueryConsumer;
+
+    @Override
+    public Object select(P param, U user) {
+        return dispatch(param, null, user);
+    }
 
     @Override
     public Object dispatch(P param, Void value, U user) {

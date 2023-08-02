@@ -13,23 +13,18 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain;
-
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-
-import java.io.Serializable;
+package org.ifinalframework.data.domain.action;
 
 /**
- * DomainResourceManager.
+ * DomainAction
  *
- * @author ilikly
- * @version 1.5.0
- * @since 1.5.0
- */
-public interface DomainServiceRegistry {
-    <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> getDomainService(String resource);
+ * @author mik
+ * @since 1.5.2
+ **/
+public interface DomainAction {
+    Class<?> getDomainQueryClass();
 
-    void registry(String resource, DomainService domainService);
+    Class<?> getDomainEntityClass();
+
 
 }

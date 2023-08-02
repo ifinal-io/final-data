@@ -18,12 +18,10 @@ package org.ifinalframework.data.web.servlet.method.annotation;
 import lombok.Getter;
 import lombok.Setter;
 import org.ifinalframework.context.exception.BadRequestException;
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.domain.DomainService;
-import org.ifinalframework.data.domain.DomainServiceRegistry;
-import org.ifinalframework.web.annotation.bind.RequestEntity;
+import org.ifinalframework.data.domain.action.DomainActionRegistry;
+import org.ifinalframework.data.domain.action.DomainActions;
 import org.ifinalframework.json.Json;
+import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
@@ -49,7 +47,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -69,7 +66,7 @@ public class RequestEntityHandlerMethodArgumentResolver implements HandlerMethod
     @Getter
     private Charset defaultCharset = StandardCharsets.UTF_8;
     @Resource
-    private DomainServiceRegistry domainServiceRegistry;
+    private DomainActionRegistry domainActionRegistry;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -80,10 +77,10 @@ public class RequestEntityHandlerMethodArgumentResolver implements HandlerMethod
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         final RequestEntity requestDomainBody = parameter.getParameterAnnotation(RequestEntity.class);
         final String resource = resolveName(requestDomainBody.value(), parameter, webRequest);
-        final DomainService<Serializable, IEntity<Serializable>, IUser<?>> domainService = domainServiceRegistry.getDomainService(resource);
-        Class<?> domainEntityClass = domainService.domainEntityClass(requestDomainBody.view());
+        final DomainActions domainActions = domainActionRegistry.get(resource);
+        Class<?> domainEntityClass = domainActions.getDomainEntityClasses().get(requestDomainBody.view());
         if (domainEntityClass == null) {
-            domainEntityClass = domainService.entityClass();
+            domainEntityClass = domainActions.getEntityClass();
         }
         final String contentType = webRequest.getHeader(HttpHeaders.CONTENT_TYPE);
         Object value = null;

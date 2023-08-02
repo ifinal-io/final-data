@@ -17,15 +17,23 @@ package org.ifinalframework.data.domain;
 
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.domain.action.InsertAction;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.*;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
+import org.ifinalframework.data.spi.AfterConsumer;
+import org.ifinalframework.data.spi.AfterReturningConsumer;
+import org.ifinalframework.data.spi.AfterThrowingConsumer;
+import org.ifinalframework.data.spi.Consumer;
+import org.ifinalframework.data.spi.Filter;
+import org.ifinalframework.data.spi.Function;
+import org.ifinalframework.data.spi.PreInsertFunction;
+import org.ifinalframework.data.spi.SpiAction;
 import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -39,11 +47,13 @@ import java.util.stream.Collectors;
  */
 @Setter
 @RequiredArgsConstructor
-public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> implements DomainActionDispatcher<Void, List<T>, U> {
+public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> extends AbsDomainAction
+        implements DomainActionDispatcher<Void, Object, U>, InsertAction<Object, U, Object> {
     private final Repository<ID, T> repository;
     private final boolean insertIgnore;
 
     // create
+    PreInsertFunction<Object, U, T> preInsertFunction;
     private Filter<T, U> preInsertFilter;
     private Consumer<T, U> preInsertConsumer;
     private Consumer<T, U> postInsertConsumer;
@@ -52,8 +62,27 @@ public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEn
     private AfterReturningConsumer<T, Integer, U> afterReturningInsertConsumer;
     private AfterConsumer<T, Void, Void, Integer, U> afterConsumer;
 
+
     @Override
-    public Object dispatch(Void param, List<T> entities, U user) {
+    public Object dispatch(Void param, Object requestEntity, U user) {
+        Class<?> createEntityClass = getDomainEntityClass();
+        if (Objects.nonNull(createEntityClass)) {
+            List<T> entities = preInsertFunction.map(requestEntity, user);
+            return doDispatch(entities, user);
+        } else if (requestEntity instanceof List<?>) {
+            return doDispatch((List<T>) requestEntity, user);
+        } else if (requestEntity instanceof IEntity<?> entity) {
+            final Object result = doDispatch(Collections.singletonList((T) entity), user);
+            if (result instanceof Number) {
+                return entity.getId();
+            }
+            return result;
+        }
+
+        throw new BadRequestException("unsupported requestEntity of " + requestEntity);
+    }
+
+    private Object doDispatch(List<T> entities, U user) {
         Integer result = null;
         Throwable exception = null;
 
@@ -81,7 +110,7 @@ public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEn
             }
 
 
-            if(entities.size() == 1){
+            if (entities.size() == 1) {
                 return entities.get(0).getId();
             }
 
@@ -100,5 +129,10 @@ public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEn
                 afterConsumer.accept(SpiAction.CREATE, entities, null, null, result, user, exception);
             }
         }
+    }
+
+    @Override
+    public Object insert(Object entity, U user) {
+        return dispatch(null, entity, user);
     }
 }

@@ -15,21 +15,20 @@
 
 package org.ifinalframework.data.domain;
 
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IUser;
-
-import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
+import org.ifinalframework.data.domain.action.DomainAction;
 
 /**
- * DomainResourceManager.
+ * AbsDomainAction
  *
- * @author ilikly
- * @version 1.5.0
- * @since 1.5.0
- */
-public interface DomainServiceRegistry {
-    <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> getDomainService(String resource);
-
-    void registry(String resource, DomainService domainService);
-
+ * @author mik
+ * @since 1.5.2
+ **/
+@Getter
+@Setter
+public class AbsDomainAction implements DomainAction {
+    private Class<?> view;
+    private Class<?> domainQueryClass;
+    private Class<?> domainEntityClass;
 }

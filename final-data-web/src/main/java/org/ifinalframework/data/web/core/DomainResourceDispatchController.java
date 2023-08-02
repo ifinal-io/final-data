@@ -60,12 +60,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -107,7 +103,7 @@ public class DomainResourceDispatchController {
     @GetMapping("/export")
     @DomainResourceAuth(action = SpiAction.EXPORT)
     public void export(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query,
-                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService, HttpServletResponse response) throws Exception{
+                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService, HttpServletResponse response) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
@@ -115,7 +111,7 @@ public class DomainResourceDispatchController {
         try {
             setFinalContext(query);
 
-            if(query instanceof PageQuery pageQuery){
+            if (query instanceof PageQuery pageQuery) {
                 pageQuery.setCount(false);
                 pageQuery.setPage(null);
                 pageQuery.setSize(null);
@@ -123,10 +119,10 @@ public class DomainResourceDispatchController {
 
             final Object result = processResult(domainService.list(query, user));
 
-            if(result instanceof List<?> list){
+            if (result instanceof List<?> list) {
 
                 response.setContentType("application/vnd.ms-excel;charset=UTF-8");
-                response.setHeader("Content-Disposition", "attachment;filename=\""+ URLEncoder.encode( domainService.entityClass().getSimpleName() + ".xlsx")+"\"");
+                response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(domainService.entityClass().getSimpleName() + ".xlsx") + "\"");
                 response.addHeader("Pargam", "no-cache");
                 response.addHeader("Cache-Control", "no-cache");
 
@@ -138,8 +134,6 @@ public class DomainResourceDispatchController {
             }
 
             throw new InternalServerException("导出的结果必须是Collection");
-
-
 
 
         } finally {
@@ -201,22 +195,7 @@ public class DomainResourceDispatchController {
 
         try {
             setFinalContext(requestEntity);
-            Class<?> createEntityClass = domainService.domainEntityClass(IView.Create.class);
-            if (Objects.nonNull(createEntityClass)) {
-                List<IEntity<Long>> entities = domainService.preInsertFunction().map(requestEntity, user);
-                return processResult(domainService.create(entities, user));
-            } else if (requestEntity instanceof List<?>) {
-                return processResult(domainService.create((List<IEntity<Long>>) requestEntity, user));
-            } else if (requestEntity instanceof IEntity<?> entity) {
-                final Object result = domainService.create(Collections.singletonList((IEntity<Long>) entity), user);
-                if (result instanceof Number) {
-                    return processResult(entity.getId());
-                }
-                return processResult(result);
-            }
-
-
-            throw new BadRequestException("unsupported requestBody format of " + requestEntity);
+            return domainService.create(requestEntity, user);
         } finally {
             clearFinalContext(requestEntity);
         }
@@ -376,8 +355,8 @@ public class DomainResourceDispatchController {
     // count
     @GetMapping("/count")
     @DomainResourceAuth(action = SpiAction.COUNT)
-    public Long count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query,
-                      IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object count(@PathVariable String resource, @RequestQuery(view = IView.Count.class) IQuery query,
+                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }

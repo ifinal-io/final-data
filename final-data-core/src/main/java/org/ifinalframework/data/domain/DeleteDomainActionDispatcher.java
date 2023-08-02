@@ -17,6 +17,7 @@ package org.ifinalframework.data.domain;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.domain.action.DeleteAction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.DeleteFunction;
 import org.ifinalframework.data.spi.SpiAction;
@@ -32,7 +33,7 @@ import java.util.List;
  * @since 1.5.0
  */
 public class DeleteDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>>
-        extends AbsUpdateDeleteDomainActionDispatcher<ID, T, P, Void, Void, U> {
+        extends AbsUpdateDeleteDomainActionDispatcher<ID, T, P, Void, Void, U> implements DeleteAction<P,U,Object> {
     private final DeleteFunction<T, P, U> updateAction;
 
     public DeleteDomainActionDispatcher(SpiAction spiAction, Repository<ID, T> repository, DeleteFunction<T, P, U> updateAction) {
@@ -43,5 +44,10 @@ public class DeleteDomainActionDispatcher<ID extends Serializable, T extends IEn
     @Override
     protected Integer doInterAction(List<T> entities, P query, Void p2, Void value, U user) {
         return updateAction.delete(entities, query, user);
+    }
+
+    @Override
+    public Object delete(P param, U user) {
+        return dispatch(param,null,user);
     }
 }

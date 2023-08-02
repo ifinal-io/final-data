@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.domain;
 
-import jakarta.validation.Valid;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
@@ -25,13 +24,13 @@ import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Filter;
-import org.ifinalframework.data.spi.PreInsertFunction;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
+import jakarta.validation.Valid;
+
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * DomainService.
@@ -52,13 +51,10 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
     @NonNull
     Class<? extends IQuery> domainQueryClass(Class<?> prefix);
 
-    @Nullable
-    PreInsertFunction<Object, U, T> preInsertFunction();
-
 
     /**
-     * @param entities the entities to create.
-     * @param user     the current user.
+     * @param entity the entities to create.
+     * @param user   the current user.
      * @return created rows.
      * @see org.ifinalframework.core.IView.Create
      * @see Filter
@@ -66,7 +62,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
      */
-    Object create(@NonNull @Valid List<T> entities, @NonNull U user);
+    Object create(@NonNull @Valid Object entity, @NonNull U user);
 
     /**
      * @param query the query of list.
@@ -109,7 +105,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see org.ifinalframework.core.IView.Count
      * @see org.ifinalframework.data.spi.PreQueryConsumer
      */
-    Long count(@NonNull @Valid IQuery query, @NonNull U user);
+    Object count(@NonNull @Valid IQuery query, @NonNull U user);
 
     /**
      * @param query the query of deleted.
@@ -151,11 +147,11 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see BiValidator
      * @see org.ifinalframework.data.spi.BiConsumer
      */
-    Object yn(@NonNull ID id,@Nullable YN current, @NonNull YN yn, @NonNull U user);
+    Object yn(@NonNull ID id, @Nullable YN current, @NonNull YN yn, @NonNull U user);
 
     Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user);
 
-    Object lock(@NonNull ID id,@Nullable Boolean current, @NonNull Boolean locked, @NonNull U user);
+    Object lock(@NonNull ID id, @Nullable Boolean current, @NonNull Boolean locked, @NonNull U user);
 
     Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user);
 
