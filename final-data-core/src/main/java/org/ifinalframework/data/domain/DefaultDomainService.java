@@ -117,25 +117,25 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
 
     @Override
     public Object yn(@NonNull ID id, @Nullable YN current, @NonNull YN yn, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_BY_ID);
+        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_YN_BY_ID);
         return updateAction.update(id, current, yn, user);
     }
 
     @Override
     public Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_BY_ID);
+        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_STATUS_BY_ID);
         return updateAction.update(id, null, status, user);
     }
 
     @Override
     public Object lock(@NonNull ID id, @Nullable Boolean current, @NonNull Boolean locked, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_BY_ID);
+        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_LOCKED_BY_ID);
         return updateAction.update(id, current, locked, user);
     }
 
     @Override
     public Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_BY_ID);
+        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(DomainActions.ActionType.UPDATE_AUDIT_STATUS_BY_ID);
         return updateAction.update(id, null, auditValue, user);
     }
 }
