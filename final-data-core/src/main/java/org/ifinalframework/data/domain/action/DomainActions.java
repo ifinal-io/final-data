@@ -18,6 +18,7 @@ package org.ifinalframework.data.domain.action;
 import lombok.Builder;
 import lombok.Getter;
 import org.ifinalframework.data.repository.Repository;
+import org.ifinalframework.data.spi.SpiAction;
 
 import java.util.Map;
 
@@ -34,18 +35,6 @@ public class DomainActions {
     private final Class<?> entityClass;
     private final Map<Class<?>, Class<?>> domainEntityClasses;
     private final Map<Class<?>, Class<?>> domainQueryClasses;
-    private final Map<ActionType, DomainAction> domainActions;
+    private final Map<SpiAction.Type, DomainAction> domainActions;
 
-    public enum ActionType {
-        CREATE,
-        DELETE_BY_QUERY, DELETE_BY_ID,
-        LIST_BY_QUERY,
-        DETAIL_BY_QUERY, DETAIL_BY_ID,
-        UPDATE_BY_ID,
-        UPDATE_YN_BY_ID,
-        UPDATE_LOCKED_BY_ID,
-        UPDATE_STATUS_BY_ID,
-        UPDATE_AUDIT_STATUS_BY_ID,
-        COUNT_BY_QUERY
-    }
 }

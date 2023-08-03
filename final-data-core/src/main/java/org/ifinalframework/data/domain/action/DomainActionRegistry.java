@@ -15,6 +15,8 @@
 
 package org.ifinalframework.data.domain.action;
 
+import org.ifinalframework.data.spi.SpiAction;
+
 /**
  * DomainActionRegistry
  *
@@ -25,7 +27,7 @@ public interface DomainActionRegistry {
 
     DomainActions get(String resource);
 
-    <T extends DomainAction> T get(String resource, DomainActions.ActionType actionType);
+    <T extends DomainAction> T get(String resource, SpiAction.Type actionType);
 
     void registry(String resource, DomainActions domainActions);
 

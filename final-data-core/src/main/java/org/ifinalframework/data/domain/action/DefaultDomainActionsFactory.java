@@ -105,7 +105,7 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
 
         final DomainActions.DomainActionsBuilder builder = DomainActions.builder();
 
-        final Map<DomainActions.ActionType, DomainAction> domainActionMap = new LinkedHashMap<>();
+        final Map<SpiAction.Type, DomainAction> domainActionMap = new LinkedHashMap<>();
 
         builder.repository(repository);
 
@@ -132,47 +132,47 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         final InsertDomainActionDispatcher<ID, T, U> insertDomainActionDispatcher = buildCreateAction(repository, entityClass, domainResource);
         domainEntityClassMap.put(IView.Create.class, insertDomainActionDispatcher.getDomainEntityClass());
         domainQueryMap.put(IView.Create.class, insertDomainActionDispatcher.getDomainQueryClass());
-        domainActionMap.put(DomainActions.ActionType.CREATE, insertDomainActionDispatcher);
+        domainActionMap.put(SpiAction.Type.CREATE, insertDomainActionDispatcher);
 
         // delete
         final DeleteDomainActionDispatcher<ID, T, IQuery, U> deleteDomainActionByQuery = buildDeleteActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.Delete.class, deleteDomainActionByQuery.getDomainEntityClass());
         domainQueryMap.put(IView.Delete.class, deleteDomainActionByQuery.getDomainQueryClass());
-        domainActionMap.put(DomainActions.ActionType.DELETE_BY_QUERY, deleteDomainActionByQuery);
+        domainActionMap.put(SpiAction.Type.DELETE_BY_QUERY, deleteDomainActionByQuery);
 
         final DeleteDomainActionDispatcher<ID, T, ID, U> deleteByIdDomainAction = buildDeleteActionById(repository, entityClass, idClass);
-        domainActionMap.put(DomainActions.ActionType.DELETE_BY_ID, deleteByIdDomainAction);
+        domainActionMap.put(SpiAction.Type.DELETE_BY_ID, deleteByIdDomainAction);
 
 
         // list
         final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = buildListActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.List.class, listQueryDomainAction.getDomainEntityClass());
         domainQueryMap.put(IView.List.class, listQueryDomainAction.getDomainQueryClass());
-        domainActionMap.put(DomainActions.ActionType.LIST_BY_QUERY, listQueryDomainAction);
+        domainActionMap.put(SpiAction.Type.LIST_BY_QUERY, listQueryDomainAction);
 
         // detail
         final SelectDomainDispatcher<ID, T, IQuery, U, T> detailSelectActionByQuery = buildDetailSelectActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.Detail.class, detailSelectActionByQuery.getDomainEntityClass());
         domainQueryMap.put(IView.Detail.class, detailSelectActionByQuery.getDomainQueryClass());
-        domainActionMap.put(DomainActions.ActionType.DETAIL_BY_QUERY, detailSelectActionByQuery);
+        domainActionMap.put(SpiAction.Type.DETAIL_BY_QUERY, detailSelectActionByQuery);
 
         final SelectDomainDispatcher<ID, T, ID, U, T> detailSelectActionById = buildDetailSelectActionById(repository, idClass, entityClass);
-        domainActionMap.put(DomainActions.ActionType.DETAIL_BY_ID, detailSelectActionById);
+        domainActionMap.put(SpiAction.Type.DETAIL_BY_ID, detailSelectActionById);
 
         // count
         final SelectDomainDispatcher<ID, T, IQuery, U, Long> countSelectActionByQuery = buildCountSelectActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.Count.class, countSelectActionByQuery.getDomainEntityClass());
         domainQueryMap.put(IView.Count.class, countSelectActionByQuery.getDomainQueryClass());
-        domainActionMap.put(DomainActions.ActionType.COUNT_BY_QUERY, countSelectActionByQuery);
+        domainActionMap.put(SpiAction.Type.COUNT_BY_QUERY, countSelectActionByQuery);
 
         // update
         final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, T, U> updateByIdDomainAction = buildUpdateActionById(repository, entityClass, idClass);
-        domainActionMap.put(DomainActions.ActionType.UPDATE_BY_ID, updateByIdDomainAction);
+        domainActionMap.put(SpiAction.Type.UPDATE_BY_ID, updateByIdDomainAction);
 
         // update yn
 
         final BiUpdateDomainActionDispatcher<ID, T, ID, YN, YN, U> updateYnActionById = buildUpdateYnActionById(repository, entityClass, idClass);
-        domainActionMap.put(DomainActions.ActionType.UPDATE_YN_BY_ID, updateYnActionById);
+        domainActionMap.put(SpiAction.Type.UPDATE_YN_BY_ID, updateYnActionById);
 
 
         // update status
@@ -180,18 +180,18 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
             final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
 
             final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusActionById = buildUpdateStatusActionById(repository, entityClass, idClass, statusClass);
-            domainActionMap.put(DomainActions.ActionType.UPDATE_STATUS_BY_ID, updateStatusActionById);
+            domainActionMap.put(SpiAction.Type.UPDATE_STATUS_BY_ID, updateStatusActionById);
         }
         // update locked
         if (ILock.class.isAssignableFrom(entityClass)) {
 
             final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, Boolean, U> updateLockedActionById = buildUpdateLockedActionById(repository, entityClass, idClass);
-            domainActionMap.put(DomainActions.ActionType.UPDATE_LOCKED_BY_ID, updateLockedActionById);
+            domainActionMap.put(SpiAction.Type.UPDATE_LOCKED_BY_ID, updateLockedActionById);
         }
 
         if (IAudit.class.isAssignableFrom(entityClass)) {
             final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusActionById = buildUpdateAuditStatusActionById(repository, entityClass, idClass);
-            domainActionMap.put(DomainActions.ActionType.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
+            domainActionMap.put(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
         }
 
 

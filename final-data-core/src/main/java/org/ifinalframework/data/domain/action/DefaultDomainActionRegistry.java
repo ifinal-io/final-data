@@ -16,6 +16,7 @@
 package org.ifinalframework.data.domain.action;
 
 import org.ifinalframework.context.exception.NotFoundException;
+import org.ifinalframework.data.spi.SpiAction;
 import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
@@ -43,7 +44,7 @@ public class DefaultDomainActionRegistry implements DomainActionRegistry {
     }
 
     @Override
-    public <T extends DomainAction> T get(String resource, DomainActions.ActionType actionType) {
+    public <T extends DomainAction> T get(String resource, SpiAction.Type actionType) {
 
         final DomainActions domainActions = get(resource);
 

@@ -18,7 +18,7 @@ package org.ifinalframework.data.domain;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.domain.action.DomainAction;
-import org.ifinalframework.data.domain.action.DomainActions;
+import org.ifinalframework.data.spi.SpiAction;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -32,5 +32,5 @@ import java.util.Map;
  */
 @FunctionalInterface
 public interface DomainServiceFactory {
-    <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> create(Map<DomainActions.ActionType,DomainAction> domainActionMap);
+    <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> create(Map<SpiAction.Type,DomainAction> domainActionMap);
 }
