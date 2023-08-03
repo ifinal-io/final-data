@@ -64,6 +64,7 @@ import jakarta.validation.Valid;
 
 import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -120,6 +121,9 @@ public class DomainResourceDispatchController {
                 pageQuery.setSize(null);
             }
 
+            final Map<String, Object> context = new LinkedHashMap<>();
+            context.put("query", query);
+            context.put("user", user);
 
             final Excel excel = domainResourceExcelExportProvider.getResourceExcel(resource, domainService.entityClass());
             final String fileName = query instanceof ExportQuery ? ((ExportQuery) query).getExportFileName() : domainService.entityClass().getSimpleName();
@@ -131,7 +135,7 @@ public class DomainResourceDispatchController {
 
             final Object result = processResult(domainService.export(query, user));
 
-            final WorkbookWriter workbookWriter = Excels.newWriter(excel);
+            final WorkbookWriter workbookWriter = Excels.newWriter(excel, context);
 
             if (result instanceof List<?> list) {
                 workbookWriter.append(list);
