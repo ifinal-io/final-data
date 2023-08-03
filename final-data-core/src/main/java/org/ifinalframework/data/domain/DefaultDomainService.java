@@ -64,6 +64,11 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
         return (Class<? extends IQuery>) domainActions.getDomainQueryClasses().get(prefix);
     }
 
+    @Override
+    public Object export(IQuery query, U user) {
+        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.EXPORT_BY_QUERY);
+        return selectAction.select(query, user);
+    }
 
     @Override
     public Object create(@NonNull Object entity, @NonNull U user) {

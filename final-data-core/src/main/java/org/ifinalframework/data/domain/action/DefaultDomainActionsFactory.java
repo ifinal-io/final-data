@@ -143,6 +143,12 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         final DeleteDomainActionDispatcher<ID, T, ID, U> deleteByIdDomainAction = buildDeleteActionById(repository, entityClass, idClass);
         domainActionMap.put(SpiAction.Type.DELETE_BY_ID, deleteByIdDomainAction);
 
+        // export
+        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> exportActionByQuery = buildExportActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
+        domainEntityClassMap.put(IView.Export.class, exportActionByQuery.getDomainEntityClass());
+        domainQueryMap.put(IView.Export.class, exportActionByQuery.getDomainQueryClass());
+        domainActionMap.put(SpiAction.Type.EXPORT_BY_QUERY, exportActionByQuery);
+
 
         // list
         final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = buildListActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
@@ -355,6 +361,29 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                 ResolvableType.forClass(userClass)
         )).ifAvailable(postQueryFunction -> detailSelectActionByQuery.setPostQueryFunction((Function<T, IQuery, U>) postQueryFunction));
         return detailSelectActionByQuery;
+    }
+
+    private <ID extends Serializable, T extends IEntity<ID>> SelectDomainDispatcher<ID, T, IQuery, U, List<T>> buildExportActionByQuery(Repository<ID, T> repository, ClassLoader classLoader, String queryPackage, Class<?> entityClass, Class<?> defaultqueryClass) {
+        final Class<?> listQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Export.class), defaultqueryClass);
+
+        // SelectFunction<Query,User,List<Entity>>
+        final SelectFunction<IQuery, U, List<T>> listSelectFunction = (SelectFunction<IQuery, U, List<T>>) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(SelectFunction.class, ResolvableType.forClass(listQueryClass), ResolvableType.forClass(userClass), ResolvableType.forClassWithGenerics(List.class, entityClass)))
+                .getIfAvailable(() -> new DefaultSelectFunction<>(repository));
+
+        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
+        listQueryDomainAction.setView(IView.List.class);
+        listQueryDomainAction.setDomainQueryClass(listQueryClass);
+        listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.PRE, PreQueryConsumer.class, listQueryClass, userClass));
+        listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.POST, BiConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_RETURNING, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
+        // PostQueryFunction<List<T>,IQuery,IUser>
+        applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
+                ResolvableType.forClassWithGenerics(List.class, entityClass),
+                ResolvableType.forClass(listQueryClass),
+                ResolvableType.forClass(userClass)
+        )).ifAvailable(postQueryFunction -> listQueryDomainAction.setPostQueryFunction((Function<List<T>, IQuery, U>) postQueryFunction));
+        return listQueryDomainAction;
     }
 
     private <ID extends Serializable, T extends IEntity<ID>> SelectDomainDispatcher<ID, T, IQuery, U, List<T>> buildListActionByQuery(Repository<ID, T> repository, ClassLoader classLoader, String queryPackage, Class<?> entityClass, Class<?> defaultqueryClass) {

@@ -51,6 +51,8 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
     @NonNull
     Class<? extends IQuery> domainQueryClass(Class<?> prefix);
 
+    Object export(@NonNull @Valid IQuery query, @NonNull U user);
+
 
     /**
      * @param entity the entities to create.

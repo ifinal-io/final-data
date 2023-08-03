@@ -31,12 +31,14 @@ import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.excel.ClassPathDomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.excel.DomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.domain.query.ExportQuery;
 import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.security.DomainResourceAuth;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.poi.Excel;
 import org.ifinalframework.poi.Excels;
+import org.ifinalframework.poi.WorkbookWriter;
 import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
 import org.slf4j.Logger;
@@ -63,6 +65,7 @@ import jakarta.validation.Valid;
 import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -102,7 +105,7 @@ public class DomainResourceDispatchController {
 
     @GetMapping("/export")
     @DomainResourceAuth(action = SpiAction.EXPORT)
-    public void export(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query,
+    public void export(@PathVariable String resource, @Valid @RequestQuery(view = IView.Export.class) IQuery query,
                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService, HttpServletResponse response) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
@@ -117,23 +120,32 @@ public class DomainResourceDispatchController {
                 pageQuery.setSize(null);
             }
 
-            final Object result = processResult(domainService.list(query, user));
+
+            final Excel excel = domainResourceExcelExportProvider.getResourceExcel(resource, domainService.entityClass());
+            final String fileName = query instanceof ExportQuery ? ((ExportQuery) query).getExportFileName() : domainService.entityClass().getSimpleName();
+
+            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(fileName + ".xlsx") + "\"");
+            response.addHeader("Pargam", "no-cache");
+            response.addHeader("Cache-Control", "no-cache");
+
+            final Object result = processResult(domainService.export(query, user));
+
+            final WorkbookWriter workbookWriter = Excels.newWriter(excel);
 
             if (result instanceof List<?> list) {
-
-                response.setContentType("application/vnd.ms-excel;charset=UTF-8");
-                response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(domainService.entityClass().getSimpleName() + ".xlsx") + "\"");
-                response.addHeader("Pargam", "no-cache");
-                response.addHeader("Cache-Control", "no-cache");
-
-                final Excel excel = domainResourceExcelExportProvider.getResourceExcel(resource, domainService.entityClass());
-
-                Excels.newWriter(excel)
-                        .append(list)
-                        .write(response.getOutputStream());
+                workbookWriter.append(list);
+            } else if (result instanceof Map<?, ?> map) {
+                for (int i = 0; i < excel.getSheets().size(); i++) {
+                    final Excel.Sheet sheet = excel.getSheets().get(i);
+                    final Object list = map.get(sheet.getName());
+                    workbookWriter.append(i, (List<?>) list);
+                }
+            } else {
+                throw new InternalServerException("不支持的导出结果类型");
             }
 
-            throw new InternalServerException("导出的结果必须是Collection");
+            workbookWriter.write(response.getOutputStream());
 
 
         } finally {
