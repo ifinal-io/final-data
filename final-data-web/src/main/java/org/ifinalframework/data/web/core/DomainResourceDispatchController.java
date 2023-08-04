@@ -18,6 +18,7 @@ package org.ifinalframework.data.web.core;
 import org.ifinalframework.context.FinalContext;
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.InternalServerException;
+import org.ifinalframework.context.expression.Spel;
 import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
@@ -35,7 +36,6 @@ import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.domain.excel.ClassPathDomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.excel.DomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.model.AuditValue;
-import org.ifinalframework.data.domain.query.ExportQuery;
 import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.security.DomainResourceAuth;
 import org.ifinalframework.data.spi.SpiAction;
@@ -52,6 +52,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -146,7 +147,8 @@ public class DomainResourceDispatchController {
             context.put("user", user);
 
             final Excel excel = domainResourceExcelExportProvider.getResourceExcel(resource, domainService.entityClass());
-            final String fileName = query instanceof ExportQuery ? ((ExportQuery) query).getExportFileName() : domainService.entityClass().getSimpleName();
+
+            final String fileName = StringUtils.hasText(excel.getName()) ? Spel.getValue(excel.getName(), context, String.class) : domainService.entityClass().getSimpleName();
 
             response.setContentType("application/vnd.ms-excel;charset=UTF-8");
             response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(fileName + ".xlsx") + "\"");
