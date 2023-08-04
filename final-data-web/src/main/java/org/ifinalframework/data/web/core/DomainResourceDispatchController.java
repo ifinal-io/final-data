@@ -28,6 +28,10 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.DomainService;
+import org.ifinalframework.data.domain.action.DeleteAction;
+import org.ifinalframework.data.domain.action.InsertAction;
+import org.ifinalframework.data.domain.action.SelectAction;
+import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.domain.excel.ClassPathDomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.excel.DomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.model.AuditValue;
@@ -39,6 +43,7 @@ import org.ifinalframework.json.Json;
 import org.ifinalframework.poi.Excel;
 import org.ifinalframework.poi.Excels;
 import org.ifinalframework.poi.WorkbookWriter;
+import org.ifinalframework.web.annotation.bind.RequestAction;
 import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
 import org.slf4j.Logger;
@@ -89,25 +94,40 @@ public class DomainResourceDispatchController {
 
     @GetMapping
     @DomainResourceAuth(action = SpiAction.LIST)
-    public Object query(@PathVariable String resource, @Valid @RequestQuery(view = IView.List.class) IQuery query,
-                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object query(@PathVariable String resource,
+                        @Valid @RequestQuery(view = IView.List.class) IQuery query,
+                        @RequestAction(type = SpiAction.Type.LIST_BY_QUERY) SelectAction selectAction,
+                        IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
 
         try {
             setFinalContext(query);
-            return processResult(domainService.list(query, user));
+            return processResult(selectAction.select(query, user));
         } finally {
             clearFinalContext(query);
         }
 
     }
 
+    /**
+     * 导出
+     *
+     * @param resource
+     * @param query         导出参数
+     * @param user          当前用户
+     * @param domainService
+     * @param response
+     * @throws Exception
+     * @since 1.5.2
+     */
     @GetMapping("/export")
     @DomainResourceAuth(action = SpiAction.EXPORT)
     public void export(@PathVariable String resource, @Valid @RequestQuery(view = IView.Export.class) IQuery query,
-                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService, HttpServletResponse response) throws Exception {
+                       @RequestAction(type = SpiAction.Type.EXPORT_BY_QUERY) SelectAction selectAction,
+                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+                       HttpServletResponse response) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
@@ -133,7 +153,7 @@ public class DomainResourceDispatchController {
             response.addHeader("Pargam", "no-cache");
             response.addHeader("Cache-Control", "no-cache");
 
-            final Object result = processResult(domainService.export(query, user));
+            final Object result = processResult(selectAction.select(query, user));
 
             final WorkbookWriter workbookWriter = Excels.newWriter(excel, context);
 
@@ -160,33 +180,37 @@ public class DomainResourceDispatchController {
 
     @GetMapping("/detail")
     @DomainResourceAuth(action = SpiAction.DETAIL)
-    public Object detail(@PathVariable String resource, @Valid @RequestQuery(view = IView.Detail.class) IQuery query,
+    public Object detail(@PathVariable String resource,
+                         @Valid @RequestQuery(view = IView.Detail.class) IQuery query,
+                         @RequestAction(type = SpiAction.Type.DELETE_BY_QUERY) SelectAction selectAction,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
-        final Object result = domainService.detail(query, user);
+        final Object result = selectAction.select(query, user);
         return processResult(result);
     }
 
     @GetMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DETAIL)
     public Object query(@PathVariable String resource, @PathVariable Long id,
-                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.detail(id, user));
+                        @RequestAction(type = SpiAction.Type.DETAIL_BY_ID) SelectAction selectAction,
+                        IUser<?> user) {
+        return processResult(selectAction.select(id, user));
     }
 
     // delete
     @DeleteMapping
     @DomainResourceAuth(action = SpiAction.DELETE)
     public Object delete(@PathVariable String resource, @Valid @RequestQuery(view = IView.Delete.class) IQuery query,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+                         @RequestAction(type = SpiAction.Type.DELETE_BY_QUERY) DeleteAction deleteAction,
+                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
         try {
             setFinalContext(query);
-            return processResult(domainService.delete(query, user));
+            return processResult(deleteAction.delete(query, user));
         } finally {
             clearFinalContext(query);
         }
@@ -195,23 +219,26 @@ public class DomainResourceDispatchController {
     @DeleteMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DELETE)
     public Object delete(@PathVariable String resource, @PathVariable Long id,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.delete(id, user));
+                         @RequestAction(type = SpiAction.Type.DELETE_BY_ID) DeleteAction deleteAction,
+                         IUser<?> user) {
+        return processResult(deleteAction.delete(id, user));
     }
 
 
     @PostMapping
     @Validated({IView.Create.class})
     @DomainResourceAuth(action = SpiAction.CREATE)
-    public Object create(@PathVariable String resource, @Validated({IView.Create.class}) @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
+    public Object create(@PathVariable String resource,
+                         @Validated({IView.Create.class}) @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
+                         @RequestAction(type = SpiAction.Type.CREATE) InsertAction insertAction,
+                         IUser<?> user) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
 
         try {
             setFinalContext(requestEntity);
-            return domainService.create(requestEntity, user);
+            return insertAction.insert(requestEntity, user);
         } finally {
             clearFinalContext(requestEntity);
         }
@@ -220,7 +247,9 @@ public class DomainResourceDispatchController {
     @PutMapping("/{id}")
     @Validated(IView.Update.class)
     @DomainResourceAuth(action = SpiAction.UPDATE)
-    public Object update(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+    public Object update(@PathVariable String resource, @PathVariable Long id,
+                         @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+                         @RequestAction(type = SpiAction.Type.UPDATE_BY_ID) UpdateAction updateAction,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
@@ -230,7 +259,7 @@ public class DomainResourceDispatchController {
             setFinalContext(requestEntity);
 
             if (requestEntity instanceof IEntity<?> entity) {
-                return processResult(domainService.update((IEntity<Long>) entity, id, false, user));
+                return processResult(updateAction.update(entity, id, false, user));
             }
 
             throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
@@ -243,8 +272,10 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}")
     @Validated(IView.Patch.class)
     @DomainResourceAuth(action = SpiAction.UPDATE)
-    public Object patch(@PathVariable String resource, @PathVariable Long id, @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
-                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+    public Object patch(@PathVariable String resource, @PathVariable Long id,
+                        @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
+                        @RequestAction(type = SpiAction.Type.UPDATE_BY_ID) UpdateAction updateAction,
+                        IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
@@ -252,7 +283,7 @@ public class DomainResourceDispatchController {
             setFinalContext(requestEntity);
 
             if (requestEntity instanceof IEntity<?> entity) {
-                return processResult(domainService.update((IEntity<Long>) entity, id, true, user));
+                return processResult(updateAction.update(entity, id, true, user));
             }
 
             throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
@@ -265,6 +296,7 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/status")
     @DomainResourceAuth(action = SpiAction.UPDATE_STATUS)
     public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status,
+                         @RequestAction(type = SpiAction.Type.UPDATE_STATUS_BY_ID) UpdateAction updateAction,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
 
         if (logger.isDebugEnabled()) {
@@ -287,7 +319,7 @@ public class DomainResourceDispatchController {
             throw new BadRequestException("not status of " + status);
         }
 
-        return processResult(domainService.status(id, statusValue, user));
+        return processResult(updateAction.update(id, null, statusValue, user));
 
     }
 
@@ -295,14 +327,15 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/audit")
     @DomainResourceAuth(action = SpiAction.UPDATE_AUDIT_STATUS)
     public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue,
-                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+                        @RequestAction(type = SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID) UpdateAction updateAction,
+                        IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> auditValue={}", Json.toJson(auditValue));
         }
         if (Objects.equals(auditValue.getStatus(), IAudit.AuditStatus.CANCELED)) {
             throw new BadRequestException("审核不能撤销");
         }
-        return processResult(domainService.audit(id, auditValue, user));
+        return processResult(updateAction.update(id, null, auditValue, user));
     }
 
     @PatchMapping("/{id}/cancel")
