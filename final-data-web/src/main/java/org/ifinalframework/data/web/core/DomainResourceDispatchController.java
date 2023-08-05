@@ -35,6 +35,7 @@ import org.ifinalframework.data.domain.action.SelectAction;
 import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.domain.excel.ClassPathDomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.excel.DomainResourceExcelExportProvider;
+import org.ifinalframework.data.domain.excel.ExcelExportService;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.security.DomainResourceAuth;
@@ -65,6 +66,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
@@ -92,6 +94,8 @@ public class DomainResourceDispatchController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceDispatchController.class);
 
     private DomainResourceExcelExportProvider domainResourceExcelExportProvider = new ClassPathDomainResourceExcelExportProvider();
+    @Resource
+    private ExcelExportService excelExportService;
 
     @GetMapping
     @DomainResourceAuth(action = SpiAction.LIST)
@@ -125,7 +129,7 @@ public class DomainResourceDispatchController {
      */
     @GetMapping("/export")
     @DomainResourceAuth(action = SpiAction.EXPORT)
-    public void export(@PathVariable String resource, @Valid @RequestQuery(view = IView.Export.class) IQuery query,
+    public Object export(@PathVariable String resource, @Valid @RequestQuery(view = IView.Export.class) IQuery query,
                        @RequestAction(type = SpiAction.Type.EXPORT_BY_QUERY) SelectAction selectAction,
                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
                        HttpServletResponse response) throws Exception {
@@ -150,11 +154,6 @@ public class DomainResourceDispatchController {
 
             final String fileName = StringUtils.hasText(excel.getName()) ? Spel.getValue(excel.getName(), context, String.class) : domainService.entityClass().getSimpleName();
 
-            response.setContentType("application/vnd.ms-excel;charset=UTF-8");
-            response.setHeader("Content-Disposition", "attachment;filename=\"" + URLEncoder.encode(fileName + ".xlsx") + "\"");
-            response.addHeader("Pargam", "no-cache");
-            response.addHeader("Cache-Control", "no-cache");
-
             final Object result = processResult(selectAction.select(query, user));
 
             final WorkbookWriter workbookWriter = Excels.newWriter(excel, context);
@@ -171,8 +170,7 @@ public class DomainResourceDispatchController {
                 throw new InternalServerException("不支持的导出结果类型");
             }
 
-            workbookWriter.write(response.getOutputStream());
-
+            return excelExportService.export(fileName, workbookWriter, response);
 
         } finally {
             clearFinalContext(query);
