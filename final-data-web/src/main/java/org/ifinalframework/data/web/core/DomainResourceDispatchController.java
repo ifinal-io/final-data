@@ -41,9 +41,10 @@ import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.security.DomainResourceAuth;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.json.Json;
-import org.ifinalframework.poi.Excel;
+import org.ifinalframework.poi.model.Excel;
 import org.ifinalframework.poi.Excels;
 import org.ifinalframework.poi.WorkbookWriter;
+import org.ifinalframework.poi.model.Sheet;
 import org.ifinalframework.web.annotation.bind.RequestAction;
 import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
@@ -161,7 +162,7 @@ public class DomainResourceDispatchController {
                 workbookWriter.append(list);
             } else if (result instanceof Map<?, ?> map) {
                 for (int i = 0; i < excel.getSheets().size(); i++) {
-                    final Excel.Sheet sheet = excel.getSheets().get(i);
+                    final Sheet sheet = excel.getSheets().get(i);
                     final Object list = map.get(sheet.getName());
                     workbookWriter.append(i, (List<?>) list);
                 }

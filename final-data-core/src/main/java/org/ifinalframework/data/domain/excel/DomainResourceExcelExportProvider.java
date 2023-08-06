@@ -15,7 +15,7 @@
 
 package org.ifinalframework.data.domain.excel;
 
-import org.ifinalframework.poi.Excel;
+import org.ifinalframework.poi.model.Excel;
 
 /**
  * DomainResourceExcelExportProvider
