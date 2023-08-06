@@ -283,7 +283,7 @@ public class DomainResourceDispatchController {
             setFinalContext(requestEntity);
 
             if (requestEntity instanceof IEntity<?> entity) {
-                return processResult(updateAction.update(entity, id, true, user));
+                return processResult(updateAction.update(id, null, entity, user));
             }
 
             throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
