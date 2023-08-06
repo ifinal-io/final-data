@@ -70,7 +70,6 @@ import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
-import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -130,9 +129,9 @@ public class DomainResourceDispatchController {
     @GetMapping("/export")
     @DomainResourceAuth(action = SpiAction.EXPORT)
     public Object export(@PathVariable String resource, @Valid @RequestQuery(view = IView.Export.class) IQuery query,
-                       @RequestAction(type = SpiAction.Type.EXPORT_BY_QUERY) SelectAction selectAction,
-                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
-                       HttpServletResponse response) throws Exception {
+                         @RequestAction(type = SpiAction.Type.EXPORT_BY_QUERY) SelectAction selectAction,
+                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
+                         HttpServletResponse response) throws Exception {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
@@ -259,7 +258,7 @@ public class DomainResourceDispatchController {
             setFinalContext(requestEntity);
 
             if (requestEntity instanceof IEntity<?> entity) {
-                return processResult(updateAction.update(entity, id, false, user));
+                return processResult(updateAction.update(id, false, entity, user));
             }
 
             throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
@@ -283,7 +282,7 @@ public class DomainResourceDispatchController {
             setFinalContext(requestEntity);
 
             if (requestEntity instanceof IEntity<?> entity) {
-                return processResult(updateAction.update(id, null, entity, user));
+                return processResult(updateAction.update(id, true, entity, user));
             }
 
             throw new BadRequestException("unsupported update requestEntity of " + requestEntity);
