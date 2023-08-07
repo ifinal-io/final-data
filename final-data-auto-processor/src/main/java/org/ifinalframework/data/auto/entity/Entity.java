@@ -18,9 +18,10 @@ package org.ifinalframework.data.auto.entity;
 
 import org.ifinalframework.util.stream.Streamable;
 
+import javax.lang.model.element.TypeElement;
+
 import java.lang.annotation.Annotation;
 import java.util.List;
-import javax.lang.model.element.TypeElement;
 
 /**
  * @author ilikly

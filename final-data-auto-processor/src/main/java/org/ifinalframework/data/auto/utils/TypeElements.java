@@ -18,6 +18,12 @@ package org.ifinalframework.data.auto.utils;
 
 import org.springframework.lang.NonNull;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -27,11 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
-import javax.lang.model.util.Types;
 
 /**
  * @author ilikly
@@ -59,17 +60,17 @@ public final class TypeElements {
     private void init() {
 
         Stream.of(LocalDateTime.class, LocalDate.class, LocalTime.class, Object.class)
-            .forEach(this::initTypeElements);
+                .forEach(this::initTypeElements);
         elementTypes
-            .put(Collection.class, types.getDeclaredType(elements.getTypeElement(Collection.class.getCanonicalName()),
-                types.getWildcardType(null, null)));
+                .put(Collection.class, types.getDeclaredType(elements.getTypeElement(Collection.class.getCanonicalName()),
+                        types.getWildcardType(null, null)));
         elementTypes.put(List.class, types.getDeclaredType(elements.getTypeElement(List.class.getCanonicalName()),
-            types.getWildcardType(null, null)));
+                types.getWildcardType(null, null)));
         elementTypes.put(Set.class, types
-            .getDeclaredType(elements.getTypeElement(Set.class.getCanonicalName()), types.getWildcardType(null, null)));
+                .getDeclaredType(elements.getTypeElement(Set.class.getCanonicalName()), types.getWildcardType(null, null)));
         elementTypes.put(Map.class,
-            types.getDeclaredType(elements.getTypeElement(Map.class.getCanonicalName()),
-                types.getWildcardType(null, null), types.getWildcardType(null, null)));
+                types.getDeclaredType(elements.getTypeElement(Map.class.getCanonicalName()),
+                        types.getWildcardType(null, null), types.getWildcardType(null, null)));
     }
 
     private void initTypeElements(final Class<?> type) {
@@ -80,7 +81,7 @@ public final class TypeElements {
     public boolean isCollection(final @NonNull Element element) {
 
         return isAssignable(element.asType(), elementTypes.get(Collection.class)) || isSubtype(element.asType(),
-            elementTypes.get(Collection.class));
+                elementTypes.get(Collection.class));
     }
 
     public boolean isAssignable(final @NonNull Element element, final @NonNull Element target) {
@@ -113,19 +114,19 @@ public final class TypeElements {
     public boolean isList(final @NonNull Element element) {
 
         return isAssignable(element.asType(), elementTypes.get(List.class)) || isSubtype(element.asType(),
-            elementTypes.get(List.class));
+                elementTypes.get(List.class));
     }
 
     public boolean isSet(final @NonNull Element element) {
 
         return isAssignable(element.asType(), elementTypes.get(Set.class)) || isSubtype(element.asType(),
-            elementTypes.get(Set.class));
+                elementTypes.get(Set.class));
     }
 
     public boolean isMap(final @NonNull Element element) {
 
         return isAssignable(element.asType(), elementTypes.get(Map.class)) || isSubtype(element.asType(),
-            elementTypes.get(Map.class));
+                elementTypes.get(Map.class));
     }
 
     public boolean isObject(final Element element) {
@@ -151,7 +152,7 @@ public final class TypeElements {
     public TypeElement getTypeElement(final Class<?> type) {
 
         return typeElementMap.containsKey(type) ? typeElementMap.get(type)
-            : elements.getTypeElement(type.getCanonicalName());
+                : elements.getTypeElement(type.getCanonicalName());
     }
 
 }

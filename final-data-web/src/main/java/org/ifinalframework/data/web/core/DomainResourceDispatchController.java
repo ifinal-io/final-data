@@ -15,6 +15,23 @@
 
 package org.ifinalframework.data.web.core;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.ResolvableType;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import org.ifinalframework.context.FinalContext;
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.context.exception.InternalServerException;
@@ -41,31 +58,16 @@ import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.security.DomainResourceAuth;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.json.Json;
-import org.ifinalframework.poi.model.Excel;
 import org.ifinalframework.poi.Excels;
 import org.ifinalframework.poi.WorkbookWriter;
+import org.ifinalframework.poi.model.Excel;
 import org.ifinalframework.poi.model.Sheet;
 import org.ifinalframework.web.annotation.bind.RequestAction;
 import org.ifinalframework.web.annotation.bind.RequestEntity;
 import org.ifinalframework.web.annotation.bind.RequestQuery;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.ResolvableType;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -119,12 +121,6 @@ public class DomainResourceDispatchController {
     /**
      * 导出
      *
-     * @param resource
-     * @param query         导出参数
-     * @param user          当前用户
-     * @param domainService
-     * @param response
-     * @throws Exception
      * @since 1.5.2
      */
     @GetMapping("/export")
@@ -152,7 +148,9 @@ public class DomainResourceDispatchController {
 
             final Excel excel = domainResourceExcelExportProvider.getResourceExcel(resource, domainService.entityClass());
 
-            final String fileName = StringUtils.hasText(excel.getName()) ? Spel.getValue(excel.getName(), context, String.class) : domainService.entityClass().getSimpleName();
+            final String fileName = StringUtils.hasText(excel.getName())
+                    ? Spel.getValue(excel.getName(), context, String.class)
+                    : domainService.entityClass().getSimpleName();
 
             final Object result = processResult(selectAction.select(query, user));
 
@@ -193,7 +191,7 @@ public class DomainResourceDispatchController {
 
     @GetMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DETAIL)
-    public Object query(@PathVariable String resource, @PathVariable Long id,
+    public Object detail(@PathVariable String resource, @PathVariable Long id,
                         @RequestAction(type = SpiAction.Type.DETAIL_BY_ID) SelectAction selectAction,
                         IUser<?> user) {
         return processResult(selectAction.select(id, user));
@@ -309,7 +307,8 @@ public class DomainResourceDispatchController {
             throw new BadRequestException("resource is not supports status");
         }
 
-        Class<? extends IEnum<?>> statusClass = (Class<? extends IEnum<?>>) ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
+        Class<? extends IEnum<?>> statusClass =
+                (Class<? extends IEnum<?>>) ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
         final IEnum<?> statusValue = Arrays.stream(statusClass.getEnumConstants())
                 .filter(it -> it.getCode().toString().equals(status))
                 .findFirst().orElse(null);
@@ -371,7 +370,7 @@ public class DomainResourceDispatchController {
     // yn
     @PatchMapping("/{id}/yn")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
-    public Object update(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn,
+    public Object yn(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> yn={}", yn);
@@ -381,6 +380,7 @@ public class DomainResourceDispatchController {
         switch (yn) {
             case YES -> current = YN.NO;
             case NO -> current = YN.YES;
+            default -> throw new BadRequestException("不支持的操作");
         }
 
 

@@ -15,17 +15,15 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
-import java.util.LinkedHashMap;
-
 import org.springframework.core.Ordered;
 
 import org.ifinalframework.data.annotation.AbsEntity;
-import org.ifinalframework.data.mybatis.dao.mapper.PersonMapper;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.data.mybatis.sql.provider.Person;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.LinkedHashMap;
 
 /**
  * EntityClassParameterConsumerTest.
@@ -36,12 +34,13 @@ import org.junit.jupiter.api.Test;
  */
 class EntityClassParameterConsumerTest {
 
-    private interface AbsEntityMapper extends AbsMapper<Long, AbsEntity>{}
+    private interface AbsEntityMapper extends AbsMapper<Long, AbsEntity> {
+    }
 
     @Test
-    void order(){
+    void order() {
         EntityClassParameterConsumer consumer = new EntityClassParameterConsumer();
-        Assertions.assertEquals(Ordered.HIGHEST_PRECEDENCE,consumer.getOrder());
+        Assertions.assertEquals(Ordered.HIGHEST_PRECEDENCE, consumer.getOrder());
     }
 
     @Test

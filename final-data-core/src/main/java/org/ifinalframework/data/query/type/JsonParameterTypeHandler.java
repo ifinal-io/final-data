@@ -16,16 +16,16 @@
 
 package org.ifinalframework.data.query.type;
 
-import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
-import org.apache.ibatis.type.JdbcType;
-
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 
 import org.ifinalframework.json.Json;
+
+import org.apache.ibatis.type.JdbcType;
+
+import java.lang.reflect.Method;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * Converter the parameter to a {@code json} String.

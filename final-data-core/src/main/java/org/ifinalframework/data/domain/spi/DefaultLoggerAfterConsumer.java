@@ -15,14 +15,16 @@
 
 package org.ifinalframework.data.domain.spi;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IException;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.spi.SpiAction;
-import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DefaultLoggerAfterConsumer.
@@ -39,7 +41,8 @@ public class DefaultLoggerAfterConsumer implements LoggerAfterConsumer {
         if (Objects.isNull(e)) {
             logger.info("action={},entity={},param={},value={},result={}", action, entity, param, value, result);
         } else if (e instanceof IException) {
-            logger.warn("action={},entity={},param={},value={},result={},code={},message={}", action, entity, param, value, result, ((IException) e).getCode(), e.getMessage());
+            logger.warn("action={},entity={},param={},value={},result={},code={},message={}",
+                    action, entity, param, value, result, ((IException) e).getCode(), e.getMessage());
         } else {
             logger.error("action={},entity={},param={},value={},result={}", action, entity, param, value, result, e);
         }

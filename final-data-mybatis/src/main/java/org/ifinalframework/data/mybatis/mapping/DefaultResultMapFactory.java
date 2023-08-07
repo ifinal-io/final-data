@@ -15,29 +15,6 @@
 
 package org.ifinalframework.data.mybatis.mapping;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Type;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.ibatis.mapping.ResultFlag;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.LongTypeHandler;
-import org.apache.ibatis.type.TypeHandler;
-
-import org.apache.ibatis.type.UnknownTypeHandler;
-import org.ifinalframework.util.Primaries;
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IUser;
@@ -52,6 +29,29 @@ import org.ifinalframework.data.mybatis.handler.JsonTypeReferenceTypeHandler;
 import org.ifinalframework.data.mybatis.handler.sharing.LocalDateTimeTypeHandler;
 import org.ifinalframework.data.query.TypeHandlers;
 import org.ifinalframework.data.query.type.JsonParameterTypeHandler;
+import org.ifinalframework.util.Primaries;
+
+import org.apache.ibatis.mapping.ResultFlag;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.LongTypeHandler;
+import org.apache.ibatis.type.TypeHandler;
+import org.apache.ibatis.type.UnknownTypeHandler;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * DefaultResultMapFactory.
@@ -76,9 +76,9 @@ public class DefaultResultMapFactory implements ResultMapFactory {
             final List<ResultMapping> resultMappings = entity.stream()
                     .filter(it -> {
 
-                        if(it.isTransient()){
-//                             only support primary
-                           return Primaries.isPrimary(it.getType());
+                        if (it.isTransient()) {
+                            //                             only support primary
+                            return Primaries.isPrimary(it.getType());
                         }
 
 
@@ -90,9 +90,9 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                         Class<?> type = property.getType();
                         if (property.isAssociation()) {
                             final Reference reference = property.getRequiredAnnotation(Reference.class);
-//                            if(IUser.class.equals(type)){
-//                                type = AbsUser.class;
-//                            }
+                            //                            if(IUser.class.equals(type)){
+                            //                                type = AbsUser.class;
+                            //                            }
                             final Entity<?> referenceEntity = Entity.from(type);
                             final List<ResultMapping> composites = Arrays.stream(reference.properties())
                                     .map(referenceEntity::getPersistentProperty)
@@ -120,14 +120,14 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                             final String name = property.getName();
 
                             return new ResultMapping.Builder(configuration, name)
-//                                    .column(composites.get(0).getColumn())
-                                    .columnPrefix(formatColumn(entity,null,property) + "_")
+                                    //                                    .column(composites.get(0).getColumn())
+                                    .columnPrefix(formatColumn(entity, null, property) + "_")
                                     .javaType(type)
                                     .flags(property.isIdProperty() ? Collections.singletonList(ResultFlag.ID)
                                             : Collections.emptyList())
                                     .composites(composites)
                                     .typeHandler(new UnknownTypeHandler(configuration))
-//                                    .nestedResultMapId(id + "[" + name + "]")
+                                    //                                    .nestedResultMapId(id + "[" + name + "]")
                                     .build();
 
                         } else {
@@ -147,7 +147,7 @@ public class DefaultResultMapFactory implements ResultMapFactory {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            return new ResultMap.Builder(configuration, id, entity.getType(), resultMappings,true).build();
+            return new ResultMap.Builder(configuration, id, entity.getType(), resultMappings, true).build();
         });
 
     }

@@ -15,21 +15,22 @@
 
 package org.ifinalframework.data.mapping;
 
-import java.util.Collections;
-import java.util.Objects;
-
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
+
+import java.util.Collections;
+import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DefaultEntityFactoryTest.

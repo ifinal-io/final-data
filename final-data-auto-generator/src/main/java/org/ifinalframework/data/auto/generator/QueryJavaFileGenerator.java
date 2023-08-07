@@ -15,22 +15,23 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import javax.lang.model.element.Modifier;
-
-import org.springframework.lang.NonNull;
-
-import org.ifinalframework.core.IDQuery;
-import org.ifinalframework.data.query.PageQuery;
-import org.ifinalframework.data.auto.annotation.AutoService;
-import org.ifinalframework.data.domain.DomainNameHelper;
-import org.ifinalframework.javapoets.JavaPoets;
-import org.ifinalframework.data.annotation.criterion.Equal;
-
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
+
+import org.springframework.lang.NonNull;
+
+import org.ifinalframework.core.IDQuery;
+import org.ifinalframework.data.annotation.criterion.Equal;
+import org.ifinalframework.data.auto.annotation.AutoService;
+import org.ifinalframework.data.domain.DomainNameHelper;
+import org.ifinalframework.data.query.PageQuery;
+import org.ifinalframework.javapoets.JavaPoets;
+
+import javax.lang.model.element.Modifier;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

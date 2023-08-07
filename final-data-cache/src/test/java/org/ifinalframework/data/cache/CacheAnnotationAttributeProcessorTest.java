@@ -22,12 +22,13 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.ifinalframework.cache.annotation.Cacheable;
 import org.ifinalframework.util.Reflections;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.Method;
 import java.util.Set;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author ilikly

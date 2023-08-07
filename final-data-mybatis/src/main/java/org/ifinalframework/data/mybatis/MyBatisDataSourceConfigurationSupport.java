@@ -8,11 +8,6 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 import org.ifinalframework.data.mybatis.configuration.FinalMybatisConfigurationCustomizer;
 
-import java.util.Arrays;
-import java.util.Objects;
-import javax.sql.DataSource;
-
-import lombok.Setter;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
@@ -22,6 +17,13 @@ import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.mybatis.spring.annotation.MapperScan;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+
+import javax.sql.DataSource;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+import lombok.Setter;
 
 /**
  * MyBatisDataSourceAutoConfiguration.
@@ -43,7 +45,7 @@ public class MyBatisDataSourceConfigurationSupport implements BeanFactoryAware {
         bean.setPlugins(beanFactory.getBeanProvider(Interceptor.class).stream().toArray(Interceptor[]::new));
         bean.setTypeHandlers(beanFactory.getBeanProvider(TypeHandler.class).stream().toArray(TypeHandler[]::new));
         bean.setScriptingLanguageDrivers(
-            beanFactory.getBeanProvider(LanguageDriver.class).stream().toArray(LanguageDriver[]::new));
+                beanFactory.getBeanProvider(LanguageDriver.class).stream().toArray(LanguageDriver[]::new));
         Configuration configuration = new Configuration();
         applyConfiguration(configuration);
         bean.setConfiguration(configuration);

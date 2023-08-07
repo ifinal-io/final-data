@@ -15,8 +15,10 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import javax.lang.model.element.Modifier;
-import java.util.Objects;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeSpec;
 
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.NonNull;
@@ -27,10 +29,10 @@ import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.javapoets.JavaPoets;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeSpec;
+import javax.lang.model.element.Modifier;
+
+import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**

@@ -28,7 +28,7 @@ import java.io.Serializable;
  * @since 1.5.0
  */
 public interface DomainServiceRegistry {
-    <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> getDomainService(String resource);
+    <K extends Serializable, T extends IEntity<K>, U extends IUser<?>> DomainService<K, T, U> getDomainService(String resource);
 
     void registry(String resource, DomainService domainService);
 

@@ -19,8 +19,6 @@ import org.ifinalframework.data.annotation.AbsRecord;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * AbsQEntityTest.
  *
@@ -31,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class AbsQEntityTest {
 
     @Test
-    void fromAbsRecord(){
+    void fromAbsRecord() {
         AbsQEntity<Long, AbsRecord> entity = new AbsQEntity<>(AbsRecord.class);
     }
 

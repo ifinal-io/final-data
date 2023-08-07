@@ -15,16 +15,14 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * TableParameterConsumerTest.
@@ -35,13 +33,14 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class TableParameterConsumerTest {
 
-    protected interface AbsEntityMapper extends AbsMapper<Long, AbsEntity>{}
+    protected interface AbsEntityMapper extends AbsMapper<Long, AbsEntity> {
+    }
 
     @Test
     void accept() {
         TableParameterConsumer consumer = new TableParameterConsumer();
-        Map<String,Object> map = new LinkedHashMap<>();
-        consumer.accept(map,AbsEntityMapper.class,null);
+        Map<String, Object> map = new LinkedHashMap<>();
+        consumer.accept(map, AbsEntityMapper.class, null);
         Assertions.assertNotNull(map.get("table"));
     }
 }

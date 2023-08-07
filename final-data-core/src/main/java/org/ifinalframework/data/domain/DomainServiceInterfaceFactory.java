@@ -36,20 +36,21 @@ public class DomainServiceInterfaceFactory {
     public DomainServiceInterfaceFactory() throws NotFoundException {
     }
 
-    public Class<? extends DomainService> create(Class<?> idClass,Class<?> entityClass) throws CannotCompileException {
+    public Class<? extends DomainService> create(Class<?> idClass, Class<?> entityClass) throws CannotCompileException {
 
         SignatureAttribute.ClassSignature ac = new SignatureAttribute.ClassSignature(null, null,
                 // Set interface and its generic params
                 new SignatureAttribute.ClassType[]{
                         new SignatureAttribute.ClassType(DomainService.class.getName(),
-                        new SignatureAttribute.TypeArgument[]{
-                                new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(idClass.getName())),
-                                new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(entityClass.getName()))
-                        }
-                )});
+                                new SignatureAttribute.TypeArgument[]{
+                                        new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(idClass.getName())),
+                                        new SignatureAttribute.TypeArgument(new SignatureAttribute.ClassType(entityClass.getName()))
+                                }
+                        )});
 
 
-        final String domainServiceName = String.join(".", DomainNameHelper.servicePackage(entityClass), entityClass.getSimpleName() + DomainService.class.getSimpleName());
+        final String domainServiceName = String.join(".",
+                DomainNameHelper.servicePackage(entityClass), entityClass.getSimpleName() + DomainService.class.getSimpleName());
         final CtClass ctClass = classPool.makeInterface(domainServiceName, domainService);
         ctClass.setGenericSignature(ac.encode());
         return (Class<? extends DomainService>) ctClass.toClass();

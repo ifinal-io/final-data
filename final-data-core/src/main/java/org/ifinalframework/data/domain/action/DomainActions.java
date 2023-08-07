@@ -15,12 +15,13 @@
 
 package org.ifinalframework.data.domain.action;
 
-import lombok.Builder;
-import lombok.Getter;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.SpiAction;
 
 import java.util.Map;
+
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * DomainActions

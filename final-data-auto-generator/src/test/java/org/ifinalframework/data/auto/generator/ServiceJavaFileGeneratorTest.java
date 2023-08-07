@@ -15,6 +15,8 @@
 
 package org.ifinalframework.data.auto.generator;
 
+import com.squareup.javapoet.JavaFile;
+
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.auto.annotation.AutoService;
 import org.ifinalframework.data.domain.DomainNameHelper;
@@ -22,13 +24,13 @@ import org.ifinalframework.data.service.AbsService;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;
 
-import com.squareup.javapoet.JavaFile;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import lombok.SneakyThrows;
 
 /**
  * ServiceJavaFileGeneratorTest.

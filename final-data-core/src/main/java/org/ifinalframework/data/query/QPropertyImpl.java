@@ -15,17 +15,17 @@
 
 package org.ifinalframework.data.query;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.ibatis.type.TypeHandler;
-
 import org.springframework.lang.Nullable;
 
 import org.ifinalframework.data.mapping.Property;
 import org.ifinalframework.util.Asserts;
+
+import org.apache.ibatis.type.TypeHandler;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ilikly

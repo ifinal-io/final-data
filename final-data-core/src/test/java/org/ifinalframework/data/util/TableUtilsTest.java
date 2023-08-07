@@ -15,11 +15,11 @@
 
 package org.ifinalframework.data.util;
 
-import java.util.Arrays;
-
 import org.ifinalframework.data.annotation.Table;
 
 import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,18 +32,21 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class TableUtilsTest {
 
-    private static class SimpleTable{}
+    private static class SimpleTable {
+    }
 
     @Table("my_single_table")
-    private static class SingleTable{}
+    private static class SingleTable {
+    }
 
-    @Table({"table_1","table_2"})
-    private static class MultiTables{}
+    @Table({"table_1", "table_2"})
+    private static class MultiTables {
+    }
 
     @Test
     void getTable() {
-        assertEquals("simple_table",TableUtils.getTable(SimpleTable.class));
-        assertEquals("my_single_table",TableUtils.getTable(SingleTable.class));
-        assertEquals(Arrays.asList("table_1","table_2"),TableUtils.getTables(MultiTables.class));
+        assertEquals("simple_table", TableUtils.getTable(SimpleTable.class));
+        assertEquals("my_single_table", TableUtils.getTable(SingleTable.class));
+        assertEquals(Arrays.asList("table_1", "table_2"), TableUtils.getTables(MultiTables.class));
     }
 }

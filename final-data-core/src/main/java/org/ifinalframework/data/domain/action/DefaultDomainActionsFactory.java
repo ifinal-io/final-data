@@ -15,8 +15,13 @@
 
 package org.ifinalframework.data.domain.action;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
+
 import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
@@ -44,7 +49,7 @@ import org.ifinalframework.data.domain.function.DefaultUpdateAuditStatusFunction
 import org.ifinalframework.data.domain.function.DefaultUpdateFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateLockedFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateStatusFunction;
-import org.ifinalframework.data.domain.function.DefaultUpdateYNFunction;
+import org.ifinalframework.data.domain.function.DefaultUpdateYnFunction;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
 import org.ifinalframework.data.repository.Repository;
@@ -68,12 +73,6 @@ import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.data.spi.UpdateFunction;
 import org.ifinalframework.util.CompositeProxies;
-import org.springframework.aop.support.AopUtils;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.ResolvableType;
-import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -83,6 +82,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 /**
  * DefaultDomainActionsFactory
  *
@@ -91,7 +93,8 @@ import java.util.stream.Collectors;
  **/
 @Slf4j
 @RequiredArgsConstructor
-public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainActionsFactory {
+public class DefaultDomainActionsFactory<K extends Serializable, T extends IEntity<K>, U extends IUser<?>>
+        implements DomainActionsFactory<K, T> {
 
     private final Class<U> userClass;
     private final ApplicationContext applicationContext;
@@ -101,7 +104,7 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
     private final LoggerAfterConsumer loggerAfterConsumer;
 
     @Override
-    public <ID extends Serializable, T extends IEntity<ID>> DomainActions create(Repository<ID, T> repository) {
+    public DomainActions create(Repository<K, T> repository) {
 
         final DomainActions.DomainActionsBuilder builder = DomainActions.builder();
 
@@ -110,7 +113,6 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         builder.repository(repository);
 
         ResolvableType repositoryResolvableType = ResolvableType.forClass(AopUtils.getTargetClass(repository)).as(Repository.class);
-        Class<?> idClass = Objects.requireNonNull(repositoryResolvableType.resolveGeneric());
         Class<?> entityClass = Objects.requireNonNull(repositoryResolvableType.resolveGeneric(1));
         builder.entityClass(entityClass);
         ClassLoader classLoader = entityClass.getClassLoader();
@@ -129,55 +131,64 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         final Class<?> defaultqueryClass = ClassUtils.resolveClassName(defaultQueryClassName, classLoader);
         domainQueryMap.put(IView.class, defaultqueryClass);
 
-        final InsertDomainActionDispatcher<ID, T, U> insertDomainActionDispatcher = buildCreateAction(repository, entityClass, domainResource);
-        domainEntityClassMap.put(IView.Create.class, insertDomainActionDispatcher.getDomainEntityClass());
-        domainQueryMap.put(IView.Create.class, insertDomainActionDispatcher.getDomainQueryClass());
-        domainActionMap.put(SpiAction.Type.CREATE, insertDomainActionDispatcher);
+        final InsertDomainActionDispatcher<K, T, U> insertAction = buildCreateAction(repository, entityClass, domainResource);
+        domainEntityClassMap.put(IView.Create.class, insertAction.getDomainEntityClass());
+        domainQueryMap.put(IView.Create.class, insertAction.getDomainQueryClass());
+        domainActionMap.put(SpiAction.Type.CREATE, insertAction);
 
         // delete
-        final DeleteDomainActionDispatcher<ID, T, IQuery, U> deleteDomainActionByQuery = buildDeleteActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
+        final DeleteDomainActionDispatcher<K, T, IQuery, U> deleteDomainActionByQuery
+                = buildDeleteActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.Delete.class, deleteDomainActionByQuery.getDomainEntityClass());
         domainQueryMap.put(IView.Delete.class, deleteDomainActionByQuery.getDomainQueryClass());
         domainActionMap.put(SpiAction.Type.DELETE_BY_QUERY, deleteDomainActionByQuery);
 
-        final DeleteDomainActionDispatcher<ID, T, ID, U> deleteByIdDomainAction = buildDeleteActionById(repository, entityClass, idClass);
+        Class<?> idClass = Objects.requireNonNull(repositoryResolvableType.resolveGeneric());
+
+        final DeleteDomainActionDispatcher<K, T, K, U> deleteByIdDomainAction = buildDeleteActionById(repository, entityClass, idClass);
         domainActionMap.put(SpiAction.Type.DELETE_BY_ID, deleteByIdDomainAction);
 
         // export
-        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> exportActionByQuery = buildExportActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
+        final SelectDomainDispatcher<K, T, IQuery, U, List<T>> exportActionByQuery
+                = buildExportActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.Export.class, exportActionByQuery.getDomainEntityClass());
         domainQueryMap.put(IView.Export.class, exportActionByQuery.getDomainQueryClass());
         domainActionMap.put(SpiAction.Type.EXPORT_BY_QUERY, exportActionByQuery);
 
 
         // list
-        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = buildListActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
+        final SelectDomainDispatcher<K, T, IQuery, U, List<T>> listQueryDomainAction
+                = buildListActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.List.class, listQueryDomainAction.getDomainEntityClass());
         domainQueryMap.put(IView.List.class, listQueryDomainAction.getDomainQueryClass());
         domainActionMap.put(SpiAction.Type.LIST_BY_QUERY, listQueryDomainAction);
 
         // detail
-        final SelectDomainDispatcher<ID, T, IQuery, U, T> detailSelectActionByQuery = buildDetailSelectActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
+        final SelectDomainDispatcher<K, T, IQuery, U, T> detailSelectActionByQuery
+                = buildDetailSelectActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.Detail.class, detailSelectActionByQuery.getDomainEntityClass());
         domainQueryMap.put(IView.Detail.class, detailSelectActionByQuery.getDomainQueryClass());
         domainActionMap.put(SpiAction.Type.DETAIL_BY_QUERY, detailSelectActionByQuery);
 
-        final SelectDomainDispatcher<ID, T, ID, U, T> detailSelectActionById = buildDetailSelectActionById(repository, idClass, entityClass);
+        final SelectDomainDispatcher<K, T, K, U, T> detailSelectActionById = buildDetailSelectActionById(repository, idClass, entityClass);
         domainActionMap.put(SpiAction.Type.DETAIL_BY_ID, detailSelectActionById);
 
         // count
-        final SelectDomainDispatcher<ID, T, IQuery, U, Long> countSelectActionByQuery = buildCountSelectActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
+        final SelectDomainDispatcher<K, T, IQuery, U, Long> countSelectActionByQuery
+                = buildCountSelectActionByQuery(repository, classLoader, queryPackage, entityClass, defaultqueryClass);
         domainEntityClassMap.put(IView.Count.class, countSelectActionByQuery.getDomainEntityClass());
         domainQueryMap.put(IView.Count.class, countSelectActionByQuery.getDomainQueryClass());
         domainActionMap.put(SpiAction.Type.COUNT_BY_QUERY, countSelectActionByQuery);
 
         // update
-        final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, T, U> updateByIdDomainAction = buildUpdateActionById(repository, entityClass, idClass);
+        final BiUpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
+                = buildUpdateActionById(repository, entityClass, idClass);
         domainActionMap.put(SpiAction.Type.UPDATE_BY_ID, updateByIdDomainAction);
 
         // update yn
 
-        final BiUpdateDomainActionDispatcher<ID, T, ID, YN, YN, U> updateYnActionById = buildUpdateYnActionById(repository, entityClass, idClass);
+        final BiUpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
+                = buildUpdateYnActionById(repository, entityClass, idClass);
         domainActionMap.put(SpiAction.Type.UPDATE_YN_BY_ID, updateYnActionById);
 
 
@@ -185,18 +196,21 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         if (IStatus.class.isAssignableFrom(entityClass)) {
             final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
 
-            final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusActionById = buildUpdateStatusActionById(repository, entityClass, idClass, statusClass);
+            final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, U> updateStatusActionById
+                    = buildUpdateStatusActionById(repository, entityClass, idClass, statusClass);
             domainActionMap.put(SpiAction.Type.UPDATE_STATUS_BY_ID, updateStatusActionById);
         }
         // update locked
         if (ILock.class.isAssignableFrom(entityClass)) {
 
-            final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, Boolean, U> updateLockedActionById = buildUpdateLockedActionById(repository, entityClass, idClass);
+            final BiUpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
+                    = buildUpdateLockedActionById(repository, entityClass, idClass);
             domainActionMap.put(SpiAction.Type.UPDATE_LOCKED_BY_ID, updateLockedActionById);
         }
 
         if (IAudit.class.isAssignableFrom(entityClass)) {
-            final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusActionById = buildUpdateAuditStatusActionById(repository, entityClass, idClass);
+            final UpdateDomainActionDispatcher<K, T, K, AuditValue, U> updateAuditStatusActionById
+                    = buildUpdateAuditStatusActionById(repository, entityClass, idClass);
             domainActionMap.put(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
         }
 
@@ -207,9 +221,11 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
     }
 
 
-    private <ID extends Serializable, T extends IEntity<ID>> UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> buildUpdateAuditStatusActionById(Repository<ID, T> repository, Class<?> entityClass, Class<?> idClass) {
+    private UpdateDomainActionDispatcher<K, T, K, AuditValue, U> buildUpdateAuditStatusActionById(Repository<K, T> repository,
+                                                                                                  Class<?> entityClass, Class<?> idClass) {
         //UpdateFunction<Entity,ID,AuditValue,User>
-        final UpdateFunction<T, ID, AuditValue, U> updateAuditStatusByIdFunction = (UpdateFunction<T, ID, AuditValue, U>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, K, AuditValue, U> updateAuditStatusByIdFunction
+                = (UpdateFunction<T, K, AuditValue, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -218,14 +234,19 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultUpdateAuditStatusFunction<>(repository));
-        final UpdateDomainActionDispatcher<ID, T, ID, AuditValue, U> updateAuditStatusActionById = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateAuditStatusByIdFunction);
-        acceptUpdateDomainAction(updateAuditStatusActionById, SpiAction.UPDATE_AUDIT_STATUS, entityClass, idClass, AuditValue.class, userClass);
+        final UpdateDomainActionDispatcher<K, T, K, AuditValue, U> updateAuditStatusActionById
+                = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateAuditStatusByIdFunction);
+        acceptUpdateDomainAction(updateAuditStatusActionById, SpiAction.UPDATE_AUDIT_STATUS,
+                entityClass, idClass, AuditValue.class, userClass);
         return updateAuditStatusActionById;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, Boolean, U> buildUpdateLockedActionById(Repository<ID, T> repository, Class<?> entityClass, Class<?> idClass) {
+    private BiUpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> buildUpdateLockedActionById(Repository<K, T> repository,
+                                                                                                     Class<?> entityClass,
+                                                                                                     Class<?> idClass) {
         //BiUpdateFunction<Entity,ID,Boolean,Boolean,User>
-        final BiUpdateFunction<T, ID, Boolean, Boolean, U> updateLockedByIdFunction = (BiUpdateFunction<T, ID, Boolean, Boolean, U>) applicationContext.getBeanProvider(
+        final BiUpdateFunction<T, K, Boolean, Boolean, U> updateLockedByIdFunction
+                = (BiUpdateFunction<T, K, Boolean, Boolean, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -235,14 +256,19 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultUpdateLockedFunction<>(repository));
-        final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, Boolean, U> updateLockedActionById = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
+        final BiUpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
+                = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
         acceptUpdateDomainAction(updateLockedActionById, SpiAction.UPDATE_LOCKED, entityClass, idClass, Boolean.class, userClass);
         return updateLockedActionById;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> buildUpdateStatusActionById(Repository<ID, T> repository, Class<?> entityClass, Class<?> idClass, Class<?> statusClass) {
+    private UpdateDomainActionDispatcher<K, T, K, IEnum<?>, U> buildUpdateStatusActionById(Repository<K, T> repository,
+                                                                                           Class<?> entityClass,
+                                                                                           Class<?> idClass,
+                                                                                           Class<?> statusClass) {
         //UpdateFunction<Entity,ID,Status,User>
-        final UpdateFunction<T, ID, IEnum<?>, U> updateStatusByIdFunction = (UpdateFunction<T, ID, IEnum<?>, U>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, K, IEnum<?>, U> updateStatusByIdFunction
+                = (UpdateFunction<T, K, IEnum<?>, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -252,14 +278,18 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                         ))
                 .getIfAvailable(() -> new DefaultUpdateStatusFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<ID, T, ID, IEnum<?>, U> updateStatusActionById = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_STATUS, repository, updateStatusByIdFunction);
+        final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, U> updateStatusActionById
+                = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_STATUS, repository, updateStatusByIdFunction);
         acceptUpdateDomainAction(updateStatusActionById, SpiAction.UPDATE_STATUS, entityClass, idClass, statusClass, userClass);
         return updateStatusActionById;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> BiUpdateDomainActionDispatcher<ID, T, ID, YN, YN, U> buildUpdateYnActionById(Repository<ID, T> repository, Class<?> entityClass, Class<?> idClass) {
+    private BiUpdateDomainActionDispatcher<K, T, K, YN, YN, U> buildUpdateYnActionById(Repository<K, T> repository,
+                                                                                       Class<?> entityClass,
+                                                                                       Class<?> idClass) {
         //UpdateFunction<Entity,ID,YN,User>
-        final BiUpdateFunction<T, ID, YN, YN, U> updateYnByIdFunction = (BiUpdateFunction<T, ID, YN, YN, U>) applicationContext.getBeanProvider(
+        final BiUpdateFunction<T, K, YN, YN, U> updateYnByIdFunction
+                = (BiUpdateFunction<T, K, YN, YN, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 BiUpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -268,16 +298,20 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                                 ResolvableType.forClass(YN.class),
                                 ResolvableType.forClass(userClass)
                         ))
-                .getIfAvailable(() -> new DefaultUpdateYNFunction<>(repository));
+                .getIfAvailable(() -> new DefaultUpdateYnFunction<>(repository));
 
-        final BiUpdateDomainActionDispatcher<ID, T, ID, YN, YN, U> updateYnActionById = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
+        final BiUpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
+                = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
         acceptUpdateDomainAction(updateYnActionById, SpiAction.UPDATE_YN, entityClass, idClass, YN.class, userClass);
         return updateYnActionById;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, T, U> buildUpdateActionById(Repository<ID, T> repository, Class<?> entityClass, Class<?> idClass) {
+    private BiUpdateDomainActionDispatcher<K, T, K, Boolean, T, U> buildUpdateActionById(Repository<K, T> repository,
+                                                                                         Class<?> entityClass,
+                                                                                         Class<?> idClass) {
         // BiUpdateFunction<Entity,ID,Boolean,Entity,User>
-        final BiUpdateFunction<T, ID, Boolean, T, U> updateByIdFunction = (BiUpdateFunction<T, ID, Boolean, T, U>) applicationContext.getBeanProvider(
+        final BiUpdateFunction<T, K, Boolean, T, U> updateByIdFunction
+                = (BiUpdateFunction<T, K, Boolean, T, U>) applicationContext.getBeanProvider(
                 ResolvableType.forClassWithGenerics(
                         BiUpdateFunction.class,
                         ResolvableType.forClass(entityClass),
@@ -288,16 +322,23 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                 )
         ).getIfAvailable(() -> new DefaultUpdateFunction<>(repository));
 
-        final BiUpdateDomainActionDispatcher<ID, T, ID, Boolean, T, U> updateByIdDomainAction = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE, repository, updateByIdFunction);
+        final BiUpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
+                = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE, repository, updateByIdFunction);
         acceptUpdateDomainAction(updateByIdDomainAction, SpiAction.UPDATE, entityClass, idClass, entityClass, userClass);
         return updateByIdDomainAction;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> SelectDomainDispatcher<ID, T, IQuery, U, Long> buildCountSelectActionByQuery(Repository<ID, T> repository, ClassLoader classLoader, String queryPackage, Class<?> entityClass, Class<?> defaultqueryClass) {
-        final Class<?> countQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Count.class), defaultqueryClass);
+    private SelectDomainDispatcher<K, T, IQuery, U, Long> buildCountSelectActionByQuery(Repository<K, T> repository,
+                                                                                        ClassLoader classLoader,
+                                                                                        String queryPackage,
+                                                                                        Class<?> entityClass,
+                                                                                        Class<?> defaultqueryClass) {
+        final Class<?> countQueryClass = resolveClass(classLoader,
+                queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Count.class), defaultqueryClass);
 
         // SelectFunction<Query,User,Long>
-        final SelectFunction<IQuery, U, Long> selectCountFunction = (SelectFunction<IQuery, U, Long>) applicationContext.getBeanProvider(
+        final SelectFunction<IQuery, U, Long> selectCountFunction
+                = (SelectFunction<IQuery, U, Long>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 SelectFunction.class,
                                 ResolvableType.forClass(countQueryClass),
@@ -305,12 +346,16 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                                 ResolvableType.forClass(Long.class)
                         ))
                 .getIfAvailable(() -> new DefaultSelectCountFunction<>(repository));
-        final SelectDomainDispatcher<ID, T, IQuery, U, Long> detailSelectActionByQuery = new SelectDomainDispatcher<>(SpiAction.COUNT, IView.Count.class, selectCountFunction);
+        final SelectDomainDispatcher<K, T, IQuery, U, Long> detailSelectActionByQuery
+                = new SelectDomainDispatcher<>(SpiAction.COUNT, IView.Count.class, selectCountFunction);
         detailSelectActionByQuery.setView(IView.Detail.class);
         detailSelectActionByQuery.setDomainQueryClass(countQueryClass);
-        detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE, PreQueryConsumer.class, countQueryClass, userClass));
-        detailSelectActionByQuery.setPostConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        detailSelectActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.POST, BiConsumer.class, entityClass, countQueryClass, userClass));
+        detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE,
+                PreQueryConsumer.class, countQueryClass, userClass));
+        detailSelectActionByQuery.setPostConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.POST,
+                Consumer.class, entityClass, userClass));
+        detailSelectActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.POST,
+                BiConsumer.class, entityClass, countQueryClass, userClass));
         // PostQueryFunction<Long,IQuery,IUser>
         applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
                 ResolvableType.forClass(Long.class),
@@ -320,9 +365,11 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         return detailSelectActionByQuery;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> SelectDomainDispatcher<ID, T, ID, U, T> buildDetailSelectActionById(Repository<ID, T> repository, Class<?> idClass, Class<?> entityClass) {
+    private SelectDomainDispatcher<K, T, K, U, T> buildDetailSelectActionById(Repository<K, T> repository,
+                                                                              Class<?> idClass, Class<?> entityClass) {
         // SelectFunction<Long,User,Entity>
-        final SelectFunction<ID, U, T> selectOneFunctionById = (SelectFunction<ID, U, T>) applicationContext.getBeanProvider(
+        final SelectFunction<K, U, T> selectOneFunctionById
+                = (SelectFunction<K, U, T>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 SelectFunction.class,
                                 ResolvableType.forClass(idClass),
@@ -330,17 +377,23 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                                 ResolvableType.forClass(entityClass)
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
-        final SelectDomainDispatcher<ID, T, ID, U, T> detailSelectActionById = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionById);
+        final SelectDomainDispatcher<K, T, K, U, T> detailSelectActionById
+                = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionById);
         detailSelectActionById.setView(IView.Detail.class);
-        detailSelectActionById.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
+        detailSelectActionById.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST,
+                Consumer.class, entityClass, userClass));
         return detailSelectActionById;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> SelectDomainDispatcher<ID, T, IQuery, U, T> buildDetailSelectActionByQuery(Repository<ID, T> repository, ClassLoader classLoader, String queryPackage, Class<?> entityClass, Class<?> defaultqueryClass) {
-        final Class<?> detailQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Detail.class), defaultqueryClass);
+    private SelectDomainDispatcher<K, T, IQuery, U, T> buildDetailSelectActionByQuery(Repository<K, T> repository, ClassLoader classLoader,
+                                                                                      String queryPackage, Class<?> entityClass,
+                                                                                      Class<?> defaultqueryClass) {
+        final Class<?> detailQueryClass = resolveClass(classLoader,
+                queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Detail.class), defaultqueryClass);
 
         // SelectFunction<Query,User,Entity>
-        final SelectFunction<IQuery, U, T> selectOneFunctionByQuery = (SelectFunction<IQuery, U, T>) applicationContext.getBeanProvider(
+        final SelectFunction<IQuery, U, T> selectOneFunctionByQuery
+                = (SelectFunction<IQuery, U, T>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 SelectFunction.class,
                                 ResolvableType.forClass(detailQueryClass),
@@ -348,12 +401,16 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                                 ResolvableType.forClass(entityClass)
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
-        final SelectDomainDispatcher<ID, T, IQuery, U, T> detailSelectActionByQuery = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionByQuery);
+        final SelectDomainDispatcher<K, T, IQuery, U, T> detailSelectActionByQuery
+                = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionByQuery);
         detailSelectActionByQuery.setView(IView.Detail.class);
         detailSelectActionByQuery.setDomainQueryClass(detailQueryClass);
-        detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE, PreQueryConsumer.class, detailQueryClass, userClass));
-        detailSelectActionByQuery.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        detailSelectActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST, BiConsumer.class, entityClass, detailQueryClass, userClass));
+        detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE,
+                PreQueryConsumer.class, detailQueryClass, userClass));
+        detailSelectActionByQuery.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST,
+                Consumer.class, entityClass, userClass));
+        detailSelectActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST,
+                BiConsumer.class, entityClass, detailQueryClass, userClass));
         // PostQueryFunction<T,IQuery,IUser>
         applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
                 ResolvableType.forClass(entityClass),
@@ -363,20 +420,35 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         return detailSelectActionByQuery;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> SelectDomainDispatcher<ID, T, IQuery, U, List<T>> buildExportActionByQuery(Repository<ID, T> repository, ClassLoader classLoader, String queryPackage, Class<?> entityClass, Class<?> defaultqueryClass) {
-        final Class<?> listQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Export.class), defaultqueryClass);
+    private SelectDomainDispatcher<K, T, IQuery, U, List<T>> buildExportActionByQuery(Repository<K, T> repository, ClassLoader classLoader,
+                                                                                      String queryPackage, Class<?> entityClass,
+                                                                                      Class<?> defaultqueryClass) {
+        final Class<?> listQueryClass = resolveClass(classLoader,
+                queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Export.class), defaultqueryClass);
 
         // SelectFunction<Query,User,List<Entity>>
-        final SelectFunction<IQuery, U, List<T>> listSelectFunction = (SelectFunction<IQuery, U, List<T>>) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(SelectFunction.class, ResolvableType.forClass(listQueryClass), ResolvableType.forClass(userClass), ResolvableType.forClassWithGenerics(List.class, entityClass)))
-                .getIfAvailable(() -> new DefaultSelectFunction<>(repository));
+        final SelectFunction<IQuery, U, List<T>> listSelectFunction
+                = (SelectFunction<IQuery, U, List<T>>) applicationContext.getBeanProvider(
+                ResolvableType.forClassWithGenerics(
+                        SelectFunction.class,
+                        ResolvableType.forClass(listQueryClass),
+                        ResolvableType.forClass(userClass),
+                        ResolvableType.forClassWithGenerics(List.class, entityClass)
+                )
+        ).getIfAvailable(() -> new DefaultSelectFunction<>(repository));
 
-        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
+        final SelectDomainDispatcher<K, T, IQuery, U, List<T>> listQueryDomainAction
+                = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
         listQueryDomainAction.setView(IView.List.class);
         listQueryDomainAction.setDomainQueryClass(listQueryClass);
-        listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.PRE, PreQueryConsumer.class, listQueryClass, userClass));
-        listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.POST, BiConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_RETURNING, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.PRE,
+                PreQueryConsumer.class, listQueryClass, userClass));
+        listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.POST,
+                BiConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_THROWING,
+                AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_RETURNING,
+                AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
         applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
                 ResolvableType.forClassWithGenerics(List.class, entityClass),
@@ -386,20 +458,35 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         return listQueryDomainAction;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> SelectDomainDispatcher<ID, T, IQuery, U, List<T>> buildListActionByQuery(Repository<ID, T> repository, ClassLoader classLoader, String queryPackage, Class<?> entityClass, Class<?> defaultqueryClass) {
-        final Class<?> listQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.List.class), defaultqueryClass);
+    private SelectDomainDispatcher<K, T, IQuery, U, List<T>> buildListActionByQuery(Repository<K, T> repository, ClassLoader classLoader,
+                                                                                    String queryPackage, Class<?> entityClass,
+                                                                                    Class<?> defaultqueryClass) {
+        final Class<?> listQueryClass = resolveClass(classLoader,
+                queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.List.class), defaultqueryClass);
 
         // SelectFunction<Query,User,List<Entity>>
-        final SelectFunction<IQuery, U, List<T>> listSelectFunction = (SelectFunction<IQuery, U, List<T>>) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(SelectFunction.class, ResolvableType.forClass(listQueryClass), ResolvableType.forClass(userClass), ResolvableType.forClassWithGenerics(List.class, entityClass)))
-                .getIfAvailable(() -> new DefaultSelectFunction<>(repository));
+        final SelectFunction<IQuery, U, List<T>> listSelectFunction
+                = (SelectFunction<IQuery, U, List<T>>) applicationContext.getBeanProvider(
+                ResolvableType.forClassWithGenerics(
+                        SelectFunction.class,
+                        ResolvableType.forClass(listQueryClass),
+                        ResolvableType.forClass(userClass),
+                        ResolvableType.forClassWithGenerics(List.class, entityClass)
+                )
+        ).getIfAvailable(() -> new DefaultSelectFunction<>(repository));
 
-        final SelectDomainDispatcher<ID, T, IQuery, U, List<T>> listQueryDomainAction = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
+        final SelectDomainDispatcher<K, T, IQuery, U, List<T>> listQueryDomainAction
+                = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
         listQueryDomainAction.setView(IView.List.class);
         listQueryDomainAction.setDomainQueryClass(listQueryClass);
-        listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE, PreQueryConsumer.class, listQueryClass, userClass));
-        listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST, BiConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING, AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING, AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE,
+                PreQueryConsumer.class, listQueryClass, userClass));
+        listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST,
+                BiConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING,
+                AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING,
+                AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
         applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
                 ResolvableType.forClassWithGenerics(List.class, entityClass),
@@ -409,9 +496,10 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
         return listQueryDomainAction;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> DeleteDomainActionDispatcher<ID, T, ID, U> buildDeleteActionById(Repository<ID, T> repository, Class<?> entityClass, Class<?> idClass) {
+    private DeleteDomainActionDispatcher<K, T, K, U> buildDeleteActionById(Repository<K, T> repository, Class<?> entityClass,
+                                                                           Class<?> idClass) {
         //DeleteFunction<Entity,DeleteQuery,User>
-        final DeleteFunction<T, ID, U> deleteFunctionById = (DeleteFunction<T, ID, U>) applicationContext.getBeanProvider(
+        final DeleteFunction<T, K, U> deleteFunctionById = (DeleteFunction<T, K, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 DeleteFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -420,16 +508,23 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                         ))
                 .getIfAvailable(() -> new DefaultDeleteFunction<>(repository));
 
-        final DeleteDomainActionDispatcher<ID, T, ID, U> deleteByIdDomainAction = new DeleteDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteFunctionById);
+        final DeleteDomainActionDispatcher<K, T, K, U> deleteByIdDomainAction
+                = new DeleteDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteFunctionById);
         deleteByIdDomainAction.setView(IView.Delete.class);
-        deleteByIdDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
-        deleteByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        deleteByIdDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, idClass, Void.class, Integer.class, userClass));
+        deleteByIdDomainAction.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE,
+                Consumer.class, entityClass, userClass));
+        deleteByIdDomainAction.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST,
+                Consumer.class, entityClass, userClass));
+        deleteByIdDomainAction.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER,
+                AfterConsumer.class, entityClass, idClass, Void.class, Integer.class, userClass));
         return deleteByIdDomainAction;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> DeleteDomainActionDispatcher<ID, T, IQuery, U> buildDeleteActionByQuery(Repository<ID, T> repository, ClassLoader classLoader, String queryPackage, Class<?> entityClass, Class<?> defaultqueryClass) {
-        final Class<?> deleteQueryClass = resolveClass(classLoader, queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Delete.class), defaultqueryClass);
+    private DeleteDomainActionDispatcher<K, T, IQuery, U> buildDeleteActionByQuery(Repository<K, T> repository, ClassLoader classLoader,
+                                                                                   String queryPackage, Class<?> entityClass,
+                                                                                   Class<?> defaultqueryClass) {
+        final Class<?> deleteQueryClass = resolveClass(classLoader,
+                queryPackage + "." + DomainNameHelper.domainQueryName(entityClass, IView.Delete.class), defaultqueryClass);
         //DeleteFunction<Entity,DeleteQuery,User>
         final DeleteFunction<T, IQuery, U> deleteFunctionByQuery = (DeleteFunction<T, IQuery, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
@@ -440,46 +535,68 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
                         ))
                 .getIfAvailable(() -> new DefaultDeleteFunction<>(repository));
 
-        final DeleteDomainActionDispatcher<ID, T, IQuery, U> deleteActionByQuery = new DeleteDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteFunctionByQuery);
+        final DeleteDomainActionDispatcher<K, T, IQuery, U> deleteActionByQuery
+                = new DeleteDomainActionDispatcher<>(SpiAction.DELETE, repository, deleteFunctionByQuery);
         deleteActionByQuery.setView(IView.Delete.class);
         deleteActionByQuery.setDomainQueryClass(deleteQueryClass);
-        deleteActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, PreQueryConsumer.class, deleteQueryClass, userClass));
-        deleteActionByQuery.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
-        deleteActionByQuery.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        deleteActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST, BiConsumer.class, entityClass, deleteQueryClass, userClass));
-        deleteActionByQuery.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, deleteQueryClass, Void.class, Integer.class, userClass));
+        deleteActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE,
+                PreQueryConsumer.class, deleteQueryClass, userClass));
+        deleteActionByQuery.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE,
+                Consumer.class, entityClass, userClass));
+        deleteActionByQuery.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST,
+                Consumer.class, entityClass, userClass));
+        deleteActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST,
+                BiConsumer.class, entityClass, deleteQueryClass, userClass));
+        deleteActionByQuery.setAfterConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.AFTER,
+                AfterConsumer.class, entityClass, deleteQueryClass, Void.class, Integer.class, userClass));
         return deleteActionByQuery;
     }
 
-    private <ID extends Serializable, T extends IEntity<ID>> InsertDomainActionDispatcher<ID, T, U> buildCreateAction(Repository<ID, T> repository, Class<?> entityClass, DomainResource domainResource) {
+    private InsertDomainActionDispatcher<K, T, U> buildCreateAction(
+            Repository<K, T> repository, Class<?> entityClass, DomainResource domainResource) {
         // create
         String dtoClassName = DomainNameHelper.modelClassName(entityClass, IView.Create.class.getSimpleName());
-        InsertDomainActionDispatcher<ID, T, U> insertDomainActionDispatcher = new InsertDomainActionDispatcher<>(repository, domainResource.insertIgnore());
+        InsertDomainActionDispatcher<K, T, U> insertDomainActionDispatcher
+                = new InsertDomainActionDispatcher<>(repository, domainResource.insertIgnore());
 
         if (ClassUtils.isPresent(dtoClassName, entityClass.getClassLoader())) {
             Class<?> dtoClass = ClassUtils.resolveClassName(dtoClassName, entityClass.getClassLoader());
             insertDomainActionDispatcher.setDomainEntityClass(dtoClass);
-            PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass)).getObject();
+            PreInsertFunction preInsertFunction = (PreInsertFunction) applicationContext.getBeanProvider(
+                            ResolvableType.forClassWithGenerics(PreInsertFunction.class, dtoClass, userClass, entityClass))
+                    .getObject();
             insertDomainActionDispatcher.setPreInsertFunction(preInsertFunction);
             insertDomainActionDispatcher.setDomainEntityClass(dtoClass);
         }
 
         // PreInsert
-        insertDomainActionDispatcher.setPreInsertFilter(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Filter.class, entityClass, userClass));
-        insertDomainActionDispatcher.setPreInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE, Consumer.class, entityClass, userClass));
+        insertDomainActionDispatcher.setPreInsertFilter(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE,
+                Filter.class, entityClass, userClass));
+        insertDomainActionDispatcher.setPreInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.PRE,
+                Consumer.class, entityClass, userClass));
         // PostInsert
-        insertDomainActionDispatcher.setPostInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.POST, Consumer.class, entityClass, userClass));
-        insertDomainActionDispatcher.setAfterThrowingInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_THROWING, AfterThrowingConsumer.class, entityClass, userClass));
-        insertDomainActionDispatcher.setAfterReturningInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_RETURNING, AfterReturningConsumer.class, entityClass, Integer.class, userClass));
-        insertDomainActionDispatcher.setAfterConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, Void.class, Void.class, Integer.class, userClass));
+        insertDomainActionDispatcher.setPostInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.POST,
+                Consumer.class, entityClass, userClass));
+        insertDomainActionDispatcher.setAfterThrowingInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_THROWING,
+                AfterThrowingConsumer.class, entityClass, userClass));
+        insertDomainActionDispatcher.setAfterReturningInsertConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER_RETURNING,
+                AfterReturningConsumer.class, entityClass, Integer.class, userClass));
+        insertDomainActionDispatcher.setAfterConsumer(getSpiComposite(SpiAction.CREATE, SpiAction.Advice.AFTER,
+                AfterConsumer.class, entityClass, Void.class, Void.class, Integer.class, userClass));
         return insertDomainActionDispatcher;
     }
 
-    private void acceptUpdateDomainAction(AbsUpdateDeleteDomainActionDispatcher action, SpiAction spiAction, Class<?> entityClass, Class<?> paramClass, Class<?> valueClass, Class<U> userClass) {
-        action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE, BiValidator.class, entityClass, valueClass, userClass));
-        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE, UpdateConsumer.class, entityClass, valueClass, userClass));
-        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST, UpdateConsumer.class, entityClass, valueClass, userClass));
-        action.setAfterConsumer(getSpiComposite(spiAction, SpiAction.Advice.AFTER, AfterConsumer.class, entityClass, paramClass, Void.class, Integer.class, userClass));
+    private void acceptUpdateDomainAction(AbsUpdateDeleteDomainActionDispatcher action, SpiAction spiAction,
+                                          Class<?> entityClass, Class<?> paramClass,
+                                          Class<?> valueClass, Class<U> userClass) {
+        action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE,
+                BiValidator.class, entityClass, valueClass, userClass));
+        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE,
+                UpdateConsumer.class, entityClass, valueClass, userClass));
+        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST,
+                UpdateConsumer.class, entityClass, valueClass, userClass));
+        action.setAfterConsumer(getSpiComposite(spiAction, SpiAction.Advice.AFTER,
+                AfterConsumer.class, entityClass, paramClass, Void.class, Integer.class, userClass));
     }
 
 
@@ -491,7 +608,7 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
     }
 
     @SuppressWarnings("unchecked")
-    private <SPI> SPI getSpiComposite(SpiAction action, SpiAction.Advice advice, Class<SPI> type, Class<?>... generics) {
+    private <E> E getSpiComposite(SpiAction action, SpiAction.Advice advice, Class<E> type, Class<?>... generics) {
         List beans = getBeansOf(action, advice, type, generics);
         if (CollectionUtils.isEmpty(beans) && type == Filter.class) {
             beans = Collections.singletonList((Filter) (action1, entity, user) -> true);
@@ -506,7 +623,7 @@ public class DefaultDomainActionsFactory<U extends IUser<?>> implements DomainAc
             beans.add(loggerAfterConsumer);
         }
 
-        return (SPI) CompositeProxies.composite(type, beans);
+        return (E) CompositeProxies.composite(type, beans);
     }
 
 

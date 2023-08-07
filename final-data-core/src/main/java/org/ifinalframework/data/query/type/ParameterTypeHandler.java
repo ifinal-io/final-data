@@ -16,11 +16,11 @@
 
 package org.ifinalframework.data.query.type;
 
+import org.apache.ibatis.type.BaseTypeHandler;
+
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.ibatis.type.BaseTypeHandler;
 
 /**
  * The {@link ParameterTypeHandler} only used on {@literal WHERE} fragment.

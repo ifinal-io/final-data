@@ -15,14 +15,16 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import lombok.extern.slf4j.Slf4j;
 import org.ifinalframework.core.ParamsBuilder;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ilikly

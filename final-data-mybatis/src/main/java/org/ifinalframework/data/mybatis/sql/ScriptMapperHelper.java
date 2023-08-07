@@ -59,7 +59,7 @@ public abstract class ScriptMapperHelper {
             }
 
             final String isNull = isNulls.stream().map(item -> String.format("%s == null", item))
-                .collect(Collectors.joining(" || "));
+                    .collect(Collectors.joining(" || "));
             return String.format("%s ? null : %s.%s", isNull, prefix, path);
         }
         return String.format("%s.%s", prefix, path);
@@ -83,7 +83,7 @@ public abstract class ScriptMapperHelper {
                 notNulls.add(builder.toString());
             }
             return notNulls.stream().map(item -> String.format("%s != null", item))
-                .collect(Collectors.joining(" and "));
+                    .collect(Collectors.joining(" and "));
         } else {
             if (selective) {
                 return String.format("%s.%s != null", prefix, path);

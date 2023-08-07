@@ -15,12 +15,6 @@
 
 package org.ifinalframework.data.service;
 
-import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
@@ -34,6 +28,12 @@ import org.ifinalframework.core.ParamsBuilder;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.trigger.Trigger;
 import org.ifinalframework.data.trigger.TriggerAction;
+
+import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import lombok.Setter;
 
@@ -113,7 +113,6 @@ public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I
     /**
      * @param id     id class
      * @param entity entity class
-     *
      * @since 1.4.2
      */
     @SuppressWarnings("unchecked")
@@ -130,7 +129,6 @@ public abstract class AbsServiceImpl<I extends Serializable, T extends IEntity<I
     /**
      * @param id     id class
      * @param entity entity class
-     *
      * @since 1.4.2
      */
     @SuppressWarnings({"unchecked", "rawtypes"})

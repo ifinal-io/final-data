@@ -15,9 +15,9 @@
 
 package org.ifinalframework.data.sharding.config;
 
-import lombok.Getter;
-
 import java.util.Properties;
+
+import lombok.Getter;
 
 /**
  * @author ilikly

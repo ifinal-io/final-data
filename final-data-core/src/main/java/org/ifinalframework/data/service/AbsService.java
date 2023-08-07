@@ -15,14 +15,14 @@
 
 package org.ifinalframework.data.service;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.repository.Repository;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author ilikly
@@ -84,6 +84,6 @@ public interface AbsService<I extends Serializable, T extends IEntity<I>>
     }
 
     @NonNull
-    Repository<I,T> getRepository();
+    Repository<I, T> getRepository();
 
 }

@@ -15,15 +15,17 @@
 
 package org.ifinalframework.data.domain.function;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.SelectFunction;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * DefaultSelectFunction.
@@ -33,8 +35,8 @@ import java.io.Serializable;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultSelectOneFunction<ID extends Serializable, T extends IEntity<ID>, P, U> implements SelectFunction<P, U, T> {
-    private final Repository<ID, T> repository;
+public class DefaultSelectOneFunction<K extends Serializable, T extends IEntity<K>, P, U> implements SelectFunction<P, U, T> {
+    private final Repository<K, T> repository;
 
     @Nullable
     @Override
@@ -43,7 +45,7 @@ public class DefaultSelectOneFunction<ID extends Serializable, T extends IEntity
         if (param instanceof IQuery) {
             return repository.selectOne((IQuery) param);
         } else {
-            return repository.selectOne((ID) param);
+            return repository.selectOne((K) param);
         }
     }
 }

@@ -34,6 +34,6 @@ class DefaultQEntityFactoryTest {
     void createFromAbsRecord() {
         QEntity<?, ?> properties = factory.create(AbsRecord.class);
         QProperty<Object> creatorId = properties.getProperty("creator.id");
-        Assertions.assertEquals(Long.class,creatorId.getGenericType());
+        Assertions.assertEquals(Long.class, creatorId.getGenericType());
     }
 }

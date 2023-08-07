@@ -47,11 +47,11 @@ public interface Beans {
      */
     @SuppressWarnings("unchecked")
     static <T> List<T> findBeansByAnnotation(final ApplicationContext applicationContext,
-        final Class<? extends Annotation> annotationType) {
+                                             final Class<? extends Annotation> annotationType) {
 
         return findAllBeansAnnotatedBy(applicationContext, annotationType)
-            .map(it -> (T) it)
-            .collect(Collectors.toList());
+                .map(it -> (T) it)
+                .collect(Collectors.toList());
     }
 
     static Stream<String> findAllBeans(final ApplicationContext applicationContext) {
@@ -61,13 +61,13 @@ public interface Beans {
     }
 
     static Stream<Object> findAllBeansAnnotatedBy(final ApplicationContext applicationContext,
-        final Class<? extends Annotation> annotationType) {
+                                                  final Class<? extends Annotation> annotationType) {
 
         Asserts.requiredNonNull(applicationContext, "applicationContext must be not null!");
         Asserts.requiredNonNull(annotationType, "annotationType must be not null!");
         return findAllBeans(applicationContext)
-            .filter(name -> applicationContext.findAnnotationOnBean(name, annotationType) != null)
-            .map(applicationContext::getBean);
+                .filter(name -> applicationContext.findAnnotationOnBean(name, annotationType) != null)
+                .map(applicationContext::getBean);
     }
 
 }

@@ -16,13 +16,15 @@
 package org.ifinalframework.data.mybatis.javassist;
 
 import javassist.ClassPool;
-import lombok.SneakyThrows;
-import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
-import org.apache.ibatis.session.Configuration;
+
 import org.ifinalframework.data.annotation.AbsRecord;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.java.JvmDriver;
+
+import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
+import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.Test;
+
+import lombok.SneakyThrows;
 
 
 /**

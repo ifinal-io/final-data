@@ -15,13 +15,13 @@
 
 package org.ifinalframework.data.mybatis.mapping;
 
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.session.Configuration;
-
 import org.ifinalframework.data.annotation.AbsRecord;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.Test;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DefaultResultMapFactoryTest.
@@ -37,7 +37,7 @@ class DefaultResultMapFactoryTest {
     @Test
     void createFromAbsRecord() {
         ResultMap resultMap = factory.create(new Configuration(), AbsRecord.class);
-        logger.info("{}",resultMap);
+        logger.info("{}", resultMap);
     }
 
     @Test

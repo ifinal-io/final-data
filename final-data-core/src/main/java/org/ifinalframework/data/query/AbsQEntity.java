@@ -16,6 +16,20 @@
 
 package org.ifinalframework.data.query;
 
+import org.springframework.core.ResolvableType;
+import org.springframework.lang.NonNull;
+
+import org.ifinalframework.core.IRecord;
+import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.annotation.Column;
+import org.ifinalframework.data.annotation.Reference;
+import org.ifinalframework.data.annotation.Tenant;
+import org.ifinalframework.data.annotation.View;
+import org.ifinalframework.data.mapping.Entity;
+import org.ifinalframework.data.mapping.MappingUtils;
+import org.ifinalframework.data.mapping.Property;
+import org.ifinalframework.data.util.TableUtils;
+
 import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,20 +45,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.springframework.core.ResolvableType;
-import org.springframework.lang.NonNull;
-
-import org.ifinalframework.core.IRecord;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.annotation.Column;
-import org.ifinalframework.data.annotation.Reference;
-import org.ifinalframework.data.annotation.Tenant;
-import org.ifinalframework.data.annotation.View;
-import org.ifinalframework.data.mapping.Entity;
-import org.ifinalframework.data.mapping.MappingUtils;
-import org.ifinalframework.data.mapping.Property;
-import org.ifinalframework.data.util.TableUtils;
 
 /**
  * @author ilikly
@@ -99,13 +99,16 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
 
                         Reference reference = property.getRequiredAnnotation(Reference.class);
 
-                        Map<String, Column> columns = Arrays.stream(reference.columns()).collect(Collectors.toMap(Column::name, Function.identity()));
+                        Map<String, Column> columns = Arrays.stream(reference.columns())
+                                .collect(Collectors.toMap(Column::name, Function.identity()));
 
                         property.getReferenceProperties()
                                 .forEach(referenceProperty -> {
                                     Property persistentProperty = referenceEntity.getRequiredPersistentProperty(referenceProperty);
                                     Type genericType = persistentProperty.getGenericType();
-                                    if (IRecord.class.isAssignableFrom(type) && IUser.class.isAssignableFrom(property.getType()) && "id".equals(referenceProperty)) {
+                                    if (IRecord.class.isAssignableFrom(type)
+                                            && IUser.class.isAssignableFrom(property.getType())
+                                            && "id".equals(referenceProperty)) {
                                         genericType = ResolvableType.forClass(type).as(IRecord.class).getGeneric(1)
                                                 .as(IUser.class).resolveGeneric(0);
                                     }
@@ -118,8 +121,10 @@ public class AbsQEntity<I extends Serializable, T> implements QEntity<I, T> {
                                                     .path(property.getName() + "." + persistentProperty.getName())
                                                     .name(MappingUtils.formatPropertyName(property, persistentProperty))
                                                     .column(MappingUtils.formatColumn(entity, property, persistentProperty))
-                                                    .insert(column == null ? persistentProperty.getInsert() : String.join("", column.insert()))
-                                                    .update(column == null ? persistentProperty.getUpdate() : String.join("", column.update()))
+                                                    .insert(column == null
+                                                            ? persistentProperty.getInsert() : String.join("", column.insert()))
+                                                    .update(column == null
+                                                            ? persistentProperty.getUpdate() : String.join("", column.update()))
                                                     .views(views)
                                                     .readable(true)
                                                     .writeable(property.isWriteable())

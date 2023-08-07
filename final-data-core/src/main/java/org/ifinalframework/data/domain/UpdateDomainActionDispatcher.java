@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.domain;
 
-import lombok.Setter;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
@@ -25,6 +24,8 @@ import org.ifinalframework.data.spi.UpdateFunction;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Setter;
+
 /**
  * AbsUpdateDomainAction.
  *
@@ -33,11 +34,11 @@ import java.util.List;
  * @since 1.5.0
  */
 @Setter
-public class UpdateDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P, V, U extends IUser<?>>
-        extends AbsUpdateDeleteDomainActionDispatcher<ID, T, P, Void, V, U> {
+public class UpdateDomainActionDispatcher<K extends Serializable, T extends IEntity<K>, P, V, U extends IUser<?>>
+        extends AbsUpdateDeleteDomainActionDispatcher<K, T, P, Void, V, U> {
     private final UpdateFunction<T, P, V, U> updateAction;
 
-    public UpdateDomainActionDispatcher(SpiAction spiAction, Repository<ID, T> repository, UpdateFunction<T, P, V, U> updateAction) {
+    public UpdateDomainActionDispatcher(SpiAction spiAction, Repository<K, T> repository, UpdateFunction<T, P, V, U> updateAction) {
         super(spiAction, repository);
         this.updateAction = updateAction;
     }

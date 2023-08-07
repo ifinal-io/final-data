@@ -31,7 +31,6 @@ public interface BiDomainActionDispatcher<P1, P2, V, U> {
      * @param param2 action param.
      * @param value  action value.
      * @param user   action user.
-     * @return
      */
     Object dispatch(P1 param1, P2 param2, V value, U user);
 

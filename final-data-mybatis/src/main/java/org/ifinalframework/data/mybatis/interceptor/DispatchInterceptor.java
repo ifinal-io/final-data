@@ -15,11 +15,13 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import java.lang.reflect.Method;
-import java.sql.Connection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.mybatis.spi.ParameterConsumer;
 
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
@@ -34,13 +36,11 @@ import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.CollectionUtils;
-
-import org.ifinalframework.data.mybatis.spi.ParameterConsumer;
+import java.lang.reflect.Method;
+import java.sql.Connection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,17 +51,15 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.5.0
  * @since 1.5.0
  */
-@Intercepts(
-        {
-                @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                        RowBounds.class, ResultHandler.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                        RowBounds.class, ResultHandler.class, CacheKey.class,
-                        BoundSql.class}),
-                @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
-        }
-)
+@Intercepts({
+        @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class}),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class, CacheKey.class,
+                BoundSql.class}),
+        @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
+})
 @Order
 @Slf4j
 @Component
@@ -89,13 +87,12 @@ public class DispatchInterceptor implements Interceptor {
             final String mapperClassName = id.substring(0, id.lastIndexOf("."));
             final String mapperMethodName = id.substring(id.lastIndexOf(".") + 1);
 
-            if(parameters instanceof Map && !(parameters instanceof MapperMethod)){
+            if (parameters instanceof Map && !(parameters instanceof MapperMethod)) {
                 MapperMethod.ParamMap<Object> paramMap = new MapperMethod.ParamMap<>();
                 paramMap.putAll((Map<? extends String, ?>) parameters);
                 parameters = paramMap;
                 args[1] = parameters;
             }
-
 
 
             applyParameterConsumer(parameters, mapperClassName, mapperMethodName);
@@ -127,9 +124,6 @@ public class DispatchInterceptor implements Interceptor {
     }
 
     /**
-     * @param invocation
-     *
-     * @return
      * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler)
      * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler, CacheKey, BoundSql)
      */
@@ -139,9 +133,6 @@ public class DispatchInterceptor implements Interceptor {
     }
 
     /**
-     * @param invocation
-     *
-     * @return
      * @see org.apache.ibatis.executor.Executor#update(MappedStatement, Object)
      */
     private Object doUpdate(Invocation invocation) throws Throwable {
@@ -152,10 +143,6 @@ public class DispatchInterceptor implements Interceptor {
     }
 
     /**
-     * @param invocation
-     *
-     * @return
-     * @throws Throwable
      * @see StatementHandler#prepare(Connection, Integer)
      */
     private Object doPrepare(Invocation invocation) throws Throwable {

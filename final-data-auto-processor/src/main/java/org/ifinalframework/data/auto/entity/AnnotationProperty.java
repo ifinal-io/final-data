@@ -16,6 +16,16 @@
 
 package org.ifinalframework.data.auto.entity;
 
+import org.springframework.data.util.Lazy;
+import org.springframework.data.util.Optionals;
+
+import org.ifinalframework.core.lang.Transient;
+import org.ifinalframework.data.annotation.PrimaryKey;
+import org.ifinalframework.data.annotation.Reference;
+import org.ifinalframework.data.annotation.Version;
+import org.ifinalframework.data.auto.beans.PropertyDescriptor;
+import org.ifinalframework.data.auto.utils.Annotations;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -29,6 +39,7 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.SimpleTypeVisitor8;
 import javax.lang.model.util.Types;
+
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -37,16 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-
-import org.springframework.data.util.Lazy;
-import org.springframework.data.util.Optionals;
-
-import org.ifinalframework.core.lang.Transient;
-import org.ifinalframework.data.annotation.PrimaryKey;
-import org.ifinalframework.data.annotation.Reference;
-import org.ifinalframework.data.annotation.Version;
-import org.ifinalframework.data.auto.beans.PropertyDescriptor;
-import org.ifinalframework.data.auto.utils.Annotations;
 
 /**
  * @author ilikly

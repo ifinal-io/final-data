@@ -15,13 +15,12 @@
 
 package org.ifinalframework.data.mybatis.entity;
 
+import org.ifinalframework.data.annotation.AbsUser;
+import org.ifinalframework.data.annotation.Table;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.junit.jupiter.api.Test;
-
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.annotation.*;
 
 /**
  * User.
@@ -41,7 +40,7 @@ public class User extends AbsUser {
     private Integer age;
 
     public User(String name, String password) {
-        this.setName(name );
+        this.setName(name);
         this.password = password;
     }
 }

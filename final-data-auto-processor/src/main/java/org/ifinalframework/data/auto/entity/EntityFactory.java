@@ -17,16 +17,18 @@
 package org.ifinalframework.data.auto.entity;
 
 import org.ifinalframework.data.auto.beans.Bean;
+import org.ifinalframework.data.auto.beans.PropertyDescriptor;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author ilikly
@@ -56,23 +58,10 @@ public final class EntityFactory {
         while (typeElement != null) {
 
             Bean.from(processEnv, typeElement).stream()
-                .filter(property -> {
-                        if (property.getField().isPresent()) {
-                            return property.getField().map(field ->
-                                !(field.getModifiers().contains(Modifier.FINAL) || field.getModifiers()
-                                    .contains(Modifier.STATIC)))
-                                .orElse(true);
-                        } else if (property.getGetter().isPresent()) {
-                            return property.getGetter().map(method ->
-                                !(method.getModifiers().contains(Modifier.FINAL) || method.getModifiers()
-                                    .contains(Modifier.STATIC))).orElse(true);
-                        }
-
-                        return false;
-                    }
-                )
-                .map(property -> new AnnotationProperty(processEnv, property.getField(), Optional.of(property)))
-                .forEach(result::addProperty);
+                    .filter(EntityFactory::isProperty
+                    )
+                    .map(property -> new AnnotationProperty(processEnv, property.getField(), Optional.of(property)))
+                    .forEach(result::addProperty);
 
             TypeMirror superclass = typeElement.getSuperclass();
             if (superclass != null) {
@@ -87,6 +76,21 @@ public final class EntityFactory {
         cache.put(name, result);
 
         return result;
+    }
+
+    private static boolean isProperty(PropertyDescriptor property) {
+        if (property.getField().isPresent()) {
+            return property.getField().map(field ->
+                            !(field.getModifiers().contains(Modifier.FINAL) || field.getModifiers()
+                                    .contains(Modifier.STATIC)))
+                    .orElse(true);
+        } else if (property.getGetter().isPresent()) {
+            return property.getGetter().map(method ->
+                    !(method.getModifiers().contains(Modifier.FINAL) || method.getModifiers()
+                            .contains(Modifier.STATIC))).orElse(true);
+        }
+
+        return false;
     }
 
 }

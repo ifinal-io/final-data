@@ -15,19 +15,24 @@
 
 package org.ifinalframework.data.repository;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.IRepository;
+import org.ifinalframework.core.IUpdate;
+import org.ifinalframework.core.Pageable;
+import org.ifinalframework.core.ParamsBuilder;
+import org.ifinalframework.data.query.Update;
+import org.ifinalframework.util.Asserts;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-
-import org.ifinalframework.core.*;
-import org.ifinalframework.data.query.Update;
-import org.ifinalframework.util.Asserts;
 
 /**
  * The superinterface of {@code CURD}.

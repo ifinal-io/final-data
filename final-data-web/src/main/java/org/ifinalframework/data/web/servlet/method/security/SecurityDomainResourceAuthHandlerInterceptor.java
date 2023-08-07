@@ -15,10 +15,6 @@
 
 package org.ifinalframework.data.web.servlet.method.security;
 
-import lombok.extern.slf4j.Slf4j;
-import org.ifinalframework.context.exception.ForbiddenException;
-import org.ifinalframework.data.security.DomainResourceAuth;
-import org.ifinalframework.web.annotation.servlet.Interceptor;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
@@ -28,11 +24,17 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
+import org.ifinalframework.context.exception.ForbiddenException;
+import org.ifinalframework.data.security.DomainResourceAuth;
+import org.ifinalframework.web.annotation.servlet.Interceptor;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Map;
 import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DomainResourceAuthHandlerInterceptor
@@ -58,15 +60,17 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
 
             final String resource = resolveName("resource", request);
 
-            final String authority = String.join(":", domainResourceAuth.prefix(), resource, domainResourceAuth.action().getAuthority());
+            final String authority = String.join(":", domainResourceAuth.prefix(), resource,
+                    domainResourceAuth.action().getAuthority());
 
-            final WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(() -> SecurityContextHolder.getContext().getAuthentication(), request);
+            final WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(
+                    () -> SecurityContextHolder.getContext().getAuthentication(), request);
 
             final boolean hasAuthority = root.hasAuthority(authority);
 
             if (!hasAuthority) {
 
-                logger.warn("您没有权限访问：{} {} {}",request.getMethod(),request.getRequestURI(),authority);
+                logger.warn("您没有权限访问：{} {} {}", request.getMethod(), request.getRequestURI(), authority);
 
                 throw new ForbiddenException("您没有权限：" + request.getMethod() + " " + request.getRequestURI());
             }

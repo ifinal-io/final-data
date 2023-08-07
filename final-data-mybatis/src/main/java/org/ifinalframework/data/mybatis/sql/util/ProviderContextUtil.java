@@ -15,9 +15,10 @@
 
 package org.ifinalframework.data.mybatis.sql.util;
 
-import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.springframework.lang.NonNull;
 import org.springframework.util.ReflectionUtils;
+
+import org.apache.ibatis.builder.annotation.ProviderContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -38,7 +39,8 @@ class ProviderContextUtil {
 
     static {
         try {
-            PROVIDER_CONTEXT_CONSTRUCTOR = ReflectionUtils.accessibleConstructor(ProviderContext.class, Class.class, Method.class, String.class);
+            PROVIDER_CONTEXT_CONSTRUCTOR = ReflectionUtils.accessibleConstructor(ProviderContext.class,
+                    Class.class, Method.class, String.class);
         } catch (NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
         }

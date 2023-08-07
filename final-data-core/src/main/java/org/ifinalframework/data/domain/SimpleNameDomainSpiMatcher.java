@@ -30,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 1.5.0
  */
 @Slf4j
-public class SimpleNameDomainSpiMatcher implements DomainSpiMatcher{
+public class SimpleNameDomainSpiMatcher implements DomainSpiMatcher {
     @Override
     public boolean matches(@NonNull Object spi, @NonNull SpiAction action, @NonNull SpiAction.Advice advice) {
         final Class<?> targetClass = AopUtils.getTargetClass(spi);

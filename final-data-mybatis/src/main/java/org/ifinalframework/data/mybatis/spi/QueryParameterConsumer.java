@@ -15,13 +15,6 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
-import java.lang.reflect.Method;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -34,6 +27,13 @@ import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.QEntity;
 import org.ifinalframework.data.query.QEntityFactory;
 import org.ifinalframework.data.query.QProperty;
+
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * QueryParameterConsumer.
@@ -73,7 +73,7 @@ public class QueryParameterConsumer implements MapParameterConsumer {
             Orderable orderable = (Orderable) query;
             List<String> orders = orderable.getOrders();
             if (!CollectionUtils.isEmpty(orders)) {
-                QEntity<?, ?> qEntity = entityFactory.create(entityClass);
+                QEntity<?, ?> qentity = entityFactory.create(entityClass);
 
                 List<String> newOrders = orders.stream()
                         .map(it -> {
@@ -81,7 +81,7 @@ public class QueryParameterConsumer implements MapParameterConsumer {
                             String property = split[0];
                             String direction = split.length == 2 ? split[1] : null;
 
-                            QProperty<Object> requiredProperty = qEntity.getRequiredProperty(property);
+                            QProperty<Object> requiredProperty = qentity.getRequiredProperty(property);
 
                             return Stream.of(requiredProperty.getColumn(), direction)
                                     .filter(Objects::nonNull)

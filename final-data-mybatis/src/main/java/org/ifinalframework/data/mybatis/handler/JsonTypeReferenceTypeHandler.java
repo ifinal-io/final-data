@@ -16,20 +16,20 @@
 
 package org.ifinalframework.data.mybatis.handler;
 
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
+
+import org.ifinalframework.data.query.type.JsonParameterTypeHandler;
+import org.ifinalframework.json.Json;
+
+import org.apache.ibatis.type.JdbcType;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.ibatis.type.JdbcType;
-
-import org.springframework.util.ClassUtils;
-import org.springframework.util.ReflectionUtils;
-
-import org.ifinalframework.data.query.type.JsonParameterTypeHandler;
-import org.ifinalframework.json.Json;
 
 /**
  * @author ilikly
@@ -59,14 +59,6 @@ public class JsonTypeReferenceTypeHandler<T> extends BaseTypeReferenceTypeHandle
         super(type);
     }
 
-    /**
-     * @param ps
-     * @param i
-     * @param parameter
-     * @param jdbcType
-     *
-     * @throws SQLException
-     */
     @Override
     public void setNonNullParameter(final PreparedStatement ps, final int i, final T parameter, final JdbcType jdbcType)
             throws SQLException {

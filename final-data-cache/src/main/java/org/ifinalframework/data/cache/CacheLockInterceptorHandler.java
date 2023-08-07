@@ -29,13 +29,13 @@ import org.ifinalframework.context.expression.MethodMetadata;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.util.Dates;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author ilikly
@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 @Component
 public class CacheLockInterceptorHandler extends AbsCacheOperationInterceptorHandlerSupport implements
-    CacheInterceptorHandler {
+        CacheInterceptorHandler {
 
     private static final String KEY = "key";
 
@@ -55,18 +55,18 @@ public class CacheLockInterceptorHandler extends AbsCacheOperationInterceptorHan
 
     @Override
     public Object before(final @NonNull Cache cache, final @NonNull InvocationContext context,
-        final @NonNull AnnotationAttributes annotation) {
+                         final @NonNull AnnotationAttributes annotation) {
 
         final Logger logger = LoggerFactory.getLogger(context.target().getClass());
         final EvaluationContext evaluationContext = createEvaluationContext(context, null, null);
         final MethodMetadata metadata = context.metadata();
         final Object key = generateKey(annotation.getStringArray("key"), annotation.getString("delimiter"), metadata,
-            evaluationContext);
+                evaluationContext);
         if (key == null) {
             throw new IllegalArgumentException("the cache action generate null key, action=" + annotation);
         }
         Object value = Asserts.isEmpty(annotation.getString(VALUE))
-            ? key : generateValue(annotation.getString(VALUE), metadata, evaluationContext);
+                ? key : generateValue(annotation.getString(VALUE), metadata, evaluationContext);
 
         if (Objects.isNull(value)) {
             value = key;
@@ -84,7 +84,7 @@ public class CacheLockInterceptorHandler extends AbsCacheOperationInterceptorHan
         int maxRetry = annotation.getNumber("retry").intValue();
         do {
             logger
-                .info("==> try to lock: key={},value={},ttl={},timeUnit={},retry={}", key, value, ttl, timeUnit, retry);
+                    .info("==> try to lock: key={},value={},ttl={},timeUnit={},retry={}", key, value, ttl, timeUnit, retry);
             final boolean lock = cache.lock(key, value, ttl, timeUnit);
             logger.info("<== lock result: {}", lock);
             if (lock) {
@@ -112,7 +112,7 @@ public class CacheLockInterceptorHandler extends AbsCacheOperationInterceptorHan
     }
 
     private Long ttl(final AnnotationAttributes annotation, final MethodMetadata metadata,
-        final EvaluationContext evaluationContext) {
+                     final EvaluationContext evaluationContext) {
 
         Object expired = generateExpire(annotation.getString("expire"), metadata, evaluationContext);
 
@@ -133,8 +133,8 @@ public class CacheLockInterceptorHandler extends AbsCacheOperationInterceptorHan
 
     @Override
     public void after(final @NonNull Cache cache, final @NonNull InvocationContext context,
-        final @NonNull AnnotationAttributes annotation,
-        final @Nullable Object result, final @Nullable Throwable throwable) {
+                      final @NonNull AnnotationAttributes annotation,
+                      final @Nullable Object result, final @Nullable Throwable throwable) {
 
         final Logger logger = LoggerFactory.getLogger(context.target().getClass());
 

@@ -15,14 +15,6 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.ibatis.builder.annotation.ProviderContext;
-
 import org.ifinalframework.context.user.UserContextHolder;
 import org.ifinalframework.core.IRecord;
 import org.ifinalframework.core.IUser;
@@ -36,6 +28,14 @@ import org.ifinalframework.data.query.QEntity;
 import org.ifinalframework.data.query.QProperty;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
+
+import org.apache.ibatis.builder.annotation.ProviderContext;
+
+import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author ilikly
@@ -67,7 +67,6 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
-     *
      * @return sql
      * @see AbsMapper#insert(String, Class, boolean, Collection)
      */
@@ -79,7 +78,6 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
-     *
      * @return sql
      * @see AbsMapper#replace(String, Class, Collection)
      */
@@ -91,7 +89,6 @@ public class InsertSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
-     *
      * @return sql
      * @see AbsMapper#save(String, Class, Collection)
      */

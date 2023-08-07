@@ -29,8 +29,8 @@ import org.ifinalframework.data.auto.annotation.AutoDataSource;
  */
 @Primary
 @AutoDataSource(value = "spring.datasource.primary", mapperScan = {
-    "org.ifinalframework.primary",
-    "org.ifinalframework.secondary"
+        "org.ifinalframework.primary",
+        "org.ifinalframework.secondary"
 })
 public class PrimaryDataSource {
 

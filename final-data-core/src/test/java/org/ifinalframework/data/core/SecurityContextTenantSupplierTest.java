@@ -36,21 +36,22 @@ import static org.junit.jupiter.api.Assertions.*;
 class SecurityContextTenantSupplierTest {
 
     private final SecurityContextTenantSupplier supplier = new SecurityContextTenantSupplier();
+
     @Test
-    void get(){
+    void get() {
         Assertions.assertNull(supplier.get());
 
         final SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         SecurityContextHolder.setContext(securityContext);
         Assertions.assertNull(supplier.get());
 
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("user","user"));
+        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("user", "user"));
         Assertions.assertNull(supplier.get());
 
         final AbsTenantUser tenantUser = new AbsTenantUser();
         tenantUser.setTenant(1L);
-        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(tenantUser,""));
-        Assertions.assertEquals(1L,supplier.get());
+        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken(tenantUser, ""));
+        Assertions.assertEquals(1L, supplier.get());
 
         tenantUser.setTenant(-1L);
         Assertions.assertNull(supplier.get());
@@ -58,7 +59,7 @@ class SecurityContextTenantSupplierTest {
     }
 
     @Test
-    void order(){
-        assertEquals(Integer.MIN_VALUE + 1000,supplier.getOrder());
+    void order() {
+        assertEquals(Integer.MIN_VALUE + 1000, supplier.getOrder());
     }
 }

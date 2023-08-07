@@ -15,8 +15,6 @@
 
 package org.ifinalframework.data.cache;
 
-import java.util.LinkedHashMap;
-
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.core.annotation.AnnotationAttributes;
 
@@ -29,7 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.mockito.Mockito.when;
+import java.util.LinkedHashMap;
+
+import static org.mockito.Mockito.*;
 
 /**
  * CacheDelInterceptorHandlerTest.
@@ -53,7 +53,6 @@ class CacheDelInterceptorHandlerTest {
 
     @Test
     void handle() {
-        Object result = 1;
 
         when(invocationContext.metadata()).thenReturn(methodMetadata);
 
@@ -67,7 +66,7 @@ class CacheDelInterceptorHandlerTest {
         map.put("delimiter", ":");
         map.put("condition", "");
         AnnotationAttributes annotationAttributes = new AnnotationAttributes(map);
-
+        Object result = 1;
         handler.handle(cache, invocationContext, annotationAttributes, result, null);
     }
 }

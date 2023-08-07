@@ -26,7 +26,7 @@ import java.io.Serializable;
  * @author mik
  * @since 1.5.2
  **/
-public interface DomainActionsFactory {
+public interface DomainActionsFactory<K extends Serializable, T extends IEntity<K>> {
 
-    <ID extends Serializable, T extends IEntity<ID>> DomainActions create(Repository<ID, T> repository);
+    DomainActions create(Repository<K, T> repository);
 }

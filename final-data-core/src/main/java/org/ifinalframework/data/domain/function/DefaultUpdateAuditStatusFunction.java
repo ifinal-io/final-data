@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.domain.function;
 
-import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
@@ -28,6 +27,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * DefaultUpdateAuditStatusAction.
  *
@@ -36,8 +37,9 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateAuditStatusFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, AuditValue, U> {
-    private final Repository<ID, T> repository;
+public class DefaultUpdateAuditStatusFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
+        implements UpdateFunction<T, P, AuditValue, U> {
+    private final Repository<K, T> repository;
 
     @Override
     public Integer update(List<T> entities, P param, AuditValue value, U user) {
@@ -51,7 +53,7 @@ public class DefaultUpdateAuditStatusFunction<ID extends Serializable, T extends
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);
         } else {
-            return repository.update(update, (ID) param);
+            return repository.update(update, (K) param);
         }
 
     }

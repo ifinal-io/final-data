@@ -22,8 +22,6 @@ import org.ifinalframework.data.annotation.Tenant;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * TenantUtilsTest.
  *
@@ -34,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class TenantUtilsTest {
 
     @Tenant
-    private static class TenantEntity{
+    private static class TenantEntity {
 
     }
 

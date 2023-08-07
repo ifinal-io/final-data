@@ -15,16 +15,19 @@
 
 package org.ifinalframework.data.mybatis.beans.factory;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
-import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+
+import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
+import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
+
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.SqlSessionFactory;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * SmartInitializingSingletonSqlSessionFactory.

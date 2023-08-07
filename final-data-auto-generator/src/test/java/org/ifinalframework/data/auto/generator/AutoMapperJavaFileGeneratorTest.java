@@ -15,12 +15,15 @@
 
 package org.ifinalframework.data.auto.generator;
 
+import com.squareup.javapoet.JavaFile;
+
 import org.ifinalframework.data.auto.annotation.AutoMapper;
 
-import com.squareup.javapoet.JavaFile;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * AutoMapperJavaFileGeneratorTest.
@@ -29,6 +32,7 @@ import org.mockito.Mockito;
  * @version 1.4.1
  * @since 1.4.1
  */
+@Slf4j
 class AutoMapperJavaFileGeneratorTest {
 
     @Test
@@ -36,6 +40,6 @@ class AutoMapperJavaFileGeneratorTest {
     void generate() {
         MapperJavaFileGenerator generator = new MapperJavaFileGenerator();
         JavaFile javaFile = generator.generate(Mockito.mock(AutoMapper.class), AutoEntity.class);
-        javaFile.writeTo(System.out);
+        logger.info("{}", javaFile);
     }
 }

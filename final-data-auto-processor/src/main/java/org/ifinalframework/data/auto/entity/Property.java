@@ -19,6 +19,7 @@ package org.ifinalframework.data.auto.entity;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+
 import java.lang.annotation.Annotation;
 import java.util.List;
 import java.util.Set;

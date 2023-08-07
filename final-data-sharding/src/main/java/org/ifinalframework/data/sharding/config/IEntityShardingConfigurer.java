@@ -15,13 +15,6 @@
 
 package org.ifinalframework.data.sharding.config;
 
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.io.support.ServicesLoader;
-import org.ifinalframework.sharding.annotation.Property;
-import org.ifinalframework.sharding.annotation.ShardingStrategy;
-import org.ifinalframework.sharding.annotation.ShardingTable;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -34,11 +27,28 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.io.support.ServicesLoader;
+import org.ifinalframework.sharding.annotation.Property;
+import org.ifinalframework.sharding.annotation.ShardingStrategy;
+import org.ifinalframework.sharding.annotation.ShardingTable;
+
 import jakarta.annotation.PostConstruct;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**

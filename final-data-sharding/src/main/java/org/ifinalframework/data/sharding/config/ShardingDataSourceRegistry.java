@@ -15,12 +15,13 @@
 
 package org.ifinalframework.data.sharding.config;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-
 import javax.sql.DataSource;
+
 import java.util.HashMap;
 import java.util.Map;
+
+import lombok.AccessLevel;
+import lombok.Getter;
 
 /**
  * @author ilikly

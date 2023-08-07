@@ -16,11 +16,6 @@
 
 package org.ifinalframework.data.mapping;
 
-import jakarta.validation.constraints.NotNull;
-import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.core.Ordered;
 import org.springframework.data.mapping.PersistentProperty;
 
@@ -33,6 +28,12 @@ import org.ifinalframework.data.annotation.ReadOnly;
 import org.ifinalframework.data.annotation.Reference;
 import org.ifinalframework.data.annotation.Virtual;
 import org.ifinalframework.data.annotation.WriteOnly;
+
+import jakarta.validation.constraints.NotNull;
+
+import java.lang.reflect.Type;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author ilikly

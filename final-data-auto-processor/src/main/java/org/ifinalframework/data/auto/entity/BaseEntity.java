@@ -16,10 +16,16 @@
 
 package org.ifinalframework.data.auto.entity;
 
+import org.springframework.lang.NonNull;
+
+import org.ifinalframework.data.annotation.Table;
+import org.ifinalframework.util.Asserts;
+
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+
 import java.lang.annotation.Annotation;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,11 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-
-import org.springframework.lang.NonNull;
-
-import org.ifinalframework.data.annotation.Table;
-import org.ifinalframework.util.Asserts;
 
 /**
  * @author ilikly

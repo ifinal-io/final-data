@@ -15,9 +15,10 @@
 
 package org.ifinalframework.data.domain.action;
 
+import org.springframework.stereotype.Component;
+
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.data.spi.SpiAction;
-import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

@@ -52,6 +52,8 @@ public class DefaultUpdateAuditStatusPreValidator<U extends IUser<?>> implements
             case AUDITED:
             case REJECTED:
                 throw new BadRequestException("当前审核状态已是终态，请勿重复操作");
+            default:
+                throw new BadRequestException("不支持的操作");
         }
 
     }

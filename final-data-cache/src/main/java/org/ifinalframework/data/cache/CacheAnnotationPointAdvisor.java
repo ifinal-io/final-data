@@ -48,17 +48,17 @@ public class CacheAnnotationPointAdvisor extends MultiAnnotationPointAdvisor<Ann
     public CacheAnnotationPointAdvisor() {
 
         this.addAnnotation(CacheLock.class, new AnnotationAttributesAnnotationBuilder<>(),
-            new CacheLockInterceptorHandler());
+                new CacheLockInterceptorHandler());
         this.addAnnotation(Cacheable.class, new AnnotationAttributesAnnotationBuilder<>(),
-            new CacheableInterceptorHandler());
+                new CacheableInterceptorHandler());
         this.addAnnotation(CachePut.class, new AnnotationAttributesAnnotationBuilder<>(),
-            new CachePutInterceptorHandler());
+                new CachePutInterceptorHandler());
         this.addAnnotation(CacheDel.class, new AnnotationAttributesAnnotationBuilder<>(),
-            new CacheDelInterceptorHandler());
+                new CacheDelInterceptorHandler());
         this.addAnnotation(CacheIncrement.class, new AnnotationAttributesAnnotationBuilder<>(),
-            new CacheIncrementInterceptorHandler());
+                new CacheIncrementInterceptorHandler());
         this.addAnnotation(CacheValue.class, new AnnotationAttributesAnnotationBuilder<>(),
-            new CacheValueInterceptorHandler());
+                new CacheValueInterceptorHandler());
 
     }
 

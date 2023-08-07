@@ -25,10 +25,10 @@ import org.ifinalframework.cache.annotation.Cache;
 import org.ifinalframework.cache.annotation.Cacheable;
 import org.ifinalframework.json.Json;
 
-import java.lang.reflect.Type;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Type;
 
 /**
  * @author ilikly
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings("all")
 @Component
 public class CacheValueInterceptorHandler extends AbsCacheOperationInterceptorHandlerSupport implements
-    CacheInterceptorHandler {
+        CacheInterceptorHandler {
 
     @Override
     public Object before(final Cache cache, final InvocationContext context, final AnnotationAttributes operation) {
@@ -50,12 +50,12 @@ public class CacheValueInterceptorHandler extends AbsCacheOperationInterceptorHa
 
         String delimiter = operation.getString("delimiter");
         final Object key = generateKey(operation.getStringArray("key"), delimiter, context.metadata(),
-            evaluationContext);
+                evaluationContext);
         if (key == null) {
             throw new IllegalArgumentException("the cache action generate null key, action=" + context);
         }
         final Object field = generateField(operation.getStringArray("field"), delimiter, context.metadata(),
-            evaluationContext);
+                evaluationContext);
         final Type type = (Type) operation.get("parameterType");
         logger.info("==> cache get: key={},field={}", key, field);
         Object cacheValue = cache.get(key, field, type, null);

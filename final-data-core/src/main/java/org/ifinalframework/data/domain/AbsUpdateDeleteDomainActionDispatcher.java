@@ -15,8 +15,8 @@
 
 package org.ifinalframework.data.domain;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import org.springframework.util.CollectionUtils;
+
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
@@ -35,12 +35,14 @@ import org.ifinalframework.data.spi.PreQueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.json.Json;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * AbsUpdateDomainAction.
@@ -51,11 +53,12 @@ import java.util.Objects;
  */
 @Setter
 @RequiredArgsConstructor
-public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P1, P2, V, U extends IUser<?>>
+public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializable, T extends IEntity<K>, P1, P2, V, U extends IUser<?>>
         extends AbsDomainAction
-        implements DomainActionDispatcher<P1, V, U>, BiDomainActionDispatcher<P1, P2, V, U>, UpdateAction<P1,P2,V,U,Object>, DeleteAction<P1,U,Object> {
+        implements DomainActionDispatcher<P1, V, U>, BiDomainActionDispatcher<P1, P2, V, U>,
+        UpdateAction<P1, P2, V, U, Object>, DeleteAction<P1, U, Object> {
     private final SpiAction spiAction;
-    private final Repository<ID, T> repository;
+    private final Repository<K, T> repository;
 
     private PreQueryConsumer<P1, U> preQueryConsumer;
 
@@ -73,12 +76,12 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializa
 
     @Override
     public Object update(P1 param1, P2 param2, V value, U user) {
-        return dispatch(param1,param2,value,user);
+        return dispatch(param1, param2, value, user);
     }
 
     @Override
     public Object delete(P1 param, U user) {
-        return dispatch(param,null,user);
+        return dispatch(param, null, user);
     }
 
     @Override
@@ -158,9 +161,9 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<ID extends Serializa
         if (query instanceof IQuery) {
             return repository.select((IQuery) query);
         } else if (query instanceof Collection<?> ids) {
-            return repository.select((Collection<ID>) ids);
+            return repository.select((Collection<K>) ids);
         } else {
-            return repository.select((ID) query);
+            return repository.select((K) query);
         }
     }
 

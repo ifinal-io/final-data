@@ -16,16 +16,16 @@
 package org.ifinalframework.data.mybatis.reflection.factory;
 
 
+import org.springframework.core.ResolvableType;
+
+import org.apache.ibatis.reflection.factory.ObjectFactory;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.ServiceLoader;
-
-import org.apache.ibatis.reflection.factory.ObjectFactory;
-
-import org.springframework.core.ResolvableType;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,9 +1,9 @@
 package org.ifinalframework.data.mybatis.handler;
 
-import lombok.SneakyThrows;
+import org.ifinalframework.data.annotation.YN;
+
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
-import org.ifinalframework.data.annotation.YN;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -14,8 +14,9 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import lombok.SneakyThrows;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -40,9 +41,9 @@ class EnumTypeHandlerTest {
 
     @Test
     @SneakyThrows
-    void setNullParameter(){
-        handler.setParameter(ps,1,null,JdbcType.INTEGER);
-        verify(ps,only()).setNull(anyInt(),anyInt());
+    void setNullParameter() {
+        handler.setParameter(ps, 1, null, JdbcType.INTEGER);
+        verify(ps, only()).setNull(anyInt(), anyInt());
     }
 
     @Test
@@ -50,8 +51,8 @@ class EnumTypeHandlerTest {
     void setNonNullParameter() {
         ArgumentCaptor<Integer> captor = ArgumentCaptor.forClass(Integer.class);
         assertDoesNotThrow(() -> handler.setParameter(ps, 1, YN.YES, JdbcType.INTEGER));
-        verify(ps,only()).setObject(anyInt(),captor.capture());
-        assertEquals(YN.YES.getCode(),captor.getValue());
+        verify(ps, only()).setObject(anyInt(), captor.capture());
+        assertEquals(YN.YES.getCode(), captor.getValue());
     }
 
     @Test
@@ -59,14 +60,14 @@ class EnumTypeHandlerTest {
     void getNullableResult() {
         when(rs.getString(1)).thenReturn(YN.YES.getCode().toString());
         YN result = handler.getResult(rs, 1);
-        assertEquals(YN.YES,result);
+        assertEquals(YN.YES, result);
 
         when(rs.getString("yn")).thenReturn(YN.YES.getCode().toString());
-        result = handler.getResult(rs,"yn");
-        assertEquals(YN.YES,result);
+        result = handler.getResult(rs, "yn");
+        assertEquals(YN.YES, result);
 
         when(cs.getString(1)).thenReturn(YN.YES.getCode().toString());
-        assertEquals(YN.YES,handler.getResult(cs,1));
+        assertEquals(YN.YES, handler.getResult(cs, 1));
 
     }
 

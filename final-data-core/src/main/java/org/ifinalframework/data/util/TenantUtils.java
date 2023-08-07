@@ -15,11 +15,11 @@
 
 package org.ifinalframework.data.util;
 
-import java.util.Objects;
-
 import org.ifinalframework.core.ITenant;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.Tenant;
+
+import java.util.Objects;
 
 /**
  * TenantUtils.

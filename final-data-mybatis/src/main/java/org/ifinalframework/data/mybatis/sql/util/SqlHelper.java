@@ -15,6 +15,41 @@
 
 package org.ifinalframework.data.mybatis.sql.util;
 
+import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
+
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
+import org.ifinalframework.data.mybatis.reflection.factory.ObjectFactoryWrapper;
+import org.ifinalframework.data.mybatis.sql.provider.DeleteSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.InsertSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.SelectSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.SqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
+import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
+import org.ifinalframework.data.query.DefaultQEntityFactory;
+import org.ifinalframework.data.query.QueryProvider;
+import org.ifinalframework.data.query.sql.DefaultQueryProvider;
+
+import org.apache.ibatis.annotations.DeleteProvider;
+import org.apache.ibatis.annotations.InsertProvider;
+import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.annotations.UpdateProvider;
+import org.apache.ibatis.builder.annotation.ProviderContext;
+import org.apache.ibatis.builder.annotation.ProviderSqlSource;
+import org.apache.ibatis.mapping.BoundSql;
+import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.mapping.SqlSource;
+import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
+import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.type.JdbcType;
+import org.apache.ibatis.type.TypeHandler;
+
 import java.io.InputStream;
 import java.io.Reader;
 import java.lang.annotation.Annotation;
@@ -44,41 +79,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import org.apache.ibatis.annotations.DeleteProvider;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.UpdateProvider;
-import org.apache.ibatis.builder.annotation.ProviderContext;
-import org.apache.ibatis.builder.annotation.ProviderSqlSource;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.ParameterMapping;
-import org.apache.ibatis.mapping.SqlSource;
-import org.apache.ibatis.reflection.MetaObject;
-import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
-import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.type.JdbcType;
-import org.apache.ibatis.type.TypeHandler;
-
-import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
-
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
-import org.ifinalframework.data.mybatis.reflection.factory.ObjectFactoryWrapper;
-import org.ifinalframework.data.mybatis.sql.provider.DeleteSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.InsertSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.SelectSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.SqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
-import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
-import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.data.query.QueryProvider;
-import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -137,7 +137,7 @@ public final class SqlHelper {
         register(SELECT_COUNT_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
 
         register(TRUNCATE_METHOD_NAME, UpdateProvider.class, new TruncateSqlProvider());
-//        PropertyTokenizerRedefiner.redefine();
+        //        PropertyTokenizerRedefiner.redefine();
         DEFAULT_CONFIGURATION.setDefaultEnumTypeHandler(EnumTypeHandler.class);
         DEFAULT_CONFIGURATION.setObjectWrapperFactory(new FinalObjectWrapperFactory());
         DEFAULT_CONFIGURATION.setObjectFactory(new ObjectFactoryWrapper(new DefaultObjectFactory()));
@@ -154,21 +154,16 @@ public final class SqlHelper {
     }
 
 
-    public static String xml(final Class<? extends AbsMapper<?, ?>> mapper, final String method,
-                             final Map<String, Object> parameters) {
+    public static String xml(final Class<? extends AbsMapper<?, ?>> mapper, final String method, final Map<String, Object> parameters) {
 
         try {
-            ProviderContext providerContext = ProviderContextUtil
-                    .newContext(mapper, ReflectionUtils.findMethod(mapper, method, Map.class));
+            ProviderContext providerContext = ProviderContextUtil.newContext(mapper, ReflectionUtils.findMethod(mapper, method, Map.class));
             return SQL_PROVIDERS.get(method).provide(providerContext, parameters);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
     }
 
-    public static String sql(Class<? extends AbsMapper<?, ?>> mapper, final String method, final Map<String, Object> parameters) {
-        return sql(boundSql(mapper, method, parameters), parameters);
-    }
 
     @SneakyThrows
     @SuppressWarnings("all")
@@ -181,6 +176,11 @@ public final class SqlHelper {
         parameters.put("properties", DefaultQEntityFactory.INSTANCE.create(entity));
         parameters.put("query", query);
         return sql(boundSql(entity, query, parameters), parameters);
+    }
+
+
+    public static String sql(Class<? extends AbsMapper<?, ?>> mapper, final String method, final Map<String, Object> parameters) {
+        return sql(boundSql(mapper, method, parameters), parameters);
     }
 
     private static String sql(BoundSql boundSql, Map<String, Object> parameters) {
@@ -200,7 +200,8 @@ public final class SqlHelper {
             } else if (boundSql.hasAdditionalParameter(parameterMapping.getProperty())) {
                 parameter = boundSql.getAdditionalParameter(parameterMapping.getProperty());
             }
-            setParameter(preparedStatement, parameterMapping.getTypeHandler(), i, parameter, Objects.isNull(parameter) ? JdbcType.NULL : parameterMapping.getJdbcType());
+            setParameter(preparedStatement, parameterMapping.getTypeHandler(), i, parameter,
+                    Objects.isNull(parameter) ? JdbcType.NULL : parameterMapping.getJdbcType());
         }
         return preparedStatement.toString();
     }
@@ -271,13 +272,33 @@ public final class SqlHelper {
         }
 
         @Override
+        public ResultSet executeQuery(String sql) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public int executeUpdate() throws SQLException {
             return 0;
         }
 
         @Override
-        public void setNull(int parameterIndex, int sqlType) throws SQLException {
-            setParameter(null);
+        public int executeUpdate(String sql) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int executeUpdate(String sql, String[] columnNames) throws SQLException {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -330,24 +351,31 @@ public final class SqlHelper {
             setParameter(x);
         }
 
-        @Override
-        public void setDate(int parameterIndex, Date x) throws SQLException {
-            setParameter(x);
-        }
 
         @Override
         public void setTime(int parameterIndex, Time x) throws SQLException {
             setParameter(x);
         }
 
+
         @Override
-        public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
-            setParameter(x);
+        public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
             setParameter(x);
+        }
+
+        @Override
+        public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -358,6 +386,16 @@ public final class SqlHelper {
         @Override
         public void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
             setParameter(x);
+        }
+
+        @Override
+        public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -376,7 +414,7 @@ public final class SqlHelper {
         }
 
         @Override
-        public boolean execute() throws SQLException {
+        public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
@@ -386,7 +424,22 @@ public final class SqlHelper {
         }
 
         @Override
+        public void addBatch(String sql) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
@@ -401,7 +454,27 @@ public final class SqlHelper {
         }
 
         @Override
+        public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void setClob(int parameterIndex, Clob x) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setClob(int parameterIndex, Reader reader) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
@@ -421,9 +494,10 @@ public final class SqlHelper {
         }
 
         @Override
-        public void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
-            throw new UnsupportedOperationException();
+        public void setDate(int parameterIndex, Date x) throws SQLException {
+            setParameter(x);
         }
+
 
         @Override
         public void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
@@ -431,8 +505,19 @@ public final class SqlHelper {
         }
 
         @Override
+        public void setTimestamp(int parameterIndex, Timestamp x) throws SQLException {
+            setParameter(x);
+        }
+
+
+        @Override
         public void setNull(int parameterIndex, int sqlType, String typeName) throws SQLException {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setNull(int parameterIndex, int sqlType) throws SQLException {
+            setParameter(null);
         }
 
         @Override
@@ -461,77 +546,18 @@ public final class SqlHelper {
         }
 
         @Override
-        public void setNClob(int parameterIndex, NClob value) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setClob(int parameterIndex, Reader reader, long length) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setBlob(int parameterIndex, InputStream inputStream, long length) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setObject(int parameterIndex, Object x, int targetSqlType, int scaleOrLength) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setCharacterStream(int parameterIndex, Reader reader, long length) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setAsciiStream(int parameterIndex, InputStream x) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setBinaryStream(int parameterIndex, InputStream x) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setCharacterStream(int parameterIndex, Reader reader) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
         public void setNCharacterStream(int parameterIndex, Reader value) throws SQLException {
 
         }
 
         @Override
-        public void setClob(int parameterIndex, Reader reader) throws SQLException {
+        public void setNClob(int parameterIndex, NClob value) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
+
         @Override
-        public void setBlob(int parameterIndex, InputStream inputStream) throws SQLException {
+        public void setNClob(int parameterIndex, Reader reader, long length) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
@@ -541,12 +567,12 @@ public final class SqlHelper {
         }
 
         @Override
-        public ResultSet executeQuery(String sql) throws SQLException {
+        public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public int executeUpdate(String sql) throws SQLException {
+        public ResultSet getGeneratedKeys() throws SQLException {
             throw new UnsupportedOperationException();
         }
 
@@ -610,13 +636,14 @@ public final class SqlHelper {
             throw new UnsupportedOperationException();
         }
 
+
         @Override
-        public boolean execute(String sql) throws SQLException {
+        public ResultSet getResultSet() throws SQLException {
             throw new UnsupportedOperationException();
         }
 
         @Override
-        public ResultSet getResultSet() throws SQLException {
+        public int[] executeBatch() throws SQLException {
             throw new UnsupportedOperationException();
         }
 
@@ -631,13 +658,34 @@ public final class SqlHelper {
         }
 
         @Override
+        public boolean getMoreResults(int current) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+
+        @Override
+        public <T> T unwrap(Class<T> iface) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
         public void setFetchDirection(int direction) throws SQLException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isWrapperFor(Class<?> iface) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
         @Override
         public int getFetchDirection() throws SQLException {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String toString() {
+            return sql;
         }
 
         @Override
@@ -660,50 +708,30 @@ public final class SqlHelper {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public void addBatch(String sql) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public void clearBatch() throws SQLException {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public int[] executeBatch() throws SQLException {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public Connection getConnection() throws SQLException {
             throw new UnsupportedOperationException();
         }
 
+
         @Override
-        public boolean getMoreResults(int current) throws SQLException {
+        public boolean execute() throws SQLException {
             throw new UnsupportedOperationException();
         }
 
+
         @Override
-        public ResultSet getGeneratedKeys() throws SQLException {
+        public boolean execute(String sql) throws SQLException {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int executeUpdate(String sql, String[] columnNames) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
 
         @Override
         public boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
@@ -750,20 +778,7 @@ public final class SqlHelper {
             throw new UnsupportedOperationException();
         }
 
-        @Override
-        public <T> T unwrap(Class<T> iface) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
 
-        @Override
-        public boolean isWrapperFor(Class<?> iface) throws SQLException {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public String toString() {
-            return sql;
-        }
     }
 
 

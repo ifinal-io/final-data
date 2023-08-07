@@ -15,8 +15,6 @@
 
 package org.ifinalframework.data.web.servlet.method.annotation;
 
-import org.ifinalframework.data.domain.action.DomainActionRegistry;
-import org.ifinalframework.web.annotation.bind.RequestAction;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -25,6 +23,9 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
+
+import org.ifinalframework.data.domain.action.DomainActionRegistry;
+import org.ifinalframework.web.annotation.bind.RequestAction;
 
 import jakarta.annotation.Resource;
 
@@ -47,7 +48,8 @@ public class RequestActionHandlerMethodArgumentResolver implements HandlerMethod
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         final RequestAction requestAction = parameter.getParameterAnnotation(RequestAction.class);
         final String resource = resolveName(requestAction.resource(), parameter, webRequest);
         return domainActionRegistry.get(resource, requestAction.type());

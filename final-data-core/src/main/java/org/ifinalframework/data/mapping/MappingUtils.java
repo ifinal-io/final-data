@@ -16,8 +16,6 @@
 
 package org.ifinalframework.data.mapping;
 
-import java.util.Optional;
-
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 
@@ -25,6 +23,8 @@ import org.ifinalframework.data.annotation.Prefix;
 import org.ifinalframework.data.annotation.SqlKeyWords;
 import org.ifinalframework.data.annotation.UpperCase;
 import org.ifinalframework.data.mapping.converter.NameConverterRegistry;
+
+import java.util.Optional;
 
 /**
  * @author ilikly

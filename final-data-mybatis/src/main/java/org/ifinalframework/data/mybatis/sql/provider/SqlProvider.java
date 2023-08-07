@@ -15,10 +15,11 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
+import org.springframework.lang.NonNull;
+
 import org.apache.ibatis.builder.annotation.ProviderContext;
 import org.apache.ibatis.builder.annotation.ProviderMethodResolver;
 import org.apache.ibatis.builder.annotation.ProviderSqlSource;
-import org.springframework.lang.NonNull;
 
 import java.util.Map;
 

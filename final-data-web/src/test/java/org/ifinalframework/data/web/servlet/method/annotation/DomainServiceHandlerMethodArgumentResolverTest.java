@@ -15,24 +15,25 @@
 
 package org.ifinalframework.data.web.servlet.method.annotation;
 
-import lombok.SneakyThrows;
+import org.springframework.core.MethodParameter;
+import org.springframework.web.context.request.NativeWebRequest;
+
 import org.ifinalframework.data.domain.DomainService;
 import org.ifinalframework.data.domain.DomainServiceRegistry;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.platform.commons.util.ReflectionUtils;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.MethodParameter;
-import org.springframework.web.context.request.NativeWebRequest;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.SneakyThrows;
+
 import static org.mockito.Mockito.*;
 
 
@@ -55,7 +56,7 @@ class DomainServiceHandlerMethodArgumentResolverTest {
     @InjectMocks
     private DomainServiceHandlerMethodArgumentResolver domainServiceHandlerMethodArgumentResolver;
 
-    void domainServiceMethod(DomainService domainService){
+    void domainServiceMethod(DomainService domainService) {
 
     }
 
@@ -68,15 +69,15 @@ class DomainServiceHandlerMethodArgumentResolverTest {
     void resolveArgument() {
 
 
-        final Method method = ReflectionUtils.getRequiredMethod(getClass(), "domainServiceMethod",DomainService.class);
+        final Method method = ReflectionUtils.getRequiredMethod(getClass(), "domainServiceMethod", DomainService.class);
         final MethodParameter methodParameter = MethodParameter.forExecutable(method, 0);
 
-        when(nativeWebRequest.getAttribute(anyString(), anyInt())).thenReturn(Collections.singletonMap("resource","domainResource"));
+        when(nativeWebRequest.getAttribute(anyString(), anyInt())).thenReturn(Collections.singletonMap("resource", "domainResource"));
         when(domainServiceRegistry.getDomainService("domainResource")).thenReturn(domainService);
 
 
         final Object argument = domainServiceHandlerMethodArgumentResolver.resolveArgument(methodParameter, null, nativeWebRequest, null);
         Assertions.assertNotNull(argument);
-        Assertions.assertEquals(domainService,argument);
+        Assertions.assertEquals(domainService, argument);
     }
 }

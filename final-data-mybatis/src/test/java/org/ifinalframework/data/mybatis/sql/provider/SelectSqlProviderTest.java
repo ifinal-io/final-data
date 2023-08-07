@@ -15,13 +15,15 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import lombok.extern.slf4j.Slf4j;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.HashMap;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ilikly

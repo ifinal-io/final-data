@@ -15,7 +15,11 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.annotation.Order;
+
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -28,15 +32,14 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.springframework.core.annotation.Order;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ilikly
@@ -46,15 +49,13 @@ import java.util.regex.Pattern;
 @Slf4j
 @Order(0)
 //@Component
-@Intercepts(
-        {
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                        RowBounds.class, ResultHandler.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                        RowBounds.class, ResultHandler.class, CacheKey.class,
-                        BoundSql.class}),
-        }
-)
+@Intercepts({
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class}),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class, CacheKey.class,
+                BoundSql.class}),
+})
 @Deprecated
 public class InlineSelectInterceptor implements Interceptor {
 

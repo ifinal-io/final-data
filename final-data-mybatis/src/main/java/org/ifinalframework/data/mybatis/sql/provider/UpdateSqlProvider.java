@@ -15,11 +15,6 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import java.util.Map;
-import java.util.Objects;
-
-import org.apache.ibatis.builder.annotation.ProviderContext;
-
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IRecord;
@@ -34,6 +29,11 @@ import org.ifinalframework.data.query.QProperty;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
+
+import org.apache.ibatis.builder.annotation.ProviderContext;
+
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author ilikly
@@ -70,7 +70,6 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
     /**
      * @param context    context
      * @param parameters parameters
-     *
      * @return sql
      */
     public String update(final ProviderContext context, final Map<String, Object> parameters) {
@@ -136,19 +135,17 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
      * @param entity     entity
      * @param properties properties
      * @param parameters parameters
-     *
      * @since 1.2.2
      */
-    private void appendLastModifier(StringBuilder sql, Class<?> entity, final QEntity<?, ?> properties, final Map<String, Object> parameters) {
+    private void appendLastModifier(StringBuilder sql, Class<?> entity, QEntity<?, ?> properties, Map<String, Object> parameters) {
         if (IRecord.class.isAssignableFrom(entity)) {
             if (parameters.containsKey(UPDATE_PARAMETER_NAME) && Objects.nonNull(parameters.get(UPDATE_PARAMETER_NAME))) {
-//                final Update update = (Update) parameters.get(UPDATE_PARAMETER_NAME);
-                sql.append("<if test=\"USER != null and USER.id != null\">").append(properties.getRequiredProperty("lastModifier.id").getColumn()).append(" = #{USER.id},</if>");
-                sql.append("<if test=\"USER != null and USER.name != null\">").append(properties.getRequiredProperty("lastModifier.name").getColumn()).append(" = #{USER.name},</if>");
-//                update.update("<if test=\"USER != null\">${column} = #{USER.id}, </if>", properties.getRequiredProperty("lastModifier.id").getColumn(), null);
-//                update.update("<if test=\"USER != null\">${column} = #{USER.name}, </if> ", properties.getRequiredProperty("lastModifier.name").getColumn(), null);
-//                update.set(properties.getRequiredProperty("lastModifier.id"), user.getId());
-//                update.set(properties.getRequiredProperty("lastModifier.name"), user.getName());
+                sql.append("<if test=\"USER != null and USER.id != null\">")
+                        .append(properties.getRequiredProperty("lastModifier.id").getColumn())
+                        .append(" = #{USER.id},</if>");
+                sql.append("<if test=\"USER != null and USER.name != null\">")
+                        .append(properties.getRequiredProperty("lastModifier.name").getColumn())
+                        .append(" = #{USER.name},</if>");
             }
         }
 
@@ -172,7 +169,8 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
                     final String testNotWithSelective = ScriptMapperHelper.formatTest(ENTITY_PARAMETER_NAME, property.getPath(), false);
 
 
-                    final String selectiveTest = testWithSelective == null ? SELECTIVE_PARAMETER_NAME : "selective and " + testWithSelective;
+                    final String selectiveTest = testWithSelective == null
+                            ? SELECTIVE_PARAMETER_NAME : "selective and " + testWithSelective;
                     final String test = testNotWithSelective == null ? "!selective" : "!selective and " + testNotWithSelective;
 
                     final Metadata metadata = new Metadata();
@@ -203,7 +201,6 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
 
         sql.append("<if test=\"properties.hasVersionProperty()\">");
         QProperty<Object> property = entity.getVersionProperty();
-        String update = property.getUpdate();
         final Metadata metadata = new Metadata();
         metadata.setProperty(property.getName());
         metadata.setColumn(property.getColumn());
@@ -212,7 +209,7 @@ public class UpdateSqlProvider implements AbsMapperSqlProvider, ScriptSqlProvide
         if (Objects.nonNull(property.getTypeHandler())) {
             metadata.setTypeHandler(property.getTypeHandler());
         }
-
+        String update = property.getUpdate();
         final String value = Velocities.eval(update, metadata);
         sql.append(value).append(",");
         sql.append("</if>");

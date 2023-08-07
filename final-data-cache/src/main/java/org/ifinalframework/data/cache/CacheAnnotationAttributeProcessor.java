@@ -69,8 +69,8 @@ public class CacheAnnotationAttributeProcessor implements AnnotationAttributesPr
         final String split = getDelimiter(delimiter);
         List<String> list = new ArrayList<>();
         Arrays.stream(keyOrField)
-            .map(item -> item.split(split))
-            .forEach(items -> list.addAll(Arrays.asList(items)));
+                .map(item -> item.split(split))
+                .forEach(items -> list.addAll(Arrays.asList(items)));
         return list;
     }
 
@@ -81,7 +81,7 @@ public class CacheAnnotationAttributeProcessor implements AnnotationAttributesPr
 
     @Override
     public void doProcess(final @NonNull AnnotatedElement annotatedElement,
-        final @NonNull AnnotationAttributes annotationAttributes) {
+                          final @NonNull AnnotationAttributes annotationAttributes) {
 
         processKeyOrField(annotationAttributes, ATTRIBUTE_NAME_KEY);
         processKeyOrField(annotationAttributes, ATTRIBUTE_NAME_FIELD);
@@ -91,7 +91,7 @@ public class CacheAnnotationAttributeProcessor implements AnnotationAttributesPr
 
         if (annotationAttributes.containsKey(name)) {
             Collection<String> strings = parse(annotationAttributes.getStringArray(name),
-                getDelimiter(annotationAttributes.getString(ATTRIBUTE_NAME_DELIMITER)));
+                    getDelimiter(annotationAttributes.getString(ATTRIBUTE_NAME_DELIMITER)));
             annotationAttributes.put(name, strings.toArray(new String[0]));
         }
     }

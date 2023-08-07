@@ -15,17 +15,6 @@
 
 package org.ifinalframework.data.mybatis.mapper;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.ibatis.annotations.DeleteProvider;
-import org.apache.ibatis.annotations.InsertProvider;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.annotations.UpdateProvider;
-import org.apache.ibatis.builder.annotation.ProviderContext;
-
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
@@ -36,6 +25,17 @@ import org.ifinalframework.data.mybatis.sql.provider.SelectSqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.TruncateSqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.UpdateSqlProvider;
 import org.ifinalframework.data.repository.Repository;
+
+import org.apache.ibatis.annotations.DeleteProvider;
+import org.apache.ibatis.annotations.InsertProvider;
+import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.SelectProvider;
+import org.apache.ibatis.annotations.UpdateProvider;
+import org.apache.ibatis.builder.annotation.ProviderContext;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author ilikly
@@ -53,11 +53,6 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     /**
      * Use {@link Options#useGeneratedKeys()} to get the auto increment key.
      *
-     * @param table    表名
-     * @param view     视图,
-     * @param ignore   是否忽略重复数据,{@literal INSERT IGNORE}
-     * @param entities 实体集
-     *
      * @see InsertSqlProvider#insert(ProviderContext, Map)
      */
     @Override
@@ -67,10 +62,6 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
 
 
     /**
-     * @param table    表名
-     * @param view     视图
-     * @param entities 实体集
-     *
      * @see InsertSqlProvider#replace(ProviderContext, Map)
      */
     @Override
@@ -79,10 +70,6 @@ public interface AbsMapper<I extends Serializable, T extends IEntity<I>> extends
     int replace(@NonNull Map<String, Object> params);
 
     /**
-     * @param table    表名
-     * @param view     视图
-     * @param entities 实体集
-     *
      * @see InsertSqlProvider#save(ProviderContext, Map)
      */
     @Override

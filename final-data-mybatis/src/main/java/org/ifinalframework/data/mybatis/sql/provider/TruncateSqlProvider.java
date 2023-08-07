@@ -21,9 +21,9 @@ import org.ifinalframework.data.mybatis.sql.AbsMapperSqlProvider;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
 import org.ifinalframework.data.query.QEntity;
 
-import java.util.Map;
-
 import org.apache.ibatis.builder.annotation.ProviderContext;
+
+import java.util.Map;
 
 /**
  * @author ilikly
@@ -42,7 +42,7 @@ public class TruncateSqlProvider implements AbsMapperSqlProvider {
 
     @Override
     public void doProvide(final StringBuilder sql, final ProviderContext context,
-        final Map<String, Object> parameters) {
+                          final Map<String, Object> parameters) {
 
         final Class<?> entity = getEntityClass(context.getMapperType());
         final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);

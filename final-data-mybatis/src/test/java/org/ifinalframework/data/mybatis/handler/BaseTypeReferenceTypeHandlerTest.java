@@ -15,17 +15,14 @@
 
 package org.ifinalframework.data.mybatis.handler;
 
+import org.apache.ibatis.type.JdbcType;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.apache.ibatis.type.JdbcType;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * BaseTypeReferenceTypeHandlerTest.
@@ -40,7 +37,7 @@ class BaseTypeReferenceTypeHandlerTest {
     void getType() {
         BaseTypeReferenceTypeHandler typeHandler = new JsonTypeReferenceTypeHandler(String.class) {
         };
-        Assertions.assertEquals(String.class,typeHandler.getType());
+        Assertions.assertEquals(String.class, typeHandler.getType());
 
         typeHandler = new BaseTypeReferenceTypeHandler<Integer>() {
             @Override
@@ -63,11 +60,10 @@ class BaseTypeReferenceTypeHandlerTest {
                 return null;
             }
         };
-        Assertions.assertEquals(Integer.class,typeHandler.getType());
+        Assertions.assertEquals(Integer.class, typeHandler.getType());
 
 
     }
-
 
 
 }

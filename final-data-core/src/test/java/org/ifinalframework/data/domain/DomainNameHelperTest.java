@@ -21,7 +21,7 @@ import org.ifinalframework.entity.sub.SubDomainEntity;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * DomainNameHelperTest.

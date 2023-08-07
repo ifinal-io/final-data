@@ -15,9 +15,10 @@
 
 package org.ifinalframework.data.domain;
 
+import org.ifinalframework.data.domain.action.DomainAction;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.ifinalframework.data.domain.action.DomainAction;
 
 /**
  * AbsDomainAction

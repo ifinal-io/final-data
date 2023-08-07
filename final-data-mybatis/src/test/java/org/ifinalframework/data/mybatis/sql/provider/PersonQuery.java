@@ -15,11 +15,11 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import java.awt.*;
-
-import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.annotation.criterion.Equal;
 import org.ifinalframework.data.annotation.criterion.LessThan;
+import org.ifinalframework.data.query.PageQuery;
+
+import java.awt.Point;
 
 import lombok.Data;
 

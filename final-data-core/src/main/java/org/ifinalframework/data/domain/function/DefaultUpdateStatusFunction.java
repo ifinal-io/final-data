@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.domain.function;
 
-import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
@@ -28,6 +27,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * DefaultUpdateLockedAction.
  *
@@ -36,8 +37,9 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateStatusFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements UpdateFunction<T, P, IEnum<?>, U> {
-    private final Repository<ID, T> repository;
+public class DefaultUpdateStatusFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
+        implements UpdateFunction<T, P, IEnum<?>, U> {
+    private final Repository<K, T> repository;
 
     @Override
     @SuppressWarnings("unchecked")
@@ -46,9 +48,9 @@ public class DefaultUpdateStatusFunction<ID extends Serializable, T extends IEnt
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);
         } else if (param instanceof Collection) {
-            return repository.update(update, (Collection<ID>) param);
+            return repository.update(update, (Collection<K>) param);
         } else {
-            return repository.update(update, (ID) param);
+            return repository.update(update, (K) param);
         }
     }
 }

@@ -20,8 +20,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * RedisRegistryTest.
  *
@@ -32,17 +30,17 @@ import static org.junit.jupiter.api.Assertions.*;
 class RedisRegistryTest {
 
     @Test
-    void test(){
+    void test() {
         final StringRedisTemplate redisTemplate = new StringRedisTemplate();
         RedisRegistry.getInstance().setRedisTemplate(redisTemplate);
 
-        Assertions.assertEquals(redisTemplate,RedisRegistry.getInstance().template());
-        Assertions.assertEquals(redisTemplate,RedisRegistry.getInstance().key());
-        Assertions.assertEquals(redisTemplate.opsForValue(),RedisRegistry.getInstance().value());
-        Assertions.assertEquals(redisTemplate.opsForHash().getClass(),RedisRegistry.getInstance().hash().getClass());
-        Assertions.assertEquals(redisTemplate.opsForList(),RedisRegistry.getInstance().list());
-        Assertions.assertEquals(redisTemplate.opsForSet(),RedisRegistry.getInstance().set());
-        Assertions.assertEquals(redisTemplate.opsForZSet(),RedisRegistry.getInstance().zset());
+        Assertions.assertEquals(redisTemplate, RedisRegistry.getInstance().template());
+        Assertions.assertEquals(redisTemplate, RedisRegistry.getInstance().key());
+        Assertions.assertEquals(redisTemplate.opsForValue(), RedisRegistry.getInstance().value());
+        Assertions.assertEquals(redisTemplate.opsForHash().getClass(), RedisRegistry.getInstance().hash().getClass());
+        Assertions.assertEquals(redisTemplate.opsForList(), RedisRegistry.getInstance().list());
+        Assertions.assertEquals(redisTemplate.opsForSet(), RedisRegistry.getInstance().set());
+        Assertions.assertEquals(redisTemplate.opsForZSet(), RedisRegistry.getInstance().zset());
 
     }
 

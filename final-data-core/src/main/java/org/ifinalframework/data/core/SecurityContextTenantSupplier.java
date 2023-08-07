@@ -15,8 +15,6 @@
 
 package org.ifinalframework.data.core;
 
-import java.util.Objects;
-
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.Ordered;
 import org.springframework.security.core.Authentication;
@@ -24,6 +22,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import org.ifinalframework.core.ITenant;
+
+import java.util.Objects;
 
 /**
  * SecurityContextTenantSupplier.

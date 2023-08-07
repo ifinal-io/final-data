@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.domain.function;
 
-import lombok.RequiredArgsConstructor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
@@ -26,6 +25,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * DefaultDeleteFunction.
  *
@@ -34,8 +35,9 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultDeleteFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements DeleteFunction<T, P, U> {
-    private final Repository<ID, T> repository;
+public class DefaultDeleteFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
+        implements DeleteFunction<T, P, U> {
+    private final Repository<K, T> repository;
 
     @Override
     public Integer delete(List<T> entities, P param, U user) {
@@ -43,9 +45,9 @@ public class DefaultDeleteFunction<ID extends Serializable, T extends IEntity<ID
         if (param instanceof IQuery) {
             return repository.delete((IQuery) param);
         } else if (param instanceof Collection) {
-            return repository.delete((Collection<ID>) param);
+            return repository.delete((Collection<K>) param);
         } else {
-            return repository.delete((ID) param);
+            return repository.delete((K) param);
         }
 
     }

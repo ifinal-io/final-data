@@ -15,16 +15,16 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
+import org.springframework.stereotype.Component;
+
+import org.ifinalframework.data.core.TenantSupplier;
+import org.ifinalframework.data.util.TenantUtils;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
-
-import org.springframework.stereotype.Component;
-
-import org.ifinalframework.data.core.TenantSupplier;
-import org.ifinalframework.data.util.TenantUtils;
 
 /**
  * TenantMapParameterConsumer.

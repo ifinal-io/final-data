@@ -15,11 +15,11 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
-import java.util.function.BiConsumer;
+import org.ifinalframework.core.IEntity;
 
 import org.apache.ibatis.session.Configuration;
 
-import org.ifinalframework.core.IEntity;
+import java.util.function.BiConsumer;
 
 /**
  * ConfigurationBiConsumer.
@@ -28,5 +28,5 @@ import org.ifinalframework.core.IEntity;
  * @version 1.4.0
  * @since 1.4.0
  */
-public interface ConfigurationBiConsumer extends BiConsumer<Configuration,Class<? extends IEntity<?>>> {
+public interface ConfigurationBiConsumer extends BiConsumer<Configuration, Class<? extends IEntity<?>>> {
 }

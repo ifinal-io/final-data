@@ -24,8 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
  * ObjectStringJsonRedisTemplateTest.
@@ -38,7 +38,7 @@ import static org.mockito.Mockito.mock;
 class ObjectStringJsonRedisTemplateTest {
 
     @Test
-    void instance(){
+    void instance() {
         RedisConnectionFactory factory = mock(RedisConnectionFactory.class);
         ObjectStringJsonRedisTemplate template = new ObjectStringJsonRedisTemplate(factory);
         assertTrue(template.getKeySerializer() instanceof Object2StringRedisSerializer);

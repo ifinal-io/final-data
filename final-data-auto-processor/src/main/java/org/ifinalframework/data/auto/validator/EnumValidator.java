@@ -31,7 +31,7 @@ import javax.tools.Diagnostic.Kind;
  * @since 1.0.0
  */
 public class EnumValidator extends SimpleElementVisitor8<Void, Void> implements
-    Filter<TypeElement> {
+        Filter<TypeElement> {
 
     private final ProcessingEnvironment processingEnvironment;
 
@@ -62,10 +62,10 @@ public class EnumValidator extends SimpleElementVisitor8<Void, Void> implements
 
         if (!isAssignable(typeElement, enumInterface)) {
             processingEnvironment.getMessager()
-                .printMessage(Kind.ERROR,
-                    "the enum type of " + typeElement.getQualifiedName().toString()
-                        + " must be implements the interface of " + enumInterface
-                        .getCanonicalName());
+                    .printMessage(Kind.ERROR,
+                            "the enum type of " + typeElement.getQualifiedName().toString()
+                                    + " must be implements the interface of " + enumInterface
+                                    .getCanonicalName());
         }
         return null;
     }

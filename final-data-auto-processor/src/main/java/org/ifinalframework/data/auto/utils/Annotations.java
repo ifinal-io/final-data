@@ -18,12 +18,13 @@ package org.ifinalframework.data.auto.utils;
 
 import org.springframework.lang.NonNull;
 
-import java.lang.annotation.Annotation;
-import java.util.List;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.type.DeclaredType;
+
+import java.lang.annotation.Annotation;
+import java.util.List;
 
 /**
  * @author sli
@@ -41,7 +42,7 @@ public class Annotations {
     }
 
     public static boolean isAnnotationPresent(final @NonNull Element element,
-        final @NonNull Class<? extends Annotation> ann) {
+                                              final @NonNull Class<? extends Annotation> ann) {
 
         if (element.getAnnotation(ann) != null) {
             return true;

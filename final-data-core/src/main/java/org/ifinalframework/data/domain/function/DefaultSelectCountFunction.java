@@ -15,16 +15,18 @@
 
 package org.ifinalframework.data.domain.function;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.SelectFunction;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * DefaultSelectCountFunction
@@ -33,8 +35,8 @@ import java.io.Serializable;
  * @since 1.5.2
  **/
 @RequiredArgsConstructor
-public class DefaultSelectCountFunction<ID extends Serializable, T extends IEntity<ID>, P, U> implements SelectFunction<P, U, Long> {
-    private final Repository<ID, T> repository;
+public class DefaultSelectCountFunction<K extends Serializable, T extends IEntity<K>, P, U> implements SelectFunction<P, U, Long> {
+    private final Repository<K, T> repository;
 
     @Nullable
     @Override

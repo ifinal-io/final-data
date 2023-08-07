@@ -15,10 +15,11 @@
 
 package org.ifinalframework.data.domain;
 
+import org.springframework.stereotype.Component;
+
 import org.ifinalframework.context.exception.NotFoundException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
-import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -37,12 +38,12 @@ public class DefaultDomainServiceRegistry implements DomainServiceRegistry {
     private final Map<String, DomainService<Long, IEntity<Long>, IUser<?>>> domainServiceMap = new LinkedHashMap<>();
 
     @Override
-    public <ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> DomainService<ID, T, U> getDomainService(String resource) {
+    public <K extends Serializable, T extends IEntity<K>, U extends IUser<?>> DomainService<K, T, U> getDomainService(String resource) {
         final DomainService<Long, IEntity<Long>, IUser<?>> domainService = domainServiceMap.get(resource);
         if (Objects.isNull(domainService)) {
             throw new NotFoundException("not found domainService for resource of " + resource);
         }
-        return (DomainService<ID, T, U>) domainService;
+        return (DomainService<K, T, U>) domainService;
     }
 
     @Override

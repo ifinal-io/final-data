@@ -15,7 +15,7 @@
 
 package org.ifinalframework.data.mybatis.reflection;
 
-import java.util.Collections;
+import org.ifinalframework.data.mybatis.reflection.wrapper.MultiBeanWrapper;
 
 import org.apache.ibatis.reflection.DefaultReflectorFactory;
 import org.apache.ibatis.reflection.MetaObject;
@@ -24,13 +24,11 @@ import org.apache.ibatis.reflection.wrapper.CollectionWrapper;
 import org.apache.ibatis.reflection.wrapper.DefaultObjectWrapperFactory;
 import org.apache.ibatis.reflection.wrapper.MapWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
-
-import org.ifinalframework.data.mybatis.reflection.wrapper.MultiBeanWrapper;
-
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * FinalObjectWrapperFactoryTest.
@@ -53,7 +51,8 @@ class FinalObjectWrapperFactoryTest {
 
     @Test
     void getWrapperFor() {
-        MetaObject metaObject = MetaObject.forObject(new Object(), new DefaultObjectFactory(), new DefaultObjectWrapperFactory(), new DefaultReflectorFactory());
+        MetaObject metaObject = MetaObject.forObject(new Object(), new DefaultObjectFactory(), new DefaultObjectWrapperFactory(),
+                new DefaultReflectorFactory());
         assertInstanceOf(MapWrapper.class, factory.getWrapperFor(metaObject, Collections.emptyMap()));
         assertInstanceOf(CollectionWrapper.class, factory.getWrapperFor(metaObject, Collections.emptyList()));
         assertInstanceOf(MultiBeanWrapper.class, factory.getWrapperFor(metaObject, new Object()));

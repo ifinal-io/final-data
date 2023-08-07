@@ -22,8 +22,6 @@ import org.ifinalframework.context.FinalContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 /**
  * FinalContextTenantSupplierTest.
  *
@@ -39,11 +37,11 @@ class FinalContextTenantSupplierTest {
     void get() {
         Assertions.assertNull(finalContextTenantSupplier.get());
         FinalContext.TENANT.set(1L);
-        Assertions.assertEquals(1L,finalContextTenantSupplier.get());
+        Assertions.assertEquals(1L, finalContextTenantSupplier.get());
     }
 
     @Test
     void getOrder() {
-        Assertions.assertEquals(Ordered.HIGHEST_PRECEDENCE,finalContextTenantSupplier.getOrder());
+        Assertions.assertEquals(Ordered.HIGHEST_PRECEDENCE, finalContextTenantSupplier.getOrder());
     }
 }

@@ -15,7 +15,9 @@
 
 package org.ifinalframework.data.domain;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
@@ -28,10 +30,10 @@ import org.ifinalframework.data.domain.action.SelectAction;
 import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.spi.SpiAction;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * DefaultDomainService.
@@ -42,7 +44,7 @@ import java.io.Serializable;
  */
 @RequiredArgsConstructor
 @SuppressWarnings("unchecked")
-public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> implements DomainService<ID, T, U> {
+public class DefaultDomainService<K extends Serializable, T extends IEntity<K>, U extends IUser<?>> implements DomainService<K, T, U> {
 
     private final DomainActions domainActions;
 
@@ -90,7 +92,7 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Object detail(@NonNull ID id, @NonNull U user) {
+    public Object detail(@NonNull K id, @NonNull U user) {
         final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.DETAIL_BY_ID);
         return selectAction.select(id, user);
     }
@@ -109,38 +111,38 @@ public class DefaultDomainService<ID extends Serializable, T extends IEntity<ID>
     }
 
     @Override
-    public Object delete(@NonNull ID id, @NonNull U user) {
+    public Object delete(@NonNull K id, @NonNull U user) {
         final DeleteAction deleteAction = (DeleteAction) domainActions.getDomainActions().get(SpiAction.Type.DELETE_BY_ID);
         return deleteAction.delete(id, user);
     }
 
     @Override
-    public Object update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user) {
+    public Object update(@NonNull T entity, @NonNull K id, boolean selective, @NonNull U user) {
         entity.setId(id);
         final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_BY_ID);
         return updateAction.update(id, selective, entity, user);
     }
 
     @Override
-    public Object yn(@NonNull ID id, @Nullable YN current, @NonNull YN yn, @NonNull U user) {
+    public Object yn(@NonNull K id, @Nullable YN current, @NonNull YN yn, @NonNull U user) {
         final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_YN_BY_ID);
         return updateAction.update(id, current, yn, user);
     }
 
     @Override
-    public Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user) {
+    public Object status(@NonNull K id, @NonNull IEnum<?> status, @NonNull U user) {
         final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_STATUS_BY_ID);
         return updateAction.update(id, null, status, user);
     }
 
     @Override
-    public Object lock(@NonNull ID id, @Nullable Boolean current, @NonNull Boolean locked, @NonNull U user) {
+    public Object lock(@NonNull K id, @Nullable Boolean current, @NonNull Boolean locked, @NonNull U user) {
         final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_LOCKED_BY_ID);
         return updateAction.update(id, current, locked, user);
     }
 
     @Override
-    public Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user) {
+    public Object audit(@NonNull K id, @NonNull AuditValue auditValue, @NonNull U user) {
         final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID);
         return updateAction.update(id, null, auditValue, user);
     }

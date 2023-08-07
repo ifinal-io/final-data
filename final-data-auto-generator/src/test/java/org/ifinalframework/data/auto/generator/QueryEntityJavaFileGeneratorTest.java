@@ -15,18 +15,20 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import lombok.extern.slf4j.Slf4j;
+import com.squareup.javapoet.JavaFile;
+
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
 import org.ifinalframework.data.query.AbsQEntity;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;
 
-import com.squareup.javapoet.JavaFile;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * QueryEntityJavaFileGeneratorTest.

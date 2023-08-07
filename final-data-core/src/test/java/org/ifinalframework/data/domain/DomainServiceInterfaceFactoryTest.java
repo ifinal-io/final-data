@@ -18,11 +18,10 @@ package org.ifinalframework.data.domain;
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.java.JadDriver;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DomainServiceInterfaceFactoryTest.

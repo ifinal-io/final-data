@@ -15,17 +15,19 @@
 
 package org.ifinalframework.data.domain.function;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.SelectFunction;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 
 /**
  * DefaultSelectFunction.
@@ -36,8 +38,8 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultSelectFunction<ID extends Serializable, T extends IEntity<ID>, P, U> implements SelectFunction<P, U, List<T>> {
-    private final Repository<ID, T> repository;
+public class DefaultSelectFunction<K extends Serializable, T extends IEntity<K>, P, U> implements SelectFunction<P, U, List<T>> {
+    private final Repository<K, T> repository;
 
     @Nullable
     @Override
@@ -46,9 +48,9 @@ public class DefaultSelectFunction<ID extends Serializable, T extends IEntity<ID
         if (param instanceof IQuery) {
             return repository.select((IQuery) param);
         } else if (param instanceof Collection) {
-            return repository.select((Collection<ID>) param);
+            return repository.select((Collection<K>) param);
         } else {
-            return repository.select((ID) param);
+            return repository.select((K) param);
         }
     }
 }

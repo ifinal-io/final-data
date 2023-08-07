@@ -15,22 +15,25 @@
 
 package org.ifinalframework.data;
 
-import java.time.LocalDateTime;
+import javassist.ClassPool;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.format.support.DefaultFormattingConversionService;
 import org.springframework.lang.Nullable;
 
-import org.ifinalframework.javassist.AbstractNestablePropertyAccessorJavaAssistProcessor;
 import org.ifinalframework.data.query.BetweenValue;
+import org.ifinalframework.javassist.AbstractNestablePropertyAccessorJavaAssistProcessor;
 import org.ifinalframework.util.format.LocalDateTimeFormatters;
 
-import javassist.ClassPool;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.Test;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * BetweenValueTest.
@@ -39,6 +42,7 @@ import org.junit.jupiter.api.Test;
  * @version 1.5.0
  * @since 1.5.0
  */
+@Slf4j
 class BetweenValueTest {
 
     @Setter
@@ -70,7 +74,7 @@ class BetweenValueTest {
         beanWrapper.setAutoGrowNestedPaths(true);
         beanWrapper.setPropertyValue("betweenValue.min", "2023-04-12 00:00:00");
         beanWrapper.setPropertyValue("longBetweenValue.min", "1");
-        System.out.println(bean.betweenValue.getMin());
+        logger.info("{}", bean.betweenValue.getMin());
     }
 
 }

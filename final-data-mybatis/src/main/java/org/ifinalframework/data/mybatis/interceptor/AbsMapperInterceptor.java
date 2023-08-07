@@ -15,17 +15,17 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import java.io.Serializable;
-
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.plugin.Interceptor;
-import org.apache.ibatis.plugin.Invocation;
-
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.NonNull;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+
+import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.plugin.Interceptor;
+import org.apache.ibatis.plugin.Invocation;
+
+import java.io.Serializable;
 
 import lombok.extern.slf4j.Slf4j;
 

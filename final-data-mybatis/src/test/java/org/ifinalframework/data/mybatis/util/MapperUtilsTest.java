@@ -32,20 +32,20 @@ class MapperUtilsTest {
 
     @Test
     void packageName() {
-        assertEquals(User.class.getPackage().getName().replace(".entity",".dao.mapper"),MapperUtils.packageName(User.class));
+        assertEquals(User.class.getPackage().getName().replace(".entity", ".dao.mapper"), MapperUtils.packageName(User.class));
     }
 
     @Test
     void mapperName() {
-        assertEquals(User.class.getSimpleName()+"Mapper",MapperUtils.mapperName(User.class));
+        assertEquals(User.class.getSimpleName() + "Mapper", MapperUtils.mapperName(User.class));
     }
 
     @Test
-    void mapperClassName(){
+    void mapperClassName() {
         assertEquals(
                 String.join(".",
-                        User.class.getPackage().getName().replace(".entity",".dao.mapper"),
-                        User.class.getSimpleName()+"Mapper"),
+                        User.class.getPackage().getName().replace(".entity", ".dao.mapper"),
+                        User.class.getSimpleName() + "Mapper"),
                 MapperUtils.mapperClassName(User.class)
         );
     }

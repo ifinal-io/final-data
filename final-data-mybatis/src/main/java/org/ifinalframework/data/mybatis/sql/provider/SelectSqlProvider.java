@@ -15,16 +15,6 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import org.apache.ibatis.builder.annotation.ProviderContext;
-
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.annotation.Metadata;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
@@ -35,12 +25,22 @@ import org.ifinalframework.data.query.QProperty;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
 
+import org.apache.ibatis.builder.annotation.ProviderContext;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 /**
  * @author ilikly
  * @version 1.0.0
  * @see AbsMapper#select(String, Class, Collection, IQuery)
  * @see AbsMapper#selectOne(String, Class, Serializable, IQuery)
- * @see AbsMapper#selectIds(Map) 
+ * @see AbsMapper#selectIds(Map)
  * @since 1.0.0
  */
 public class SelectSqlProvider implements AbsMapperSqlProvider {
@@ -80,13 +80,14 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
             if ("selectIds".equals(mapperMethodName)) {
                 parameters.put("columns", Collections.singletonList(properties.getIdProperty().getColumn()));
             } else {
-                parameters.put("columns", buildColumns(properties, parameters.containsKey("view") ? (Class<?>) parameters.get("view") : null));
+                parameters.put("columns", buildColumns(properties, parameters.containsKey("view")
+                        ? (Class<?>) parameters.get("view") : null));
             }
         }
 
         sql.append("<trim prefix=\"SELECT\" suffixOverrides=\",\">");
         sql.append("<foreach item=\"column\" collection=\"columns\" separator=\",\">${column}</foreach>");
-//        appendColumns(sql, properties);
+        //        appendColumns(sql, properties);
         sql.append("</trim>");
         sql.append("<trim prefix=\"FROM\">")
                 .append("${table}")

@@ -15,15 +15,6 @@
 
 package org.ifinalframework.data.domain;
 
-import lombok.Setter;
-import org.ifinalframework.data.annotation.DomainResource;
-import org.ifinalframework.data.domain.action.DefaultDomainActionsFactory;
-import org.ifinalframework.data.domain.action.DomainActionRegistry;
-import org.ifinalframework.data.domain.action.DomainActions;
-import org.ifinalframework.data.domain.action.DomainActionsFactory;
-import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
-import org.ifinalframework.data.service.AbsService;
-import org.ifinalframework.util.CompositeProxies;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.context.ApplicationContext;
@@ -33,10 +24,21 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 
+import org.ifinalframework.data.annotation.DomainResource;
+import org.ifinalframework.data.domain.action.DefaultDomainActionsFactory;
+import org.ifinalframework.data.domain.action.DomainActionRegistry;
+import org.ifinalframework.data.domain.action.DomainActions;
+import org.ifinalframework.data.domain.action.DomainActionsFactory;
+import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
+import org.ifinalframework.data.service.AbsService;
+import org.ifinalframework.util.CompositeProxies;
+
 import jakarta.annotation.Resource;
 
 import java.util.List;
 import java.util.Objects;
+
+import lombok.Setter;
 
 /**
  * DomainActionAndServiceRegistrySmartInitializing
@@ -62,7 +64,8 @@ public class DomainActionAndServiceRegistrySmartInitializing implements Applicat
 
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
-        final DomainActionsFactory domainActionsFactory = new DefaultDomainActionsFactory(userClass, applicationContext, CompositeProxies.composite(LoggerAfterConsumer.class, loggerAfterConsumers));
+        final DomainActionsFactory domainActionsFactory = new DefaultDomainActionsFactory(userClass, applicationContext,
+                CompositeProxies.composite(LoggerAfterConsumer.class, loggerAfterConsumers));
 
         applicationContext.getBeanProvider(AbsService.class).stream()
                 .forEach(service -> {

@@ -19,15 +19,18 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.bytecode.ClassFile;
-import lombok.extern.slf4j.Slf4j;
+
+import org.ifinalframework.auto.service.annotation.AutoService;
+import org.ifinalframework.javassist.JavaAssistProcessor;
+
 import org.apache.ibatis.executor.loader.ResultLoaderMap;
 import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetHandler;
 import org.apache.ibatis.executor.resultset.ResultSetWrapper;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.reflection.MetaObject;
-import org.ifinalframework.auto.service.annotation.AutoService;
-import org.ifinalframework.javassist.JavaAssistProcessor;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DefaultResultSetHandlerJavaAssistProcessor.
@@ -59,63 +62,62 @@ public class DefaultResultSetHandlerJavaAssistProcessor implements JavaAssistPro
     }
 
     /**
-     * @param ctClass
-     * @throws Throwable
      * @see DefaultResultSetHandler#applyPropertyMappings(ResultSetWrapper, ResultMap, MetaObject, ResultLoaderMap, String)
      */
     private void modifyMethodApplyPropertyMappings(CtClass ctClass) throws Throwable {
         final CtMethod method = ctClass.getDeclaredMethod("applyPropertyMappings");
-        method.insertBefore("System.out.println($2.getId());\n");
-
         method.setBody(
-                //                "    private boolean applyPropertyMappings(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject,\n" +
-                //                "                                          ResultLoaderMap lazyLoader, String columnPrefix) throws SQLException {\n" +
-                "{       " +
-                        "        final java.util.List mappedColumnNames = $1.getMappedColumnNames($2, $5);\n" +
-                        "        boolean foundValues = false;\n" +
-                        "        final java.util.List propertyMappings = $2.getPropertyResultMappings();\n" +
-                        "        for (int i = 0; i < propertyMappings.size(); i++) {\n" +
-                        "            org.apache.ibatis.mapping.ResultMapping propertyMapping =  (org.apache.ibatis.mapping.ResultMapping)propertyMappings.get(i);\n" +
-                        "            String column = prependPrefix(propertyMapping.getColumn(), $5);\n" +
-                        "            if (propertyMapping.getNestedResultMapId() != null) {\n" +
-                        "                // the user added a column attribute to a nested result map, ignore it\n" +
-                        "                column = null;\n" +
-                        "            }\n" +
-                        "            if (propertyMapping.isCompositeResult()\n" +
-                        "                    || column != null && mappedColumnNames.contains(column.toUpperCase(java.util.Locale.ENGLISH))\n" +
-                        "                    || propertyMapping.getResultSet() != null) {\n" +
-                        "                Object value = null;\n" +
-                        "                if (propertyMapping.isCompositeResult()) {\n" +
-                        "                    final java.util.List resultMappings = propertyMapping.getComposites();\n" +
-                        "                    final org.apache.ibatis.mapping.ResultMap resultMap2 = new org.apache.ibatis.mapping.ResultMap$Builder(\n" +
-                        "                            this.configuration, propertyMapping.getJavaType().getSimpleName(),\n" +
-                        "                            propertyMapping.getJavaType(), resultMappings, java.lang.Boolean.FALSE\n" +
-                        "                    ).build();\n" +
-                        "                    value = getRowValue($1, resultMap2, propertyMapping.getColumnPrefix());\n" +
-                        "                } else {\n" +
-                        "                    value = getPropertyMappingValue($1.getResultSet(), $3, propertyMapping, $4, $5);\n" +
-                        "                }\n" +
-                        "                // issue #541 make property optional\n" +
-                        "                final String property = propertyMapping.getProperty();\n" +
-                        "                if (property == null) {\n" +
-                        "                    continue;\n" +
-                        "                }\n" +
-                        "                if (value == DEFERRED) {\n" +
-                        "                    foundValues = true;\n" +
-                        "                    continue;\n" +
-                        "                }\n" +
-                        "                if (value != null) {\n" +
-                        "                    foundValues = true;\n" +
-                        "                }\n" +
-                        "                if (value != null\n" +
-                        "                        || $0.configuration.isCallSettersOnNulls() && !$3.getSetterType(property).isPrimitive()) {\n" +
-                        "                    // gcode issue #377, call setter on nulls (value is not 'found')\n" +
-                        "                    $3.setValue(property, value);\n" +
-                        "                }\n" +
-                        "            }\n" +
-                        "        }\n" +
-                        "        return foundValues;" +
-                        "    }");
+                """
+                    {       
+                        final java.util.List mappedColumnNames = $1.getMappedColumnNames($2, $5);
+                        boolean foundValues = false;
+                        final java.util.List propertyMappings = $2.getPropertyResultMappings();
+                        for (int i = 0; i < propertyMappings.size(); i++) {
+                            org.apache.ibatis.mapping.ResultMapping propertyMapping 
+                                = (org.apache.ibatis.mapping.ResultMapping)propertyMappings.get(i);
+                            String column = prependPrefix(propertyMapping.getColumn(), $5);
+                            if (propertyMapping.getNestedResultMapId() != null) {
+                                // the user added a column attribute to a nested result map, ignore it
+                                column = null;
+                            }
+                            if (propertyMapping.isCompositeResult()
+                                    || column != null && mappedColumnNames.contains(column.toUpperCase(java.util.Locale.ENGLISH))
+                                    || propertyMapping.getResultSet() != null) {
+                                Object value = null;
+                                if (propertyMapping.isCompositeResult()) {
+                                    final java.util.List resultMappings = propertyMapping.getComposites();
+                                    final org.apache.ibatis.mapping.ResultMap resultMap2 = new org.apache.ibatis.mapping.ResultMap$Builder(
+                                            this.configuration, propertyMapping.getJavaType().getSimpleName(),
+                                            propertyMapping.getJavaType(), resultMappings, java.lang.Boolean.FALSE
+                                    ).build();
+                                    value = getRowValue($1, resultMap2, propertyMapping.getColumnPrefix());
+                                } else {
+                                    value = getPropertyMappingValue($1.getResultSet(), $3, propertyMapping, $4, $5);
+                                }
+                                // issue #541 make property optional
+                                final String property = propertyMapping.getProperty();
+                                if (property == null) {
+                                    continue;
+                                }
+                                if (value == DEFERRED) {
+                                    foundValues = true;
+                                    continue;
+                                }
+                                if (value != null) {
+                                    foundValues = true;
+                                }
+                                if (value != null
+                                        || $0.configuration.isCallSettersOnNulls() && !$3.getSetterType(property).isPrimitive()) {
+                                    // gcode issue #377, call setter on nulls (value is not 'found')
+                                    $3.setValue(property, value);
+                                }
+                            }
+                        }
+                        return foundValues;
+                    }
+                """
+        );
+
 
     }
 }

@@ -16,10 +16,10 @@
 
 package org.ifinalframework.data.mybatis.handler;
 
+import org.apache.ibatis.type.BaseTypeHandler;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-
-import org.apache.ibatis.type.BaseTypeHandler;
 
 /**
  * @author ilikly

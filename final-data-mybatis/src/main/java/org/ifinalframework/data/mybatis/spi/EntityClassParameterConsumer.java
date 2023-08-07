@@ -15,14 +15,14 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
 import org.springframework.stereotype.Component;
 
 import org.ifinalframework.core.IRepository;
+
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * EntityClassParameterConsumer.

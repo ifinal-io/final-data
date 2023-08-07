@@ -19,15 +19,18 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtConstructor;
 import javassist.bytecode.ClassFile;
-import lombok.extern.slf4j.Slf4j;
+
+import org.ifinalframework.auto.service.annotation.AutoService;
+import org.ifinalframework.javassist.JavaAssistProcessor;
+
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.session.Configuration;
-import org.ifinalframework.auto.service.annotation.AutoService;
-import org.ifinalframework.javassist.JavaAssistProcessor;
 
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * XMLMapperBuilderJavaAssistProcessor.
@@ -48,7 +51,7 @@ public class XMLMapperBuilderJavaAssistProcessor implements JavaAssistProcessor 
         if (ctClass.isFrozen()) {
             return;
         }
-        /**
+        /*
          * @see XMLMapperBuilder#XMLMapperBuilder(XPathParser, Configuration, String, Map)
          */
         final CtConstructor constructor = ctClass.getDeclaredConstructor(new CtClass[]{
@@ -57,7 +60,7 @@ public class XMLMapperBuilderJavaAssistProcessor implements JavaAssistProcessor 
                 classPool.get("java.lang.String"),
                 classPool.get("java.util.Map")
         });
-        /**
+        /*
          *   private XMLMapperBuilder(XPathParser parser, Configuration configuration, String resource,
          *       Map<String, XNode> sqlFragments) {
          *     super(configuration);
@@ -67,8 +70,8 @@ public class XMLMapperBuilderJavaAssistProcessor implements JavaAssistProcessor 
          *     this.resource = resource;
          *   }
          */
-        constructor.setBody("{\n" +
-                "super($2);\n"
+        constructor.setBody("{\n"
+                + "super($2);\n"
                 + "this.builderAssistant = new org.ifinalframework.data.mybatis.builder.MapperBuilderAssistantExt($2, $3);\n"
                 + "this.parser = $1;\n"
                 + "this.sqlFragments = $4;\n"

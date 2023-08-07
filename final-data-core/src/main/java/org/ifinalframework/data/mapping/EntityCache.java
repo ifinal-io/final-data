@@ -38,7 +38,7 @@ public final class EntityCache {
     }
 
     public <T> Entity<T> get(final Class<T> entity) {
-      return entityFactory.create(entity);
+        return entityFactory.create(entity);
     }
 
 }

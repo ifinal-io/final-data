@@ -32,11 +32,11 @@ import java.util.List;
  * @version 1.5.0
  * @since 1.5.0
  */
-public class DeleteDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>>
-        extends AbsUpdateDeleteDomainActionDispatcher<ID, T, P, Void, Void, U> implements DeleteAction<P,U,Object> {
+public class DeleteDomainActionDispatcher<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
+        extends AbsUpdateDeleteDomainActionDispatcher<K, T, P, Void, Void, U> implements DeleteAction<P, U, Object> {
     private final DeleteFunction<T, P, U> updateAction;
 
-    public DeleteDomainActionDispatcher(SpiAction spiAction, Repository<ID, T> repository, DeleteFunction<T, P, U> updateAction) {
+    public DeleteDomainActionDispatcher(SpiAction spiAction, Repository<K, T> repository, DeleteFunction<T, P, U> updateAction) {
         super(spiAction, repository);
         this.updateAction = updateAction;
     }
@@ -48,6 +48,6 @@ public class DeleteDomainActionDispatcher<ID extends Serializable, T extends IEn
 
     @Override
     public Object delete(P param, U user) {
-        return dispatch(param,null,user);
+        return dispatch(param, null, user);
     }
 }

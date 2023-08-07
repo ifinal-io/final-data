@@ -16,6 +16,10 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.page.PageMethod;
+
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -24,9 +28,6 @@ import org.springframework.stereotype.Component;
 import org.ifinalframework.core.Pageable;
 import org.ifinalframework.util.Asserts;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.page.PageMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -45,15 +46,13 @@ import org.slf4j.LoggerFactory;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Intercepts(
-    {
+@Intercepts({
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class}),
+                RowBounds.class, ResultHandler.class}),
         @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-            RowBounds.class, ResultHandler.class, CacheKey.class,
-            BoundSql.class}),
-    }
-)
+                RowBounds.class, ResultHandler.class, CacheKey.class,
+                BoundSql.class}),
+})
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 @Component
 @ConditionalOnClass(PageHelper.class)
@@ -79,11 +78,11 @@ public class PageHelperPageableInterceptor extends PageableInterceptor {
      * @see PageHelper#startPage(int, int, boolean, Boolean, Boolean)
      */
     private void startPage(final int pageNum, final int pageSize, final boolean count, final Boolean reasonable,
-        final Boolean pageSizeZero) {
+                           final Boolean pageSizeZero) {
 
         final Page<Object> result = PageMethod.startPage(pageNum, pageSize, count, reasonable, pageSizeZero);
         logger.info("pageResult:page={},size={},pages={},total={}",
-            result.getPageNum(), result.getPageSize(), result.getPages(), result.getTotal());
+                result.getPageNum(), result.getPageSize(), result.getPages(), result.getTotal());
     }
 
 }

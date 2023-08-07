@@ -15,12 +15,12 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
-import org.apache.ibatis.session.Configuration;
-
 import org.springframework.stereotype.Component;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.Configuration;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * MapperLoggerConfigurationCustomizer.

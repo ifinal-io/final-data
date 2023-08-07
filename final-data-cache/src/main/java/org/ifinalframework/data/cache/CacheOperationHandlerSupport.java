@@ -32,24 +32,24 @@ public interface CacheOperationHandlerSupport extends OperationHandlerSupport {
 
     @Nullable
     Object generateKey(@NonNull String[] keys, @NonNull String delimiter, @NonNull MethodMetadata metadata,
-        @NonNull EvaluationContext evaluationContext);
+                       @NonNull EvaluationContext evaluationContext);
 
     @Nullable
     Object generateField(@NonNull String[] fields, @NonNull String delimiter, @NonNull MethodMetadata metadata,
-        @NonNull EvaluationContext evaluationContext);
+                         @NonNull EvaluationContext evaluationContext);
 
     @Nullable
     Object generateValue(@NonNull String value, @NonNull MethodMetadata metadata, EvaluationContext evaluationContext);
 
     @Nullable
     <T> T generateValue(@NonNull String value, @NonNull MethodMetadata metadata, EvaluationContext evaluationContext,
-        Class<T> clazz);
+                        Class<T> clazz);
 
     boolean isConditionPassing(@NonNull String condition, @NonNull MethodMetadata metadata,
-        EvaluationContext evaluationContext);
+                               EvaluationContext evaluationContext);
 
     @Nullable
     Object generateExpire(@NonNull String expire, @NonNull MethodMetadata metadata,
-        EvaluationContext evaluationContext);
+                          EvaluationContext evaluationContext);
 
 }

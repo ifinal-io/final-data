@@ -15,17 +15,17 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
+import org.ifinalframework.data.annotation.AbsRecord;
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.query.PageQuery;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import org.ifinalframework.data.query.PageQuery;
-import org.ifinalframework.data.annotation.AbsRecord;
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 
 /**
  * QueryParameterConsumerTest.
@@ -37,7 +37,9 @@ import org.junit.jupiter.api.Test;
 class QueryParameterConsumerTest {
     private final QueryParameterConsumer consumer = new QueryParameterConsumer();
 
-    private interface AbsEntityMapper extends AbsMapper<Long, AbsRecord>{}
+    private interface AbsEntityMapper extends AbsMapper<Long, AbsRecord> {
+    }
+
     @Test
     void accept() {
         final PageQuery query = new PageQuery();
@@ -45,20 +47,19 @@ class QueryParameterConsumerTest {
 
         query.setGroups(Collections.singletonList("id"));
 
-        Map<String,Object> parameter = new LinkedHashMap<>();
-        parameter.put("query",query);
-        parameter.put(EntityClassParameterConsumer.ENTITY_CLASS_PARAM_NAME,AbsRecord.class);
+        Map<String, Object> parameter = new LinkedHashMap<>();
+        parameter.put("query", query);
+        parameter.put(EntityClassParameterConsumer.ENTITY_CLASS_PARAM_NAME, AbsRecord.class);
 
 
-
-        consumer.accept(parameter,AbsEntityMapper.class,null);
+        consumer.accept(parameter, AbsEntityMapper.class, null);
         final Object orders = parameter.get("orders");
         Assertions.assertNotNull(orders);
-        Assertions.assertEquals(Arrays.asList("creator_id DESC"),orders);
+        Assertions.assertEquals(Arrays.asList("creator_id DESC"), orders);
 
         final Object groups = parameter.get("groups");
         Assertions.assertNotNull(groups);
-        Assertions.assertEquals(Arrays.asList("id"),groups);
+        Assertions.assertEquals(Arrays.asList("id"), groups);
 
 
     }

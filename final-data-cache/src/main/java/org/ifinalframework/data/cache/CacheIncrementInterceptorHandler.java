@@ -26,12 +26,12 @@ import org.ifinalframework.aop.InvocationContext;
 import org.ifinalframework.cache.annotation.Cache;
 import org.ifinalframework.util.Primaries;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author ilikly
@@ -40,26 +40,26 @@ import org.slf4j.LoggerFactory;
  */
 @Component
 public class CacheIncrementInterceptorHandler extends AbsCacheOperationInterceptorHandlerSupport implements
-    InterceptorHandler<Cache, AnnotationAttributes> {
+        InterceptorHandler<Cache, AnnotationAttributes> {
 
     @Override
     public void handle(final @NonNull Cache cache, final @NonNull InvocationContext context,
-        final @NonNull AnnotationAttributes annotation, final Object result, final Throwable throwable) {
+                       final @NonNull AnnotationAttributes annotation, final Object result, final Throwable throwable) {
 
         final Logger logger = LoggerFactory.getLogger(context.target().getClass());
         final EvaluationContext evaluationContext = createEvaluationContext(context, result, throwable);
         final Object key = generateKey(getKey(annotation), getDelimiter(annotation), context.metadata(),
-            evaluationContext);
+                evaluationContext);
         if (key == null) {
             throw new IllegalArgumentException("the cache action generate null key, action=" + context);
         }
         final Object field = generateField(getField(annotation), getDelimiter(annotation), context.metadata(),
-            evaluationContext);
+                evaluationContext);
 
         final boolean hasKey = cache.isExists(key, field);
 
         boolean incremented = Objects
-            .nonNull(doIncrement(logger, cache, context, annotation, key, field, evaluationContext));
+                .nonNull(doIncrement(logger, cache, context, annotation, key, field, evaluationContext));
 
         if (!hasKey && incremented) {
             long ttl;
@@ -86,14 +86,14 @@ public class CacheIncrementInterceptorHandler extends AbsCacheOperationIntercept
     }
 
     private Number doIncrement(final Logger logger, final Cache cache, final InvocationContext context,
-        final AnnotationAttributes annotation, final Object key, final Object field,
-        final EvaluationContext evaluationContext) {
+                               final AnnotationAttributes annotation, final Object key, final Object field,
+                               final EvaluationContext evaluationContext) {
 
         final Class<? extends Number> type = annotation.getClass("type");
 
         if (Primaries.isLong(type) || Primaries.isInteger(type)) {
             final Long value = generateValue(annotation.getString("value"), context.metadata(), evaluationContext,
-                Long.class);
+                    Long.class);
             if (value == null) {
                 throw new NullPointerException("increment value is null");
             }
@@ -103,7 +103,7 @@ public class CacheIncrementInterceptorHandler extends AbsCacheOperationIntercept
             return increment;
         } else if (Primaries.isFloat(type) || Primaries.isDouble(type)) {
             final Double value = generateValue(annotation.getString("value"), context.metadata(), evaluationContext,
-                Double.class);
+                    Double.class);
             if (value == null) {
                 throw new NullPointerException("increment value is null");
             }
@@ -113,7 +113,7 @@ public class CacheIncrementInterceptorHandler extends AbsCacheOperationIntercept
             return increment;
         } else {
             throw new IllegalArgumentException(
-                String.format("CacheIncrementOperation value type %s is not support.", type.getCanonicalName()));
+                    String.format("CacheIncrementOperation value type %s is not support.", type.getCanonicalName()));
         }
     }
 

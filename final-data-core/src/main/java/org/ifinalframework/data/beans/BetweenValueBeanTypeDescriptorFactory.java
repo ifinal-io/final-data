@@ -15,6 +15,13 @@
 
 package org.ifinalframework.data.beans;
 
+import org.springframework.beans.BeanUtils;
+import org.springframework.core.convert.TypeDescriptor;
+
+import org.ifinalframework.auto.spring.factory.annotation.SpringFactory;
+import org.ifinalframework.beans.BeanTypeDescriptorFactory;
+import org.ifinalframework.data.query.BetweenValue;
+
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,13 +29,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import org.springframework.beans.BeanUtils;
-import org.springframework.core.convert.TypeDescriptor;
-
-import org.ifinalframework.auto.spring.factory.annotation.SpringFactory;
-import org.ifinalframework.beans.BeanTypeDescriptorFactory;
-import org.ifinalframework.data.query.BetweenValue;
 
 import lombok.SneakyThrows;
 

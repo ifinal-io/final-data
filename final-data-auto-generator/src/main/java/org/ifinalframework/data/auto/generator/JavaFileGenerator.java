@@ -15,11 +15,11 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import java.lang.annotation.Annotation;
+import com.squareup.javapoet.JavaFile;
 
 import org.springframework.lang.NonNull;
 
-import com.squareup.javapoet.JavaFile;
+import java.lang.annotation.Annotation;
 
 /**
  * JavaFileGenerator.

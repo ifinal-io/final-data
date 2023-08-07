@@ -15,12 +15,13 @@
 
 package org.ifinalframework.data.sharding.config;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.ifinalframework.sharding.annotation.ShardingTable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import lombok.AccessLevel;
+import lombok.Getter;
 
 /**
  * @author ilikly

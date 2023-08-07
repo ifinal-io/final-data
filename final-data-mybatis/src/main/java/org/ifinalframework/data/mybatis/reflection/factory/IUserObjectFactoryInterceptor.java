@@ -15,11 +15,11 @@
 
 package org.ifinalframework.data.mybatis.reflection.factory;
 
-import java.util.List;
-
 import org.ifinalframework.auto.service.annotation.AutoService;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.AbsUser;
+
+import java.util.List;
 
 /**
  * IUserObjectFactoryInterceptor.

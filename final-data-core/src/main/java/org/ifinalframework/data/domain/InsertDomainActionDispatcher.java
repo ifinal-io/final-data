@@ -15,8 +15,8 @@
 
 package org.ifinalframework.data.domain;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import org.springframework.util.CollectionUtils;
+
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
@@ -30,13 +30,15 @@ import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PreInsertFunction;
 import org.ifinalframework.data.spi.SpiAction;
-import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 /**
  * InsertDomainAction.
@@ -47,9 +49,9 @@ import java.util.stream.Collectors;
  */
 @Setter
 @RequiredArgsConstructor
-public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> extends AbsDomainAction
+public class InsertDomainActionDispatcher<K extends Serializable, T extends IEntity<K>, U extends IUser<?>> extends AbsDomainAction
         implements DomainActionDispatcher<Void, Object, U>, InsertAction<Object, U, Object> {
-    private final Repository<ID, T> repository;
+    private final Repository<K, T> repository;
     private final boolean insertIgnore;
 
     // create
@@ -89,7 +91,9 @@ public class InsertDomainActionDispatcher<ID extends Serializable, T extends IEn
         try {
 
             if (Objects.nonNull(preInsertFilter)) {
-                entities = entities.stream().filter(item -> preInsertFilter.test(SpiAction.CREATE, item, user)).collect(Collectors.toList());
+                entities = entities.stream()
+                        .filter(item -> preInsertFilter.test(SpiAction.CREATE, item, user))
+                        .collect(Collectors.toList());
             }
 
 

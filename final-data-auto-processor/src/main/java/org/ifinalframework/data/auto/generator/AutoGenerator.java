@@ -16,8 +16,9 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import java.lang.annotation.Annotation;
 import javax.lang.model.element.Element;
+
+import java.lang.annotation.Annotation;
 
 /**
  * AutoGenerator.

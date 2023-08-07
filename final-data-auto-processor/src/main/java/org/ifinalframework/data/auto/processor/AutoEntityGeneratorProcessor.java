@@ -16,29 +16,11 @@
 
 package org.ifinalframework.data.auto.processor;
 
-import javax.annotation.processing.AbstractProcessor;
-import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.lang.model.SourceVersion;
-import javax.lang.model.element.PackageElement;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.util.ElementFilter;
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
-import java.io.IOException;
-import java.io.Writer;
-import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.squareup.javapoet.JavaFile;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.type.classreading.MetadataReader;
-import org.springframework.core.type.classreading.MetadataReaderFactory;
-import org.springframework.core.type.filter.TypeFilter;
 import org.springframework.lang.Nullable;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -47,7 +29,6 @@ import org.springframework.util.MultiValueMap;
 import org.ifinalframework.auto.service.annotation.AutoProcessor;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IView;
-import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.core.lang.Transient;
 import org.ifinalframework.data.auto.annotation.AutoMapper;
 import org.ifinalframework.data.auto.annotation.AutoQuery;
@@ -58,8 +39,26 @@ import org.ifinalframework.data.auto.generator.QueryEntityJavaFileGenerator;
 import org.ifinalframework.data.auto.generator.QueryJavaFileGenerator;
 import org.ifinalframework.data.auto.generator.ServiceImplJavaFileGenerator;
 import org.ifinalframework.data.auto.generator.ServiceJavaFileGenerator;
+import org.ifinalframework.data.query.PageQuery;
 
-import com.squareup.javapoet.JavaFile;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.util.ElementFilter;
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
+
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -76,7 +75,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AutoEntityGeneratorProcessor extends AbstractProcessor {
 
     @SuppressWarnings("")
-    private final MultiValueMap<Class<? extends Annotation>, JavaFileGenerator<? extends Annotation>> generatorMap = new LinkedMultiValueMap<>();
+    private final MultiValueMap<Class<? extends Annotation>, JavaFileGenerator<? extends Annotation>> generatorMap
+            = new LinkedMultiValueMap<>();
 
     public AutoEntityGeneratorProcessor() {
         generatorMap.add(AutoQuery.class, new QueryEntityJavaFileGenerator());
@@ -108,7 +108,6 @@ public class AutoEntityGeneratorProcessor extends AbstractProcessor {
             packageElements
                     .forEach(it -> {
 
-                        Annotation ann = it.getAnnotation(autoAnnotation);
 
                         String packageName = it.getQualifiedName().toString();
 
@@ -121,19 +120,16 @@ public class AutoEntityGeneratorProcessor extends AbstractProcessor {
                                 return AutoEntityGeneratorProcessor.this.getClass().getClassLoader();
                             }
                         });
-//                        scanner.addExcludeFilter(new AnnotationTypeFilter(Transient.class));
-//                        scanner.addIncludeFilter(new AssignableTypeFilter(IEntity.class));
-                        scanner.addIncludeFilter(new TypeFilter() {
-                            @Override
-                            public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
-                                try {
-                                    Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
-                                    return IEntity.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Transient.class);
-                                } catch (ClassNotFoundException e) {
-                                    e.printStackTrace();
-                                }
-                                return false;
+                        //                        scanner.addExcludeFilter(new AnnotationTypeFilter(Transient.class));
+                        //                        scanner.addIncludeFilter(new AssignableTypeFilter(IEntity.class));
+                        scanner.addIncludeFilter((metadataReader, metadataReaderFactory) -> {
+                            try {
+                                Class<?> clazz = Class.forName(metadataReader.getClassMetadata().getClassName());
+                                return IEntity.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Transient.class);
+                            } catch (ClassNotFoundException e) {
+                                logger.error("", e);
                             }
+                            return false;
                         });
 
                         Set<BeanDefinition> components = scanner.findCandidateComponents(packageName);
@@ -141,6 +137,8 @@ public class AutoEntityGeneratorProcessor extends AbstractProcessor {
                         Set<String> set = components.stream().map(BeanDefinition::getBeanClassName).collect(Collectors.toSet());
 
                         logger.info("found entities: {}", set);
+
+                        Annotation ann = it.getAnnotation(autoAnnotation);
 
                         set.stream()
                                 .map(element -> {
@@ -153,37 +151,39 @@ public class AutoEntityGeneratorProcessor extends AbstractProcessor {
                                 .forEachOrdered(element -> doGenerate(ann, element, generators));
 
                     });
-//        }
+            //        }
         }
 
 
-//        if (roundEnv.processingOver()) {
+        //        if (roundEnv.processingOver()) {
 
 
         return false;
     }
 
     private void doGenerate(Annotation ann, Class<?> clazz, List<JavaFileGenerator<Annotation>> generators) {
-        generators.forEach(generator -> {
-                    try {
-                        String name = generator.getName(ann, clazz);
-                        final TypeElement mapperElement = processingEnv.getElementUtils().getTypeElement(name);
-
-                        if (mapperElement == null) {
-                            final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(name);
-                            JavaFile javaFile = generator.generate(ann, clazz);
-                            try (Writer writer = sourceFile.openWriter()) {
-                                javaFile.writeTo(writer);
-                                writer.flush();
-                            }
-                            logger.info("==> generated javaSourceFile: {}", name);
-                        }
-
-                    } catch (IOException e) {
-                        error(e.getMessage());
-                    }
-                }
+        generators.forEach(generator -> doGenerator(ann, clazz, generator)
         );
+    }
+
+    private void doGenerator(Annotation ann, Class<?> clazz, JavaFileGenerator<Annotation> generator) {
+        try {
+            String name = generator.getName(ann, clazz);
+            final TypeElement mapperElement = processingEnv.getElementUtils().getTypeElement(name);
+
+            if (mapperElement == null) {
+                final JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(name);
+                JavaFile javaFile = generator.generate(ann, clazz);
+                try (Writer writer = sourceFile.openWriter()) {
+                    javaFile.writeTo(writer);
+                    writer.flush();
+                }
+                logger.info("==> generated javaSourceFile: {}", name);
+            }
+
+        } catch (IOException e) {
+            error(e.getMessage());
+        }
     }
 
     private void error(final String msg) {

@@ -16,9 +16,6 @@
 
 package org.ifinalframework.data.mapping;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.mapping.PersistentEntity;
 
@@ -26,6 +23,9 @@ import org.ifinalframework.data.annotation.NonCompare;
 import org.ifinalframework.data.util.TableUtils;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.util.stream.Streamable;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ilikly

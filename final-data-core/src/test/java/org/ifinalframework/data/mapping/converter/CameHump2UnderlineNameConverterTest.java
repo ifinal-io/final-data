@@ -28,8 +28,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class CameHump2UnderlineNameConverterTest {
     private final CameHump2UnderlineNameConverter converter = new CameHump2UnderlineNameConverter();
+
     @Test
     void convert() {
-        assertEquals("last_modified desc",converter.convert("lastModified DESC"));
+        assertEquals("last_modified desc", converter.convert("lastModified DESC"));
     }
 }

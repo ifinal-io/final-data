@@ -15,6 +15,12 @@
 
 package org.ifinalframework.data.mybatis.builder;
 
+import org.springframework.util.CollectionUtils;
+
+import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
+import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
+import org.ifinalframework.util.Primaries;
+
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 import org.apache.ibatis.mapping.Discriminator;
@@ -27,10 +33,6 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.mapping.StatementType;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.session.Configuration;
-import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
-import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
-import org.ifinalframework.util.Primaries;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +52,8 @@ public class MapperBuilderAssistantExt extends MapperBuilderAssistant {
     }
 
     @Override
-    public ResultMap addResultMap(String id, Class<?> type, String extend, Discriminator discriminator, List<ResultMapping> resultMappings, Boolean autoMapping) {
+    public ResultMap addResultMap(String id, Class<?> type, String extend,
+                                  Discriminator discriminator, List<ResultMapping> resultMappings, Boolean autoMapping) {
 
         if (CollectionUtils.isEmpty(resultMappings)) {
             final ResultMap resultMap = resultMapFactory.create(getConfiguration(), type);
@@ -66,9 +69,12 @@ public class MapperBuilderAssistantExt extends MapperBuilderAssistant {
 
 
     public MappedStatement addMappedStatement(String id, SqlSource sqlSource, StatementType statementType,
-                                              SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout, String parameterMap, Class<?> parameterType,
-                                              String resultMap, Class<?> resultType, ResultSetType resultSetType, boolean flushCache, boolean useCache,
-                                              boolean resultOrdered, KeyGenerator keyGenerator, String keyProperty, String keyColumn, String databaseId,
+                                              SqlCommandType sqlCommandType, Integer fetchSize, Integer timeout,
+                                              String parameterMap, Class<?> parameterType,
+                                              String resultMap, Class<?> resultType, ResultSetType resultSetType,
+                                              boolean flushCache, boolean useCache,
+                                              boolean resultOrdered, KeyGenerator keyGenerator,
+                                              String keyProperty, String keyColumn, String databaseId,
                                               LanguageDriver lang, String resultSets, boolean dirtySelect) {
 
         if (resultMap == null && resultType != null && resultType != void.class && !Primaries.isPrimary(resultType)) {
@@ -83,7 +89,9 @@ public class MapperBuilderAssistantExt extends MapperBuilderAssistant {
 
         }
 
-        return super.addMappedStatement(id, sqlSource, statementType, sqlCommandType, fetchSize, timeout, parameterMap, parameterType, resultMap, resultType, resultSetType, flushCache, useCache, resultOrdered, keyGenerator, keyProperty, keyColumn, databaseId, lang, resultSets, dirtySelect);
+        return super.addMappedStatement(id, sqlSource, statementType, sqlCommandType, fetchSize, timeout,
+                parameterMap, parameterType, resultMap, resultType, resultSetType, flushCache, useCache,
+                resultOrdered, keyGenerator, keyProperty, keyColumn, databaseId, lang, resultSets, dirtySelect);
 
     }
 }

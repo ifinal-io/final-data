@@ -71,12 +71,12 @@ public final class BaseCompareProperty implements CompareProperty {
     public String toString() {
         final StringBuilder builder = new StringBuilder();
         builder.append(property.getName()).append("[beforeValue=")
-            .append(beforeValue)
-            .append(",afterValue=")
-            .append(afterValue)
-            .append(",equals=")
-            .append(equals)
-            .append("]");
+                .append(beforeValue)
+                .append(",afterValue=")
+                .append(afterValue)
+                .append(",equals=")
+                .append(equals)
+                .append("]");
         return builder.toString();
     }
 

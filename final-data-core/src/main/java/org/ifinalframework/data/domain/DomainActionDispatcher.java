@@ -29,7 +29,6 @@ public interface DomainActionDispatcher<P, V, U> {
      * @param param action param.
      * @param value action value.
      * @param user  action user.
-     * @return
      */
     Object dispatch(P param, V value, U user);
 

@@ -15,9 +15,6 @@
 
 package org.ifinalframework.data.web.servlet.method.annotation;
 
-import lombok.extern.slf4j.Slf4j;
-import org.ifinalframework.data.domain.DomainService;
-import org.ifinalframework.data.domain.DomainServiceRegistry;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -28,10 +25,15 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
 
+import org.ifinalframework.data.domain.DomainService;
+import org.ifinalframework.data.domain.DomainServiceRegistry;
+
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * DomainServiceHandlerMethodArgumentResolver.
@@ -54,7 +56,8 @@ public class DomainServiceHandlerMethodArgumentResolver implements HandlerMethod
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         if (logger.isDebugEnabled()) {
             final Object nativeRequest = webRequest.getNativeRequest();
             if (nativeRequest instanceof HttpServletRequest request) {

@@ -15,17 +15,19 @@
 
 package org.ifinalframework.data.auto.generator;
 
+import com.squareup.javapoet.JavaFile;
+
 import org.ifinalframework.data.annotation.AbsEntity;
 import org.ifinalframework.data.auto.annotation.AutoMapper;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.java.compiler.Compiler;
 import org.ifinalframework.java.compiler.DynamicClassLoader;
 
-import com.squareup.javapoet.JavaFile;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import lombok.SneakyThrows;
 
 /**
  * MapperJavaFileGeneratorTest.
@@ -46,7 +48,7 @@ class MapperJavaFileGeneratorTest {
         JavaFile javaFile = generator.generate(autoMapper, clazz);
         Compiler compiler = new Compiler(getClass().getClassLoader());
         String name = generator.getName(autoMapper, clazz);
-        compiler.addSource(name,javaFile.toString());
+        compiler.addSource(name, javaFile.toString());
         DynamicClassLoader loader = compiler.compile();
         Class<?> mapper = loader.getClasses().get(name);
         Assertions.assertTrue(AbsMapper.class.isAssignableFrom(mapper));

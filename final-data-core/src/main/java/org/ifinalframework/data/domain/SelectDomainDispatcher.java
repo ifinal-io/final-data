@@ -15,8 +15,6 @@
 
 package org.ifinalframework.data.domain;
 
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.Viewable;
@@ -36,6 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+
 /**
  * ListDomainAction.
  *
@@ -45,7 +46,7 @@ import java.util.Objects;
  */
 @Setter
 @RequiredArgsConstructor
-public class SelectDomainDispatcher<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>, R> extends AbsDomainAction
+public class SelectDomainDispatcher<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>, R> extends AbsDomainAction
         implements DomainActionDispatcher<P, Void, U>, SelectAction<P, U, Object> {
 
     private final SpiAction spiAction;

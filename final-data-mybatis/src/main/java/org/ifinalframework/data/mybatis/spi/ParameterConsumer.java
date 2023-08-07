@@ -15,23 +15,23 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
-import java.lang.reflect.Method;
-
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
+import java.lang.reflect.Method;
+
 /**
  * ParameterConsumer.
  *
  * @author ilikly
  * @version 1.5.0
- * @since 1.5.0
- * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler, CacheKey, BoundSql) 
- * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler) 
+ * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler, CacheKey, BoundSql)
+ * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler)
  * @see org.apache.ibatis.executor.Executor#update(MappedStatement, Object)
+ * @since 1.5.0
  */
 public interface ParameterConsumer<T> {
 

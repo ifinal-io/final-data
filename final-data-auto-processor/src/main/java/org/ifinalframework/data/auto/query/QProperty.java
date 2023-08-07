@@ -16,11 +16,12 @@
 
 package org.ifinalframework.data.auto.query;
 
+import javax.lang.model.element.Element;
+
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import javax.lang.model.element.Element;
 
 /**
  * @author ilikly

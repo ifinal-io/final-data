@@ -15,17 +15,16 @@
 
 package org.ifinalframework.data.mybatis.spi;
 
+import org.springframework.stereotype.Component;
+
+import org.ifinalframework.context.user.UserSupplier;
+import org.ifinalframework.core.IUser;
+
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
-
-import org.springframework.stereotype.Component;
-
-import org.ifinalframework.context.user.UserSupplier;
-import org.ifinalframework.core.IUser;
-import org.ifinalframework.data.mybatis.spi.MapParameterConsumer;
 
 import lombok.RequiredArgsConstructor;
 

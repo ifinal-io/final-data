@@ -21,13 +21,14 @@ import org.springframework.lang.Nullable;
 
 import org.ifinalframework.util.function.Filter;
 
-import java.util.Objects;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
+
+import java.util.Objects;
 
 /**
  * @author ilikly
@@ -45,8 +46,8 @@ public class TypeElementFilter implements Filter<TypeElement> {
     private final TypeElement transientAnnotationTypeElement;
 
     public TypeElementFilter(final @NonNull ProcessingEnvironment processingEnvironment,
-        final @NonNull TypeElement entityTypeElement,
-        final @Nullable TypeElement transientAnnotationTypeElement) {
+                             final @NonNull TypeElement entityTypeElement,
+                             final @Nullable TypeElement transientAnnotationTypeElement) {
 
         Objects.requireNonNull(entityTypeElement, "typeElement can not be null!");
 
@@ -63,10 +64,10 @@ public class TypeElementFilter implements Filter<TypeElement> {
             return false;
         }
         messager
-            .printMessage(Diagnostic.Kind.NOTE, String.format("[INFO] [TypeElementFilter] filter typeElement: %s",
-                typeElement.getQualifiedName().toString()));
+                .printMessage(Diagnostic.Kind.NOTE, String.format("[INFO] [TypeElementFilter] filter typeElement: %s",
+                        typeElement.getQualifiedName().toString()));
         final boolean subtype = types
-            .isSubtype(types.erasure(typeElement.asType()), types.erasure(entityTypeElement.asType()));
+                .isSubtype(types.erasure(typeElement.asType()), types.erasure(entityTypeElement.asType()));
         if (subtype) {
             final String msg = "[INFO] [EntityFilter] find entity : " + typeElement.getQualifiedName().toString();
             messager.printMessage(Diagnostic.Kind.NOTE, msg);

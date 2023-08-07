@@ -20,9 +20,6 @@ import org.ifinalframework.auto.service.annotation.AutoProcessor;
 import org.ifinalframework.data.auto.annotation.AutoDataSource;
 import org.ifinalframework.data.auto.generator.AutoDataSourceGenerator;
 
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
@@ -30,6 +27,10 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.ElementFilter;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * AutoDataSourceGeneratorProcessor.
@@ -54,10 +55,10 @@ public class AutoDataSourceGeneratorProcessor extends AbstractProcessor {
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 
         ElementFilter.typesIn(roundEnv.getElementsAnnotatedWith(AutoDataSource.class))
-            .forEach(it -> {
-                AutoDataSource annotation = it.getAnnotation(AutoDataSource.class);
-                autoDataSourceGenerator.generate(annotation, it);
-            });
+                .forEach(it -> {
+                    AutoDataSource annotation = it.getAnnotation(AutoDataSource.class);
+                    autoDataSourceGenerator.generate(annotation, it);
+                });
 
         return false;
     }
@@ -65,9 +66,9 @@ public class AutoDataSourceGeneratorProcessor extends AbstractProcessor {
     @Override
     public Set<String> getSupportedAnnotationTypes() {
         return Stream.of(
-            AutoDataSource.class
-        ).map(Class::getName)
-            .collect(Collectors.toSet());
+                        AutoDataSource.class
+                ).map(Class::getName)
+                .collect(Collectors.toSet());
     }
 
 }

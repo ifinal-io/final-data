@@ -15,12 +15,12 @@
 
 package org.ifinalframework.data.mybatis.handler;
 
-import lombok.NonNull;
+import org.ifinalframework.core.IEnum;
+
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
-import org.ifinalframework.core.IEnum;
 import org.mybatis.spring.boot.autoconfigure.ConfigurationCustomizer;
 
 import java.sql.CallableStatement;
@@ -32,9 +32,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import lombok.NonNull;
+
 /**
  * <ul>
- *     <li>Set default enum {@linkplain TypeHandler typeHandler} use {@link Configuration#setDefaultEnumTypeHandler(Class)} by custom {@link ConfigurationCustomizer}.</li>
+ *     <li>Set default enum {@linkplain TypeHandler typeHandler} use {@link Configuration#setDefaultEnumTypeHandler(Class)}
+ *     by custom {@link ConfigurationCustomizer}.</li>
  *     <li>Declared in mapper file.</li>
  * </ul>
  *
@@ -49,8 +52,7 @@ public class EnumTypeHandler<E extends Enum<?>> extends BaseTypeHandler<E> {
     private final Map<String, E> cache;
 
     public EnumTypeHandler(final @NonNull Class<E> type) {
-        this.cache = Arrays.stream(type.getEnumConstants())
-                .collect(Collectors.toMap(this::getEnumKey, Function.identity()));
+        this.cache = Arrays.stream(type.getEnumConstants()).collect(Collectors.toMap(this::getEnumKey, Function.identity()));
     }
 
     private String getEnumKey(Enum<?> value) {
@@ -58,8 +60,7 @@ public class EnumTypeHandler<E extends Enum<?>> extends BaseTypeHandler<E> {
     }
 
     @Override
-    public void setNonNullParameter(final PreparedStatement ps, final int i, final E parameter, final JdbcType jdbcType)
-            throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType) throws SQLException {
         ps.setObject(i, parameter instanceof IEnum ? ((IEnum<?>) parameter).getCode() : parameter.name());
     }
 

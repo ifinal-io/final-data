@@ -15,8 +15,7 @@
 
 package org.ifinalframework.data.mybatis.reflection;
 
-import java.util.Collection;
-import java.util.Map;
+import org.ifinalframework.data.mybatis.reflection.wrapper.MultiBeanWrapper;
 
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.wrapper.CollectionWrapper;
@@ -24,7 +23,8 @@ import org.apache.ibatis.reflection.wrapper.MapWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapper;
 import org.apache.ibatis.reflection.wrapper.ObjectWrapperFactory;
 
-import org.ifinalframework.data.mybatis.reflection.wrapper.MultiBeanWrapper;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * FinalObjectWrapperFactory.

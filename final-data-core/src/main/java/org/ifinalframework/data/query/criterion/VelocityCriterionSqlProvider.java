@@ -16,15 +16,15 @@
 
 package org.ifinalframework.data.query.criterion;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.lang.NonNull;
 
-import org.ifinalframework.data.query.CriterionAttributes;
 import org.ifinalframework.data.annotation.criterion.CriterionSqlProvider;
+import org.ifinalframework.data.query.CriterionAttributes;
 import org.ifinalframework.velocity.Velocities;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * @author ilikly

@@ -15,6 +15,10 @@
 
 package org.ifinalframework.data.domain;
 
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
+import org.springframework.validation.annotation.Validated;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.IQuery;
@@ -24,9 +28,6 @@ import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Filter;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.Nullable;
-import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.Valid;
 
@@ -40,7 +41,7 @@ import java.io.Serializable;
  * @since 1.4.3
  */
 @Validated
-public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U extends IUser<?>> {
+public interface DomainService<K extends Serializable, T extends IEntity<K>, U extends IUser<?>> {
 
     @NonNull
     Class<T> entityClass();
@@ -98,7 +99,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see org.ifinalframework.core.IView.Detail
      * @see org.ifinalframework.data.spi.Consumer
      */
-    Object detail(@NonNull ID id, @NonNull U user);
+    Object detail(@NonNull K id, @NonNull U user);
 
     /**
      * @param query the query of count.
@@ -128,7 +129,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see org.ifinalframework.core.IView.Delete
      * @see org.ifinalframework.data.spi.Consumer
      */
-    Object delete(@NonNull ID id, @NonNull U user);
+    Object delete(@NonNull K id, @NonNull U user);
 
     /**
      * @param entity    the entity to update.
@@ -140,7 +141,7 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.AfterReturnUpdateConsumer
      */
-    Object update(@NonNull T entity, @NonNull ID id, boolean selective, @NonNull U user);
+    Object update(@NonNull T entity, @NonNull K id, boolean selective, @NonNull U user);
 
     /**
      * @param id   the entity id to update.
@@ -149,13 +150,13 @@ public interface DomainService<ID extends Serializable, T extends IEntity<ID>, U
      * @see BiValidator
      * @see org.ifinalframework.data.spi.BiConsumer
      */
-    Object yn(@NonNull ID id, @Nullable YN current, @NonNull YN yn, @NonNull U user);
+    Object yn(@NonNull K id, @Nullable YN current, @NonNull YN yn, @NonNull U user);
 
-    Object status(@NonNull ID id, @NonNull IEnum<?> status, @NonNull U user);
+    Object status(@NonNull K id, @NonNull IEnum<?> status, @NonNull U user);
 
-    Object lock(@NonNull ID id, @Nullable Boolean current, @NonNull Boolean locked, @NonNull U user);
+    Object lock(@NonNull K id, @Nullable Boolean current, @NonNull Boolean locked, @NonNull U user);
 
-    Object audit(@NonNull ID id, @NonNull AuditValue auditValue, @NonNull U user);
+    Object audit(@NonNull K id, @NonNull AuditValue auditValue, @NonNull U user);
 
 
 }

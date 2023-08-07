@@ -15,27 +15,25 @@
 
 package org.ifinalframework.data.mybatis.handler;
 
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Collections;
-import java.util.Map;
-
-import org.apache.ibatis.type.JdbcType;
-
-import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.json.Json;
 
-import lombok.SneakyThrows;
+import org.apache.ibatis.type.JdbcType;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Collections;
+import java.util.Map;
+
+import lombok.SneakyThrows;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -48,7 +46,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class JsonTypeReferenceTypeHandlerTest {
 
-    private final JsonTypeReferenceTypeHandler<Map<String,Object>> handler = new JsonTypeReferenceTypeHandler(Map.class);
+    private final JsonTypeReferenceTypeHandler<Map<String, Object>> handler = new JsonTypeReferenceTypeHandler(Map.class);
     @Mock
     private PreparedStatement ps;
 
@@ -59,36 +57,37 @@ class JsonTypeReferenceTypeHandlerTest {
 
     @Test
     @SneakyThrows
-    void setNull(){
-        handler.setParameter(ps,1,null, JdbcType.VARCHAR);
-        verify(ps,only()).setNull(anyInt(),anyInt());
+    void setNull() {
+        handler.setParameter(ps, 1, null, JdbcType.VARCHAR);
+        verify(ps, only()).setNull(anyInt(), anyInt());
     }
+
     @Test
     @SneakyThrows
     void setNonNullParameter() {
 
 
-        Map<String,Object> parameter = Collections.singletonMap("name","value");
+        Map<String, Object> parameter = Collections.singletonMap("name", "value");
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         assertDoesNotThrow(() -> handler.setParameter(ps, 1, parameter, JdbcType.VARCHAR));
-        verify(ps,only()).setString(anyInt(),captor.capture());
-        assertEquals(Json.toJson(parameter),captor.getValue());
+        verify(ps, only()).setString(anyInt(), captor.capture());
+        assertEquals(Json.toJson(parameter), captor.getValue());
     }
 
     @Test
     @SneakyThrows
     void getNullableResult() {
-        Map<String,Object> parameter = Collections.singletonMap("name","value");
+        Map<String, Object> parameter = Collections.singletonMap("name", "value");
         when(rs.getString(1)).thenReturn(Json.toJson(parameter));
-        Map<String,Object> result = handler.getResult(rs, 1);
-        assertEquals("value",parameter.get("name"));
+        Map<String, Object> result = handler.getResult(rs, 1);
+        assertEquals("value", parameter.get("name"));
 
         when(rs.getString("yn")).thenReturn(Json.toJson(parameter));
-        result = handler.getResult(rs,"yn");
-        assertEquals("value",parameter.get("name"));
+        result = handler.getResult(rs, "yn");
+        assertEquals("value", parameter.get("name"));
 
         when(cs.getString(1)).thenReturn(Json.toJson(parameter));
-        assertEquals("value",handler.getResult(cs,1).get("name"));
+        assertEquals("value", handler.getResult(cs, 1).get("name"));
     }
 
 

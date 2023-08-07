@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.domain.function;
 
-import lombok.RequiredArgsConstructor;
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
@@ -29,6 +28,8 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * DefaultUpdateLockedAction.
  *
@@ -37,8 +38,9 @@ import java.util.List;
  * @since 1.5.1
  */
 @RequiredArgsConstructor
-public class DefaultUpdateLockedFunction<ID extends Serializable, T extends IEntity<ID>, P, U extends IUser<?>> implements BiUpdateFunction<T, P, Boolean, Boolean, U> {
-    private final Repository<ID, T> repository;
+public class DefaultUpdateLockedFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
+        implements BiUpdateFunction<T, P, Boolean, Boolean, U> {
+    private final Repository<K, T> repository;
 
     @Override
     public Integer update(List<T> entities, P param, Boolean current, Boolean value, U user) {

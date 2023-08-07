@@ -16,20 +16,19 @@
 package org.ifinalframework.data.mybatis.javassist;
 
 import javassist.ClassPool;
-import lombok.SneakyThrows;
-import org.apache.ibatis.builder.MapperBuilderAssistant;
-import org.apache.ibatis.builder.xml.XMLMapperBuilder;
-import org.apache.ibatis.parsing.XPathParser;
-import org.apache.ibatis.session.Configuration;
+
 import org.ifinalframework.data.mybatis.builder.MapperBuilderAssistantExt;
 import org.ifinalframework.util.Reflections;
+
+import org.apache.ibatis.builder.xml.XMLMapperBuilder;
+import org.apache.ibatis.session.Configuration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.lang.reflect.Field;
 
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.SneakyThrows;
 
 
 /**
@@ -45,12 +44,12 @@ class XMLMapperBuilderJavaAssistProcessorTest {
     @Test
     void process() {
         new XMLMapperBuilderJavaAssistProcessor().process(ClassPool.getDefault());
-        final XMLMapperBuilder builder = new XMLMapperBuilder(new StringReader("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\" >\n" +
-                "<mapper namespace=\"Mapper\"></mapper>"),new Configuration(),null,null);
+        final XMLMapperBuilder builder = new XMLMapperBuilder(new StringReader("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
+                + "<!DOCTYPE mapper PUBLIC \"-//mybatis.org//DTD Mapper 3.0//EN\" \"http://mybatis.org/dtd/mybatis-3-mapper.dtd\" >\n"
+                + "<mapper namespace=\"Mapper\"></mapper>"), new Configuration(), null, null);
         final Field builderAssistant = Reflections.findField(XMLMapperBuilder.class, "builderAssistant");
         builderAssistant.setAccessible(true);
         final Object o = builderAssistant.get(builder);
-        Assertions.assertInstanceOf(MapperBuilderAssistantExt.class,o);
+        Assertions.assertInstanceOf(MapperBuilderAssistantExt.class, o);
     }
 }

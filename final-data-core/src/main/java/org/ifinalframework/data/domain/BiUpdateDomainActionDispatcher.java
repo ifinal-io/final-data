@@ -15,7 +15,6 @@
 
 package org.ifinalframework.data.domain;
 
-import lombok.Setter;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
@@ -25,6 +24,8 @@ import org.ifinalframework.data.spi.SpiAction;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Setter;
+
 /**
  * AbsUpdateDomainAction.
  *
@@ -33,17 +34,18 @@ import java.util.List;
  * @since 1.5.0
  */
 @Setter
-public class BiUpdateDomainActionDispatcher<ID extends Serializable, T extends IEntity<ID>, P, P2, V, U extends IUser<?>>
-        extends AbsUpdateDeleteDomainActionDispatcher<ID, T, P, P2, V, U> {
-    private final BiUpdateFunction<T, P, P2, V, U> updateAction;
+public class BiUpdateDomainActionDispatcher<K extends Serializable, T extends IEntity<K>, P1, P2, V, U extends IUser<?>>
+        extends AbsUpdateDeleteDomainActionDispatcher<K, T, P1, P2, V, U> {
+    private final BiUpdateFunction<T, P1, P2, V, U> updateAction;
 
-    public BiUpdateDomainActionDispatcher(SpiAction spiAction, Repository<ID, T> repository, BiUpdateFunction<T, P, P2, V, U> updateAction) {
+    public BiUpdateDomainActionDispatcher(SpiAction spiAction, Repository<K, T> repository,
+                                          BiUpdateFunction<T, P1, P2, V, U> updateAction) {
         super(spiAction, repository);
         this.updateAction = updateAction;
     }
 
     @Override
-    protected Integer doInterAction(List<T> entities, P param, P2 p2, V value, U user) {
+    protected Integer doInterAction(List<T> entities, P1 param, P2 p2, V value, U user) {
         return updateAction.update(entities, param, p2, value, user);
     }
 }

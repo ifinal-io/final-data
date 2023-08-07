@@ -15,17 +15,20 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.mapping.ResultMap;
-import org.apache.ibatis.mapping.ResultMapping;
-import org.apache.ibatis.session.Configuration;
+import org.springframework.util.ReflectionUtils;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.mybatis.mapping.DefaultResultMapFactory;
 import org.ifinalframework.data.mybatis.mapping.ResultMapFactory;
-import org.springframework.util.ReflectionUtils;
+
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.session.Configuration;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * ResultConfigurationBiConsumer.

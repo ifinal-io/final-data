@@ -15,11 +15,7 @@
 
 package org.ifinalframework.data.mybatis.dao.mapper;
 
-import jakarta.annotation.Resource;
-import java.util.Arrays;
-import java.util.Map;
-
-import org.apache.ibatis.binding.MapperMethod;
+import ch.qos.logback.classic.Level;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -28,13 +24,19 @@ import org.ifinalframework.data.mybatis.entity.Person;
 import org.ifinalframework.data.mybatis.entity.User;
 import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
 
-import ch.qos.logback.classic.Level;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.binding.MapperMethod;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import jakarta.annotation.Resource;
+
+import java.util.Arrays;
+import java.util.Map;
+
+import lombok.extern.slf4j.Slf4j;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * PersonMapperTest.
@@ -69,13 +71,13 @@ class PersonMapperTest {
         person.setAge(13);
 
         Map<String, Object> parameters = new MapperMethod.ParamMap<>();
-        parameters.put("table","person");
-        parameters.put("view",null);
-        parameters.put("query",null);
-        parameters.put("selective",null);
-        parameters.put("USER",null);
+        parameters.put("table", "person");
+        parameters.put("view", null);
+        parameters.put("query", null);
+        parameters.put("selective", null);
+        parameters.put("USER", null);
         parameters.put("list", Arrays.asList(person));
-//        parameters.put("table","person");
+        //        parameters.put("table","person");
         PersonMapperTest.logger.info(SqlHelper.xml(PersonMapper.class, "insert", parameters));
         PersonMapperTest.logger.info(SqlHelper.sql(PersonMapper.class, "insert", parameters));
 

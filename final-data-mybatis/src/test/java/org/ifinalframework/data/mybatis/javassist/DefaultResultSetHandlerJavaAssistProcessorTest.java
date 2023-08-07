@@ -16,12 +16,14 @@
 package org.ifinalframework.data.mybatis.javassist;
 
 import javassist.ClassPool;
-import lombok.SneakyThrows;
-import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
+
 import org.ifinalframework.java.JvmDriver;
+
+import org.apache.ibatis.executor.resultset.DefaultResultSetHandler;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -31,12 +33,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * @version 1.5.1
  * @since 1.5.1
  */
+@Slf4j
 class DefaultResultSetHandlerJavaAssistProcessorTest {
 
     @Test
     @SneakyThrows
     void process() {
         new DefaultResultSetHandlerJavaAssistProcessor().process(ClassPool.getDefault());
-        System.out.println(JvmDriver.jad(DefaultResultSetHandler.class,"applyPropertyMappings"));
+        logger.info(JvmDriver.jad(DefaultResultSetHandler.class, "applyPropertyMappings"));
     }
 }

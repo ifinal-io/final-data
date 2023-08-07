@@ -15,7 +15,12 @@
 
 package org.ifinalframework.data.mybatis.interceptor;
 
-import java.util.Map;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+import org.ifinalframework.data.query.DefaultQEntityFactory;
+import org.ifinalframework.data.query.QEntity;
 
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -27,12 +32,7 @@ import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
-
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.data.query.QEntity;
+import java.util.Map;
 
 /**
  * 参数注入拦截器
@@ -41,16 +41,14 @@ import org.ifinalframework.data.query.QEntity;
  * @version 1.0.0
  * @since 1.0.0
  */
-@Intercepts(
-        {
-                @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                        RowBounds.class, ResultHandler.class}),
-                @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                        RowBounds.class, ResultHandler.class, CacheKey.class,
-                        BoundSql.class}),
-        }
-)
+@Intercepts({
+        @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class}),
+        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
+                RowBounds.class, ResultHandler.class, CacheKey.class,
+                BoundSql.class}),
+})
 @Order
 @Component
 @SuppressWarnings({"unchecked"})

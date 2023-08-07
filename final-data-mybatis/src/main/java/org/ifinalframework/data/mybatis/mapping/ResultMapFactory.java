@@ -15,9 +15,10 @@
 
 package org.ifinalframework.data.mybatis.mapping;
 
+import org.springframework.lang.NonNull;
+
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.session.Configuration;
-import org.springframework.lang.NonNull;
 
 /**
  * Create a {@link ResultMap} from {@linkplain Class entity} with {@link Configuration}.

@@ -15,12 +15,12 @@
 
 package org.ifinalframework.data.mybatis.configuration;
 
-import java.util.LinkedList;
-import java.util.List;
+import org.ifinalframework.core.IEntity;
 
 import org.apache.ibatis.session.Configuration;
 
-import org.ifinalframework.core.IEntity;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * ConfigurationBiConsumerComposite.
@@ -34,8 +34,8 @@ public class ConfigurationBiConsumerComposite implements ConfigurationBiConsumer
     private final List<ConfigurationBiConsumer> consumers = new LinkedList<>();
 
     public ConfigurationBiConsumerComposite() {
-//        consumers.add(new ResultMapConfigurationBiConsumer());
-//        consumers.add(new MapperConfigurationBiConsumer());
+        //        consumers.add(new ResultMapConfigurationBiConsumer());
+        //        consumers.add(new MapperConfigurationBiConsumer());
     }
 
     @Override

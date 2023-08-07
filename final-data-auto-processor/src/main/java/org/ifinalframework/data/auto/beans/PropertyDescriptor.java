@@ -18,9 +18,10 @@ package org.ifinalframework.data.auto.beans;
 
 import org.springframework.data.util.Lazy;
 
-import java.util.Optional;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.VariableElement;
+
+import java.util.Optional;
 
 /**
  * @author ilikly
@@ -42,8 +43,8 @@ public class PropertyDescriptor {
     private final Lazy<String> toString;
 
     public PropertyDescriptor(final Bean bean, final String name, final Optional<VariableElement> field,
-        final Optional<ExecutableElement> setter,
-        final Optional<ExecutableElement> getter) {
+                              final Optional<ExecutableElement> setter,
+                              final Optional<ExecutableElement> getter) {
 
         this.bean = bean;
         this.name = name;
@@ -54,9 +55,9 @@ public class PropertyDescriptor {
         this.toString = Lazy.of(() -> {
             StringBuilder sb = new StringBuilder();
             sb.append(name).append(":{field=").append(field.map(e -> e.getSimpleName().toString()).orElse(""))
-                .append(",setter=").append(setter.map(e -> e.getSimpleName().toString()).orElse(""))
-                .append(",getter=").append(getter.map(e -> e.getSimpleName().toString()).orElse(""))
-                .append("}");
+                    .append(",setter=").append(setter.map(e -> e.getSimpleName().toString()).orElse(""))
+                    .append(",getter=").append(getter.map(e -> e.getSimpleName().toString()).orElse(""))
+                    .append("}");
             return sb.toString();
         });
     }

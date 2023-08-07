@@ -15,14 +15,6 @@
 
 package org.ifinalframework.data.web.servlet.method.annotation;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.ifinalframework.core.IQuery;
-import org.ifinalframework.data.domain.action.DomainActionRegistry;
-import org.ifinalframework.data.domain.action.DomainActions;
-import org.ifinalframework.json.Json;
-import org.ifinalframework.validation.GlobalValidationGroupsProvider;
-import org.ifinalframework.web.annotation.bind.RequestQuery;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +37,13 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.ExtendedServletRequestDataBinder;
 
+import org.ifinalframework.core.IQuery;
+import org.ifinalframework.data.domain.action.DomainActionRegistry;
+import org.ifinalframework.data.domain.action.DomainActions;
+import org.ifinalframework.json.Json;
+import org.ifinalframework.validation.GlobalValidationGroupsProvider;
+import org.ifinalframework.web.annotation.bind.RequestQuery;
+
 import jakarta.annotation.Resource;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,6 +56,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * RequestQueryHandlerMethodArgumentResolver.
@@ -84,11 +86,13 @@ public class RequestQueryHandlerMethodArgumentResolver implements HandlerMethodA
 
     @Nullable
     @Override
-    public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer, NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
+                                  NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) throws Exception {
         final RequestQuery requestQuery = parameter.getParameterAnnotation(RequestQuery.class);
         final String resource = resolveName(requestQuery.resource(), parameter, webRequest);
         final DomainActions domainActions = domainActionRegistry.get(resource);
-        final Class<? extends IQuery> domainQueryClass = (Class<? extends IQuery>) domainActions.getDomainQueryClasses().get(requestQuery.view());
+        final Class<? extends IQuery> domainQueryClass = (Class<? extends IQuery>) domainActions
+                .getDomainQueryClasses().get(requestQuery.view());
         final String contentType = webRequest.getHeader(HttpHeaders.CONTENT_TYPE);
         IQuery value = null;
         WebDataBinder binder = null;

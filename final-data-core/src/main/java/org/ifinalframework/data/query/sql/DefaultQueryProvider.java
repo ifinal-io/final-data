@@ -15,8 +15,9 @@
 
 package org.ifinalframework.data.query.sql;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.type.TypeHandler;
+import org.springframework.core.annotation.AnnotatedElementUtils;
+import org.springframework.core.annotation.AnnotationAttributes;
+
 import org.ifinalframework.core.Groupable;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.Limitable;
@@ -38,8 +39,8 @@ import org.ifinalframework.data.query.criterion.VelocityCriterionValue;
 import org.ifinalframework.data.util.TenantUtils;
 import org.ifinalframework.util.Asserts;
 import org.ifinalframework.velocity.Velocities;
-import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.core.annotation.AnnotationAttributes;
+
+import org.apache.ibatis.type.TypeHandler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -48,6 +49,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ilikly
@@ -189,7 +192,8 @@ public final class DefaultQueryProvider extends AbsQueryProvider {
 
                             AnnotationAttributes functionAttributes;
                             if (Function.class != functionAnnotation) {
-                                functionAttributes = AnnotatedElementUtils.getMergedAnnotationAttributes(property.getField(), function.annotation());
+                                functionAttributes = AnnotatedElementUtils
+                                        .getMergedAnnotationAttributes(property.getField(), function.annotation());
                                 Objects.requireNonNull(functionAttributes);
 
                                 for (Map.Entry<String, Object> entry : functionAttributes.entrySet()) {

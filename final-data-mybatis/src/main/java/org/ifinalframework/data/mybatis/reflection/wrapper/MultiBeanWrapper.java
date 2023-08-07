@@ -15,15 +15,15 @@
 
 package org.ifinalframework.data.mybatis.reflection.wrapper;
 
-import java.util.List;
-import java.util.Map;
+import org.springframework.util.StringUtils;
 
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.reflection.ReflectionException;
 import org.apache.ibatis.reflection.property.PropertyTokenizer;
 import org.apache.ibatis.reflection.wrapper.BeanWrapper;
 
-import org.springframework.util.StringUtils;
+import java.util.List;
+import java.util.Map;
 
 /**
  * BeanWrapper.

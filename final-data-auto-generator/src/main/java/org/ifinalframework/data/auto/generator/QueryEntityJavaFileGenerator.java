@@ -15,10 +15,14 @@
 
 package org.ifinalframework.data.auto.generator;
 
-import javax.lang.model.element.Modifier;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
+import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.TypeSpec;
 
 import org.springframework.core.ResolvableType;
 import org.springframework.lang.NonNull;
@@ -28,19 +32,17 @@ import org.ifinalframework.data.auto.annotation.AutoQuery;
 import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.query.AbsQEntity;
 import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.javapoets.JavaPoets;
 import org.ifinalframework.data.query.QEntity;
 import org.ifinalframework.data.query.QEntityFactory;
 import org.ifinalframework.data.query.QProperty;
+import org.ifinalframework.javapoets.JavaPoets;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.ParameterizedTypeName;
-import com.squareup.javapoet.TypeName;
-import com.squareup.javapoet.TypeSpec;
+import javax.lang.model.element.Modifier;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**

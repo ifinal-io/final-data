@@ -1,15 +1,17 @@
 package org.ifinalframework.data.jdbc;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import lombok.SneakyThrows;
+
+import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.util.ClassUtils;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import javax.sql.DataSource;
 
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.core.env.StandardEnvironment;
-import org.springframework.util.ClassUtils;
+import lombok.SneakyThrows;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,11 +33,10 @@ class DataSourceFactoryManagerTest {
         Assertions.assertNotNull(dataSourceFactory);
 
 
-
         Assertions.assertTrue(ClassUtils.isLambdaClass(dataSourceFactory.getClass()));
         final DataSourceProperties properties = new DataSourceProperties();
         properties.afterPropertiesSet();
-        dataSourceFactory.create(properties,new StandardEnvironment(),"spring.datasource");
+        dataSourceFactory.create(properties, new StandardEnvironment(), "spring.datasource");
 
 
         DataSourceFactory<? extends DataSource> factory = manager.getDataSourceFactory(DruidDataSource.class);

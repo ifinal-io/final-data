@@ -15,11 +15,12 @@
 
 package org.ifinalframework.data.mybatis.dao.query;
 
+import org.ifinalframework.data.query.PageQuery;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.ifinalframework.data.query.PageQuery;
 
 /**
  * UserNameQuery.

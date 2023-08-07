@@ -15,11 +15,12 @@
 
 package org.ifinalframework.data.sharding.config;
 
-import lombok.Getter;
-import lombok.ToString;
 import org.ifinalframework.sharding.annotation.ShardingStrategy;
 
 import java.util.Properties;
+
+import lombok.Getter;
+import lombok.ToString;
 
 /**
  * @author ilikly

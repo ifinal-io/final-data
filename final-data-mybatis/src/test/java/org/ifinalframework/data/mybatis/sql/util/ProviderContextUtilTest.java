@@ -15,13 +15,15 @@
 
 package org.ifinalframework.data.mybatis.sql.util;
 
-import org.ifinalframework.data.mybatis.mapper.AbsMapper;
-import org.junit.jupiter.api.Test;
 import org.springframework.util.ReflectionUtils;
+
+import org.ifinalframework.data.mybatis.mapper.AbsMapper;
+
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * ProviderContextUtilTest.

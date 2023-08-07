@@ -15,17 +15,17 @@
 
 package org.ifinalframework.data.mybatis.reflection.factory;
 
-import java.util.Properties;
-
-import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
-import org.apache.ibatis.reflection.factory.ObjectFactory;
-
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.AbsUser;
 
-import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.reflection.factory.DefaultObjectFactory;
+import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+
+import java.util.Properties;
+
+import lombok.extern.slf4j.Slf4j;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -39,19 +39,19 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 class ObjectFactoryWrapperTest {
     @Test
-    void iUser(){
-     final ObjectFactory objectFactory = new ObjectFactoryWrapper(new DefaultObjectFactory());
+    void user() {
+        final ObjectFactory objectFactory = new ObjectFactoryWrapper(new DefaultObjectFactory());
         IUser user = objectFactory.create(IUser.class);
-        assertInstanceOf(AbsUser.class,user);
+        assertInstanceOf(AbsUser.class, user);
     }
 
     @Test
-    void setProperties(){
+    void setProperties() {
         final ObjectFactory factory = Mockito.mock(ObjectFactory.class);
         final ObjectFactory objectFactory = new ObjectFactoryWrapper(factory);
         final Properties properties = new Properties();
         objectFactory.setProperties(properties);
-        Mockito.verify(factory,Mockito.only()).setProperties(properties);
+        Mockito.verify(factory, Mockito.only()).setProperties(properties);
     }
 
 }

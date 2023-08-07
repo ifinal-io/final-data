@@ -19,11 +19,12 @@ package org.ifinalframework.data.mybatis.sql;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 
+import org.apache.ibatis.type.TypeHandler;
+
 import java.io.Serializable;
 import java.util.List;
 
 import lombok.Data;
-import org.apache.ibatis.type.TypeHandler;
 
 /**
  * SqlBound.

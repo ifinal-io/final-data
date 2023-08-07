@@ -74,7 +74,7 @@ public final class NameConverterRegistry {
         }
         try {
             this.columnNameConverter = (NameConverter) Class.forName(columnNameConverter).getConstructor()
-                .newInstance();
+                    .newInstance();
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }

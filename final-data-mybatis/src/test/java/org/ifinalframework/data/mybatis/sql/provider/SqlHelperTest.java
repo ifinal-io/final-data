@@ -15,26 +15,9 @@
 
 package org.ifinalframework.data.mybatis.sql.provider;
 
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.ifinalframework.core.IEntity;
-import org.ifinalframework.data.query.CriterionTarget;
-import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.annotation.AutoInc;
 import org.ifinalframework.data.annotation.PrimaryKey;
-import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
-import org.ifinalframework.data.query.DefaultQEntityFactory;
-import org.ifinalframework.data.query.AndOr;
-import org.ifinalframework.data.query.BetweenValue;
-import org.ifinalframework.data.query.QEntity;
-import org.ifinalframework.data.query.Query;
-
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Test;
 import org.ifinalframework.data.annotation.criterion.Criteria;
 import org.ifinalframework.data.annotation.criterion.Equal;
 import org.ifinalframework.data.annotation.criterion.JsonContains;
@@ -42,6 +25,23 @@ import org.ifinalframework.data.annotation.criterion.NotBetween;
 import org.ifinalframework.data.annotation.criterion.NotEqual;
 import org.ifinalframework.data.annotation.criterion.NotIn;
 import org.ifinalframework.data.annotation.criterion.Or;
+import org.ifinalframework.data.mybatis.sql.util.SqlHelper;
+import org.ifinalframework.data.query.AndOr;
+import org.ifinalframework.data.query.BetweenValue;
+import org.ifinalframework.data.query.DefaultQEntityFactory;
+import org.ifinalframework.data.query.PageQuery;
+import org.ifinalframework.data.query.QEntity;
+import org.ifinalframework.data.query.Query;
+
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author ilikly
@@ -57,7 +57,7 @@ public class SqlHelperTest {
         AndQuery query = new AndQuery();
         query.setColumnA("a");
         query.setColumnA2("aa");
-//        query.where(CriterionTarget.from("columnA").eq(123));
+        //        query.where(CriterionTarget.from("columnA").eq(123));
         logger.info(SqlHelper.query(Bean.class, query));
     }
 
@@ -97,9 +97,9 @@ public class SqlHelperTest {
     void sql() {
         final PersonQuery query = new PersonQuery();
         query.setName("haha");
-        Map<String, Object> parameters =new LinkedHashMap<>();
-        parameters.put("query",query);
-        parameters.put("tenant",1);
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("query", query);
+        parameters.put("tenant", 1);
         logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", parameters));
         logger.info("query={}", SqlHelper.query(Person.class, query));
     }
@@ -115,12 +115,15 @@ public class SqlHelperTest {
 
                 )
         );
-        Map<String, Object> parameters =new LinkedHashMap<>();
-        parameters.put("query",query);
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        parameters.put("query", query);
         logger.info("sql={}", SqlHelper.sql(PersonMapper.class, "select", parameters));
         logger.info("query={}", SqlHelper.query(Person.class, query));
     }
 
+    /**
+     * Bean.
+     */
     @Data
     public static class Bean implements IEntity<Long> {
 

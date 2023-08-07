@@ -15,6 +15,8 @@
 
 package org.ifinalframework.data.mybatis.sql;
 
+import org.springframework.core.ResolvableType;
+
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
@@ -22,7 +24,6 @@ import org.ifinalframework.data.mybatis.sql.provider.ScriptSqlProvider;
 import org.ifinalframework.data.query.QueryProvider;
 import org.ifinalframework.data.query.sql.DefaultQueryProvider;
 import org.ifinalframework.data.repository.Repository;
-import org.springframework.core.ResolvableType;
 
 import java.util.Optional;
 
@@ -79,11 +80,26 @@ public interface AbsMapperSqlProvider extends ScriptSqlProvider {
     }
 
     default String whereIdNotNull() {
-        return "<where>" + "<if test=\"properties.hasTenantProperty() and tenant != null\">" + "     ${properties.tenantProperty.column} = #{tenant} AND " + "</if>" + "${properties.idProperty.column} = #{id}</where>";
+        return """
+                <where>
+                    <if test=\"properties.hasTenantProperty() and tenant != null\">
+                        ${properties.tenantProperty.column} = #{tenant} AND 
+                    </if>
+                    ${properties.idProperty.column} = #{id}
+                </where>
+               """;
     }
 
     default String whereIdsNotNull() {
-        return "<where>" + "<if test=\"properties.hasTenantProperty() and tenant != null\">" + "     ${properties.tenantProperty.column} = #{tenant} AND " + "</if>" + "${properties.idProperty.column}" + "<foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>" + "</where>";
+        return """
+                <where>
+                    <if test=\"properties.hasTenantProperty() and tenant != null\">
+                        ${properties.tenantProperty.column} = #{tenant} AND 
+                    </if>
+                    ${properties.idProperty.column}
+                    <foreach collection=\"ids\" item=\"id\" open=\" IN (\" separator=\",\" close=\")\">#{id}</foreach>
+                </where>
+               """;
     }
 
 }
