@@ -99,6 +99,9 @@ public class DomainResourceDispatchController {
     @Resource
     private ExcelExportService excelExportService;
 
+    /**
+     * list query
+     */
     @GetMapping
     @DomainResourceAuth(action = SpiAction.LIST)
     public Object query(@PathVariable String resource,
@@ -176,6 +179,9 @@ public class DomainResourceDispatchController {
     }
 
 
+    /**
+     * detail query
+     */
     @GetMapping("/detail")
     @DomainResourceAuth(action = SpiAction.DETAIL)
     public Object detail(@PathVariable String resource,
@@ -189,15 +195,22 @@ public class DomainResourceDispatchController {
         return processResult(result);
     }
 
+    /**
+     * detail
+     */
     @GetMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DETAIL)
     public Object detail(@PathVariable String resource, @PathVariable Long id,
-                        @RequestAction(type = SpiAction.Type.DETAIL_BY_ID) SelectAction selectAction,
-                        IUser<?> user) {
+                         @RequestAction(type = SpiAction.Type.DETAIL_BY_ID) SelectAction selectAction,
+                         IUser<?> user) {
         return processResult(selectAction.select(id, user));
     }
 
     // delete
+
+    /**
+     * delete query
+     */
     @DeleteMapping
     @DomainResourceAuth(action = SpiAction.DELETE)
     public Object delete(@PathVariable String resource, @Valid @RequestQuery(view = IView.Delete.class) IQuery query,
@@ -214,6 +227,9 @@ public class DomainResourceDispatchController {
         }
     }
 
+    /**
+     * delete
+     */
     @DeleteMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DELETE)
     public Object delete(@PathVariable String resource, @PathVariable Long id,
@@ -223,13 +239,16 @@ public class DomainResourceDispatchController {
     }
 
 
+    /**
+     * create
+     */
     @PostMapping
     @Validated({IView.Create.class})
     @DomainResourceAuth(action = SpiAction.CREATE)
     public Object create(@PathVariable String resource,
                          @Validated({IView.Create.class}) @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
                          @RequestAction(type = SpiAction.Type.CREATE) InsertAction insertAction,
-                         IUser<?> user) throws Exception {
+                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
@@ -248,7 +267,7 @@ public class DomainResourceDispatchController {
     public Object update(@PathVariable String resource, @PathVariable Long id,
                          @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
                          @RequestAction(type = SpiAction.Type.UPDATE_BY_ID) UpdateAction updateAction,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) throws Exception {
+                         IUser<?> user){
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
@@ -371,7 +390,7 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/yn")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
     public Object yn(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+                     IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> yn={}", yn);
         }
