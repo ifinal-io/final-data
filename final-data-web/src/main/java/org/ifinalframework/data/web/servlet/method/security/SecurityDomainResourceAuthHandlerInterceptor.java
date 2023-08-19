@@ -66,6 +66,10 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
             final WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(
                     () -> SecurityContextHolder.getContext().getAuthentication(), request);
 
+            if(root.hasRole("ROOT")){
+                return true;
+            }
+
             final boolean hasAuthority = root.hasAuthority(authority);
 
             if (!hasAuthority) {

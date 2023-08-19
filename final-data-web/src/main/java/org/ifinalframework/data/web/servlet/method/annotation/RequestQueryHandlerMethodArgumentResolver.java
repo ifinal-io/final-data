@@ -152,5 +152,4 @@ public class RequestQueryHandlerMethodArgumentResolver implements HandlerMethodA
         return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
     }
 
-
 }
