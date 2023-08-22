@@ -16,13 +16,12 @@
 package org.ifinalframework.data.domain.excel;
 
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.util.ResourceUtils;
+import org.springframework.core.io.Resource;
 
 import org.ifinalframework.context.exception.InternalServerException;
 import org.ifinalframework.json.Json;
 import org.ifinalframework.poi.model.Excel;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class ClassPathDomainResourceExcelExportProvider implements DomainResourceExcelExportProvider {
 
-    private static final String EXCEL_RESOURCE_PATH = "classpath*:excel/%s.json";
+    private static final String EXCEL_RESOURCE_PATH = "excel/%s.json";
 
     private final Map<String, Excel> cache = new ConcurrentHashMap<>();
 
@@ -50,9 +49,13 @@ public class ClassPathDomainResourceExcelExportProvider implements DomainResourc
 
             try {
                 final String excelJson = String.format(EXCEL_RESOURCE_PATH, resource);
-                final ClassPathResource classPathResource = new ClassPathResource(excelJson);
-                final String json = Files.readString(Path.of(classPathResource.getURI()));
-                return Json.toObject(json, Excel.class);
+                Resource classPathResource = new ClassPathResource(excelJson);
+                if (classPathResource.exists()) {
+                    final String json = Files.readString(Path.of(classPathResource.getURI()));
+                    return Json.toObject(json, Excel.class);
+                } else {
+                    throw new InternalServerException("导出配置文件不存在：" + classPathResource);
+                }
             } catch (FileNotFoundException e) {
                 throw new InternalServerException("导出配置文件不存在：" + e.getMessage());
             } catch (IOException e) {
