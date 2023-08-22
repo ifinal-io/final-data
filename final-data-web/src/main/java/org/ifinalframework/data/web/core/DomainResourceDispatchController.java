@@ -151,9 +151,9 @@ public class DomainResourceDispatchController {
 
             final Excel excel = domainResourceExcelExportProvider.getResourceExcel(resource, domainService.entityClass());
 
-            final String fileName = StringUtils.hasText(excel.getName())
+            final String fileName = (StringUtils.hasText(excel.getName())
                     ? Spel.getValue(excel.getName(), context, String.class)
-                    : domainService.entityClass().getSimpleName();
+                    : domainService.entityClass().getSimpleName()) + "." + excel.getVersion().name().toLowerCase();
 
             final Object result = processResult(selectAction.select(query, user));
 
@@ -267,7 +267,7 @@ public class DomainResourceDispatchController {
     public Object update(@PathVariable String resource, @PathVariable Long id,
                          @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
                          @RequestAction(type = SpiAction.Type.UPDATE_BY_ID) UpdateAction updateAction,
-                         IUser<?> user){
+                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
         }
