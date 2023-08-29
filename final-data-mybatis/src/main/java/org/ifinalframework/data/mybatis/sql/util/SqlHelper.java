@@ -24,6 +24,11 @@ import org.ifinalframework.data.mybatis.handler.EnumTypeHandler;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 import org.ifinalframework.data.mybatis.reflection.FinalObjectWrapperFactory;
 import org.ifinalframework.data.mybatis.reflection.factory.ObjectFactoryWrapper;
+import org.ifinalframework.data.mybatis.spi.ColumnsParameterConsumer;
+import org.ifinalframework.data.mybatis.spi.EntityClassParameterConsumer;
+import org.ifinalframework.data.mybatis.spi.ParameterConsumer;
+import org.ifinalframework.data.mybatis.spi.QueryParameterConsumer;
+import org.ifinalframework.data.mybatis.spi.TableParameterConsumer;
 import org.ifinalframework.data.mybatis.sql.provider.DeleteSqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.InsertSqlProvider;
 import org.ifinalframework.data.mybatis.sql.provider.SelectSqlProvider;
@@ -76,6 +81,7 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -119,6 +125,8 @@ public final class SqlHelper {
 
     private static final Map<String, SqlProvider> SQL_PROVIDERS = new HashMap<>();
 
+    private static final List<ParameterConsumer> PARAMETER_CONSUMERS = new LinkedList<>();
+
     private static final Configuration DEFAULT_CONFIGURATION = new Configuration();
 
     static {
@@ -137,6 +145,12 @@ public final class SqlHelper {
         register(SELECT_COUNT_METHOD_NAME, SelectProvider.class, new SelectSqlProvider());
 
         register(TRUNCATE_METHOD_NAME, UpdateProvider.class, new TruncateSqlProvider());
+
+        PARAMETER_CONSUMERS.add(new EntityClassParameterConsumer());
+        PARAMETER_CONSUMERS.add(new TableParameterConsumer());
+        PARAMETER_CONSUMERS.add(new ColumnsParameterConsumer());
+        PARAMETER_CONSUMERS.add(new QueryParameterConsumer());
+
         //        PropertyTokenizerRedefiner.redefine();
         DEFAULT_CONFIGURATION.setDefaultEnumTypeHandler(EnumTypeHandler.class);
         DEFAULT_CONFIGURATION.setObjectWrapperFactory(new FinalObjectWrapperFactory());
@@ -180,6 +194,8 @@ public final class SqlHelper {
 
 
     public static String sql(Class<? extends AbsMapper<?, ?>> mapper, final String method, final Map<String, Object> parameters) {
+
+
         return sql(boundSql(mapper, method, parameters), parameters);
     }
 
@@ -208,6 +224,9 @@ public final class SqlHelper {
 
     public static BoundSql boundSql(Class<? extends AbsMapper<?, ?>> mapper, final String method, final Map<String, Object> parameters) {
         Method sqlMethod = ReflectionUtils.findMethod(mapper, method, Map.class);
+        for (ParameterConsumer parameterConsumer : PARAMETER_CONSUMERS) {
+            parameterConsumer.accept(parameters, mapper, sqlMethod);
+        }
         return boundSql(mapper, sqlMethod, METHOD_ANNOTATIONS.get(method), parameters);
     }
 

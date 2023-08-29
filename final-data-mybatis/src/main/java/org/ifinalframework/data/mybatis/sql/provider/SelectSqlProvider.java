@@ -72,18 +72,18 @@ public class SelectSqlProvider implements AbsMapperSqlProvider {
 
 
         final Class<?> entity = getEntityClass(context.getMapperType());
-        final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);
+//        final QEntity<?, ?> properties = DefaultQEntityFactory.INSTANCE.create(entity);
         final String mapperMethodName = context.getMapperMethod().getName();
-        parameters.put("entity", properties);
-        parameters.put("properties", properties);
-        if (!parameters.containsKey("columns") || Objects.isNull(parameters.get("columns"))) {
-            if ("selectIds".equals(mapperMethodName)) {
-                parameters.put("columns", Collections.singletonList(properties.getIdProperty().getColumn()));
-            } else {
-                parameters.put("columns", buildColumns(properties, parameters.containsKey("view")
-                        ? (Class<?>) parameters.get("view") : null));
-            }
-        }
+//        parameters.put("entity", properties);
+//        parameters.put("properties", properties);
+//        if (!parameters.containsKey("columns") || Objects.isNull(parameters.get("columns"))) {
+//            if ("selectIds".equals(mapperMethodName)) {
+//                parameters.put("columns", Collections.singletonList(properties.getIdProperty().getColumn()));
+//            } else {
+//                parameters.put("columns", buildColumns(properties, parameters.containsKey("view")
+//                        ? (Class<?>) parameters.get("view") : null));
+//            }
+//        }
 
         sql.append("<trim prefix=\"SELECT\" suffixOverrides=\",\">");
         sql.append("<foreach item=\"column\" collection=\"columns\" separator=\",\">${column}</foreach>");
