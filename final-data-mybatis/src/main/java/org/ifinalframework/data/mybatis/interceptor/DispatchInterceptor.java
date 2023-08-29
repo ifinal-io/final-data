@@ -20,6 +20,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 
 import org.ifinalframework.data.mybatis.spi.ParameterConsumer;
 
@@ -94,7 +95,6 @@ public class DispatchInterceptor implements Interceptor {
                 args[1] = parameters;
             }
 
-
             applyParameterConsumer(parameters, mapperClassName, mapperMethodName);
             logger.info("{}#{},parameters={}", mapperClassName, mapperMethodName, parameters);
             return doQuery(invocation);
@@ -113,11 +113,12 @@ public class DispatchInterceptor implements Interceptor {
         }
 
         final Class<?> mapperClass = ClassUtils.resolveClassName(mapperClassName, getClass().getClassLoader());
+        final Method mapperMethod = ReflectionUtils.findMethod(mapperClass,mapperMethodName,null);
 
 
         for (final ParameterConsumer parameterConsumer : parameterConsumers) {
             if (parameterConsumer.supports(parameter)) {
-                parameterConsumer.accept(parameter, mapperClass, null);
+                parameterConsumer.accept(parameter, mapperClass, mapperMethod);
             }
         }
 
