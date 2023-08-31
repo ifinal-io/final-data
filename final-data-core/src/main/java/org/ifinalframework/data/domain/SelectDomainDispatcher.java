@@ -50,7 +50,6 @@ public class SelectDomainDispatcher<K extends Serializable, T extends IEntity<K>
         implements DomainActionDispatcher<P, Void, U>, SelectAction<P, U, Object> {
 
     private final SpiAction spiAction;
-    private final Class<?> defaultView;
     private final SelectFunction<P, U, R> selectFunction;
 
     private PreQueryConsumer<P, U> preQueryConsumer;
@@ -74,7 +73,7 @@ public class SelectDomainDispatcher<K extends Serializable, T extends IEntity<K>
         if (param instanceof Viewable) {
             final Viewable viewable = (Viewable) param;
             if (Objects.isNull(viewable.getView())) {
-                viewable.setView(defaultView);
+                viewable.setView(getView());
             }
         }
 

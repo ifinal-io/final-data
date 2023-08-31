@@ -347,8 +347,8 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                         ))
                 .getIfAvailable(() -> new DefaultSelectCountFunction<>(repository));
         final SelectDomainDispatcher<K, T, IQuery, U, Long> detailSelectActionByQuery
-                = new SelectDomainDispatcher<>(SpiAction.COUNT, IView.Count.class, selectCountFunction);
-        detailSelectActionByQuery.setView(IView.Detail.class);
+                = new SelectDomainDispatcher<>(SpiAction.COUNT, selectCountFunction);
+        detailSelectActionByQuery.setView(IView.Count.class);
         detailSelectActionByQuery.setDomainQueryClass(countQueryClass);
         detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE,
                 PreQueryConsumer.class, countQueryClass, userClass));
@@ -378,7 +378,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
         final SelectDomainDispatcher<K, T, K, U, T> detailSelectActionById
-                = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionById);
+                = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionById);
         detailSelectActionById.setView(IView.Detail.class);
         detailSelectActionById.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST,
                 Consumer.class, entityClass, userClass));
@@ -402,7 +402,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                         ))
                 .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
         final SelectDomainDispatcher<K, T, IQuery, U, T> detailSelectActionByQuery
-                = new SelectDomainDispatcher<>(SpiAction.DETAIL, IView.Detail.class, selectOneFunctionByQuery);
+                = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionByQuery);
         detailSelectActionByQuery.setView(IView.Detail.class);
         detailSelectActionByQuery.setDomainQueryClass(detailQueryClass);
         detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE,
@@ -438,7 +438,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         ).getIfAvailable(() -> new DefaultSelectFunction<>(repository));
 
         final SelectDomainDispatcher<K, T, IQuery, U, List<T>> listQueryDomainAction
-                = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
+                = new SelectDomainDispatcher<>(SpiAction.LIST, listSelectFunction);
         listQueryDomainAction.setView(IView.List.class);
         listQueryDomainAction.setDomainQueryClass(listQueryClass);
         listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.PRE,
@@ -476,7 +476,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         ).getIfAvailable(() -> new DefaultSelectFunction<>(repository));
 
         final SelectDomainDispatcher<K, T, IQuery, U, List<T>> listQueryDomainAction
-                = new SelectDomainDispatcher<>(SpiAction.LIST, IView.List.class, listSelectFunction);
+                = new SelectDomainDispatcher<>(SpiAction.LIST, listSelectFunction);
         listQueryDomainAction.setView(IView.List.class);
         listQueryDomainAction.setDomainQueryClass(listQueryClass);
         listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE,
