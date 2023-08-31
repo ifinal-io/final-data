@@ -40,17 +40,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DefaultSelectFunction<K extends Serializable, T extends IEntity<K>, P, U> implements SelectFunction<P, U, List<T>> {
     private final Repository<K, T> repository;
+    private final Class<?> view;
 
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
     public List<T> select(@NonNull P param, @NonNull U user) {
         if (param instanceof IQuery) {
-            return repository.select((IQuery) param);
+            return repository.select(view, (IQuery) param);
         } else if (param instanceof Collection) {
-            return repository.select((Collection<K>) param);
+            return repository.select(view, (Collection<K>) param);
         } else {
-            return repository.select((K) param);
+            return repository.select(view, (K) param);
         }
     }
 }

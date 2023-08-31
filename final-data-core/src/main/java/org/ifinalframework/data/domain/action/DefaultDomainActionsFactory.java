@@ -376,7 +376,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                                 ResolvableType.forClass(userClass),
                                 ResolvableType.forClass(entityClass)
                         ))
-                .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
+                .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository, IView.Detail.class));
         final SelectDomainDispatcher<K, T, K, U, T> detailSelectActionById
                 = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionById);
         detailSelectActionById.setView(IView.Detail.class);
@@ -400,7 +400,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                                 ResolvableType.forClass(userClass),
                                 ResolvableType.forClass(entityClass)
                         ))
-                .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository));
+                .getIfAvailable(() -> new DefaultSelectOneFunction<>(repository, IView.Detail.class));
         final SelectDomainDispatcher<K, T, IQuery, U, T> detailSelectActionByQuery
                 = new SelectDomainDispatcher<>(SpiAction.DETAIL, selectOneFunctionByQuery);
         detailSelectActionByQuery.setView(IView.Detail.class);
@@ -435,7 +435,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                         ResolvableType.forClass(userClass),
                         ResolvableType.forClassWithGenerics(List.class, entityClass)
                 )
-        ).getIfAvailable(() -> new DefaultSelectFunction<>(repository));
+        ).getIfAvailable(() -> new DefaultSelectFunction<>(repository, IView.List.class));
 
         final SelectDomainDispatcher<K, T, IQuery, U, List<T>> listQueryDomainAction
                 = new SelectDomainDispatcher<>(SpiAction.LIST, listSelectFunction);
@@ -473,7 +473,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                         ResolvableType.forClass(userClass),
                         ResolvableType.forClassWithGenerics(List.class, entityClass)
                 )
-        ).getIfAvailable(() -> new DefaultSelectFunction<>(repository));
+        ).getIfAvailable(() -> new DefaultSelectFunction<>(repository, IView.List.class));
 
         final SelectDomainDispatcher<K, T, IQuery, U, List<T>> listQueryDomainAction
                 = new SelectDomainDispatcher<>(SpiAction.LIST, listSelectFunction);

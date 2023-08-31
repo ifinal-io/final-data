@@ -37,15 +37,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class DefaultSelectOneFunction<K extends Serializable, T extends IEntity<K>, P, U> implements SelectFunction<P, U, T> {
     private final Repository<K, T> repository;
+    private final Class<?> view;
 
     @Nullable
     @Override
     @SuppressWarnings("unchecked")
     public T select(@NonNull P param, @NonNull U user) {
         if (param instanceof IQuery) {
-            return repository.selectOne((IQuery) param);
+            return repository.selectOne(view, (IQuery) param);
         } else {
-            return repository.selectOne((K) param);
+            return repository.selectOne(view, (K) param);
         }
     }
 }
