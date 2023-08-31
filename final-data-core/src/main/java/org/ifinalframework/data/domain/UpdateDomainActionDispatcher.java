@@ -34,17 +34,17 @@ import lombok.Setter;
  * @since 1.5.0
  */
 @Setter
-public class UpdateDomainActionDispatcher<K extends Serializable, T extends IEntity<K>, P, V, U extends IUser<?>>
-        extends AbsUpdateDeleteDomainActionDispatcher<K, T, P, Void, V, U> {
-    private final UpdateFunction<T, P, V, U> updateAction;
+public class UpdateDomainActionDispatcher<K extends Serializable, T extends IEntity<K>, P1, P2, V, U extends IUser<?>>
+        extends AbsUpdateDeleteDomainActionDispatcher<K, T, P1, P2, V, U> {
+    private final UpdateFunction<T, P1, P2, V, U> updateAction;
 
-    public UpdateDomainActionDispatcher(SpiAction spiAction, Repository<K, T> repository, UpdateFunction<T, P, V, U> updateAction) {
+    public UpdateDomainActionDispatcher(SpiAction spiAction, Repository<K, T> repository, UpdateFunction<T, P1, P2, V, U> updateAction) {
         super(spiAction, repository);
         this.updateAction = updateAction;
     }
 
     @Override
-    protected Integer doInterAction(List<T> entities, P param, Void p2, V value, U user) {
-        return updateAction.update(entities, param, value, user);
+    protected Integer doInterAction(List<T> entities, P1 param, P2 p2, V value, U user) {
+        return updateAction.update(entities, param, p2, value, user);
     }
 }

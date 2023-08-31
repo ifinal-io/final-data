@@ -15,6 +15,7 @@
 
 package org.ifinalframework.data.domain.function;
 
+import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
@@ -38,11 +39,11 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class DefaultUpdateAuditStatusFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
-        implements UpdateFunction<T, P, AuditValue, U> {
+        implements UpdateFunction<T, P, IAudit.AuditStatus, AuditValue, U> {
     private final Repository<K, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, AuditValue value, U user) {
+    public Integer update(List<T> entities, P param, IAudit.AuditStatus auditStatus, AuditValue value, U user) {
         Update update = Update.update()
                 .set("audit_status", value.getStatus())
                 .set("audit_content", value.getContent())

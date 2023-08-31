@@ -38,12 +38,12 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class DefaultUpdateStatusFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
-        implements UpdateFunction<T, P, IEnum<?>, U> {
+        implements UpdateFunction<T, P, IEnum<?>, IEnum<?>, U> {
     private final Repository<K, T> repository;
 
     @Override
     @SuppressWarnings("unchecked")
-    public Integer update(List<T> entities, P param, IEnum<?> value, U user) {
+    public Integer update(List<T> entities, P param, IEnum<?> status, IEnum<?> value, U user) {
         Update update = Update.update().set("status", value);
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);

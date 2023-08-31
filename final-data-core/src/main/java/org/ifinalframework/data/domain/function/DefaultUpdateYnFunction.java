@@ -23,7 +23,7 @@ import org.ifinalframework.data.query.CriterionTarget;
 import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.BiUpdateFunction;
+import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -40,7 +40,7 @@ import lombok.RequiredArgsConstructor;
  */
 @RequiredArgsConstructor
 public class DefaultUpdateYnFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
-        implements BiUpdateFunction<T, P, YN, YN, U> {
+        implements UpdateFunction<T, P, YN, YN, U> {
     private final Repository<K, T> repository;
 
     @Override

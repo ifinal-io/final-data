@@ -19,7 +19,7 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.BiUpdateFunction;
+import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -35,7 +35,7 @@ import lombok.RequiredArgsConstructor;
  **/
 @RequiredArgsConstructor
 public class DefaultUpdateFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
-        implements BiUpdateFunction<T, P, Boolean, T, U> {
+        implements UpdateFunction<T, P, Boolean, T, U> {
     private final Repository<K, T> repository;
 
     @Override

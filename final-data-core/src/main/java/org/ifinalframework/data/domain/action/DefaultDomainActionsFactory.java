@@ -33,7 +33,6 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.AbsUpdateDeleteDomainActionDispatcher;
-import org.ifinalframework.data.domain.BiUpdateDomainActionDispatcher;
 import org.ifinalframework.data.domain.DeleteDomainActionDispatcher;
 import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.domain.DomainSpiMatcher;
@@ -59,7 +58,6 @@ import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
-import org.ifinalframework.data.spi.BiUpdateFunction;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.DefaultUpdateAuditStatusPreValidator;
@@ -181,13 +179,13 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         domainActionMap.put(SpiAction.Type.COUNT_BY_QUERY, countSelectActionByQuery);
 
         // update
-        final BiUpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
+        final UpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
                 = buildUpdateActionById(repository, entityClass, idClass);
         domainActionMap.put(SpiAction.Type.UPDATE_BY_ID, updateByIdDomainAction);
 
         // update yn
 
-        final BiUpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
+        final UpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
                 = buildUpdateYnActionById(repository, entityClass, idClass);
         domainActionMap.put(SpiAction.Type.UPDATE_YN_BY_ID, updateYnActionById);
 
@@ -196,20 +194,20 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         if (IStatus.class.isAssignableFrom(entityClass)) {
             final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
 
-            final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, U> updateStatusActionById
+            final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, IEnum<?>, U> updateStatusActionById
                     = buildUpdateStatusActionById(repository, entityClass, idClass, statusClass);
             domainActionMap.put(SpiAction.Type.UPDATE_STATUS_BY_ID, updateStatusActionById);
         }
         // update locked
         if (ILock.class.isAssignableFrom(entityClass)) {
 
-            final BiUpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
+            final UpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
                     = buildUpdateLockedActionById(repository, entityClass, idClass);
             domainActionMap.put(SpiAction.Type.UPDATE_LOCKED_BY_ID, updateLockedActionById);
         }
 
         if (IAudit.class.isAssignableFrom(entityClass)) {
-            final UpdateDomainActionDispatcher<K, T, K, AuditValue, U> updateAuditStatusActionById
+            final UpdateDomainActionDispatcher<K, T, K, IAudit.AuditStatus, AuditValue, U> updateAuditStatusActionById
                     = buildUpdateAuditStatusActionById(repository, entityClass, idClass);
             domainActionMap.put(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
         }
@@ -221,32 +219,33 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
     }
 
 
-    private UpdateDomainActionDispatcher<K, T, K, AuditValue, U> buildUpdateAuditStatusActionById(Repository<K, T> repository,
-                                                                                                  Class<?> entityClass, Class<?> idClass) {
-        //UpdateFunction<Entity,ID,AuditValue,User>
-        final UpdateFunction<T, K, AuditValue, U> updateAuditStatusByIdFunction
-                = (UpdateFunction<T, K, AuditValue, U>) applicationContext.getBeanProvider(
+    private UpdateDomainActionDispatcher<K, T, K, IAudit.AuditStatus, AuditValue, U> buildUpdateAuditStatusActionById(Repository<K, T> repository,
+                                                                                                                      Class<?> entityClass, Class<?> idClass) {
+        //UpdateFunction<Entity,ID,IAudit.AuditStatus,AuditValue,User>
+        final UpdateFunction<T, K, IAudit.AuditStatus, AuditValue, U> updateAuditStatusByIdFunction
+                = (UpdateFunction<T, K, IAudit.AuditStatus, AuditValue, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(idClass),
+                                ResolvableType.forClass(IAudit.AuditStatus.class),
                                 ResolvableType.forClass(AuditValue.class),
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultUpdateAuditStatusFunction<>(repository));
-        final UpdateDomainActionDispatcher<K, T, K, AuditValue, U> updateAuditStatusActionById
+        final UpdateDomainActionDispatcher<K, T, K, IAudit.AuditStatus, AuditValue, U> updateAuditStatusActionById
                 = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_AUDIT_STATUS, repository, updateAuditStatusByIdFunction);
         acceptUpdateDomainAction(updateAuditStatusActionById, SpiAction.UPDATE_AUDIT_STATUS,
                 entityClass, idClass, AuditValue.class, userClass);
         return updateAuditStatusActionById;
     }
 
-    private BiUpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> buildUpdateLockedActionById(Repository<K, T> repository,
-                                                                                                     Class<?> entityClass,
-                                                                                                     Class<?> idClass) {
-        //BiUpdateFunction<Entity,ID,Boolean,Boolean,User>
-        final BiUpdateFunction<T, K, Boolean, Boolean, U> updateLockedByIdFunction
-                = (BiUpdateFunction<T, K, Boolean, Boolean, U>) applicationContext.getBeanProvider(
+    private UpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> buildUpdateLockedActionById(Repository<K, T> repository,
+                                                                                                   Class<?> entityClass,
+                                                                                                   Class<?> idClass) {
+        //UpdateFunction<Entity,ID,Boolean,Boolean,User>
+        final UpdateFunction<T, K, Boolean, Boolean, U> updateLockedByIdFunction
+                = (UpdateFunction<T, K, Boolean, Boolean, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
@@ -256,42 +255,43 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultUpdateLockedFunction<>(repository));
-        final BiUpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
-                = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
+        final UpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
+                = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_LOCKED, repository, updateLockedByIdFunction);
         acceptUpdateDomainAction(updateLockedActionById, SpiAction.UPDATE_LOCKED, entityClass, idClass, Boolean.class, userClass);
         return updateLockedActionById;
     }
 
-    private UpdateDomainActionDispatcher<K, T, K, IEnum<?>, U> buildUpdateStatusActionById(Repository<K, T> repository,
-                                                                                           Class<?> entityClass,
-                                                                                           Class<?> idClass,
-                                                                                           Class<?> statusClass) {
+    private UpdateDomainActionDispatcher<K, T, K, IEnum<?>, IEnum<?>, U> buildUpdateStatusActionById(Repository<K, T> repository,
+                                                                                                     Class<?> entityClass,
+                                                                                                     Class<?> idClass,
+                                                                                                     Class<?> statusClass) {
         //UpdateFunction<Entity,ID,Status,User>
-        final UpdateFunction<T, K, IEnum<?>, U> updateStatusByIdFunction
-                = (UpdateFunction<T, K, IEnum<?>, U>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, K, IEnum<?>, IEnum<?>, U> updateStatusByIdFunction
+                = (UpdateFunction<T, K, IEnum<?>, IEnum<?>, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(idClass),
                                 ResolvableType.forClass(statusClass),
+                                ResolvableType.forClass(statusClass),
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultUpdateStatusFunction<>(repository));
 
-        final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, U> updateStatusActionById
+        final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, IEnum<?>, U> updateStatusActionById
                 = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_STATUS, repository, updateStatusByIdFunction);
         acceptUpdateDomainAction(updateStatusActionById, SpiAction.UPDATE_STATUS, entityClass, idClass, statusClass, userClass);
         return updateStatusActionById;
     }
 
-    private BiUpdateDomainActionDispatcher<K, T, K, YN, YN, U> buildUpdateYnActionById(Repository<K, T> repository,
-                                                                                       Class<?> entityClass,
-                                                                                       Class<?> idClass) {
+    private UpdateDomainActionDispatcher<K, T, K, YN, YN, U> buildUpdateYnActionById(Repository<K, T> repository,
+                                                                                     Class<?> entityClass,
+                                                                                     Class<?> idClass) {
         //UpdateFunction<Entity,ID,YN,User>
-        final BiUpdateFunction<T, K, YN, YN, U> updateYnByIdFunction
-                = (BiUpdateFunction<T, K, YN, YN, U>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, K, YN, YN, U> updateYnByIdFunction
+                = (UpdateFunction<T, K, YN, YN, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
-                                BiUpdateFunction.class,
+                                UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(idClass),
                                 ResolvableType.forClass(YN.class),
@@ -300,20 +300,20 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                         ))
                 .getIfAvailable(() -> new DefaultUpdateYnFunction<>(repository));
 
-        final BiUpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
-                = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
+        final UpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
+                = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE_YN, repository, updateYnByIdFunction);
         acceptUpdateDomainAction(updateYnActionById, SpiAction.UPDATE_YN, entityClass, idClass, YN.class, userClass);
         return updateYnActionById;
     }
 
-    private BiUpdateDomainActionDispatcher<K, T, K, Boolean, T, U> buildUpdateActionById(Repository<K, T> repository,
-                                                                                         Class<?> entityClass,
-                                                                                         Class<?> idClass) {
+    private UpdateDomainActionDispatcher<K, T, K, Boolean, T, U> buildUpdateActionById(Repository<K, T> repository,
+                                                                                       Class<?> entityClass,
+                                                                                       Class<?> idClass) {
         // BiUpdateFunction<Entity,ID,Boolean,Entity,User>
-        final BiUpdateFunction<T, K, Boolean, T, U> updateByIdFunction
-                = (BiUpdateFunction<T, K, Boolean, T, U>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, K, Boolean, T, U> updateByIdFunction
+                = (UpdateFunction<T, K, Boolean, T, U>) applicationContext.getBeanProvider(
                 ResolvableType.forClassWithGenerics(
-                        BiUpdateFunction.class,
+                        UpdateFunction.class,
                         ResolvableType.forClass(entityClass),
                         ResolvableType.forClass(idClass),
                         ResolvableType.forClass(Boolean.class),
@@ -322,8 +322,8 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                 )
         ).getIfAvailable(() -> new DefaultUpdateFunction<>(repository));
 
-        final BiUpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
-                = new BiUpdateDomainActionDispatcher<>(SpiAction.UPDATE, repository, updateByIdFunction);
+        final UpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
+                = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE, repository, updateByIdFunction);
         acceptUpdateDomainAction(updateByIdDomainAction, SpiAction.UPDATE, entityClass, idClass, entityClass, userClass);
         return updateByIdDomainAction;
     }

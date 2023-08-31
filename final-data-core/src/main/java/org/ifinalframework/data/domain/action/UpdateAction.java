@@ -19,8 +19,18 @@ package org.ifinalframework.data.domain.action;
  * UpdateAction
  *
  * @author mik
+ * @see org.ifinalframework.data.spi.UpdateFunction
  * @since 1.5.2
  **/
 public interface UpdateAction<P1, P2, V, U, R> extends DomainAction {
+    /**
+     * return updated rows.
+     *
+     * @param param1 update condition
+     * @param param2 update param
+     * @param value  update value
+     * @param user   update user
+     * @return update rows.
+     */
     R update(P1 param1, P2 param2, V value, U user);
 }
