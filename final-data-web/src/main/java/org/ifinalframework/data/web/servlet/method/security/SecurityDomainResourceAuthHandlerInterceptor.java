@@ -15,6 +15,9 @@
 
 package org.ifinalframework.data.web.servlet.method.security;
 
+import org.springframework.expression.spel.standard.SpelExpressionParser;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
@@ -44,6 +47,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Interceptor
 public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInterceptor {
+    private final SpelExpressionParser spelExpressionParser = new SpelExpressionParser();
+    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -63,8 +68,8 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
             final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 
-            final WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(
-                    () -> authentication, request);
+            final WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(() -> authentication, request);
+            root.setTrustResolver(authenticationTrustResolver);
 
             if (root.hasRole("ROOT")) {
                 return true;
@@ -88,7 +93,7 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }
 
-    protected String resolveName(String name, HttpServletRequest request) {
+    protected String resolveName(String name, HttpServletRequest request) throws Exception {
         Map<String, String> uriTemplateVars = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
     }
