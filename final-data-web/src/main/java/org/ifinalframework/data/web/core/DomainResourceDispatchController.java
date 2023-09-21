@@ -187,7 +187,7 @@ public class DomainResourceDispatchController {
     public Object detail(@PathVariable String resource,
                          @Valid @RequestQuery(view = IView.Detail.class) IQuery query,
                          @RequestAction(type = SpiAction.Type.DETAIL_BY_QUERY) SelectAction selectAction,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
