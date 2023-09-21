@@ -15,9 +15,7 @@
 
 package org.ifinalframework.data.web.servlet.method.security;
 
-import org.springframework.expression.spel.standard.SpelExpressionParser;
-import org.springframework.security.authentication.AuthenticationTrustResolver;
-import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 import org.springframework.web.method.HandlerMethod;
@@ -25,6 +23,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
 import org.ifinalframework.context.exception.ForbiddenException;
+import org.ifinalframework.context.exception.UnauthorizedException;
 import org.ifinalframework.data.security.DomainResourceAuth;
 import org.ifinalframework.web.annotation.servlet.Interceptor;
 
@@ -45,8 +44,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Interceptor
 public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInterceptor {
-    private final SpelExpressionParser spelExpressionParser = new SpelExpressionParser();
-    private final AuthenticationTrustResolver authenticationTrustResolver = new AuthenticationTrustResolverImpl();
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -63,16 +60,23 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
             final String authority = String.join(":", domainResourceAuth.prefix(), resource,
                     domainResourceAuth.action().getAuthority());
 
-            final WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(
-                    () -> SecurityContextHolder.getContext().getAuthentication(), request);
+            final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            if(root.hasRole("ROOT")){
+
+            final WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(
+                    () -> authentication, request);
+
+            if (root.hasRole("ROOT")) {
                 return true;
             }
 
             final boolean hasAuthority = root.hasAuthority(authority);
 
             if (!hasAuthority) {
+
+                if (root.isAnonymous()) {
+                    throw new UnauthorizedException("未登录");
+                }
 
                 logger.warn("您没有权限访问：{} {} {}", request.getMethod(), request.getRequestURI(), authority);
 
@@ -81,11 +85,10 @@ public class SecurityDomainResourceAuthHandlerInterceptor implements HandlerInte
 
         }
 
-
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }
 
-    protected String resolveName(String name, HttpServletRequest request) throws Exception {
+    protected String resolveName(String name, HttpServletRequest request) {
         Map<String, String> uriTemplateVars = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         return (uriTemplateVars != null ? uriTemplateVars.get(name) : null);
     }
