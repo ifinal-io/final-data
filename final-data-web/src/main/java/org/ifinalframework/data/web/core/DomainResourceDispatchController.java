@@ -191,8 +191,13 @@ public class DomainResourceDispatchController {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
         }
-        final Object result = selectAction.select(query, user);
-        return processResult(result);
+        try {
+            setFinalContext(query);
+            final Object result = selectAction.select(query, user);
+            return processResult(result);
+        } finally {
+            clearFinalContext(query);
+        }
     }
 
     /**
