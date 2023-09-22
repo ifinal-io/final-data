@@ -219,8 +219,9 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
     }
 
 
-    private UpdateDomainActionDispatcher<K, T, K, IAudit.AuditStatus, AuditValue, U> buildUpdateAuditStatusActionById(Repository<K, T> repository,
-                                                                                                                      Class<?> entityClass, Class<?> idClass) {
+    private UpdateDomainActionDispatcher<K, T, K, IAudit.AuditStatus, AuditValue, U> buildUpdateAuditStatusActionById(
+            Repository<K, T> repository,
+            Class<?> entityClass, Class<?> idClass) {
         //UpdateFunction<Entity,ID,IAudit.AuditStatus,AuditValue,User>
         final UpdateFunction<T, K, IAudit.AuditStatus, AuditValue, U> updateAuditStatusByIdFunction
                 = (UpdateFunction<T, K, IAudit.AuditStatus, AuditValue, U>) applicationContext.getBeanProvider(
