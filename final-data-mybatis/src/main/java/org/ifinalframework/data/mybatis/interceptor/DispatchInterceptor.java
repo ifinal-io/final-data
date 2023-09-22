@@ -52,15 +52,7 @@ import lombok.extern.slf4j.Slf4j;
  * @version 1.5.0
  * @since 1.5.0
  */
-@Intercepts({
-        @Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                RowBounds.class, ResultHandler.class}),
-        @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class,
-                RowBounds.class, ResultHandler.class, CacheKey.class,
-                BoundSql.class}),
-        @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),
-})
+@Intercepts({@Signature(type = Executor.class, method = "update", args = {MappedStatement.class, Object.class}), @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class}), @Signature(type = Executor.class, method = "query", args = {MappedStatement.class, Object.class, RowBounds.class, ResultHandler.class, CacheKey.class, BoundSql.class}), @Signature(type = StatementHandler.class, method = "prepare", args = {Connection.class, Integer.class}),})
 @Order
 @Slf4j
 @Component
@@ -113,7 +105,7 @@ public class DispatchInterceptor implements Interceptor {
         }
 
         final Class<?> mapperClass = ClassUtils.resolveClassName(mapperClassName, getClass().getClassLoader());
-        final Method mapperMethod = ReflectionUtils.findMethod(mapperClass,mapperMethodName,null);
+        final Method mapperMethod = ReflectionUtils.findMethod(mapperClass, mapperMethodName, null);
 
 
         for (final ParameterConsumer parameterConsumer : parameterConsumers) {
