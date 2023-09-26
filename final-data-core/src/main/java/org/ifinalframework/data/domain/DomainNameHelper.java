@@ -36,16 +36,28 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class DomainNameHelper {
+
+    private static final String ENTITY_PACKAGE = ".entity";
+    private static final String DOMAIN_PACKAGE = ".domain";
+    private static final String REPOSITORY_PACKAGE = ".repository";
+    private static final String QUERY_PACKAGE = ".query";
+    private static final String MAPPER_PACKAGE = ".mapper";
+    private static final String SERVICE_PACKAGE = ".service";
+    private static final String MODEL_PACKAGE = ".model";
+    private static final String MAPPER_SUFFIX = "Mapper";
+    private static final String QUERY_SUFFIX = "Query";
+    private static final String SERVICE_SUFFIX = "Service";
+
     public static String mapperPackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".repository") + ".mapper";
+        return entity.getPackage().getName().replace(ENTITY_PACKAGE, REPOSITORY_PACKAGE) + MAPPER_PACKAGE;
     }
 
     public static String mapperName(Class<?> entity) {
-        return entity.getSimpleName() + "Mapper";
+        return entity.getSimpleName() + MAPPER_SUFFIX;
     }
 
     public static String queryEntityPackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".repository") + ".query";
+        return entity.getPackage().getName().replace(ENTITY_PACKAGE, REPOSITORY_PACKAGE) + QUERY_PACKAGE;
     }
 
     public static String queryEntityName(Class<?> entity) {
@@ -53,7 +65,7 @@ public class DomainNameHelper {
     }
 
     public static String domainQueryPackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".domain") + ".query";
+        return entity.getPackage().getName().replace(ENTITY_PACKAGE, DOMAIN_PACKAGE) + QUERY_PACKAGE;
     }
 
     public static String domainQueryName(Class<?> entity) {
@@ -61,19 +73,19 @@ public class DomainNameHelper {
     }
 
     public static String domainQueryName(Class<?> entity, Class<?> action) {
-        return action == null ? entity.getSimpleName() + "Query" : entity.getSimpleName() + action.getSimpleName() + "Query";
+        return action == null ? entity.getSimpleName() + QUERY_SUFFIX : entity.getSimpleName() + action.getSimpleName() + QUERY_SUFFIX;
     }
 
     public static String servicePackage(Class<?> entity) {
-        return entity.getPackage().getName().replace(".entity", ".domain") + ".service";
+        return entity.getPackage().getName().replace(ENTITY_PACKAGE, DOMAIN_PACKAGE) + SERVICE_PACKAGE;
     }
 
     public static String serviceName(Class<?> entity) {
-        return entity.getSimpleName() + "Service";
+        return entity.getSimpleName() + SERVICE_SUFFIX;
     }
 
     public static String modelClassName(Class<?> entity, String action) {
-        final String dtoPackageName = entity.getPackage().getName().replace(".entity", ".domain") + ".model";
+        final String dtoPackageName = entity.getPackage().getName().replace(ENTITY_PACKAGE, DOMAIN_PACKAGE) + MODEL_PACKAGE;
         final String dtoName = action + entity.getSimpleName();
         return String.join(".", dtoPackageName, dtoName);
     }
