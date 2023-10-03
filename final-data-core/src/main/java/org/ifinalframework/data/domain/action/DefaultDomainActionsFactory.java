@@ -27,6 +27,7 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
 import org.ifinalframework.core.ILock;
 import org.ifinalframework.core.IQuery;
+import org.ifinalframework.core.ISort;
 import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
@@ -47,6 +48,7 @@ import org.ifinalframework.data.domain.function.DefaultSelectOneFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateAuditStatusFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateLockedFunction;
+import org.ifinalframework.data.domain.function.DefaultUpdateSortFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateStatusFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateYnFunction;
 import org.ifinalframework.data.domain.model.AuditValue;
@@ -212,10 +214,42 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
             domainActionMap.put(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
         }
 
+        if (ISort.class.isAssignableFrom(entityClass)) {
+            final UpdateDomainActionDispatcher<K, T, Void, Void, Map<K, Integer>, U> updateSortAction
+                    = buildUpdateSortAction(repository, entityClass, idClass);
+            domainActionMap.put(SpiAction.Type.SORT, updateSortAction);
+        }
+
 
         builder.domainActions(domainActionMap);
 
         return builder.build();
+    }
+
+    private UpdateDomainActionDispatcher<K, T, Void, Void, Map<K, Integer>, U> buildUpdateSortAction(
+            Repository<K, T> repository,
+            Class<?> entityClass, Class<?> idClass) {
+        //UpdateFunction<Entity,Void,Void,Map<K,Integer>,User>
+        final UpdateFunction<T, Void, Void, Map<K, Integer>, U> updateAuditStatusByIdFunction
+                = (UpdateFunction<T, Void, Void, Map<K, Integer>, U>) applicationContext.getBeanProvider(
+                        ResolvableType.forClassWithGenerics(
+                                UpdateFunction.class,
+                                ResolvableType.forClass(entityClass),
+                                ResolvableType.forClass(Void.class),
+                                ResolvableType.forClass(Void.class),
+                                ResolvableType.forClassWithGenerics(Map.class, idClass, Integer.class),
+                                ResolvableType.forClass(userClass)
+                        ))
+                .getIfAvailable(() -> new DefaultUpdateSortFunction<>(repository));
+        final UpdateDomainActionDispatcher<K, T, Void, Void, Map<K, Integer>, U> updateAuditStatusActionById
+                = new UpdateDomainActionDispatcher<>(SpiAction.SORT, repository, updateAuditStatusByIdFunction);
+        acceptUpdateDomainAction(updateAuditStatusActionById, SpiAction.SORT,
+                ResolvableType.forClass(entityClass),
+                ResolvableType.forClass(idClass),
+                ResolvableType.forClassWithGenerics(Map.class, idClass, Integer.class),
+                ResolvableType.forClass(userClass)
+        );
+        return updateAuditStatusActionById;
     }
 
 
@@ -601,6 +635,20 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
     }
 
 
+    private void acceptUpdateDomainAction(AbsUpdateDeleteDomainActionDispatcher action, SpiAction spiAction,
+                                          ResolvableType entityClass, ResolvableType paramClass,
+                                          ResolvableType valueClass, ResolvableType userClass) {
+        action.setPreUpdateValidator(getSpiComposite(spiAction, SpiAction.Advice.PRE,
+                BiValidator.class, entityClass, valueClass, userClass));
+        action.setPreUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.PRE,
+                UpdateConsumer.class, entityClass, valueClass, userClass));
+        action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST,
+                UpdateConsumer.class, entityClass, valueClass, userClass));
+        action.setAfterConsumer(getSpiComposite(spiAction, SpiAction.Advice.AFTER,
+                AfterConsumer.class, entityClass, paramClass, ResolvableType.forClass(Void.class),ResolvableType.forClass( Integer.class), userClass));
+    }
+
+
     private static Class<?> resolveClass(ClassLoader classLoader, String className, Class<?> defaultClass) {
         if (ClassUtils.isPresent(className, classLoader)) {
             return ClassUtils.resolveClassName(className, classLoader);
@@ -627,6 +675,38 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         return (E) CompositeProxies.composite(type, beans);
     }
 
+    private <E> E getSpiComposite(SpiAction action, SpiAction.Advice advice, Class<E> type, ResolvableType... generics) {
+        List beans = getBeansOf(action, advice, type, generics);
+        if (CollectionUtils.isEmpty(beans) && type == Filter.class) {
+            beans = Collections.singletonList((Filter) (action1, entity, user) -> true);
+        }
+
+        if (type == BiValidator.class && generics[1].getRawClass() == AuditValue.class) {
+            beans.add(new DefaultUpdateAuditStatusPreValidator<>());
+        }
+
+
+        if (type == AfterConsumer.class) {
+            beans.add(loggerAfterConsumer);
+        }
+
+        return (E) CompositeProxies.composite(type, beans);
+    }
+
+    private List getBeansOf(SpiAction action, SpiAction.Advice advice, Class<?> type, ResolvableType... generics) {
+        return applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(type, generics))
+                .orderedStream()
+                .filter(it -> {
+
+                    final boolean matches = domainSpiMatcher.matches(it, action, advice);
+                    if (matches) {
+                        logger.info("found type={} for action={} with advice={}", type, action, advice);
+                    }
+                    return matches;
+
+                })
+                .collect(Collectors.toList());
+    }
 
     private List getBeansOf(SpiAction action, SpiAction.Advice advice, Class<?> type, Class<?>... generics) {
         return applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(type, generics))

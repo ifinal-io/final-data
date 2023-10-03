@@ -32,6 +32,7 @@ import org.ifinalframework.data.spi.Filter;
 import jakarta.validation.Valid;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * DomainService.
@@ -158,5 +159,5 @@ public interface DomainService<K extends Serializable, T extends IEntity<K>, U e
 
     Object audit(@NonNull K id, @NonNull AuditValue auditValue, @NonNull U user);
 
-
+    Object sort(Map<K, Integer> sort, U user);
 }

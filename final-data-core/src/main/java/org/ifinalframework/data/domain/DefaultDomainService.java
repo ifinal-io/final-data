@@ -32,6 +32,7 @@ import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.spi.SpiAction;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -145,5 +146,11 @@ public class DefaultDomainService<K extends Serializable, T extends IEntity<K>, 
     public Object audit(@NonNull K id, @NonNull AuditValue auditValue, @NonNull U user) {
         final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID);
         return updateAction.update(id, null, auditValue, user);
+    }
+
+    @Override
+    public Object sort(Map<K, Integer> sort, U user) {
+        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.SORT);
+        return updateAction.update(null,null,sort, user);
     }
 }

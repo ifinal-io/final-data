@@ -38,6 +38,7 @@ import org.ifinalframework.json.Json;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -103,7 +104,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
 
             list = doActionPrepare(param1, param2, value, user);
 
-            if (CollectionUtils.isEmpty(list)) {
+            if (Objects.nonNull(param1) && CollectionUtils.isEmpty(list)) {
                 throw new NotFoundException("not found target entities: {}", Json.toJson(param1));
             }
 
@@ -158,6 +159,11 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
     protected abstract Integer doInterAction(List<T> entities, P1 query, P2 p2, V value, U user);
 
     protected List<T> doActionPrepare(P1 query, P2 param2, V value, U user) {
+
+        if(Objects.isNull(query)){
+            return Collections.emptyList();
+        }
+
         if (query instanceof IQuery) {
             return repository.select((IQuery) query);
         } else if (query instanceof Collection<?> ids) {

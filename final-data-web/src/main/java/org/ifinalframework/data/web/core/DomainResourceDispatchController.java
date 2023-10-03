@@ -425,6 +425,16 @@ public class DomainResourceDispatchController {
         return processResult(domainService.yn(id, YN.NO, YN.YES, user));
     }
 
+    @PatchMapping("/sort")
+    @DomainResourceAuth(action = SpiAction.SORT)
+    public Object sort(@PathVariable String resource, @RequestBody Map<Long, Integer> sort,
+                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> sort={}", Json.toJson(sort));
+        }
+        return processResult(domainService.sort(sort, user));
+    }
+
     // count
     @GetMapping("/count")
     @DomainResourceAuth(action = SpiAction.COUNT)
