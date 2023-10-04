@@ -52,6 +52,7 @@ import org.ifinalframework.data.domain.function.DefaultUpdateSortFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateStatusFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateYnFunction;
 import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.domain.model.SortValue;
 import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
@@ -214,8 +215,9 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
             domainActionMap.put(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
         }
 
+        // sort
         if (ISort.class.isAssignableFrom(entityClass)) {
-            final UpdateDomainActionDispatcher<K, T, Void, Void, Map<K, Integer>, U> updateSortAction
+            final UpdateDomainActionDispatcher<K, T, Void, Void, List<SortValue<K>>, U> updateSortAction
                     = buildUpdateSortAction(repository, entityClass, idClass);
             domainActionMap.put(SpiAction.Type.SORT, updateSortAction);
         }
@@ -226,27 +228,31 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         return builder.build();
     }
 
-    private UpdateDomainActionDispatcher<K, T, Void, Void, Map<K, Integer>, U> buildUpdateSortAction(
+    private UpdateDomainActionDispatcher<K, T, Void, Void, List<SortValue<K>>, U> buildUpdateSortAction(
             Repository<K, T> repository,
             Class<?> entityClass, Class<?> idClass) {
+
+        // List<SortValue<K>>
+        ResolvableType sortType = ResolvableType.forClassWithGenerics(List.class,ResolvableType.forClassWithGenerics(SortValue.class, idClass));
+
         //UpdateFunction<Entity,Void,Void,Map<K,Integer>,User>
-        final UpdateFunction<T, Void, Void, Map<K, Integer>, U> updateAuditStatusByIdFunction
-                = (UpdateFunction<T, Void, Void, Map<K, Integer>, U>) applicationContext.getBeanProvider(
+        final UpdateFunction<T, Void, Void, List<SortValue<K>>, U> updateAuditStatusByIdFunction
+                = (UpdateFunction<T, Void, Void, List<SortValue<K>>, U>) applicationContext.getBeanProvider(
                         ResolvableType.forClassWithGenerics(
                                 UpdateFunction.class,
                                 ResolvableType.forClass(entityClass),
                                 ResolvableType.forClass(Void.class),
                                 ResolvableType.forClass(Void.class),
-                                ResolvableType.forClassWithGenerics(Map.class, idClass, Integer.class),
+                                sortType,
                                 ResolvableType.forClass(userClass)
                         ))
                 .getIfAvailable(() -> new DefaultUpdateSortFunction<>(repository));
-        final UpdateDomainActionDispatcher<K, T, Void, Void, Map<K, Integer>, U> updateAuditStatusActionById
+        final UpdateDomainActionDispatcher<K, T, Void, Void, List<SortValue<K>>, U> updateAuditStatusActionById
                 = new UpdateDomainActionDispatcher<>(SpiAction.SORT, repository, updateAuditStatusByIdFunction);
         acceptUpdateDomainAction(updateAuditStatusActionById, SpiAction.SORT,
                 ResolvableType.forClass(entityClass),
                 ResolvableType.forClass(idClass),
-                ResolvableType.forClassWithGenerics(Map.class, idClass, Integer.class),
+                sortType,
                 ResolvableType.forClass(userClass)
         );
         return updateAuditStatusActionById;

@@ -54,6 +54,7 @@ import org.ifinalframework.data.domain.excel.ClassPathDomainResourceExcelExportP
 import org.ifinalframework.data.domain.excel.DomainResourceExcelExportProvider;
 import org.ifinalframework.data.domain.excel.ExcelExportService;
 import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.domain.model.SortValue;
 import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.security.DomainResourceAuth;
 import org.ifinalframework.data.spi.SpiAction;
@@ -427,7 +428,7 @@ public class DomainResourceDispatchController {
 
     @PatchMapping("/sort")
     @DomainResourceAuth(action = SpiAction.SORT)
-    public Object sort(@PathVariable String resource, @RequestBody Map<Long, Integer> sort,
+    public Object sort(@PathVariable String resource, @RequestBody List<SortValue<Long>> sort,
                        IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> sort={}", Json.toJson(sort));

@@ -25,6 +25,7 @@ import org.ifinalframework.core.IQuery;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.domain.model.SortValue;
 import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Filter;
@@ -32,6 +33,7 @@ import org.ifinalframework.data.spi.Filter;
 import jakarta.validation.Valid;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -159,5 +161,5 @@ public interface DomainService<K extends Serializable, T extends IEntity<K>, U e
 
     Object audit(@NonNull K id, @NonNull AuditValue auditValue, @NonNull U user);
 
-    Object sort(Map<K, Integer> sort, U user);
+    Object sort(List<SortValue<K>> sort, U user);
 }

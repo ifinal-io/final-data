@@ -29,9 +29,11 @@ import org.ifinalframework.data.domain.action.InsertAction;
 import org.ifinalframework.data.domain.action.SelectAction;
 import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.domain.model.AuditValue;
+import org.ifinalframework.data.domain.model.SortValue;
 import org.ifinalframework.data.spi.SpiAction;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
@@ -149,7 +151,7 @@ public class DefaultDomainService<K extends Serializable, T extends IEntity<K>, 
     }
 
     @Override
-    public Object sort(Map<K, Integer> sort, U user) {
+    public Object sort(List<SortValue<K>> sort, U user) {
         final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.SORT);
         return updateAction.update(null,null,sort, user);
     }

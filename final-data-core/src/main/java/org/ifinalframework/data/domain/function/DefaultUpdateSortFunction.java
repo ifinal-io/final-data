@@ -17,13 +17,13 @@ package org.ifinalframework.data.domain.function;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.domain.model.SortValue;
 import org.ifinalframework.data.query.Update;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 import lombok.RequiredArgsConstructor;
 
@@ -35,11 +35,12 @@ import lombok.RequiredArgsConstructor;
  **/
 @RequiredArgsConstructor
 public class DefaultUpdateSortFunction<K extends Serializable, T extends IEntity<K>, U extends IUser<?>>
-        implements UpdateFunction<T, Void, Void, Map<K, Integer>, U> {
+        implements UpdateFunction<T, Void, Void, List<SortValue<K>>, U> {
 
     private final Repository<K, T> repository;
+
     @Override
-    public Integer update(List<T> entities, Void param, Void param2, Map<K, Integer> value, U user) {
-        return value.entrySet().stream().mapToInt(entry -> repository.update(Update.update().set("sort_value", entry.getValue()),entry.getKey())).sum();
+    public Integer update(List<T> entities, Void param, Void param2, List<SortValue<K>> value, U user) {
+        return value.stream().mapToInt(item -> repository.update(Update.update().set("sort_value", item.getSortValue()), item.getId())).sum();
     }
 }
