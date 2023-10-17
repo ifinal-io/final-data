@@ -20,8 +20,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.util.CollectionUtils;
 
 import org.ifinalframework.core.IEntity;
+import org.ifinalframework.core.INode;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.ITree;
 import org.ifinalframework.data.query.CriterionTarget;
 import org.ifinalframework.data.query.Query;
 import org.ifinalframework.data.repository.Repository;
@@ -52,14 +52,14 @@ public class DefaultSelectFunction<K extends Serializable, T extends IEntity<K>,
     public List<T> select(@NonNull P param, @NonNull U user) {
         final List<T> list = firstSelect(param, user);
 
-        if(!CollectionUtils.isEmpty(list) && ITree.class.isAssignableFrom(list.get(0).getClass())){
-           processTree(list);
+        if (!CollectionUtils.isEmpty(list) && INode.class.isAssignableFrom(list.get(0).getClass())) {
+            processTree(list);
         }
 
         return list;
     }
 
-    private List<T> firstSelect(@NonNull P param,@NonNull U user){
+    private List<T> firstSelect(@NonNull P param, @NonNull U user) {
         if (param instanceof IQuery) {
             return repository.select(view, (IQuery) param);
         } else if (param instanceof Collection) {
@@ -69,18 +69,18 @@ public class DefaultSelectFunction<K extends Serializable, T extends IEntity<K>,
         }
     }
 
-    private void processTree(List<T> list){
-        if(!CollectionUtils.isEmpty(list)){
-            for(T t : list){
+    private void processTree(List<T> list) {
+        if (!CollectionUtils.isEmpty(list)) {
+            for (T t : list) {
                 List<T> children = processTree(t.getId());
-                ((ITree)t).setChildren(children);
+                ((INode<K, T>) t).setChildren(children);
             }
         }
     }
 
-    private List<T> processTree(K parentId){
+    private List<T> processTree(K parentId) {
         List<T> children = repository.select(view, new Query().where(CriterionTarget.from("parent_id").eq(parentId)));
-        if(!CollectionUtils.isEmpty(children)) {
+        if (!CollectionUtils.isEmpty(children)) {
             processTree(children);
         }
         return children;
