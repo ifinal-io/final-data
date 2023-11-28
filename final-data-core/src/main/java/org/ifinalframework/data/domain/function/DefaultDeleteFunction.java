@@ -42,10 +42,10 @@ public class DefaultDeleteFunction<K extends Serializable, T extends IEntity<K>,
     @Override
     public Integer delete(List<T> entities, P param, U user) {
 
-        if (param instanceof IQuery) {
-            return repository.delete((IQuery) param);
-        } else if (param instanceof Collection) {
-            return repository.delete((Collection<K>) param);
+        if (param instanceof IQuery query) {
+            return repository.delete(query);
+        } else if (param instanceof Collection ids) {
+            return repository.delete(ids);
         } else {
             return repository.delete((K) param);
         }
