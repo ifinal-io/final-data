@@ -17,6 +17,7 @@ package org.ifinalframework.data.cache;
 
 import org.springframework.context.expression.AnnotatedElementKey;
 import org.springframework.core.annotation.AnnotationAttributes;
+import org.springframework.util.ReflectionUtils;
 
 import org.ifinalframework.aop.InvocationContext;
 import org.ifinalframework.cache.annotation.Cache;
@@ -25,8 +26,10 @@ import org.ifinalframework.context.expression.MethodMetadata;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 
 import static org.mockito.Mockito.*;
@@ -53,6 +56,11 @@ class CacheDelInterceptorHandlerTest {
 
     @Test
     void handle() {
+
+
+        final Method method = ReflectionUtils.findMethod(CacheDelInterceptorHandlerTest.class, "handle");
+        when(methodMetadata.getMethod()).thenReturn(method);
+        when(methodMetadata.getTargetMethod()).thenReturn(method);
 
         when(invocationContext.metadata()).thenReturn(methodMetadata);
 
