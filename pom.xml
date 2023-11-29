@@ -21,13 +21,13 @@
     <parent>
         <groupId>org.ifinalframework.project</groupId>
         <artifactId>final-dependencies</artifactId>
-        <version>1.5.5-SNAPSHOT</version>
+        <version>1.5.6-SNAPSHOT</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>org.ifinalframework.data</groupId>
     <artifactId>final-data</artifactId>
-    <version>1.5.5-SNAPSHOT</version>
+    <version>1.5.6-SNAPSHOT</version>
     <name>final-data</name>
     <description>Demo project for Spring Boot</description>
 
@@ -125,52 +125,52 @@
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-core</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-jdbc</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-mybatis</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-redis</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-cache</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-sharding</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-web</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-auto</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-auto-generator</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
             <dependency>
                 <groupId>org.ifinalframework.data</groupId>
                 <artifactId>final-data-auto-processor</artifactId>
-                <version>1.5.5-SNAPSHOT</version>
+                <version>1.5.6-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
