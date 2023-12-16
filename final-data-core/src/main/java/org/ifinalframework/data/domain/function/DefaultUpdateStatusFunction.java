@@ -43,7 +43,7 @@ public class DefaultUpdateStatusFunction<K extends Serializable, T extends IEnti
 
     @Override
     @SuppressWarnings("unchecked")
-    public Integer update(List<T> entities, P param, IEnum<?> status, IEnum<?> value, U user) {
+    public Integer update(List<T> entities,String property, P param, IEnum<?> status, IEnum<?> value, U user) {
         Update update = Update.update().set("status", value);
         if (param instanceof IQuery) {
             return repository.update(update, (IQuery) param);
@@ -52,5 +52,10 @@ public class DefaultUpdateStatusFunction<K extends Serializable, T extends IEnti
         } else {
             return repository.update(update, (K) param);
         }
+    }
+
+    @Override
+    public String getProperty() {
+        return "status";
     }
 }

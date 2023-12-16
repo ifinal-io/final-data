@@ -40,7 +40,12 @@ public class DefaultUpdateSortFunction<K extends Serializable, T extends IEntity
     private final Repository<K, T> repository;
 
     @Override
-    public Integer update(List<T> entities, Void param, Void param2, List<SortValue<K>> value, U user) {
+    public Integer update(List<T> entities, String property, Void param, Void param2, List<SortValue<K>> value, U user) {
         return value.stream().mapToInt(item -> repository.update(Update.update().set("sort_value", item.getSortValue()), item.getId())).sum();
+    }
+
+    @Override
+    public String getProperty() {
+        return "sortValue";
     }
 }

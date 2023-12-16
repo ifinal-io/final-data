@@ -21,6 +21,8 @@ import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
@@ -34,6 +36,7 @@ import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.DomainResource;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.AbsUpdateDeleteDomainActionDispatcher;
+import org.ifinalframework.data.domain.DefaultUpdateDomainActionDispatcherFactory;
 import org.ifinalframework.data.domain.DeleteDomainActionDispatcher;
 import org.ifinalframework.data.domain.DomainNameHelper;
 import org.ifinalframework.data.domain.DomainSpiMatcher;
@@ -41,6 +44,7 @@ import org.ifinalframework.data.domain.InsertDomainActionDispatcher;
 import org.ifinalframework.data.domain.SelectDomainDispatcher;
 import org.ifinalframework.data.domain.SimpleNameDomainSpiMatcher;
 import org.ifinalframework.data.domain.UpdateDomainActionDispatcher;
+import org.ifinalframework.data.domain.UpdateDomainActionDispatcherFactory;
 import org.ifinalframework.data.domain.function.DefaultDeleteFunction;
 import org.ifinalframework.data.domain.function.DefaultSelectCountFunction;
 import org.ifinalframework.data.domain.function.DefaultSelectFunction;
@@ -73,7 +77,11 @@ import org.ifinalframework.data.spi.SelectFunction;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.data.spi.UpdateFunction;
+import org.ifinalframework.data.spi.UpdateProperty;
+import org.ifinalframework.data.spi.exception.UpdatePropertyNotMatchedException;
 import org.ifinalframework.util.CompositeProxies;
+import org.ifinalframework.util.collection.LinkedMultiKeyMap;
+import org.ifinalframework.util.collection.MultiKeyMap;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -101,6 +109,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
     private final ApplicationContext applicationContext;
 
     private final DomainSpiMatcher domainSpiMatcher = new SimpleNameDomainSpiMatcher();
+    private final UpdateDomainActionDispatcherFactory updateDomainActionDispatcherFactory = new DefaultUpdateDomainActionDispatcherFactory();
 
     private final LoggerAfterConsumer loggerAfterConsumer;
 
@@ -181,6 +190,67 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         domainQueryMap.put(IView.Count.class, countSelectActionByQuery.getDomainQueryClass());
         domainActionMap.put(SpiAction.Type.COUNT_BY_QUERY, countSelectActionByQuery);
 
+        // new update
+        final MultiValueMap<String, UpdateProperty<T>> updatePropertiesById = new LinkedMultiValueMap<>();
+        final MultiValueMap<String, UpdateProperty<T>> updatePropertiesByQuery = new LinkedMultiValueMap<>();
+
+        applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(UpdateProperty.class, entityClass))
+                .orderedStream()
+                .forEach(it -> {
+
+                    UpdateProperty<T> updateProperty = (UpdateProperty<T>) it;
+                    final String property = updateProperty.getProperty();
+
+                    final Class<?> targetClass = AopUtils.getTargetClass(it);
+                    final ResolvableType resolvableType = ResolvableType.forClass(targetClass);
+                    if (it instanceof UpdateConsumer<?, ?, ?> updateConsumer) {
+
+                        final Class<?> targetEntityClass = resolvableType.as(UpdateConsumer.class).resolveGeneric();
+                        final Class<?> targetValueClass = resolvableType.as(UpdateConsumer.class).resolveGeneric(1);
+
+                        if (Objects.isNull(property) && entityClass != targetValueClass) {
+                            throw new UpdatePropertyNotMatchedException(String.format("%s for null property must be target value class: %s", targetClass.getSimpleName(), entityClass.getSimpleName()));
+                        }
+
+                        updatePropertiesById.add(property, updateProperty);
+                        updatePropertiesByQuery.add(property, updateProperty);
+
+                    } else if (it instanceof UpdateFunction<?, ?, ?, ?, ?> updateFunction) {
+                        final ResolvableType updateFunctionResolvableType = resolvableType.as(UpdateFunction.class);
+                        final Class<?> p1Class = updateFunctionResolvableType.resolveGeneric(1);
+
+                        if (Long.class.equals(p1Class)) {
+                            updatePropertiesById.add(property, updateProperty);
+                        } else if (IQuery.class.isAssignableFrom(p1Class)) {
+                            updatePropertiesByQuery.add(property, updateProperty);
+                        }
+
+                    }
+
+
+                    logger.info("UpdateProperty {} -> {}", entityClass.getSimpleName(), targetClass);
+                });
+
+
+        final Map<String,DomainAction> updateDomainActions = new LinkedHashMap<>();
+
+        // update by id
+        for (Map.Entry<String, List<UpdateProperty<T>>> entry : updatePropertiesById.entrySet()) {
+            final String property = entry.getKey();
+            final List<UpdateProperty<T>> updateProperties = entry.getValue();
+            final UpdateAction updateAction = updateDomainActionDispatcherFactory.create(property, repository, updateProperties);
+            final String key = String.join("#","UPDATE_BY_ID",property);
+            updateDomainActions.put(key,updateAction);
+        }
+        // update by query
+        for (Map.Entry<String, List<UpdateProperty<T>>> entry : updatePropertiesByQuery.entrySet()) {
+            final String property = entry.getKey();
+            final List<UpdateProperty<T>> updateProperties = entry.getValue();
+            final UpdateAction updateAction = updateDomainActionDispatcherFactory.create(property, repository, updateProperties);
+            final String key = String.join("#","UPDATE_BY_QUERY",property);
+            updateDomainActions.put(key,updateAction);
+        }
+
         // update
         final UpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
                 = buildUpdateActionById(repository, entityClass, idClass);
@@ -233,7 +303,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
             Class<?> entityClass, Class<?> idClass) {
 
         // List<SortValue<K>>
-        ResolvableType sortType = ResolvableType.forClassWithGenerics(List.class,ResolvableType.forClassWithGenerics(SortValue.class, idClass));
+        ResolvableType sortType = ResolvableType.forClassWithGenerics(List.class, ResolvableType.forClassWithGenerics(SortValue.class, idClass));
 
         //UpdateFunction<Entity,Void,Void,Map<K,Integer>,User>
         final UpdateFunction<T, Void, Void, List<SortValue<K>>, U> updateAuditStatusByIdFunction
@@ -651,7 +721,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         action.setPostUpdateConsumer(getSpiComposite(spiAction, SpiAction.Advice.POST,
                 UpdateConsumer.class, entityClass, valueClass, userClass));
         action.setAfterConsumer(getSpiComposite(spiAction, SpiAction.Advice.AFTER,
-                AfterConsumer.class, entityClass, paramClass, ResolvableType.forClass(Void.class),ResolvableType.forClass( Integer.class), userClass));
+                AfterConsumer.class, entityClass, paramClass, ResolvableType.forClass(Void.class), ResolvableType.forClass(Integer.class), userClass));
     }
 
 

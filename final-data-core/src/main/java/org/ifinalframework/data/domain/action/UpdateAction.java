@@ -32,5 +32,20 @@ public interface UpdateAction<P1, P2, V, U, R> extends DomainAction {
      * @param user   update user
      * @return update rows.
      */
-    R update(P1 param1, P2 param2, V value, U user);
+    default R update(P1 param1, P2 param2, V value, U user) {
+        return update(null, param1, param2, value, user);
+    }
+
+    /**
+     * return updated rows.
+     *
+     * @param property the property will be updated, {@code null} means update entity.
+     * @param param1   the first param.
+     * @param param2   the second param.
+     * @param value    the value will be updated.
+     * @param user     the operator user.
+     * @return update rows.
+     * @since 1.5.6
+     */
+    R update(String property, P1 param1, P2 param2, V value, U user);
 }

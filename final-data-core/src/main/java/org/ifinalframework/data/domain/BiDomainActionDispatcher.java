@@ -31,7 +31,14 @@ public interface BiDomainActionDispatcher<P1, P2, V, U> {
      * @param param2 action param.
      * @param value  action value.
      * @param user   action user.
+     * @deprecated use {@link #dispatch(String, Object, Object, Object, Object)} instead.
+     * @see #dispatch(String, Object, Object, Object, Object)
      */
-    Object dispatch(P1 param1, P2 param2, V value, U user);
+    @Deprecated
+    default Object dispatch(P1 param1, P2 param2, V value, U user){
+        return dispatch(null, param1, param2, value, user);
+    }
+
+    Object dispatch(String property, P1 param1, P2 param2, V value, U user);
 
 }

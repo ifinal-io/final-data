@@ -75,9 +75,10 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
     private AfterReturningQueryConsumer<T, P1, U> afterReturningQueryConsumer;
     private AfterConsumer<T, P1, V, Integer, U> afterConsumer;
 
+
     @Override
-    public Object update(P1 param1, P2 param2, V value, U user) {
-        return dispatch(param1, param2, value, user);
+    public Object update(String property, P1 param1, P2 param2, V value, U user) {
+        return dispatch(property, param1, param2, value, user);
     }
 
     @Override
@@ -91,7 +92,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
     }
 
     @Override
-    public Object dispatch(P1 param1, P2 param2, V value, U user) {
+    public Object dispatch(String property, P1 param1, P2 param2, V value, U user) {
 
         Integer result = null;
         List<T> list = null;
@@ -160,7 +161,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
 
     protected List<T> doActionPrepare(P1 query, P2 param2, V value, U user) {
 
-        if(Objects.isNull(query)){
+        if (Objects.isNull(query)) {
             return Collections.emptyList();
         }
 

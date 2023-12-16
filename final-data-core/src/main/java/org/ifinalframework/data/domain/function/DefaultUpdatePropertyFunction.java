@@ -18,6 +18,7 @@ package org.ifinalframework.data.domain.function;
 import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
+import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.query.CriterionTarget;
 import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.query.Update;
@@ -34,29 +35,30 @@ import lombok.RequiredArgsConstructor;
  * DefaultUpdateLockedAction.
  *
  * @author ilikly
- * @version 1.5.1
- * @since 1.5.1
+ * @version 1.5.6
+ * @since 1.5.6
  */
 @RequiredArgsConstructor
-public class DefaultUpdateLockedFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
-        implements UpdateFunction<T, P, Boolean, Boolean, U> {
+public final class DefaultUpdatePropertyFunction<K extends Serializable, T extends IEntity<K>, P, U extends IUser<?>>
+        implements UpdateFunction<T, P, Object, Object, U> {
+    private final String property;
     private final Repository<K, T> repository;
 
     @Override
-    public Integer update(List<T> entities, String property, P param, Boolean current, Boolean value, U user) {
-        Update update = Update.update().set("locked", value);
+    public Integer update(List<T> entities, String property, P param, Object current, Object value, U user) {
+        Update update = Update.update().set(property, value);
 
         if (param instanceof PageQuery pageQuery) {
-            pageQuery.where(CriterionTarget.from("locked").eq(current));
+            pageQuery.where(CriterionTarget.from(property).eq(current));
             return repository.update(update, pageQuery);
         } else if (param instanceof Collection<?> ids) {
             final PageQuery pageQuery = new PageQuery();
-            pageQuery.where(CriterionTarget.from("locked").eq(current),
+            pageQuery.where(CriterionTarget.from(property).eq(current),
                     CriterionTarget.from("id").in(ids));
             return repository.update(update, pageQuery);
         } else {
             final PageQuery pageQuery = new PageQuery();
-            pageQuery.where(CriterionTarget.from("locked").eq(current),
+            pageQuery.where(CriterionTarget.from(property).eq(current),
                     CriterionTarget.from("id").eq(param));
 
             final int updated = repository.update(update, pageQuery);
@@ -72,6 +74,6 @@ public class DefaultUpdateLockedFunction<K extends Serializable, T extends IEnti
 
     @Override
     public String getProperty() {
-        return "locked";
+        return property;
     }
 }

@@ -44,7 +44,7 @@ public class DefaultUpdateYnFunction<K extends Serializable, T extends IEntity<K
     private final Repository<K, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, YN current, YN value, U user) {
+    public Integer update(List<T> entities, String property, P param, YN current, YN value, U user) {
         Update update = Update.update().set("yn", value);
 
 
@@ -70,5 +70,10 @@ public class DefaultUpdateYnFunction<K extends Serializable, T extends IEntity<K
 
         }
 
+    }
+
+    @Override
+    public String getProperty() {
+        return "yn";
     }
 }

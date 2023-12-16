@@ -43,7 +43,7 @@ public class DefaultUpdateAuditStatusFunction<K extends Serializable, T extends 
     private final Repository<K, T> repository;
 
     @Override
-    public Integer update(List<T> entities, P param, IAudit.AuditStatus auditStatus, AuditValue value, U user) {
+    public Integer update(List<T> entities, String property, P param, IAudit.AuditStatus auditStatus, AuditValue value, U user) {
         Update update = Update.update()
                 .set("audit_status", value.getStatus())
                 .set("audit_content", value.getContent())
@@ -57,5 +57,10 @@ public class DefaultUpdateAuditStatusFunction<K extends Serializable, T extends 
             return repository.update(update, (K) param);
         }
 
+    }
+
+    @Override
+    public String getProperty() {
+        return "audit-status";
     }
 }

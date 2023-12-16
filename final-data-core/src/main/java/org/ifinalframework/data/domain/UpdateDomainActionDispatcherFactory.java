@@ -13,31 +13,22 @@
  * limitations under the License.
  */
 
-package org.ifinalframework.data.domain.action;
+package org.ifinalframework.data.domain;
 
+import org.ifinalframework.core.IEntity;
+import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.util.collection.MultiKeyMap;
+import org.ifinalframework.data.spi.UpdateProperty;
 
-import java.util.Map;
-
-import lombok.Builder;
-import lombok.Getter;
+import java.io.Serializable;
+import java.util.List;
 
 /**
- * DomainActions
+ * UpdateDomainActionDispatcherFactory
  *
  * @author mik
- * @since 1.5.2
+ * @since 1.5.6
  **/
-@Getter
-@Builder
-public class DomainActions {
-    private final Repository<?, ?> repository;
-    private final Class<?> entityClass;
-    private final Map<Class<?>, Class<?>> domainEntityClasses;
-    private final Map<Class<?>, Class<?>> domainQueryClasses;
-    private final Map<SpiAction.Type, DomainAction> domainActions;
-
-
+public interface UpdateDomainActionDispatcherFactory {
+    <K extends Serializable, T extends IEntity<K>> UpdateAction create(String property, Repository<K, T> repository, List<UpdateProperty<T>> updateProperties);
 }

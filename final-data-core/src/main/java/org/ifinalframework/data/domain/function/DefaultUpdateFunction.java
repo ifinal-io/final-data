@@ -40,7 +40,7 @@ public class DefaultUpdateFunction<K extends Serializable, T extends IEntity<K>,
 
     @Override
     @SuppressWarnings("unchecked")
-    public Integer update(List<T> entities, P param, Boolean selective, T value, U user) {
+    public Integer update(List<T> entities, String property, P param, Boolean selective, T value, U user) {
         if (param instanceof IQuery) {
             return repository.update(value, selective, (IQuery) param);
         } else if (param instanceof Collection) {
