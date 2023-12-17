@@ -18,11 +18,12 @@ package org.ifinalframework.data.domain.action;
 import org.springframework.stereotype.Component;
 
 import org.ifinalframework.context.exception.NotFoundException;
-import org.ifinalframework.data.spi.SpiAction;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * DefaultDomainActionRegistry
@@ -45,14 +46,19 @@ public class DefaultDomainActionRegistry implements DomainActionRegistry {
     }
 
     @Override
-    public <T extends DomainAction> T get(String resource, SpiAction.Type actionType) {
+    public <T extends DomainAction> T get(String resource, String action, String property) {
 
         final DomainActions domainActions = get(resource);
 
-        final DomainAction domainAction = domainActions.getDomainActions().get(actionType);
+        final String key = Stream.of(action, property).filter(Objects::nonNull).collect(Collectors.joining("#"));
+        DomainAction domainAction = domainActions.getDomainActions().get(key);
+
+        if(Objects.isNull(domainAction)){
+            domainAction = domainActions.getDomainActions().get(String.join("#", action, "property"));
+        }
 
         if (Objects.isNull(domainAction)) {
-            throw new NotFoundException("Not found domainAction for resource of " + resource + " and type of " + actionType);
+            throw new NotFoundException("Not found domainAction for resource of " + resource + " and type of " + action);
         }
 
         return (T) domainAction;

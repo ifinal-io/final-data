@@ -121,7 +121,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
                 preUpdateConsumer.accept(spiAction, SpiAction.Advice.PRE, list, value, user);
             }
 
-            result = doInterAction(list, param1, param2, value, user);
+            result = doInterAction(list,property, param1, param2, value, user);
 
             if (Objects.nonNull(postUpdateConsumer)) {
                 postUpdateConsumer.accept(spiAction, SpiAction.Advice.POST, list, value, user);
@@ -157,7 +157,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
         }
     }
 
-    protected abstract Integer doInterAction(List<T> entities, P1 query, P2 p2, V value, U user);
+    protected abstract Integer doInterAction(List<T> entities, String property, P1 query, P2 p2, V value, U user);
 
     protected List<T> doActionPrepare(P1 query, P2 param2, V value, U user) {
 

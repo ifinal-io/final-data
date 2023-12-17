@@ -42,7 +42,7 @@ public class DeleteDomainActionDispatcher<K extends Serializable, T extends IEnt
     }
 
     @Override
-    protected Integer doInterAction(List<T> entities, P query, Void p2, Void value, U user) {
+    protected Integer doInterAction(List<T> entities,String property, P query, Void p2, Void value, U user) {
         return updateAction.delete(entities, query, user);
     }
 

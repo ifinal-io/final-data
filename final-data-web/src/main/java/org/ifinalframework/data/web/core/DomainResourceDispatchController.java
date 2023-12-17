@@ -107,7 +107,7 @@ public class DomainResourceDispatchController {
     @DomainResourceAuth(action = SpiAction.LIST)
     public Object query(@PathVariable String resource,
                         @Valid @RequestQuery(view = IView.List.class) IQuery query,
-                        @RequestAction(type = SpiAction.Type.LIST_BY_QUERY) SelectAction selectAction,
+                        @RequestAction(action = "LIST_BY_QUERY") SelectAction selectAction,
                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
@@ -130,7 +130,7 @@ public class DomainResourceDispatchController {
     @GetMapping("/export")
     @DomainResourceAuth(action = SpiAction.EXPORT)
     public Object export(@PathVariable String resource, @Valid @RequestQuery(view = IView.Export.class) IQuery query,
-                         @RequestAction(type = SpiAction.Type.EXPORT_BY_QUERY) SelectAction selectAction,
+                         @RequestAction(action = "EXPORT_BY_QUERY") SelectAction selectAction,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService,
                          HttpServletResponse response) throws Exception {
         if (logger.isDebugEnabled()) {
@@ -187,7 +187,7 @@ public class DomainResourceDispatchController {
     @DomainResourceAuth(action = SpiAction.DETAIL)
     public Object detail(@PathVariable String resource,
                          @Valid @RequestQuery(view = IView.Detail.class) IQuery query,
-                         @RequestAction(type = SpiAction.Type.DETAIL_BY_QUERY) SelectAction selectAction,
+                         @RequestAction(action = "DETAIL_BY_QUERY") SelectAction selectAction,
                          IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
@@ -207,7 +207,7 @@ public class DomainResourceDispatchController {
     @GetMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DETAIL)
     public Object detail(@PathVariable String resource, @PathVariable Long id,
-                         @RequestAction(type = SpiAction.Type.DETAIL_BY_ID) SelectAction selectAction,
+                         @RequestAction(action = "DETAIL_BY_ID") SelectAction selectAction,
                          IUser<?> user) {
         return processResult(selectAction.select(id, user));
     }
@@ -220,7 +220,7 @@ public class DomainResourceDispatchController {
     @DeleteMapping
     @DomainResourceAuth(action = SpiAction.DELETE)
     public Object delete(@PathVariable String resource, @Valid @RequestQuery(view = IView.Delete.class) IQuery query,
-                         @RequestAction(type = SpiAction.Type.DELETE_BY_QUERY) DeleteAction deleteAction,
+                         @RequestAction(action = "DELETE_BY_QUERY") DeleteAction deleteAction,
                          IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> query={}", Json.toJson(query));
@@ -239,7 +239,7 @@ public class DomainResourceDispatchController {
     @DeleteMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DELETE)
     public Object delete(@PathVariable String resource, @PathVariable Long id,
-                         @RequestAction(type = SpiAction.Type.DELETE_BY_ID) DeleteAction deleteAction,
+                         @RequestAction(action = "DELETE_BY_ID") DeleteAction deleteAction,
                          IUser<?> user) {
         return processResult(deleteAction.delete(id, user));
     }
@@ -253,7 +253,7 @@ public class DomainResourceDispatchController {
     @DomainResourceAuth(action = SpiAction.CREATE)
     public Object create(@PathVariable String resource,
                          @Validated({IView.Create.class}) @Valid @RequestEntity(view = IView.Create.class) Object requestEntity,
-                         @RequestAction(type = SpiAction.Type.CREATE) InsertAction insertAction,
+                         @RequestAction(action = "CREATE") InsertAction insertAction,
                          IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
@@ -272,7 +272,7 @@ public class DomainResourceDispatchController {
     @DomainResourceAuth(action = SpiAction.UPDATE)
     public Object update(@PathVariable String resource, @PathVariable Long id,
                          @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
-                         @RequestAction(type = SpiAction.Type.UPDATE_BY_ID) UpdateAction updateAction,
+                         @RequestAction(action = "UPDATE_BY_ID") UpdateAction updateAction,
                          IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
@@ -297,7 +297,7 @@ public class DomainResourceDispatchController {
     @DomainResourceAuth(action = SpiAction.UPDATE)
     public Object patch(@PathVariable String resource, @PathVariable Long id,
                         @Valid @RequestEntity(view = IView.Update.class) Object requestEntity,
-                        @RequestAction(type = SpiAction.Type.UPDATE_BY_ID) UpdateAction updateAction,
+                        @RequestAction(action = "UPDATE_BY_ID") UpdateAction updateAction,
                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> entity={}", Json.toJson(requestEntity));
@@ -319,7 +319,7 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/status")
     @DomainResourceAuth(action = SpiAction.UPDATE_STATUS)
     public Object status(@PathVariable String resource, @PathVariable Long id, @RequestParam String status,
-                         @RequestAction(type = SpiAction.Type.UPDATE_STATUS_BY_ID) UpdateAction updateAction,
+                         @RequestAction(action = "UPDATE_BY_ID#status") UpdateAction updateAction,
                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
 
         if (logger.isDebugEnabled()) {
@@ -351,7 +351,7 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/audit")
     @DomainResourceAuth(action = SpiAction.UPDATE_AUDIT_STATUS)
     public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue,
-                        @RequestAction(type = SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID) UpdateAction updateAction,
+                        @RequestAction(action = "UPDATE_BY_ID#audit-status") UpdateAction updateAction,
                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> auditValue={}", Json.toJson(auditValue));

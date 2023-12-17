@@ -19,6 +19,7 @@ import org.ifinalframework.context.exception.BadRequestException;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
+import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.query.CriterionTarget;
 import org.ifinalframework.data.query.PageQuery;
 import org.ifinalframework.data.query.Update;
@@ -26,6 +27,7 @@ import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.UpdateFunction;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -46,19 +48,31 @@ public final class DefaultUpdatePropertyFunction<K extends Serializable, T exten
 
     @Override
     public Integer update(List<T> entities, String property, P param, Object current, Object value, U user) {
-        Update update = Update.update().set(property, value);
+        Update update = Update.update();
+
+        String column = property.replace("-", "_");
+
+        if(value instanceof AuditValue auditValue){
+            update.set("audit_status", auditValue.getStatus())
+                    .set("audit_content", auditValue.getContent())
+                    .set("audit_date_time", LocalDateTime.now())
+                    .set("auditor_id", user.getId())
+                    .set("auditor_name", user.getName());
+        }else {
+            update.set(column, value);
+        }
 
         if (param instanceof PageQuery pageQuery) {
-            pageQuery.where(CriterionTarget.from(property).eq(current));
+            pageQuery.where(CriterionTarget.from(column).eq(current));
             return repository.update(update, pageQuery);
         } else if (param instanceof Collection<?> ids) {
             final PageQuery pageQuery = new PageQuery();
-            pageQuery.where(CriterionTarget.from(property).eq(current),
+            pageQuery.where(CriterionTarget.from(column).eq(current),
                     CriterionTarget.from("id").in(ids));
             return repository.update(update, pageQuery);
         } else {
             final PageQuery pageQuery = new PageQuery();
-            pageQuery.where(CriterionTarget.from(property).eq(current),
+            pageQuery.where(CriterionTarget.from(column).eq(current),
                     CriterionTarget.from("id").eq(param));
 
             final int updated = repository.update(update, pageQuery);

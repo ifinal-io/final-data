@@ -44,7 +44,7 @@ public class UpdateDomainActionDispatcher<K extends Serializable, T extends IEnt
     }
 
     @Override
-    protected Integer doInterAction(List<T> entities, P1 param, P2 p2, V value, U user) {
-        return updateAction.update(entities, param, p2, value, user);
+    protected Integer doInterAction(List<T> entities, String property, P1 param, P2 p2, V value, U user) {
+        return updateAction.update(entities, property, param, p2, value, user);
     }
 }

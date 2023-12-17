@@ -34,7 +34,7 @@ import org.ifinalframework.data.spi.SpiAction;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
@@ -71,88 +71,103 @@ public class DefaultDomainService<K extends Serializable, T extends IEntity<K>, 
 
     @Override
     public Object export(IQuery query, U user) {
-        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.EXPORT_BY_QUERY);
+        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.EXPORT_BY_QUERY.name());
         return selectAction.select(query, user);
     }
 
     @Override
     public Object create(@NonNull Object entity, @NonNull U user) {
-        final InsertAction insertAction = (InsertAction) domainActions.getDomainActions().get(SpiAction.Type.CREATE);
+        final InsertAction insertAction = (InsertAction) domainActions.getDomainActions().get(SpiAction.Type.CREATE.name());
         return insertAction.insert(entity, user);
     }
 
     @Override
     public Object list(@NonNull IQuery query, @NonNull U user) {
-        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.LIST_BY_QUERY);
+        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.LIST_BY_QUERY.name());
         return selectAction.select(query, user);
     }
 
     @Override
     public Object detail(@NonNull IQuery query, @NonNull U user) {
-        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.DETAIL_BY_QUERY);
+        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.DETAIL_BY_QUERY.name());
         return selectAction.select(query, user);
 
     }
 
     @Override
     public Object detail(@NonNull K id, @NonNull U user) {
-        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.DETAIL_BY_ID);
+        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.DETAIL_BY_ID.name());
         return selectAction.select(id, user);
     }
 
     @Override
     public Object count(@NonNull IQuery query, @NonNull U user) {
-        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.COUNT_BY_QUERY);
+        final SelectAction selectAction = (SelectAction) domainActions.getDomainActions().get(SpiAction.Type.COUNT_BY_QUERY.name());
         return selectAction.select(query, user);
     }
 
     @Override
     public Object delete(@NonNull IQuery query, @NonNull U user) {
-        final DeleteAction deleteAction = (DeleteAction) domainActions.getDomainActions().get(SpiAction.Type.DELETE_BY_QUERY);
+        final DeleteAction deleteAction = (DeleteAction) domainActions.getDomainActions().get(SpiAction.Type.DELETE_BY_QUERY.name());
         return deleteAction.delete(query, user);
 
     }
 
     @Override
     public Object delete(@NonNull K id, @NonNull U user) {
-        final DeleteAction deleteAction = (DeleteAction) domainActions.getDomainActions().get(SpiAction.Type.DELETE_BY_ID);
+        final DeleteAction deleteAction = (DeleteAction) domainActions.getDomainActions().get(SpiAction.Type.DELETE_BY_ID.name());
         return deleteAction.delete(id, user);
     }
 
     @Override
     public Object update(@NonNull T entity, @NonNull K id, boolean selective, @NonNull U user) {
         entity.setId(id);
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_BY_ID);
+        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_BY_ID.name());
         return updateAction.update(id, selective, entity, user);
     }
 
     @Override
     public Object yn(@NonNull K id, @Nullable YN current, @NonNull YN yn, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_YN_BY_ID);
-        return updateAction.update(id, current, yn, user);
+        UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "yn"));
+        if (Objects.isNull(updateAction)) {
+            updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "property"));
+        }
+        return updateAction.update("yn", id, current, yn, user);
     }
 
     @Override
     public Object status(@NonNull K id, @NonNull IEnum<?> status, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_STATUS_BY_ID);
-        return updateAction.update(id, null, status, user);
+        UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "status"));
+        if (Objects.isNull(updateAction)) {
+            updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "property"));
+        }
+        return updateAction.update("status", id, null, status, user);
     }
 
     @Override
     public Object lock(@NonNull K id, @Nullable Boolean current, @NonNull Boolean locked, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_LOCKED_BY_ID);
-        return updateAction.update(id, current, locked, user);
+        UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "locked"));
+        if (Objects.isNull(updateAction)) {
+            updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "property"));
+        }
+        return updateAction.update("locked", id, current, locked, user);
     }
 
     @Override
     public Object audit(@NonNull K id, @NonNull AuditValue auditValue, @NonNull U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID);
-        return updateAction.update(id, null, auditValue, user);
+        UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "audit-status"));
+        if (Objects.isNull(updateAction)) {
+            updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "property"));
+        }
+        return updateAction.update("audit-status",id, null, auditValue, user);
     }
 
     @Override
     public Object sort(List<SortValue<K>> sort, U user) {
-        final UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(SpiAction.Type.SORT);
-        return updateAction.update(null,null,sort, user);
+        UpdateAction updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "sort-value"));
+        if (Objects.isNull(updateAction)) {
+            updateAction = (UpdateAction) domainActions.getDomainActions().get(String.join("#", SpiAction.Type.UPDATE_BY_ID.name(), "property"));
+        }
+        return updateAction.update(null, null, sort, user);
     }
 }

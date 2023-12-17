@@ -52,7 +52,8 @@ public class RequestActionHandlerMethodArgumentResolver implements HandlerMethod
                                   NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         final RequestAction requestAction = parameter.getParameterAnnotation(RequestAction.class);
         final String resource = resolveName(requestAction.resource(), parameter, webRequest);
-        return domainActionRegistry.get(resource, requestAction.type());
+        final String property = resolveName(requestAction.property(), parameter, webRequest);
+        return domainActionRegistry.get(resource, requestAction.action(), property);
     }
 
     protected String resolveName(String name, MethodParameter parameter, NativeWebRequest request) throws Exception {

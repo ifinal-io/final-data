@@ -16,8 +16,6 @@
 package org.ifinalframework.data.domain.action;
 
 import org.ifinalframework.data.repository.Repository;
-import org.ifinalframework.data.spi.SpiAction;
-import org.ifinalframework.util.collection.MultiKeyMap;
 
 import java.util.Map;
 
@@ -37,7 +35,5 @@ public class DomainActions {
     private final Class<?> entityClass;
     private final Map<Class<?>, Class<?>> domainEntityClasses;
     private final Map<Class<?>, Class<?>> domainQueryClasses;
-    private final Map<SpiAction.Type, DomainAction> domainActions;
-
-
+    private final Map<String, DomainAction> domainActions;
 }

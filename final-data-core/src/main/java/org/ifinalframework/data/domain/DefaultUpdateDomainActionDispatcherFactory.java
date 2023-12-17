@@ -65,18 +65,7 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
             if (Objects.isNull(property)) {
                 updateFunction = new DefaultUpdateFunction<>(repository);
             } else {
-
-                switch (property) {
-                    case "audit-status":
-                        updateFunction = new DefaultUpdateAuditStatusFunction(repository);
-                        break;
-                    case "sort-value":
-                        updateFunction = new DefaultUpdateSortFunction(repository);
-                        break;
-                    default:
-                        updateFunction = new DefaultUpdatePropertyFunction(property.replace("-", "_"), repository);
-                        break;
-                }
+                updateFunction = new DefaultUpdatePropertyFunction(property,repository);
             }
         }
 
