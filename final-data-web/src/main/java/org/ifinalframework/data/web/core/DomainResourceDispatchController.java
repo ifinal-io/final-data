@@ -18,6 +18,7 @@ package org.ifinalframework.data.web.core;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
+import org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -459,6 +460,8 @@ public class DomainResourceDispatchController {
         if (logger.isDebugEnabled()) {
             logger.debug("==> property={}, value={}", property, Json.toJson(value));
         }
+
+
         return processResult(updateAction.update(property, id, null, value, user));
     }
 
