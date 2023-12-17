@@ -422,7 +422,7 @@ public class DomainResourceDispatchController {
             default -> throw new BadRequestException("不支持的操作");
         }
 
-        return processResult(updateAction.update("yn",id, current, yn, user));
+        return processResult(updateAction.update("yn", id, current, yn, user));
     }
 
     @PutMapping("/{id}/disable")
@@ -430,7 +430,7 @@ public class DomainResourceDispatchController {
     public Object disable(@PathVariable String resource, @PathVariable Long id,
                           @RequestAction(action = "UPDATE_BY_ID#yn") UpdateAction updateAction,
                           IUser<?> user) {
-        return yn(resource,id, YN.YES, updateAction, user);
+        return yn(resource, id, YN.YES, updateAction, user);
     }
 
     @PutMapping("/{id}/enable")
@@ -438,7 +438,28 @@ public class DomainResourceDispatchController {
     public Object enable(@PathVariable String resource, @PathVariable Long id,
                          @RequestAction(action = "UPDATE_BY_ID#yn") UpdateAction updateAction,
                          IUser<?> user) {
-        return yn(resource,id, YN.NO, updateAction, user);
+        return yn(resource, id, YN.NO, updateAction, user);
+    }
+
+    /**
+     * @param resource
+     * @param id
+     * @param property
+     * @param value
+     * @param updateAction
+     * @param user
+     * @return
+     * @since 1.5.6
+     */
+    @PatchMapping("/{id}/{property}")
+    public Object property(@PathVariable String resource, @PathVariable Long id, @PathVariable String property,
+                           @RequestBody String value,
+                           @RequestAction(action = "UPDATE_BY_ID") UpdateAction updateAction,
+                           IUser<?> user) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("==> property={}, value={}", property, Json.toJson(value));
+        }
+        return processResult(updateAction.update(property, id, null, value, user));
     }
 
     @PatchMapping("/sort")
