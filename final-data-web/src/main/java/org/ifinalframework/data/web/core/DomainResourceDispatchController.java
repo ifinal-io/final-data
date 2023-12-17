@@ -347,7 +347,17 @@ public class DomainResourceDispatchController {
 
     }
 
-    // audit
+    /**
+     * Audit status
+     *
+     * @param resource
+     * @param id           the id of audit entity.
+     * @param auditValue   the audit value.
+     * @param updateAction the update action.
+     * @param user         the operator.
+     * @return
+     * @see #cancel(String, Long, String, UpdateAction, IUser)
+     */
     @PatchMapping("/{id}/audit")
     @DomainResourceAuth(action = SpiAction.UPDATE_AUDIT_STATUS)
     public Object audit(@PathVariable String resource, @PathVariable Long id, @Valid @RequestBody AuditValue auditValue,
@@ -365,14 +375,15 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/cancel")
     @DomainResourceAuth(action = SpiAction.UPDATE_AUDIT_STATUS)
     public Object cancel(@PathVariable String resource, @PathVariable Long id, @RequestParam String content,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+                         @RequestAction(action = "UPDATE_BY_ID#audit-status") UpdateAction updateAction,
+                         IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> content={}", content);
         }
         final AuditValue auditValue = new AuditValue();
         auditValue.setStatus(IAudit.AuditStatus.CANCELED);
         auditValue.setContent(content);
-        return processResult(domainService.audit(id, auditValue, user));
+        return processResult(updateAction.update("audit-status", id, auditValue, user));
     }
 
 
@@ -380,15 +391,17 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/lock")
     @DomainResourceAuth(action = SpiAction.UPDATE_LOCKED)
     public Object lock(@PathVariable String resource, @PathVariable Long id,
-                       IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.lock(id, false, true, user));
+                       @RequestAction(action = "UPDATE_BY_ID#locked") UpdateAction updateAction,
+                       IUser<?> user) {
+        return processResult(updateAction.update("locked", id, false, true, user));
     }
 
     @PatchMapping("/{id}/unlock")
     @DomainResourceAuth(action = SpiAction.UPDATE_LOCKED)
     public Object unlock(@PathVariable String resource, @PathVariable Long id,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.lock(id, true, false, user));
+                         @RequestAction(action = "UPDATE_BY_ID#locked") UpdateAction updateAction,
+                         IUser<?> user) {
+        return processResult(updateAction.update("unlocked", id, true, false, user));
     }
 
 
@@ -396,7 +409,8 @@ public class DomainResourceDispatchController {
     @PatchMapping("/{id}/yn")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
     public Object yn(@PathVariable String resource, @PathVariable Long id, @RequestParam YN yn,
-                     IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
+                     @RequestAction(action = "UPDATE_BY_ID#yn") UpdateAction updateAction,
+                     IUser<?> user) {
         if (logger.isDebugEnabled()) {
             logger.debug("==> yn={}", yn);
         }
@@ -408,22 +422,23 @@ public class DomainResourceDispatchController {
             default -> throw new BadRequestException("不支持的操作");
         }
 
-
-        return processResult(domainService.yn(id, current, yn, user));
+        return processResult(updateAction.update("yn",id, current, yn, user));
     }
 
     @PutMapping("/{id}/disable")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
     public Object disable(@PathVariable String resource, @PathVariable Long id,
-                          IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.yn(id, YN.YES, YN.NO, user));
+                          @RequestAction(action = "UPDATE_BY_ID#yn") UpdateAction updateAction,
+                          IUser<?> user) {
+        return yn(resource,id, YN.YES, updateAction, user);
     }
 
     @PutMapping("/{id}/enable")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
     public Object enable(@PathVariable String resource, @PathVariable Long id,
-                         IUser<?> user, DomainService<Long, IEntity<Long>, IUser<?>> domainService) {
-        return processResult(domainService.yn(id, YN.NO, YN.YES, user));
+                         @RequestAction(action = "UPDATE_BY_ID#yn") UpdateAction updateAction,
+                         IUser<?> user) {
+        return yn(resource,id, YN.NO, updateAction, user);
     }
 
     @PatchMapping("/sort")
