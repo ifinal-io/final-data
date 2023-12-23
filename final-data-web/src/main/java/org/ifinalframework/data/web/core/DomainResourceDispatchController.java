@@ -18,7 +18,6 @@ package org.ifinalframework.data.web.core;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
-import org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
@@ -406,6 +405,18 @@ public class DomainResourceDispatchController {
     }
 
 
+    /**
+     * update yn
+     *
+     * @param resource
+     * @param id           the id of entity.
+     * @param yn           the yn value.
+     * @param updateAction the update action.
+     * @param user         the operator.
+     * @return
+     * @see #disable(String, Long, UpdateAction, IUser)
+     * @see #enable(String, Long, UpdateAction, IUser)
+     */
     // yn
     @PatchMapping("/{id}/yn")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
@@ -426,6 +437,14 @@ public class DomainResourceDispatchController {
         return processResult(updateAction.update("yn", id, current, yn, user));
     }
 
+    /**
+     * @param resource
+     * @param id
+     * @param updateAction
+     * @param user
+     * @return
+     * @see #yn(String, Long, YN, UpdateAction, IUser)
+     */
     @PutMapping("/{id}/disable")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
     public Object disable(@PathVariable String resource, @PathVariable Long id,
@@ -434,6 +453,14 @@ public class DomainResourceDispatchController {
         return yn(resource, id, YN.YES, updateAction, user);
     }
 
+    /**
+     * @param resource
+     * @param id
+     * @param updateAction
+     * @param user
+     * @return
+     * @see #yn(String, Long, YN, UpdateAction, IUser)
+     */
     @PutMapping("/{id}/enable")
     @DomainResourceAuth(action = SpiAction.UPDATE_YN)
     public Object enable(@PathVariable String resource, @PathVariable Long id,
