@@ -91,7 +91,7 @@ import java.util.Objects;
 @Transactional
 @RestController
 @Validated
-@RequestMapping("/api/{resource}")
+@RequestMapping("${final.data.web.domain-resource.prefix:/api}/{resource}")
 @ConditionalOnWebApplication
 public class DomainResourceDispatchController {
     private static final Logger logger = LoggerFactory.getLogger(DomainResourceDispatchController.class);
