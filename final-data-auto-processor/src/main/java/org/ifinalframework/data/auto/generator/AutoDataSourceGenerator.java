@@ -52,7 +52,7 @@ import java.util.Objects;
 /**
  * AutoDataSourceGenerator.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

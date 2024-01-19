@@ -34,7 +34,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see CachePut
  * @see Cache#set(Object, Object, Object, Long, TimeUnit, Class)

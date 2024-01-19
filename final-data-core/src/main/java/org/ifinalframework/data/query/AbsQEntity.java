@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

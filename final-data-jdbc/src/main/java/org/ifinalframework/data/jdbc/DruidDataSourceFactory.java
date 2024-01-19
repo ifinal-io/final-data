@@ -29,7 +29,7 @@ import java.util.Objects;
 /**
  * DruidDataSourceFactory.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.3.1
  * @see com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceWrapper
  * @since 1.3.1

@@ -32,7 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * SmartInitializingSingletonSqlSessionFactory.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.1
  * @since 1.5.1
  */

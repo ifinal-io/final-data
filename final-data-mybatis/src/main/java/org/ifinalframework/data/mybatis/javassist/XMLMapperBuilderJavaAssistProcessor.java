@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * XMLMapperBuilderJavaAssistProcessor.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.1
  * @see org.apache.ibatis.builder.xml.XMLMapperBuilder
  * @see org.ifinalframework.data.mybatis.builder.MapperBuilderAssistantExt

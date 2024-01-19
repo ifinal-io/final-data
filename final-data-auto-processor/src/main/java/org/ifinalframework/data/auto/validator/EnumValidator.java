@@ -26,7 +26,7 @@ import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

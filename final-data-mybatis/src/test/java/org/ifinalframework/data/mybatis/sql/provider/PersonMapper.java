@@ -19,7 +19,7 @@ package org.ifinalframework.data.mybatis.sql.provider;
 import org.ifinalframework.data.mybatis.mapper.AbsMapper;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

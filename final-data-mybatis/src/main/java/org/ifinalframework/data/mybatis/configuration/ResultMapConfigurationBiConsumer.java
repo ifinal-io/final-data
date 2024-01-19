@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * ResultConfigurationBiConsumer.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.0
  * @see org.ifinalframework.data.mybatis.builder.MapperBuilderAssistantExt
  * @since 1.4.0

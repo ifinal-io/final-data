@@ -18,7 +18,7 @@ package org.ifinalframework.data.domain.action;
 /**
  * SelectDomainAction
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public interface SelectAction<P, U, R> extends DomainAction {

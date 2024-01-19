@@ -25,7 +25,7 @@ import org.ifinalframework.data.redis.serializer.Object2StringRedisSerializer;
 /**
  * A custom {@link RedisTemplate} which serialize {@code key} to {@code string} and {@code value} to {@code json}.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see org.springframework.data.redis.core.StringRedisTemplate
  * @see Object2StringRedisSerializer

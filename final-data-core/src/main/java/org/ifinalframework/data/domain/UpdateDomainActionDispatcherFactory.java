@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * UpdateDomainActionDispatcherFactory
  *
- * @author mik
+ * @author iimik
  * @since 1.5.6
  **/
 public interface UpdateDomainActionDispatcherFactory {

@@ -22,7 +22,7 @@ import java.io.IOException;
 /**
  * ExcelExportService
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public interface ExcelExportService<P, R> {

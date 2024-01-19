@@ -20,7 +20,7 @@ import org.ifinalframework.poi.model.Excel;
 /**
  * DomainResourceExcelExportProvider
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @FunctionalInterface

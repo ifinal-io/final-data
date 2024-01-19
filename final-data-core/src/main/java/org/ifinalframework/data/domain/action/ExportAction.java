@@ -20,7 +20,7 @@ import org.ifinalframework.poi.model.Excel;
 /**
  * ExportAction
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public interface ExportAction<P, U, R> extends SelectAction<P, U, R> {

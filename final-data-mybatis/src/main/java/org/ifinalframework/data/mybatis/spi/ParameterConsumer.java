@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 /**
  * ParameterConsumer.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.0
  * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler, CacheKey, BoundSql)
  * @see org.apache.ibatis.executor.Executor#query(MappedStatement, Object, RowBounds, ResultHandler)

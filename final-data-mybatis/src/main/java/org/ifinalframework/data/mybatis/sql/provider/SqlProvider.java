@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * A sql provider for {@link ProviderSqlSource}.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see ProviderSqlSource
  * @see org.apache.ibatis.annotations.InsertProvider

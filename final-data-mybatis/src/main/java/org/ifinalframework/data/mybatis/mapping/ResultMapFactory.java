@@ -23,7 +23,7 @@ import org.apache.ibatis.session.Configuration;
 /**
  * Create a {@link ResultMap} from {@linkplain Class entity} with {@link Configuration}.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.2.2
  * @since 1.2.2
  */

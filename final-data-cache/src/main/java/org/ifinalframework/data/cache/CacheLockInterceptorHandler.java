@@ -38,7 +38,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see CacheLock
  * @since 1.0.0

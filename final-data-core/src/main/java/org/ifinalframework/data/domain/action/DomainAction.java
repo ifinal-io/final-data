@@ -18,7 +18,7 @@ package org.ifinalframework.data.domain.action;
 /**
  * DomainAction
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public interface DomainAction {

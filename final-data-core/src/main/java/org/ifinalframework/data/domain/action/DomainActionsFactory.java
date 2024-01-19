@@ -23,7 +23,7 @@ import java.io.Serializable;
 /**
  * DomainActionsFactory
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public interface DomainActionsFactory<K extends Serializable, T extends IEntity<K>> {

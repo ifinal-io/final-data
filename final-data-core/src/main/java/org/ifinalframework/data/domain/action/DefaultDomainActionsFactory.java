@@ -95,7 +95,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * DefaultDomainActionsFactory
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @Slf4j

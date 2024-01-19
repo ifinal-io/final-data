@@ -31,7 +31,7 @@ import org.ifinalframework.util.Asserts;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

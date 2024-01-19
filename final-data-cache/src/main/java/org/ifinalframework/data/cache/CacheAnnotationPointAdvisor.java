@@ -34,7 +34,7 @@ import org.ifinalframework.cache.annotation.Cacheable;
 import jakarta.annotation.Resource;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

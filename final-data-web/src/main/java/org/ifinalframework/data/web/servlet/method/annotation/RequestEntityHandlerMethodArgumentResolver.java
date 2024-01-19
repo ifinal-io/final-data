@@ -58,7 +58,7 @@ import lombok.Setter;
 /**
  * RequestDomainBodyHandlerMethodArgumentResolver
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @Configuration

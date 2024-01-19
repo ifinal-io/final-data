@@ -56,7 +56,7 @@ import java.util.stream.Stream;
 /**
  * DefaultResultMapFactory.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.2.2
  * @since 1.2.2
  */

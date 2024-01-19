@@ -24,7 +24,7 @@ import java.lang.annotation.Annotation;
 /**
  * JavaFileGenerator.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.1
  * @since 1.4.1
  */

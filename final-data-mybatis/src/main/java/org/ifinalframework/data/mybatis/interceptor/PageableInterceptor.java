@@ -39,7 +39,7 @@ import java.util.Map;
  * <li>参数列表中有一个参数实现了 {@link Pageable} 接口</li>
  * </ul>
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see Pageable
  * @since 1.0.0

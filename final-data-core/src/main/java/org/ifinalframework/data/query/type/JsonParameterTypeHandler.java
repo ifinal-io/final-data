@@ -30,7 +30,7 @@ import java.sql.SQLException;
 /**
  * Converter the parameter to a {@code json} String.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see org.ifinalframework.data.annotation.Json
  * @see java.util.Collection

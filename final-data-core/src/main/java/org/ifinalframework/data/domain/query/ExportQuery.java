@@ -18,7 +18,7 @@ package org.ifinalframework.data.domain.query;
 /**
  * ExportQuery
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public interface ExportQuery {

@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * FinalObjectWrapperFactory.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.3.3
  * @see MetaObject
  * @since 1.3.3

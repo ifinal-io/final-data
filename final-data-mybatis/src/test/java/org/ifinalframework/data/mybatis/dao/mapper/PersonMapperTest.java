@@ -41,7 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * PersonMapperTest.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.3.1
  * @since 1.3.1
  */

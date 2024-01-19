@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * DefaultUpdateSortFunction
  *
- * @author mik
+ * @author iimik
  * @since 1.5.4
  **/
 @RequiredArgsConstructor

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * CameHump2UnderlineNameConverterTest.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.2
  * @since 1.4.2
  */

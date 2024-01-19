@@ -25,7 +25,7 @@ import lombok.Getter;
 /**
  * DomainActions
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @Getter

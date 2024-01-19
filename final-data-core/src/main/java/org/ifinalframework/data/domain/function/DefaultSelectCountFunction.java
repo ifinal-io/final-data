@@ -31,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * DefaultSelectCountFunction
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @RequiredArgsConstructor

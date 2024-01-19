@@ -26,7 +26,7 @@ import java.util.Objects;
 /**
  * DefaultUpdateAuditStatusPreValidator
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public class DefaultUpdateAuditStatusPreValidator<U extends IUser<?>> implements BiValidator.ForEach<IAudit<U>, AuditValue, U> {

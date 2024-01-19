@@ -44,7 +44,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
  * @since 1.0.0

@@ -28,7 +28,7 @@ import org.ifinalframework.data.repository.Repository;
 import java.util.Optional;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see AbsMapper
  * @since 1.0.0

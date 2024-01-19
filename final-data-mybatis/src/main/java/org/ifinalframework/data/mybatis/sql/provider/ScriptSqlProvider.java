@@ -23,7 +23,7 @@ import org.apache.ibatis.builder.annotation.ProviderSqlSource;
 import java.util.Map;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see ProviderSqlSource
  * @since 1.0.0

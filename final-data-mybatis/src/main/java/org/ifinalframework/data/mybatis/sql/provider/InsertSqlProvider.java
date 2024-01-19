@@ -38,7 +38,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see AbsMapper#insert(String, Class, boolean, Collection)
  * @see AbsMapper#replace(String, Class, Collection)

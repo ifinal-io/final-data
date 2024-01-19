@@ -26,7 +26,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see AbsMapper#select(String, Class, Collection, IQuery)
  * @see AbsMapper#selectOne(String, Class, Serializable, IQuery)

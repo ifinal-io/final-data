@@ -31,7 +31,7 @@ import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see Executor#query(MappedStatement, Object, RowBounds, ResultHandler)
  * @see Executor#query(MappedStatement, Object, RowBounds, ResultHandler, CacheKey, BoundSql)

@@ -36,7 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * ColumnsParameterConsumer
  *
- * @author mik
+ * @author iimik
  * @since 1.5.4
  **/
 @Slf4j

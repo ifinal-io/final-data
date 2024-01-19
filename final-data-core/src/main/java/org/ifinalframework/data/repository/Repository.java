@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
  *     <li>truncate table call with {@link #truncate(String)};</li>
  * </ul>
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

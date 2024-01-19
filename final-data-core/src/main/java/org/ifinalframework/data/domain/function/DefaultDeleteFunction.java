@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * DefaultDeleteFunction.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.1
  * @since 1.5.1
  */

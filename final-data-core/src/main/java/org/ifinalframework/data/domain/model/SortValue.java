@@ -25,7 +25,7 @@ import lombok.Setter;
 /**
  * SortValue
  *
- * @author mik
+ * @author iimik
  * @since 1.5.5
  **/
 @Setter

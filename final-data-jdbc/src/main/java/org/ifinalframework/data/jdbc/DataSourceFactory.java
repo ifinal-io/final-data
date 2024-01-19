@@ -26,7 +26,7 @@ import java.sql.SQLException;
 /**
  * DataSourceFactory.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.3.1
  * @since 1.3.1
  */

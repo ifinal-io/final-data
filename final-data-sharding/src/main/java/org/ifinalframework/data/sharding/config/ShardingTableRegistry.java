@@ -24,7 +24,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see ShardingTable
  * @since 1.0.0

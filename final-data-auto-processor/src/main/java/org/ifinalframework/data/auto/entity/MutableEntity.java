@@ -17,7 +17,7 @@
 package org.ifinalframework.data.auto.entity;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

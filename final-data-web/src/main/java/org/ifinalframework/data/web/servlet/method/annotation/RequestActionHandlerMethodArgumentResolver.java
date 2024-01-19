@@ -34,7 +34,7 @@ import java.util.Map;
 /**
  * RequestActionHandlerMethodArgumentResolver
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @Component

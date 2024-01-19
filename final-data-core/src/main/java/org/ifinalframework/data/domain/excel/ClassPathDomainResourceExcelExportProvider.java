@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * ClassPathDomainResourceExcelExportProvider
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public class ClassPathDomainResourceExcelExportProvider implements DomainResourceExcelExportProvider {

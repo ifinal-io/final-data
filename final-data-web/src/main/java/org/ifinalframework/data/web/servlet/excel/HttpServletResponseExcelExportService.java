@@ -28,7 +28,7 @@ import java.net.URLEncoder;
 /**
  * HttpServletResponseExcelExportService
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @Component

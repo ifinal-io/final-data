@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 /**
  * Simple implementation of {@link Property}
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see AnnotationBasedPersistentProperty
  * @since 1.0.0

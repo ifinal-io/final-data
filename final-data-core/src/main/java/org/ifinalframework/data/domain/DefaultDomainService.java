@@ -41,7 +41,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * DefaultDomainService.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.3
  * @since 1.4.3
  */

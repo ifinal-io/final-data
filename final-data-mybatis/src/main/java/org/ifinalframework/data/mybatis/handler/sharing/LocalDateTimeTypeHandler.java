@@ -35,7 +35,7 @@ import java.util.Date;
 /**
  * 解决{@code Sharding-JDBC}不支持JAVA8时间问题
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

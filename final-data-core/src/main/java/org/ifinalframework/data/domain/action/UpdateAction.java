@@ -18,7 +18,7 @@ package org.ifinalframework.data.domain.action;
 /**
  * UpdateAction
  *
- * @author mik
+ * @author iimik
  * @see org.ifinalframework.data.spi.UpdateFunction
  * @since 1.5.2
  **/

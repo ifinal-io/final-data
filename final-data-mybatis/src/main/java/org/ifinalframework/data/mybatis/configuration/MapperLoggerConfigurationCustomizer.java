@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * MapperLoggerConfigurationCustomizer.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.0
  * @since 1.4.0
  */

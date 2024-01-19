@@ -24,7 +24,7 @@ import org.apache.ibatis.annotations.Mapper;
 /**
  * PersonMapper.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

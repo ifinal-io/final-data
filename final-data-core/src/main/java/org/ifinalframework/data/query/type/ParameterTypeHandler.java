@@ -25,7 +25,7 @@ import java.sql.SQLException;
 /**
  * The {@link ParameterTypeHandler} only used on {@literal WHERE} fragment.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

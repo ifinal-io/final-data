@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Type;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see Cacheable
  * @see Cache#get(Object, Object, Type, Class)

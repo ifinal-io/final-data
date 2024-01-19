@@ -47,7 +47,7 @@ import java.util.Objects;
 /**
  * DefaultUpdateDomainActionDispatcherFactory
  *
- * @author mik
+ * @author iimik
  * @since 1.5.6
  **/
 public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainActionDispatcherFactory {

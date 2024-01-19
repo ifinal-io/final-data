@@ -28,7 +28,7 @@ import lombok.Setter;
 /**
  * MyBatisDataSourceAutoConfiguration.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
  * @since 1.0.0

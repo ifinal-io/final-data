@@ -36,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 /**
  * DefaultUpdateLockedAction.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.6
  * @since 1.5.6
  */

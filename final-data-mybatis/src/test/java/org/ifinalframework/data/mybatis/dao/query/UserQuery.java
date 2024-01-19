@@ -25,7 +25,7 @@ import lombok.Setter;
 /**
  * UserNameQuery.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.2.2
  * @since 1.2.2
  */

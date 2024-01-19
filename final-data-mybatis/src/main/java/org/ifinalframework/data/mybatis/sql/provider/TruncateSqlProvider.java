@@ -26,7 +26,7 @@ import org.apache.ibatis.builder.annotation.ProviderContext;
 import java.util.Map;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see AbsMapper#truncate(String)
  * @since 1.0.0

@@ -92,7 +92,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * A sql tool for {@link AbsMapper} and {@link IQuery}.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.2.2
  * @since 1.2.2
  */

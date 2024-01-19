@@ -18,7 +18,7 @@ package org.ifinalframework.data.domain.action;
 /**
  * DeleteAction
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 public interface DeleteAction<P, U, R> extends DomainAction {

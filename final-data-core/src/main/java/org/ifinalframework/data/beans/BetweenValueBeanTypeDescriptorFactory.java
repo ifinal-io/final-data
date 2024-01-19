@@ -35,7 +35,7 @@ import lombok.SneakyThrows;
 /**
  * BetweenValueBeanTypeDescriptorFactory.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.0
  * @since 1.5.0
  */
@@ -75,7 +75,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
     /**
      * LocalDateTimeBetweenValue.
      *
-     * @author ilikly
+     * @author iimik
      * @version 1.4.2
      * @since 1.4.2
      */
@@ -149,7 +149,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
     /**
      * LongBetweenValue.
      *
-     * @author ilikly
+     * @author iimik
      * @version 1.4.2
      * @since 1.4.2
      */

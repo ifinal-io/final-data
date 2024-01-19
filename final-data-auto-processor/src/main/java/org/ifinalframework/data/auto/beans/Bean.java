@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 /**
  * start with {@link Bean#from(ProcessingEnvironment, TypeElement)}
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @since 1.0.0
  */

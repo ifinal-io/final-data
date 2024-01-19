@@ -41,7 +41,7 @@ import lombok.NonNull;
  *     <li>Declared in mapper file.</li>
  * </ul>
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see Configuration#setDefaultEnumTypeHandler(Class)
  * @see ConfigurationCustomizer

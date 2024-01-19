@@ -18,7 +18,7 @@ package org.ifinalframework.data.domain;
 /**
  * BiDomainActionDispatcher.
  *
- * @author mik
+ * @author iimik
  * @version 1.5.2
  * @see DomainActionDispatcher
  * @since 1.5.2

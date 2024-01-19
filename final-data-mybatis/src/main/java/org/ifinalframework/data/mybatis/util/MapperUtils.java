@@ -22,7 +22,7 @@ import lombok.experimental.UtilityClass;
 /**
  * MapperUtils.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.0
  * @since 1.4.0
  */

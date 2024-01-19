@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 /**
  * TableUtils.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.3
  * @since 1.4.3
  */

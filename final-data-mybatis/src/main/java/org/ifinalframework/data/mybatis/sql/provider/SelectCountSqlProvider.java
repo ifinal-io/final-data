@@ -25,7 +25,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see AbsMapper#selectCount(String, Collection, IQuery)
  * @since 1.0.0

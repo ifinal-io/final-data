@@ -26,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * DomainNameHelperTest.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.0
  * @since 1.5.0
  */

@@ -38,7 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * DomainServiceHandlerMethodArgumentResolver.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.5.1
  * @see DomainService
  * @since 1.5.1

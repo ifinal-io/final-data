@@ -36,7 +36,7 @@ import java.util.Map;
  *  &lt;/sql&gt;
  * </pre>
  *
- * @author ilikly
+ * @author iimik
  * @version 1.0.0
  * @see AbsMapper#delete(String, Collection, IQuery)
  * @since 1.0.0

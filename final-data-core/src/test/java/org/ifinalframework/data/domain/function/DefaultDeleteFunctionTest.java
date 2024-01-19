@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * DefaultDeleteFunctionTest
  *
- * @author mik
+ * @author iimik
  * @since 1.5.5
  **/
 @ExtendWith(MockitoExtension.class)

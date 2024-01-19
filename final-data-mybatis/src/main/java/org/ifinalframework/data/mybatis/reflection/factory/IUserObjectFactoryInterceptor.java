@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * IUserObjectFactoryInterceptor.
  *
- * @author ilikly
+ * @author iimik
  * @version 1.4.2
  * @since 1.4.2
  */

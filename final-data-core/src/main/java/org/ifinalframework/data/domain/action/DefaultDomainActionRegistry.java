@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 /**
  * DefaultDomainActionRegistry
  *
- * @author mik
+ * @author iimik
  * @since 1.5.2
  **/
 @Component
