@@ -25,13 +25,13 @@ import org.ifinalframework.data.domain.action.DeleteAction;
 import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.QueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.json.Json;
@@ -61,7 +61,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
     private final SpiAction spiAction;
     private final Repository<K, T> repository;
 
-    private PreQueryConsumer<P1, U> preQueryConsumer;
+    private QueryConsumer<P1, U> preQueryConsumer;
 
     private BiValidator<T, V, U> preUpdateValidator;
     private Consumer<T, U> preConsumer;
@@ -72,7 +72,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
     private BiConsumer<T, P1, U> postQueryConsumer;
     private Function<Integer, P1, U> postQueryFunction;
     private AfterThrowingQueryConsumer<T, P1, U> afterThrowingQueryConsumer;
-    private AfterReturningQueryConsumer<T, P1, U> afterReturningQueryConsumer;
+    private BiAfterReturningConsumer<T, P1, U> biAfterReturningConsumer;
     private AfterConsumer<T, P1, V, Integer, U> afterConsumer;
 
 
@@ -121,7 +121,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
                 preUpdateConsumer.accept(spiAction, SpiAction.Advice.PRE, list, value, user);
             }
 
-            result = doInterAction(list,property, param1, param2, value, user);
+            result = doInterAction(list, property, param1, param2, value, user);
 
             if (Objects.nonNull(postUpdateConsumer)) {
                 postUpdateConsumer.accept(spiAction, SpiAction.Advice.POST, list, value, user);
@@ -148,8 +148,8 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
             }
             throw e;
         } finally {
-            if (Objects.nonNull(afterReturningQueryConsumer)) {
-                afterReturningQueryConsumer.accept(spiAction, list, param1, user, throwable);
+            if (Objects.nonNull(biAfterReturningConsumer)) {
+                biAfterReturningConsumer.accept(spiAction, list, param1, user, throwable);
             }
             if (Objects.nonNull(afterConsumer)) {
                 afterConsumer.accept(spiAction, list, param1, value, result, user, throwable);

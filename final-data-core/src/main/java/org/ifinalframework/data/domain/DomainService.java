@@ -26,7 +26,7 @@ import org.ifinalframework.core.IUser;
 import org.ifinalframework.data.annotation.YN;
 import org.ifinalframework.data.domain.model.AuditValue;
 import org.ifinalframework.data.domain.model.SortValue;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Filter;
 
@@ -34,7 +34,6 @@ import jakarta.validation.Valid;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * DomainService.
@@ -75,9 +74,9 @@ public interface DomainService<K extends Serializable, T extends IEntity<K>, U e
      * @param user  the current user.
      * @return entity list of matches query.
      * @see org.ifinalframework.core.IView.List
-     * @see org.ifinalframework.data.spi.PreQueryConsumer
+     * @see org.ifinalframework.data.spi.QueryConsumer
      * @see org.ifinalframework.data.spi.BiConsumer
-     * @see AfterReturningQueryConsumer
+     * @see BiAfterReturningConsumer
      * @see org.ifinalframework.data.spi.Function
      * @see org.ifinalframework.data.spi.AfterThrowingConsumer
      * @see org.ifinalframework.data.spi.AfterReturningConsumer
@@ -89,7 +88,7 @@ public interface DomainService<K extends Serializable, T extends IEntity<K>, U e
      * @param user  the current user.
      * @return the detail entity of matches detail query.
      * @see org.ifinalframework.core.IView.Detail
-     * @see org.ifinalframework.data.spi.PreQueryConsumer
+     * @see org.ifinalframework.data.spi.QueryConsumer
      * @see org.ifinalframework.data.spi.BiConsumer
      * @see org.ifinalframework.data.spi.Consumer
      */
@@ -109,7 +108,7 @@ public interface DomainService<K extends Serializable, T extends IEntity<K>, U e
      * @param user  the current user.
      * @return the count of query.
      * @see org.ifinalframework.core.IView.Count
-     * @see org.ifinalframework.data.spi.PreQueryConsumer
+     * @see org.ifinalframework.data.spi.QueryConsumer
      */
     Object count(@NonNull @Valid IQuery query, @NonNull U user);
 
@@ -118,7 +117,7 @@ public interface DomainService<K extends Serializable, T extends IEntity<K>, U e
      * @param user  the current user.
      * @return deleted rows.
      * @see org.ifinalframework.core.IView.Delete
-     * @see org.ifinalframework.data.spi.PreQueryConsumer
+     * @see org.ifinalframework.data.spi.QueryConsumer
      * @see org.ifinalframework.data.spi.Consumer
      * @see org.ifinalframework.data.spi.BiConsumer
      */

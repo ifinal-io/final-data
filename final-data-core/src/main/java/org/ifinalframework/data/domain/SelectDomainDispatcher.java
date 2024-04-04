@@ -19,12 +19,12 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.Viewable;
 import org.ifinalframework.data.domain.action.SelectAction;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.QueryConsumer;
 import org.ifinalframework.data.spi.SelectFunction;
 import org.ifinalframework.data.spi.SpiAction;
 
@@ -40,6 +40,15 @@ import lombok.Setter;
 /**
  * ListDomainAction.
  *
+ * <ol>
+ *     <li>用户通过{@code GET /users}访问后端资源</li>
+ *     <li>对用户的请求参数进行处理{@link QueryConsumer}</li>
+ *     <li>进行数据查询{@link Function}</li>
+ *     <li>对查询的数据进行<b>无差别</b>处理{@link Consumer}</li>
+ *     <li>根据请求参数对查询的数据进行<b>有条件</b>的处理{@link BiConsumer}</li>
+ *
+ * </ol>
+ *
  * @author iimik
  * @version 1.5.0
  * @since 1.5.0
@@ -50,14 +59,19 @@ public class SelectDomainDispatcher<K extends Serializable, T extends IEntity<K>
         implements DomainActionDispatcher<P, Void, U>, SelectAction<P, U, Object> {
 
     private final SpiAction spiAction;
+    /**
+     * 查询核心方法
+     */
     private final SelectFunction<P, U, R> selectFunction;
-
-    private PreQueryConsumer<P, U> preQueryConsumer;
+    /**
+     * 参数处理器
+     */
+    private QueryConsumer<P, U> preQueryConsumer;
     private Consumer<T, U> postConsumer;
     private BiConsumer<T, P, U> postQueryConsumer;
     private Function<R, P, U> postQueryFunction;
     private AfterThrowingQueryConsumer<T, P, U> afterThrowingQueryConsumer;
-    private AfterReturningQueryConsumer<T, P, U> afterReturningQueryConsumer;
+    private BiAfterReturningConsumer<T, P, U> biAfterReturningConsumer;
 
     @Override
     public Object select(P param, U user) {
@@ -101,8 +115,8 @@ public class SelectDomainDispatcher<K extends Serializable, T extends IEntity<K>
             }
             throw e;
         } finally {
-            if (Objects.nonNull(afterReturningQueryConsumer)) {
-                afterReturningQueryConsumer.accept(spiAction, list, param, user, throwable);
+            if (Objects.nonNull(biAfterReturningConsumer)) {
+                biAfterReturningConsumer.accept(spiAction, list, param, user, throwable);
             }
         }
     }

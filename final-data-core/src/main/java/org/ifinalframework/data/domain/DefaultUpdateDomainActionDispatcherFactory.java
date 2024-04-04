@@ -20,19 +20,17 @@ import org.springframework.aop.support.AopUtils;
 
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.data.domain.action.UpdateAction;
-import org.ifinalframework.data.domain.function.DefaultUpdateAuditStatusFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdateFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdatePropertyFunction;
-import org.ifinalframework.data.domain.function.DefaultUpdateSortFunction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Consumer;
 import org.ifinalframework.data.spi.Function;
-import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.QueryConsumer;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.data.spi.UpdateFunction;
@@ -65,11 +63,11 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
             if (Objects.isNull(property)) {
                 updateFunction = new DefaultUpdateFunction<>(repository);
             } else {
-                updateFunction = new DefaultUpdatePropertyFunction(property,repository);
+                updateFunction = new DefaultUpdatePropertyFunction(property, repository);
             }
         }
 
-        final List<PreQueryConsumer> preQueryConsumers = new LinkedList<>();
+        final List<QueryConsumer> preQueryConsumers = new LinkedList<>();
         final List<BiValidator> preUpdateValidator = new LinkedList<>();
         final List<Consumer> preConsumers = new LinkedList<>();
         final List<UpdateConsumer> preUpdateConsumers = new LinkedList<>();
@@ -78,7 +76,7 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
         final List<BiConsumer> postQueryConsumers = new LinkedList<>();
         final List<Function> postQueryFunctions = new LinkedList<>();
         final List<AfterThrowingQueryConsumer> afterThrowingQueryConsumers = new LinkedList<>();
-        final List<AfterReturningQueryConsumer> afterReturningQueryConsumers = new LinkedList<>();
+        final List<BiAfterReturningConsumer> biAfterReturningConsumers = new LinkedList<>();
         final List<AfterConsumer> afterConsumers = new LinkedList<>();
 
         for (UpdateProperty<T> updateProperty : updateProperties) {
@@ -89,7 +87,7 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
             final boolean isPost = simpleName.contains("Post");
 
 
-            if (updateProperty instanceof PreQueryConsumer preQueryConsumer) {
+            if (updateProperty instanceof QueryConsumer preQueryConsumer) {
                 preQueryConsumers.add(preQueryConsumer);
             } else if (updateProperty instanceof BiValidator<?, ?, ?> biValidator) {
                 if (isPre) {
@@ -117,8 +115,8 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
                 }
             } else if (updateProperty instanceof AfterThrowingQueryConsumer<?, ?, ?> afterThrowingQueryConsumer) {
                 afterThrowingQueryConsumers.add(afterThrowingQueryConsumer);
-            } else if (updateProperty instanceof AfterReturningQueryConsumer<?, ?, ?> afterReturningQueryConsumer) {
-                afterReturningQueryConsumers.add(afterReturningQueryConsumer);
+            } else if (updateProperty instanceof BiAfterReturningConsumer<?, ?, ?> biAfterReturningConsumer) {
+                biAfterReturningConsumers.add(biAfterReturningConsumer);
             } else if (updateProperty instanceof AfterConsumer<?, ?, ?, ?, ?> afterConsumer) {
                 afterConsumers.add(afterConsumer);
             }
@@ -127,7 +125,7 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
         final UpdateDomainActionDispatcher dispatcher
                 = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE, repository, updateFunction);
 
-        dispatcher.setPreQueryConsumer(CompositeProxies.composite(PreQueryConsumer.class, preQueryConsumers));
+        dispatcher.setPreQueryConsumer(CompositeProxies.composite(QueryConsumer.class, preQueryConsumers));
         dispatcher.setPreUpdateValidator(CompositeProxies.composite(BiValidator.class, preUpdateValidator));
         dispatcher.setPreConsumer(CompositeProxies.composite(Consumer.class, preConsumers));
         dispatcher.setPreUpdateConsumer(CompositeProxies.composite(UpdateConsumer.class, preUpdateConsumers));
@@ -136,7 +134,7 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
         dispatcher.setPostQueryConsumer(CompositeProxies.composite(BiConsumer.class, postQueryConsumers));
         dispatcher.setPostQueryFunction(CompositeProxies.composite(Function.class, postQueryFunctions));
         dispatcher.setAfterThrowingQueryConsumer(CompositeProxies.composite(AfterThrowingQueryConsumer.class, afterThrowingQueryConsumers));
-        dispatcher.setAfterReturningQueryConsumer(CompositeProxies.composite(AfterReturningQueryConsumer.class, afterReturningQueryConsumers));
+        dispatcher.setBiAfterReturningConsumer(CompositeProxies.composite(BiAfterReturningConsumer.class, biAfterReturningConsumers));
         dispatcher.setAfterConsumer(CompositeProxies.composite(AfterConsumer.class, afterConsumers));
 
         return dispatcher;

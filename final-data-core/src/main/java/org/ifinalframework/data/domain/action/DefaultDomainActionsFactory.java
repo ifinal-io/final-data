@@ -27,10 +27,7 @@ import org.springframework.util.MultiValueMap;
 import org.ifinalframework.core.IAudit;
 import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IEnum;
-import org.ifinalframework.core.ILock;
 import org.ifinalframework.core.IQuery;
-import org.ifinalframework.core.ISort;
-import org.ifinalframework.core.IStatus;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.IView;
 import org.ifinalframework.data.annotation.DomainResource;
@@ -61,7 +58,7 @@ import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
-import org.ifinalframework.data.spi.AfterReturningQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
 import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
@@ -72,7 +69,7 @@ import org.ifinalframework.data.spi.DeleteFunction;
 import org.ifinalframework.data.spi.Filter;
 import org.ifinalframework.data.spi.Function;
 import org.ifinalframework.data.spi.PreInsertFunction;
-import org.ifinalframework.data.spi.PreQueryConsumer;
+import org.ifinalframework.data.spi.QueryConsumer;
 import org.ifinalframework.data.spi.SelectFunction;
 import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.data.spi.UpdateConsumer;
@@ -466,7 +463,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         detailSelectActionByQuery.setView(IView.Count.class);
         detailSelectActionByQuery.setDomainQueryClass(countQueryClass);
         detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.PRE,
-                PreQueryConsumer.class, countQueryClass, userClass));
+                QueryConsumer.class, countQueryClass, userClass));
         detailSelectActionByQuery.setPostConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.POST,
                 Consumer.class, entityClass, userClass));
         detailSelectActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.COUNT, SpiAction.Advice.POST,
@@ -521,7 +518,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         detailSelectActionByQuery.setView(IView.Detail.class);
         detailSelectActionByQuery.setDomainQueryClass(detailQueryClass);
         detailSelectActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.PRE,
-                PreQueryConsumer.class, detailQueryClass, userClass));
+                QueryConsumer.class, detailQueryClass, userClass));
         detailSelectActionByQuery.setPostConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST,
                 Consumer.class, entityClass, userClass));
         detailSelectActionByQuery.setPostQueryConsumer(getSpiComposite(SpiAction.DETAIL, SpiAction.Advice.POST,
@@ -557,13 +554,13 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         listQueryDomainAction.setView(IView.List.class);
         listQueryDomainAction.setDomainQueryClass(listQueryClass);
         listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.PRE,
-                PreQueryConsumer.class, listQueryClass, userClass));
+                QueryConsumer.class, listQueryClass, userClass));
         listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.POST,
                 BiConsumer.class, entityClass, listQueryClass, userClass));
         listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_THROWING,
                 AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_RETURNING,
-                AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setBiAfterReturningConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_RETURNING,
+                BiAfterReturningConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
         applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
                 ResolvableType.forClassWithGenerics(List.class, entityClass),
@@ -595,13 +592,13 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         listQueryDomainAction.setView(IView.List.class);
         listQueryDomainAction.setDomainQueryClass(listQueryClass);
         listQueryDomainAction.setPreQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.PRE,
-                PreQueryConsumer.class, listQueryClass, userClass));
+                QueryConsumer.class, listQueryClass, userClass));
         listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST,
                 BiConsumer.class, entityClass, listQueryClass, userClass));
         listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING,
                 AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterReturningQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING,
-                AfterReturningQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setBiAfterReturningConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING,
+                BiAfterReturningConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
         applicationContext.getBeanProvider(ResolvableType.forClassWithGenerics(Function.class,
                 ResolvableType.forClassWithGenerics(List.class, entityClass),
@@ -655,7 +652,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         deleteActionByQuery.setView(IView.Delete.class);
         deleteActionByQuery.setDomainQueryClass(deleteQueryClass);
         deleteActionByQuery.setPreQueryConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE,
-                PreQueryConsumer.class, deleteQueryClass, userClass));
+                QueryConsumer.class, deleteQueryClass, userClass));
         deleteActionByQuery.setPreConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.PRE,
                 Consumer.class, entityClass, userClass));
         deleteActionByQuery.setPostConsumer(getSpiComposite(SpiAction.DELETE, SpiAction.Advice.POST,
