@@ -25,7 +25,7 @@ import org.ifinalframework.data.domain.action.DeleteAction;
 import org.ifinalframework.data.domain.action.UpdateAction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterThrowingConsumer;
 import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.BiValidator;
@@ -71,7 +71,7 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
 
     private BiConsumer<T, P1, U> postQueryConsumer;
     private Function<Integer, P1, U> postQueryFunction;
-    private AfterThrowingQueryConsumer<T, P1, U> afterThrowingQueryConsumer;
+    private BiAfterThrowingConsumer<T, P1, U> biAfterThrowingConsumer;
     private BiAfterReturningConsumer<T, P1, U> biAfterReturningConsumer;
     private AfterConsumer<T, P1, V, Integer, U> afterConsumer;
 
@@ -143,8 +143,8 @@ public abstract class AbsUpdateDeleteDomainActionDispatcher<K extends Serializab
             return result;
         } catch (Exception e) {
             throwable = e;
-            if (Objects.nonNull(afterThrowingQueryConsumer)) {
-                afterThrowingQueryConsumer.accept(spiAction, list, param1, user, e);
+            if (Objects.nonNull(biAfterThrowingConsumer)) {
+                biAfterThrowingConsumer.accept(spiAction, list, param1, user, e);
             }
             throw e;
         } finally {

@@ -24,7 +24,7 @@ import org.ifinalframework.data.domain.function.DefaultUpdateFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdatePropertyFunction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterThrowingConsumer;
 import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.BiValidator;
@@ -75,7 +75,7 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
         final List<Consumer> postConsumers = new LinkedList<>();
         final List<BiConsumer> postQueryConsumers = new LinkedList<>();
         final List<Function> postQueryFunctions = new LinkedList<>();
-        final List<AfterThrowingQueryConsumer> afterThrowingQueryConsumers = new LinkedList<>();
+        final List<BiAfterThrowingConsumer> biAfterThrowingConsumers = new LinkedList<>();
         final List<BiAfterReturningConsumer> biAfterReturningConsumers = new LinkedList<>();
         final List<AfterConsumer> afterConsumers = new LinkedList<>();
 
@@ -113,8 +113,8 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
                 if (isPost) {
                     postQueryFunctions.add(function);
                 }
-            } else if (updateProperty instanceof AfterThrowingQueryConsumer<?, ?, ?> afterThrowingQueryConsumer) {
-                afterThrowingQueryConsumers.add(afterThrowingQueryConsumer);
+            } else if (updateProperty instanceof BiAfterThrowingConsumer<?, ?, ?> biAfterThrowingConsumer) {
+                biAfterThrowingConsumers.add(biAfterThrowingConsumer);
             } else if (updateProperty instanceof BiAfterReturningConsumer<?, ?, ?> biAfterReturningConsumer) {
                 biAfterReturningConsumers.add(biAfterReturningConsumer);
             } else if (updateProperty instanceof AfterConsumer<?, ?, ?, ?, ?> afterConsumer) {
@@ -133,7 +133,7 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
         dispatcher.setPostConsumer(CompositeProxies.composite(Consumer.class, postConsumers));
         dispatcher.setPostQueryConsumer(CompositeProxies.composite(BiConsumer.class, postQueryConsumers));
         dispatcher.setPostQueryFunction(CompositeProxies.composite(Function.class, postQueryFunctions));
-        dispatcher.setAfterThrowingQueryConsumer(CompositeProxies.composite(AfterThrowingQueryConsumer.class, afterThrowingQueryConsumers));
+        dispatcher.setBiAfterThrowingConsumer(CompositeProxies.composite(BiAfterThrowingConsumer.class, biAfterThrowingConsumers));
         dispatcher.setBiAfterReturningConsumer(CompositeProxies.composite(BiAfterReturningConsumer.class, biAfterReturningConsumers));
         dispatcher.setAfterConsumer(CompositeProxies.composite(AfterConsumer.class, afterConsumers));
 

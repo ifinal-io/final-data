@@ -19,7 +19,7 @@ import org.ifinalframework.core.IEntity;
 import org.ifinalframework.core.IUser;
 import org.ifinalframework.core.Viewable;
 import org.ifinalframework.data.domain.action.SelectAction;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterThrowingConsumer;
 import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.Consumer;
@@ -70,7 +70,7 @@ public class SelectDomainDispatcher<K extends Serializable, T extends IEntity<K>
     private Consumer<T, U> postConsumer;
     private BiConsumer<T, P, U> postQueryConsumer;
     private Function<R, P, U> postQueryFunction;
-    private AfterThrowingQueryConsumer<T, P, U> afterThrowingQueryConsumer;
+    private BiAfterThrowingConsumer<T, P, U> biAfterThrowingConsumer;
     private BiAfterReturningConsumer<T, P, U> biAfterReturningConsumer;
 
     @Override
@@ -110,8 +110,8 @@ public class SelectDomainDispatcher<K extends Serializable, T extends IEntity<K>
             return result;
         } catch (Exception e) {
             throwable = e;
-            if (Objects.nonNull(afterThrowingQueryConsumer)) {
-                afterThrowingQueryConsumer.accept(spiAction, list, param, user, e);
+            if (Objects.nonNull(biAfterThrowingConsumer)) {
+                biAfterThrowingConsumer.accept(spiAction, list, param, user, e);
             }
             throw e;
         } finally {

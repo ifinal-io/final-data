@@ -60,7 +60,7 @@ import org.ifinalframework.data.spi.AfterConsumer;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
 import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
-import org.ifinalframework.data.spi.AfterThrowingQueryConsumer;
+import org.ifinalframework.data.spi.BiAfterThrowingConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Consumer;
@@ -557,8 +557,8 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                 QueryConsumer.class, listQueryClass, userClass));
         listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.POST,
                 BiConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_THROWING,
-                AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setBiAfterThrowingConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_THROWING,
+                BiAfterThrowingConsumer.class, entityClass, listQueryClass, userClass));
         listQueryDomainAction.setBiAfterReturningConsumer(getSpiComposite(SpiAction.EXPORT, SpiAction.Advice.AFTER_RETURNING,
                 BiAfterReturningConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
@@ -595,8 +595,8 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
                 QueryConsumer.class, listQueryClass, userClass));
         listQueryDomainAction.setPostQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.POST,
                 BiConsumer.class, entityClass, listQueryClass, userClass));
-        listQueryDomainAction.setAfterThrowingQueryConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING,
-                AfterThrowingQueryConsumer.class, entityClass, listQueryClass, userClass));
+        listQueryDomainAction.setBiAfterThrowingConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_THROWING,
+                BiAfterThrowingConsumer.class, entityClass, listQueryClass, userClass));
         listQueryDomainAction.setBiAfterReturningConsumer(getSpiComposite(SpiAction.LIST, SpiAction.Advice.AFTER_RETURNING,
                 BiAfterReturningConsumer.class, entityClass, listQueryClass, userClass));
         // PostQueryFunction<List<T>,IQuery,IUser>
