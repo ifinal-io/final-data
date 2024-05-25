@@ -31,7 +31,7 @@ import org.ifinalframework.data.domain.action.DomainActions;
 import org.ifinalframework.data.domain.action.DomainActionsFactory;
 import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
 import org.ifinalframework.data.service.AbsService;
-import org.ifinalframework.util.CompositeProxies;
+import org.ifinalframework.util.Proxies;
 
 import jakarta.annotation.Resource;
 
@@ -65,7 +65,7 @@ public class DomainActionAndServiceRegistrySmartInitializing implements Applicat
         Class<?> userClass = ClassUtils.resolveClassName(userClassName, getClass().getClassLoader());
 
         final DomainActionsFactory domainActionsFactory = new DefaultDomainActionsFactory(userClass, applicationContext,
-                CompositeProxies.composite(LoggerAfterConsumer.class, loggerAfterConsumers));
+                Proxies.composite(LoggerAfterConsumer.class, loggerAfterConsumers));
 
         applicationContext.getBeanProvider(AbsService.class).stream()
                 .forEach(service -> {

@@ -58,8 +58,8 @@ import org.ifinalframework.data.domain.spi.LoggerAfterConsumer;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
 import org.ifinalframework.data.spi.AfterReturningConsumer;
-import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.AfterThrowingConsumer;
+import org.ifinalframework.data.spi.BiAfterReturningConsumer;
 import org.ifinalframework.data.spi.BiAfterThrowingConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.BiValidator;
@@ -76,7 +76,8 @@ import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.data.spi.UpdateFunction;
 import org.ifinalframework.data.spi.UpdateProperty;
 import org.ifinalframework.data.spi.exception.UpdatePropertyNotMatchedException;
-import org.ifinalframework.util.CompositeProxies;
+import org.ifinalframework.util.JdkCompositeProxyFactory;
+import org.ifinalframework.util.Proxies;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -252,46 +253,46 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
         }
 
 
-//        // update
-//        final UpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
-//                = buildUpdateActionById(repository, entityClass, idClass);
-//        domainActionMap.put(SpiAction.Type.UPDATE_BY_ID, updateByIdDomainAction);
-//
-//        // update yn
-//
-//        final UpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
-//                = buildUpdateYnActionById(repository, entityClass, idClass);
-//        domainActionMap.put(SpiAction.Type.UPDATE_YN_BY_ID, updateYnActionById);
-//
-//
-//        // update status
-//        if (IStatus.class.isAssignableFrom(entityClass)) {
-//            final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
-//
-//            final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, IEnum<?>, U> updateStatusActionById
-//                    = buildUpdateStatusActionById(repository, entityClass, idClass, statusClass);
-//            domainActionMap.put(SpiAction.Type.UPDATE_STATUS_BY_ID, updateStatusActionById);
-//        }
-//        // update locked
-//        if (ILock.class.isAssignableFrom(entityClass)) {
-//
-//            final UpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
-//                    = buildUpdateLockedActionById(repository, entityClass, idClass);
-//            domainActionMap.put(SpiAction.Type.UPDATE_LOCKED_BY_ID, updateLockedActionById);
-//        }
-//
-//        if (IAudit.class.isAssignableFrom(entityClass)) {
-//            final UpdateDomainActionDispatcher<K, T, K, IAudit.AuditStatus, AuditValue, U> updateAuditStatusActionById
-//                    = buildUpdateAuditStatusActionById(repository, entityClass, idClass);
-//            domainActionMap.put(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
-//        }
-//
-//        // sort
-//        if (ISort.class.isAssignableFrom(entityClass)) {
-//            final UpdateDomainActionDispatcher<K, T, Void, Void, List<SortValue<K>>, U> updateSortAction
-//                    = buildUpdateSortAction(repository, entityClass, idClass);
-//            domainActionMap.put(SpiAction.Type.SORT, updateSortAction);
-//        }
+        //        // update
+        //        final UpdateDomainActionDispatcher<K, T, K, Boolean, T, U> updateByIdDomainAction
+        //                = buildUpdateActionById(repository, entityClass, idClass);
+        //        domainActionMap.put(SpiAction.Type.UPDATE_BY_ID, updateByIdDomainAction);
+        //
+        //        // update yn
+        //
+        //        final UpdateDomainActionDispatcher<K, T, K, YN, YN, U> updateYnActionById
+        //                = buildUpdateYnActionById(repository, entityClass, idClass);
+        //        domainActionMap.put(SpiAction.Type.UPDATE_YN_BY_ID, updateYnActionById);
+        //
+        //
+        //        // update status
+        //        if (IStatus.class.isAssignableFrom(entityClass)) {
+        //            final Class<?> statusClass = ResolvableType.forClass(entityClass).as(IStatus.class).resolveGeneric();
+        //
+        //            final UpdateDomainActionDispatcher<K, T, K, IEnum<?>, IEnum<?>, U> updateStatusActionById
+        //                    = buildUpdateStatusActionById(repository, entityClass, idClass, statusClass);
+        //            domainActionMap.put(SpiAction.Type.UPDATE_STATUS_BY_ID, updateStatusActionById);
+        //        }
+        //        // update locked
+        //        if (ILock.class.isAssignableFrom(entityClass)) {
+        //
+        //            final UpdateDomainActionDispatcher<K, T, K, Boolean, Boolean, U> updateLockedActionById
+        //                    = buildUpdateLockedActionById(repository, entityClass, idClass);
+        //            domainActionMap.put(SpiAction.Type.UPDATE_LOCKED_BY_ID, updateLockedActionById);
+        //        }
+        //
+        //        if (IAudit.class.isAssignableFrom(entityClass)) {
+        //            final UpdateDomainActionDispatcher<K, T, K, IAudit.AuditStatus, AuditValue, U> updateAuditStatusActionById
+        //                    = buildUpdateAuditStatusActionById(repository, entityClass, idClass);
+        //            domainActionMap.put(SpiAction.Type.UPDATE_AUDIT_STATUS_BY_ID, updateAuditStatusActionById);
+        //        }
+        //
+        //        // sort
+        //        if (ISort.class.isAssignableFrom(entityClass)) {
+        //            final UpdateDomainActionDispatcher<K, T, Void, Void, List<SortValue<K>>, U> updateSortAction
+        //                    = buildUpdateSortAction(repository, entityClass, idClass);
+        //            domainActionMap.put(SpiAction.Type.SORT, updateSortAction);
+        //        }
 
 
         builder.domainActions(domainActionMap);
@@ -749,7 +750,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
             beans.add(loggerAfterConsumer);
         }
 
-        return (E) CompositeProxies.composite(type, beans);
+        return (E) Proxies.composite(type, beans);
     }
 
     private <E> E getSpiComposite(SpiAction action, SpiAction.Advice advice, Class<E> type, ResolvableType... generics) {
@@ -767,7 +768,7 @@ public class DefaultDomainActionsFactory<K extends Serializable, T extends IEnti
             beans.add(loggerAfterConsumer);
         }
 
-        return (E) CompositeProxies.composite(type, beans);
+        return (E) Proxies.composite(type, beans);
     }
 
     private List getBeansOf(SpiAction action, SpiAction.Advice advice, Class<?> type, ResolvableType... generics) {

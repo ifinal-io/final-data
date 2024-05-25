@@ -24,8 +24,8 @@ import org.ifinalframework.data.domain.function.DefaultUpdateFunction;
 import org.ifinalframework.data.domain.function.DefaultUpdatePropertyFunction;
 import org.ifinalframework.data.repository.Repository;
 import org.ifinalframework.data.spi.AfterConsumer;
-import org.ifinalframework.data.spi.BiAfterThrowingConsumer;
 import org.ifinalframework.data.spi.BiAfterReturningConsumer;
+import org.ifinalframework.data.spi.BiAfterThrowingConsumer;
 import org.ifinalframework.data.spi.BiConsumer;
 import org.ifinalframework.data.spi.BiValidator;
 import org.ifinalframework.data.spi.Consumer;
@@ -35,7 +35,7 @@ import org.ifinalframework.data.spi.SpiAction;
 import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.data.spi.UpdateFunction;
 import org.ifinalframework.data.spi.UpdateProperty;
-import org.ifinalframework.util.CompositeProxies;
+import org.ifinalframework.util.Proxies;
 
 import java.io.Serializable;
 import java.util.LinkedList;
@@ -125,17 +125,17 @@ public class DefaultUpdateDomainActionDispatcherFactory implements UpdateDomainA
         final UpdateDomainActionDispatcher dispatcher
                 = new UpdateDomainActionDispatcher<>(SpiAction.UPDATE, repository, updateFunction);
 
-        dispatcher.setPreQueryConsumer(CompositeProxies.composite(QueryConsumer.class, preQueryConsumers));
-        dispatcher.setPreUpdateValidator(CompositeProxies.composite(BiValidator.class, preUpdateValidator));
-        dispatcher.setPreConsumer(CompositeProxies.composite(Consumer.class, preConsumers));
-        dispatcher.setPreUpdateConsumer(CompositeProxies.composite(UpdateConsumer.class, preUpdateConsumers));
-        dispatcher.setPostUpdateConsumer(CompositeProxies.composite(UpdateConsumer.class, postUpdateConsumers));
-        dispatcher.setPostConsumer(CompositeProxies.composite(Consumer.class, postConsumers));
-        dispatcher.setPostQueryConsumer(CompositeProxies.composite(BiConsumer.class, postQueryConsumers));
-        dispatcher.setPostQueryFunction(CompositeProxies.composite(Function.class, postQueryFunctions));
-        dispatcher.setBiAfterThrowingConsumer(CompositeProxies.composite(BiAfterThrowingConsumer.class, biAfterThrowingConsumers));
-        dispatcher.setBiAfterReturningConsumer(CompositeProxies.composite(BiAfterReturningConsumer.class, biAfterReturningConsumers));
-        dispatcher.setAfterConsumer(CompositeProxies.composite(AfterConsumer.class, afterConsumers));
+        dispatcher.setPreQueryConsumer(Proxies.composite(QueryConsumer.class, preQueryConsumers));
+        dispatcher.setPreUpdateValidator(Proxies.composite(BiValidator.class, preUpdateValidator));
+        dispatcher.setPreConsumer(Proxies.composite(Consumer.class, preConsumers));
+        dispatcher.setPreUpdateConsumer(Proxies.composite(UpdateConsumer.class, preUpdateConsumers));
+        dispatcher.setPostUpdateConsumer(Proxies.composite(UpdateConsumer.class, postUpdateConsumers));
+        dispatcher.setPostConsumer(Proxies.composite(Consumer.class, postConsumers));
+        dispatcher.setPostQueryConsumer(Proxies.composite(BiConsumer.class, postQueryConsumers));
+        dispatcher.setPostQueryFunction(Proxies.composite(Function.class, postQueryFunctions));
+        dispatcher.setBiAfterThrowingConsumer(Proxies.composite(BiAfterThrowingConsumer.class, biAfterThrowingConsumers));
+        dispatcher.setBiAfterReturningConsumer(Proxies.composite(BiAfterReturningConsumer.class, biAfterReturningConsumers));
+        dispatcher.setAfterConsumer(Proxies.composite(AfterConsumer.class, afterConsumers));
 
         return dispatcher;
     }
