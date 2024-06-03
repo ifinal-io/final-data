@@ -24,7 +24,7 @@ import javax.sql.DataSource;
 import java.sql.SQLException;
 
 /**
- * DataSourceFactory.
+ * 数据源工厂.
  *
  * @author iimik
  * @version 1.3.1
