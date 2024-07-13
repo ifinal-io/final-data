@@ -101,7 +101,7 @@ public class DomainResourceDispatchController {
     private ExcelExportService excelExportService;
 
     /**
-     * list query
+     * 列表查询
      */
     @GetMapping
     @DomainResourceAuth(action = SpiAction.LIST)
@@ -181,7 +181,7 @@ public class DomainResourceDispatchController {
 
 
     /**
-     * detail query
+     * 详情
      */
     @GetMapping("/detail")
     @DomainResourceAuth(action = SpiAction.DETAIL)
@@ -202,7 +202,7 @@ public class DomainResourceDispatchController {
     }
 
     /**
-     * detail
+     * 详情
      */
     @GetMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DETAIL)
@@ -215,7 +215,7 @@ public class DomainResourceDispatchController {
     // delete
 
     /**
-     * delete query
+     * 批量删除
      */
     @DeleteMapping
     @DomainResourceAuth(action = SpiAction.DELETE)
@@ -234,7 +234,7 @@ public class DomainResourceDispatchController {
     }
 
     /**
-     * delete
+     * 单个删除
      */
     @DeleteMapping("/{id}")
     @DomainResourceAuth(action = SpiAction.DELETE)
@@ -246,7 +246,7 @@ public class DomainResourceDispatchController {
 
 
     /**
-     * create
+     * 创建
      */
     @PostMapping
     @Validated({IView.Create.class})
@@ -267,6 +267,15 @@ public class DomainResourceDispatchController {
         }
     }
 
+    /**
+     * 更新（覆盖）
+     * @param resource
+     * @param id
+     * @param requestEntity
+     * @param updateAction
+     * @param user
+     * @return
+     */
     @PutMapping("/{id}")
     @Validated(IView.Update.class)
     @DomainResourceAuth(action = SpiAction.UPDATE)
@@ -292,6 +301,15 @@ public class DomainResourceDispatchController {
 
     }
 
+    /**
+     * 更新（有选择地）
+     * @param resource
+     * @param id
+     * @param requestEntity
+     * @param updateAction
+     * @param user
+     * @return
+     */
     @PatchMapping("/{id}")
     @Validated(IView.Patch.class)
     @DomainResourceAuth(action = SpiAction.UPDATE)
@@ -315,6 +333,16 @@ public class DomainResourceDispatchController {
         }
     }
 
+    /**
+     * 修改状态
+     * @param resource
+     * @param id
+     * @param status
+     * @param updateAction
+     * @param user
+     * @param domainService
+     * @return
+     */
     // status
     @PatchMapping("/{id}/status")
     @DomainResourceAuth(action = SpiAction.UPDATE_STATUS)
@@ -348,7 +376,7 @@ public class DomainResourceDispatchController {
     }
 
     /**
-     * Audit status
+     * 审核
      *
      * @param resource
      * @param id           the id of audit entity.
@@ -372,6 +400,15 @@ public class DomainResourceDispatchController {
         return processResult(updateAction.update(id, null, auditValue, user));
     }
 
+    /**
+     * 取消
+     * @param resource
+     * @param id
+     * @param content
+     * @param updateAction
+     * @param user
+     * @return
+     */
     @PatchMapping("/{id}/cancel")
     @DomainResourceAuth(action = SpiAction.UPDATE_AUDIT_STATUS)
     public Object cancel(@PathVariable String resource, @PathVariable Long id, @RequestParam String content,
@@ -388,6 +425,17 @@ public class DomainResourceDispatchController {
 
 
     // lock
+
+    /**
+     * 锁定
+     * @see org.ifinalframework.core.ILock
+     * @param resource
+     * @param id
+     * @param updateAction
+     * @param user
+     * @return
+     * @see #unlock(String, Long, UpdateAction, IUser)
+     */
     @PatchMapping("/{id}/lock")
     @DomainResourceAuth(action = SpiAction.UPDATE_LOCKED)
     public Object lock(@PathVariable String resource, @PathVariable Long id,
@@ -396,6 +444,15 @@ public class DomainResourceDispatchController {
         return processResult(updateAction.update("locked", id, false, true, user));
     }
 
+    /**
+     * 解锁
+     * @param resource
+     * @param id
+     * @param updateAction
+     * @param user
+     * @return
+     * @see #lock(String, Long, UpdateAction, IUser)
+     */
     @PatchMapping("/{id}/unlock")
     @DomainResourceAuth(action = SpiAction.UPDATE_LOCKED)
     public Object unlock(@PathVariable String resource, @PathVariable Long id,
