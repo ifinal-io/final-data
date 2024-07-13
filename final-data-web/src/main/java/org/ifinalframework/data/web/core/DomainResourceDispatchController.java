@@ -81,7 +81,51 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * ResourceDomainController.
+ * 领域资源标识派发控制器.
+ *
+ * <h4>支持的操作</h4>
+ * <table>
+ *     <thead>
+ *         <tr>
+ *             <td>URL</td>
+ *             <td>Method</td>
+ *             <td>Query</td>
+ *             <td>描述</td>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td>{@code GET /{prefix}/{resource}}</td>
+ *             <td>{@link #query(String, IQuery, SelectAction, IUser)}</td>
+ *             <td>{@code {Entity}ListQuery }</td>
+ *             <td>列表查询</td>
+ *         </tr>
+ *         <tr>
+ *             <td>{@code GET /{prefix}/{resource}/detail}</td>
+ *             <td>{@link #detail(String, IQuery, SelectAction, IUser)}</td>
+ *             <td>{@code {Entity}DetailQuery }</td>
+ *             <td>列表详情查询</td>
+ *         </tr>
+ *         <tr>
+ *             <td>{@code GET /{prefix}/{resource}/{id}}</td>
+ *             <td>{@link #detail(String, Long, SelectAction, IUser)}</td>
+ *             <td></td>
+ *             <td>ID详情查询</td>
+ *         </tr>
+ *         <tr>
+ *             <td>{@code DELETE /{prefix}/{resource}}</td>
+ *             <td>{@link #delete(String, IQuery, DeleteAction, IUser)}</td>
+ *             <td>{@code {Entity}DeleteQuery }</td>
+ *             <td>批量删除</td>
+ *         </tr>
+ *         <tr>
+ *             <td>{@code DELETE /{prefix}/{resource}/{id} }</td>
+ *             <td>{@link #delete(String, Long, DeleteAction, IUser)}</td>
+ *             <td></td>
+ *             <td>ID删除</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
  *
  * @author iimik
  * @version 1.4.2
@@ -269,6 +313,7 @@ public class DomainResourceDispatchController {
 
     /**
      * 更新（覆盖）
+     *
      * @param resource
      * @param id
      * @param requestEntity
@@ -303,6 +348,7 @@ public class DomainResourceDispatchController {
 
     /**
      * 更新（有选择地）
+     *
      * @param resource
      * @param id
      * @param requestEntity
@@ -335,6 +381,7 @@ public class DomainResourceDispatchController {
 
     /**
      * 修改状态
+     *
      * @param resource
      * @param id
      * @param status
@@ -402,6 +449,7 @@ public class DomainResourceDispatchController {
 
     /**
      * 取消
+     *
      * @param resource
      * @param id
      * @param content
@@ -428,12 +476,13 @@ public class DomainResourceDispatchController {
 
     /**
      * 锁定
-     * @see org.ifinalframework.core.ILock
+     *
      * @param resource
      * @param id
      * @param updateAction
      * @param user
      * @return
+     * @see org.ifinalframework.core.ILock
      * @see #unlock(String, Long, UpdateAction, IUser)
      */
     @PatchMapping("/{id}/lock")
@@ -446,6 +495,7 @@ public class DomainResourceDispatchController {
 
     /**
      * 解锁
+     *
      * @param resource
      * @param id
      * @param updateAction
