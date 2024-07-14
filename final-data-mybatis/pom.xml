@@ -70,6 +70,10 @@
         </dependency>
         <dependency>
             <groupId>org.ifinalframework</groupId>
+            <artifactId>final-velocity</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ifinalframework</groupId>
             <artifactId>final-json</artifactId>
         </dependency>
         <!--外部依赖-->

@@ -76,7 +76,6 @@ import org.ifinalframework.data.spi.UpdateConsumer;
 import org.ifinalframework.data.spi.UpdateFunction;
 import org.ifinalframework.data.spi.UpdateProperty;
 import org.ifinalframework.data.spi.exception.UpdatePropertyNotMatchedException;
-import org.ifinalframework.util.JdkCompositeProxyFactory;
 import org.ifinalframework.util.Proxies;
 
 import java.io.Serializable;
