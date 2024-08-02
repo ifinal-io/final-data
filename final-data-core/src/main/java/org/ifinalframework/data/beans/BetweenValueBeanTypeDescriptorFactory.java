@@ -33,7 +33,16 @@ import java.util.Objects;
 import lombok.SneakyThrows;
 
 /**
- * BetweenValueBeanTypeDescriptorFactory.
+ * {@link BetweenValue}创建工厂。
+ *
+ * <h4>支持以下类型的{@link BetweenValue}</h4>
+ * <ul>
+ *     <li>{@link LongBetweenValue}</li>
+ *     <li>{@link IntegerBetweenValue}</li>
+ *     <li>{@link DateBetweenValue}</li>
+ *     <li>{@link LocalDateBetweenValue}</li>
+ *     <li>{@link LocalDateTimeBetweenValue}</li>
+ * </ul>
  *
  * @author iimik
  * @version 1.5.0
@@ -79,6 +88,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
      * @version 1.4.2
      * @since 1.4.2
      */
+    @SuppressWarnings("all")
     private static final class LocalDateTimeBetweenValue extends BetweenValue<LocalDateTime> {
         @Override
         public void setMax(LocalDateTime max) {
@@ -101,6 +111,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
         }
     }
 
+    @SuppressWarnings("all")
     private static final class LocalDateBetweenValue extends BetweenValue<LocalDate> {
         @Override
         public void setMax(LocalDate max) {
@@ -123,6 +134,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
         }
     }
 
+    @SuppressWarnings("all")
     private static final class DateBetweenValue extends BetweenValue<Date> {
         @Override
         public void setMax(Date max) {
@@ -153,6 +165,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
      * @version 1.4.2
      * @since 1.4.2
      */
+    @SuppressWarnings("all")
     private static final class LongBetweenValue extends BetweenValue<Long> {
         @Override
         public void setMin(Long min) {
@@ -175,6 +188,7 @@ public class BetweenValueBeanTypeDescriptorFactory implements BeanTypeDescriptor
         }
     }
 
+    @SuppressWarnings("all")
     private static final class IntegerBetweenValue extends BetweenValue<Integer> {
         @Override
         public void setMin(Integer min) {
